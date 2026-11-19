@@ -14,19 +14,19 @@ class Styles(HTMLParser):
         super().__init__(convert_charrefs=False)
         self.spans = []
 
-    def offset(self):
+    def _absolute_pos(self):
         line, col = self.getpos()
         return line_offsets[line - 1] + col
 
     def handle_starttag(self, tag, attrs):
         if tag == 'style':
-            self.start = self.offset() + len(self.get_starttag_text())
+            self.start = self._absolute_pos() + len(self.get_starttag_text())
 
     def handle_endtag(self, tag):
         if tag == 'style':
             if self.start is None:
                 raise ValueError('Unexpected closing style tag')
-            self.spans.append((self.start, self.offset()))
+            self.spans.append((self.start, self._absolute_pos()))
             self.start = None
 
 parser = Styles()
