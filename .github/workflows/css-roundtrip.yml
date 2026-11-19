@@ -1,0 +1,12 @@
+name: CSS round-trip check
+on:
+  push:
+    branches: ['test/css-roundtrip']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/check_css_roundtrip.py
