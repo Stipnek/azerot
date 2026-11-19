@@ -1,0 +1,23 @@
+name: Tavern card cycle regression
+on:
+  push:
+    branches: ['work/roster-xp-and-updates']
+    paths: ['src/scripts/**', 'scripts/test_tavern_cycle.cjs', '.github/workflows/tavern-cycle.yml']
+  pull_request:
+    branches: ['main']
+    paths: ['src/scripts/**', 'scripts/test_tavern_cycle.cjs', '.github/workflows/tavern-cycle.yml']
+permissions:
+  contents: read
+jobs:
+  tavern-cycle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python3 scripts/check_source_edits.py
+      - run: node scripts/test_tavern_cycle.cjs
