@@ -1,0 +1,25 @@
+
+#az49-create-row,#az49-select-row,#az49-hero-row{display:none!important}
+#create #cr-stage{isolation:isolate;background:radial-gradient(ellipse at 50% 38%,#3b3529 0%,#201d17 54%,#11100d 100%)!important}
+#create #cr-stage>:not(.az50-slide):not(.az50-note){display:none!important}
+#create #cr-stage .az50-slide{position:absolute!important;inset:8px!important;display:block!important;width:calc(100% - 16px)!important;height:calc(100% - 16px)!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:50% 100%!important;transform:none!important;left:8px!important;bottom:auto!important;opacity:0;transition:opacity .24s ease;filter:drop-shadow(0 5px 7px #0008);pointer-events:none}
+#create #cr-stage .az50-note{position:absolute;inset:0;display:grid;place-items:center;padding:16px;text-align:center;color:#d8c9ab;font-size:13px}
+#az50-factions{display:flex;gap:8px;margin:9px 0;max-width:100%;min-width:0}
+#az50-factions button{flex:1 1 0;min-width:0;min-height:42px;padding:7px 8px;border:1px solid var(--line,#826b40);border-radius:7px;background:var(--panel,#29251c);color:var(--ink,#efe3c6);font:inherit;cursor:pointer;line-height:1.2}
+#az50-factions button small{display:block;font-size:10px;opacity:.75;margin-top:3px}
+#az50-factions button[aria-pressed=true]{border-color:var(--gold,#d5af62);box-shadow:inset 0 -2px 0 var(--gold,#d5af62)}
+#create[data-az50-faction=horde]{--bg:#180e10;--panel:#2c1b1e;--panel-2:#372126;--line:#6a4447;--frame:#95645d;--gold:#cba183;--ink:#edddcd;--muted:#bda397;background:radial-gradient(ellipse at 45% 20%,#48242c,#201216 65%,#130d0f);min-height:100vh;min-height:100dvh}
+body.az50-horde{background:#180e10!important}
+#create[data-az50-faction=horde] .cr,#create[data-az50-faction=horde] .cr-bot,#create[data-az50-faction=horde] #cr-steps,#create[data-az50-faction=horde] #cr-namebox,#create[data-az50-faction=horde] #cr-msg{display:none!important}
+#az50-horde{padding:14px;border:1px solid #755052;background:linear-gradient(155deg,#382026e6,#201518f5);border-radius:9px;color:#edddcd;margin:8px 0 16px;min-width:0}
+#az50-horde h2{font:400 26px 'Forum',Georgia,serif;margin:0 0 4px;color:#d5aa8c}
+#az50-horde p{margin:6px 0;font-size:13px;color:#c5b0a3}
+#az50-horde .az50-races{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:14px 0}
+#az50-horde button{min-width:0;min-height:64px;padding:9px 5px;font:inherit;font-size:13px;line-height:1.25;color:#ddc7b6;background:#2c1a20;border:1px solid #715055;border-radius:7px;cursor:pointer}
+#az50-horde button[aria-pressed=true]{border-color:#c8a080;background:#49282f;box-shadow:inset 0 -2px #bf8b76}
+#az50-horde button small{display:block;font-size:10px;opacity:.68;margin-top:4px}
+#az50-horde .az50-emblem{display:grid;place-content:center;text-align:center;min-height:180px;border:1px solid #644047;border-radius:8px;background:radial-gradient(ellipse,#4d2831 0%,#26151b 60%,#150f12 100%)}
+#az50-horde .az50-emblem strong{font:400 35px 'Forum',Georgia,serif;letter-spacing:.05em;color:#cfa78b}
+#az50-horde .az50-back{min-height:40px;padding:8px 14px;margin-top:12px}
+@media(max-width:480px){#az50-horde .az50-races{grid-template-columns:repeat(2,minmax(0,1fr))}#az50-horde{padding:11px}#az50-factions{gap:6px}#az50-factions button{font-size:13px}}
+@media(prefers-reduced-motion:reduce){#create #cr-stage .az50-slide{transition:none}}

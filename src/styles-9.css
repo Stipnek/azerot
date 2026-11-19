@@ -1,0 +1,27 @@
+
+.az-badge{--az-size:36px;display:inline-block;position:relative;width:var(--az-size);height:var(--az-size);flex:none;vertical-align:middle;line-height:1;font-size:12px;isolation:isolate;overflow:visible;pointer-events:none}
+.az-class-face,.az-spec-face{position:absolute;display:block;box-sizing:border-box;border-radius:50%;background:#211a12;overflow:hidden;box-shadow:0 1px 3px #000b}
+.az-class-face{inset:0;border:2px solid var(--az-class-color,#b89a5a)}
+.az-spec-face{width:48%;height:48%;right:-9%;top:-9%;border:2px solid #d8b96a;z-index:2}
+.az-icon-img{position:absolute!important;display:block;inset:0;width:100%!important;height:100%!important;object-fit:cover;border-radius:50%;max-width:none;max-height:none;transform:none!important}
+.az-icon-img[hidden]{display:none!important}
+.az-icon-fallback{position:absolute;inset:0;display:grid;place-items:center;font:700 11px/1 Georgia,serif;color:#ead7ae}
+.az-spec-face .az-icon-fallback{font-size:9px}
+.az-icon-failed{border-style:dashed}
+#select .por,#sel-all-list .por,#w-hero .hpor{border:0;background:none;overflow:visible}
+.por>.az-badge{width:100%;height:100%}
+#sel-stage .ph,#cr-stage .ph{background:none;border:0;overflow:visible}
+.ph>.az-badge{width:100%;height:100%}
+.rt .ri,.slot .si{display:block;overflow:visible;margin:3px 4px}
+.rt .ri .az-badge,.slot .si .az-badge{--az-size:34px}
+.pt-model{overflow:visible}.pt-model>.az-badge{--az-size:64px}
+#w-hero .hpor .az-badge{width:100%;height:100%}
+.tv-ico{padding:5px}.tv-ico .az-badge{--az-size:56px}
+.tok.hero:not(.pet) .tc>.az-badge{width:100%;height:100%}
+.tok.hero:not(.pet) .tc{overflow:visible;border-color:transparent;background:none}
+.tok.hero:not(.pet) .tc>.crown{left:-6%;right:auto;top:-12%;z-index:3}
+.chip>.az-badge{width:100%;height:100%}
+.wico>span:has(>.az-badge){display:block;width:100%;height:100%}.wico .az-badge{width:100%;height:100%}
+.me>.az-badge{width:100%;height:100%}.me{background:none;border-color:transparent;overflow:visible}
+.sp .az-badge{--az-size:24px;margin:2px 7px 2px 0}.sp{overflow:visible}
+.ptab .az-badge,.mrow .az-badge,.mtxt .az-badge,.sect>.az-badge{--az-size:24px;margin-right:4px}

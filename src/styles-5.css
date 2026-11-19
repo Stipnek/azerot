@@ -1,0 +1,1 @@
+.ab.norage { opacity: .48; box-shadow: inset 0 0 0 2px #cb6654; } .ab.norage::after { content: "!"; position: absolute; right: 1px; bottom: 0; color: #ffd8b8; font-size: 12px; font-weight: 700; }
