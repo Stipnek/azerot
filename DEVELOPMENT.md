@@ -2,23 +2,21 @@
 
 ## Status and source of truth
 
-Development preparation currently lives on `test/css-roundtrip`. The production game has not been replaced by this work. Read current repository files before editing; do not reconstruct implementation details from chat summaries.
+PR #1 was merged into main as e29e66b6fe3f372e5e1e6e0bba089741979d08e7. The user confirmed successful post-merge CSS round-trip check #20 and Build and browser smoke test #8 from a GitHub Actions screenshot. These results are user-confirmed, not independently inspected Actions logs in this session. The preparation branch does not need to be merged again.
 
-The user confirmed that an earlier browser smoke run passed. The two-job workflow introduced in commit `8976235b40b6adcdd91c60da9408404b4c143afc` still needs its own confirmed result. Do not treat an earlier green run as proof that a later commit passed.
+The working branch is work/roster-xp-and-updates, created from that main commit. Creating the branch and recording requirements do not implement gameplay changes. Read current repository files before editing; do not reconstruct the game from old files or chat summaries.
 
-Technical documentation should be maintained in English. User-facing conversation remains Russian. The game UI remains Russian until localization is implemented.
+Technical documentation stays in English. Conversation and current game UI stay in Russian. Keep the approved lion artwork unchanged. Preserve save keys and stable internal identifiers. External writes require confirmation of their exact content; merging and publishing require separate confirmation.
 
 ## Source layout
 
-- `src/template.html`: markup and source-block order.
-- `src/styles.css`, `src/styles-N.css`: CSS blocks corresponding to CSS_BLOCK_N markers.
-- `src/scripts/script-NN.txt`: script-block contents corresponding to SCRIPT_SOURCE_NN markers. Some blocks contain JSON, not executable JavaScript; inspect the template script type before editing.
-- `src/html-assets/`, `src/css-assets/`: base64 resources. File names are SHA256 hashes of the exact b64 file bytes. Replacing a resource requires a matching new file name and marker.
-- `scripts/build_game.py`: source assembler; it does not publish the game.
+- src/template.html defines markup and source-block order.
+- src/styles.css and src/styles-N.css correspond to CSS_BLOCK_N markers.
+- src/scripts/script-NN.txt contains SCRIPT_SOURCE_NN blocks. Some blocks are JSON: inspect the template script type before editing.
+- src/html-assets/ and src/css-assets/ hold base64 resources. Names are SHA256 hashes of exact b64 file bytes; replacement requires a matching new name and marker.
+- scripts/build_game.py assembles sources but does not publish them.
 
-Keep the approved lion artwork unchanged unless the user approves a replacement. Do not rename save keys or internal identifiers as part of UI translation.
-
-## Local build and preview
+## Build and preview
 
 Run from the repository root:
 
@@ -27,38 +25,77 @@ python3 scripts/build_game.py
 python3 -m http.server 8765 --directory preview
 ```
 
-Open http://localhost:8765/ . The generated file is `preview/index.html`; the root production loader is not overwritten. A localhost preview has a different origin from the published site, so production saves do not automatically appear there. Keep a separate backup of existing saves.
+Open http://localhost:8765/ . Output is preview/index.html, not the production loader. Localhost has a different origin from production, so production saves do not automatically appear there. Back up existing saves before migration tests.
 
-## Independent CI checks
+Before integration, assembled sources matched the unchanged root game-1.txt plus game-2.txt byte for byte. That comparison was BEFORE optional patches; it does not establish equality with the final published page.
 
-1. `Frozen baseline round-trip` checks out baseline commit `03d3f537e326718b1fdd769c8679a1fe66d03e55` and uses the current assembler to verify byte-for-byte equality with that commit's `game-1.txt` plus `game-2.txt`. It protects the original source extraction and assembler compatibility; it does not require new gameplay changes to match the old game.
-2. `Current sources browser test` assembles current sources without original-byte comparison, opens them in isolated Chromium at 844x390, waits for character creation or selection, and checks for uncaught startup JavaScript errors.
+## Existing independent CI checks
 
-These checks do not yet verify combat, equipment, rewards, save migration, or English localization. Add targeted tests when changing those systems.
+1. Frozen baseline round-trip checks out 03d3f537e326718b1fdd769c8679a1fe66d03e55 and runs the current assembler against that baseline with --check-original. It protects extraction and assembler compatibility, not equality of future gameplay with the old game.
+2. Current sources browser test builds current sources, opens isolated Chromium at 844x390, waits for character creation or selection, and checks uncaught startup JavaScript errors.
 
-CI artifacts are `browser-smoke-results` (startup screenshot and JavaScript error report when the browser step is reached) and `game-preview` (built HTML after the browser test succeeds). Retention is 14 days. An empty JavaScript error list alone is not proof of success: browser installation, launch, or navigation may fail before game errors can be captured.
+These checks do not establish correct combat, rewards, equipment, save migration, progression, or localization. Add targeted tests for changed systems. Do not report proposed tests as executed.
+
+Artifacts: browser-smoke-results contains a startup screenshot and JavaScript error report when those steps are reached; game-preview contains built HTML after browser success. Retention is 14 days. An empty error list alone is not proof of a successful browser run.
 
 ## Production boundary
 
-The inspected `main` workflow `.github/workflows/pages.yml` publishes on pushes changing `.github/workflows/pages.yml`, `patches.json`, `index.html`, `game-1.txt`, or `game-2.txt`. It also supports manual dispatch. Documentation and src-only changes are not in its push path filter at the time of inspection; recheck this before any integration.
+The inspected Pages workflow publishes main changes to .github/workflows/pages.yml, patches.json, index.html, game-1.txt, or game-2.txt, and supports manual dispatch. Recheck filters before integration. Source-only or documentation-only changes do not themselves release gameplay.
 
-The production builder currently assembles root game parts and optional patches, not `src/`. Copying sources into main would therefore not, by itself, deploy source changes. The production builder also generates `version.json`; an in-game update notification/button has not been confirmed implemented.
+Production assembles the root parts, applies optional patches, hashes the final bytes, versions loader requests with that hash, and writes version.json. It does not build from src/. Preview must not be assumed equal to patched production. Do not replace production files or change deployment incidentally. Review the complete release diff and obtain separate publication approval.
 
-Do not merge the preparation branch or replace production files without reviewing the complete diff and obtaining approval. First confirm both current CI jobs, inspect any branch differences, and prepare a technical-only integration. Do not change deployment logic as an incidental documentation edit. No automatic deployment from the source assembler has been implemented.
+## Agreed experience rules: pending implementation and tests
 
-## Confirmed English localization plan
+- Each already acquired roster character receives 100% of the base quest or dungeon experience reward; rewards are not divided by roster size. Replace the old 25% reserve rate with 100%.
+- A companion who participated in combat and is below the main character's level receives 125% instead of 100%, not an additional 125%. A companion who has caught up receives 100%.
+- The main character's level cap or a quest being low-level for the main must not suppress roster rewards. Each recipient uses their own experience and level.
+- Support multiple level gains from one reward and a level cap of 60. A newly acquired character starts at level 1 with no retroactive rewards.
+- Repeatable dungeons provide post-campaign progression: builds, main-character gear, an accessory for each party character, and roster experience. No additional endless mode is required for this purpose. Inspect room, completion, and skip rewards to prevent accidental duplicate awards.
 
-An English game version is confirmed for future implementation. Preserve Russian and plan for RU/EN selection rather than deleting the Russian UI.
+Targeted tests must cover a level-60 main with a level-1 companion, reserve rewards, catch-up eligibility, multiple level gains, cap behavior, save/load compatibility, and duplicate processing. Exact handling of a reward that catches a companion up mid-award must be made explicit before implementation; do not silently choose a new rule.
 
-At localization kickoff, select the exact WoW Classic product branch, verify its latest patch, and record both the branch and patch number/date. The phrase 'latest Classic patch' is not yet a pinned reference: do not silently substitute Retail, Era, progression Classic, or a seasonal branch.
+## Ability progression and talents: design gate
 
-Use official English names from that pinned reference for existing WoW entities. Translate original game content separately and do not present it as official Blizzard text. Keep localization text separate from stable game identifiers and save keys. Localization must not silently change mechanics to match another WoW branch.
+Target approximately six main abilities per class/specialization, excluding passives, unlocked gradually over 60 levels. A complete set by level 50 is allowed but no exact schedule is approved. The first location must not require playing throughout with only one ability. Companions unlock abilities by their own level.
 
-## Next work
+Before changing progression, audit actual character sets, effects, resources, AI priorities, auto-attacks/basic healing, dependencies, specialization changes, and save paths. Present proposed sets and unlock order for approval. Ability definitions alone do not prove runtime availability or correctness.
 
-1. Confirm both CI jobs for the latest preparation commit.
-2. Review a technical-only integration into main without changing the published game or deployment behavior.
-3. Inspect the existing equipment, inventory, and save code before implementing the agreed hero-screen improvements.
-4. Add targeted equipment and save tests, then review any eventual gameplay release separately.
+The eight current named legendary characters are the starting roster for personal seventh abilities. Their personal ability unlocks at their own level 60 and belongs to the named character, not merely orange card quality. Lore-based effects suggested in conversation are proposals, not approved final mechanics.
 
-The assistant does not monitor Actions or player progress in the background. If available connectors cannot read an Actions log, pasted error text is sufficient; large HTML attachments are not required for routine changes. External writes require confirmation.
+The hero journal/overview must show ability icon slots, including greyed-out locked abilities with their unlock level and readable descriptions. Locked abilities cannot be used.
+
+Talents become available from level 10. Free allocation across trees is the preferred direction; do not confuse the current specialization selector with an implemented talent tree. How talents alter ability sets, hybrid builds, roles, and druid directions still requires separate design agreement. Do not implement automatic full-kit replacement based on majority talent points without agreement.
+
+## Agreed interface fixes: pending implementation
+
+- Restore the tavern notification dot when summoning stones cover a summon.
+- Follow drawn roads and avoid obstacles; inspect the central Duskwood mountain crossing.
+- Smooth card flips, with Hearthstone as a motion reference.
+- Show equipment acquisition in a separate 2-3 second notification with a timer; clicking opens inventory.
+- Group tavern, merchant, and catalog under one button left of Hero, expanding upward to free quest-panel space.
+- Remove the unapproved Show first companion map button.
+- Restore hold interaction for party statistics and remove the added separate button.
+
+No unrelated interface changes are authorized.
+
+## Agreed soft update behavior: pending implementation
+
+Check version.json on startup, on return to the tab, and periodically. Notify the player when a newer build is available. Do not force a reload or interrupt combat, summoning, reward delivery, or other unfinished actions.
+
+The player chooses to update at a safe point. Persist progress successfully before reloading; on save failure, do not reload and show an error. Offline/version-check failures must not block current play. Verify existing-save compatibility before release. The existence of version.json does not prove an in-game updater is implemented.
+
+## Confirmed future English localization
+
+Preserve Russian and plan RU/EN selection. At kickoff, select the exact WoW Classic product branch, verify its latest patch, and record branch and patch number/date. Do not silently substitute Retail, Era, progression Classic, or seasonal versions.
+
+Use official English names from that pinned reference for existing WoW entities. Translate original game content separately without presenting it as Blizzard text. Keep localization separate from save keys and mechanics.
+
+## Execution order and reporting
+
+1. Read the complete current reward implementation and its callers; resolve connector truncation without asking the user to supply large game files.
+2. Prepare the roster experience fix and targeted tests, then report actual results and limitations.
+3. Implement soft updates and agreed interface fixes in reviewable packages.
+4. Complete ability and legendary-skill proposals; obtain design approval before progression changes.
+5. Review integration and eventual gameplay publication separately.
+
+The assistant does not work or monitor Actions in the background between turns. Report file changes, executed tests, confirmed CI results, and pending work distinctly.
