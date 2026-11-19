@@ -1229,7 +1229,7 @@ const SPR = {};
       const id = newGid();
       t.coll[id] = { cls: cls, n: nm, sp: sp, br: rar, r: rar, k: 1, race: pickRace(cls, nm), t: Date.now() };
       S.specs[id] = sp;
-      S.hero.hxp[id] = S.hero.hxp.me || 0; /* новичок приходит на уровне мейна */
+      S.hero.hxp[id] = 0; /* Новый спутник начинает с 1-го уровня. */
       o.id = id; o.kind = 'new';
       if (S.party.length < LIMIT) { S.party.push(id); o.joined = true; }
       o.msg = o.joined ? 'Новый герой вступил в отряд.' : 'Новый герой в коллекции. Отряд полон: замени кого-нибудь во вкладке «Отряд».';
@@ -2250,7 +2250,7 @@ function renderCreate() {
   function v57Hire(){
     if(tavBusy){tavBusy.skip();return;}if(!v571CanFree())return;
     const c=S.hero,cls=c.cls==='warrior'?'priest':'warrior',sp=cls==='priest'?'holy':'prot',id=newGid(),tv=tavOf(),br=1,s0=tv.st;
-    const g=tv.coll[id]={cls,n:az54HeroName(cls,sp,br),sp,br,r:br,k:1,race:pickRace(cls,''),t:Date.now()};c.v57recruit=id;c.hxp[id]=c.hxp.me||0;S.specs[id]=sp;
+    const g=tv.coll[id]={cls,n:az54HeroName(cls,sp,br),sp,br,r:br,k:1,race:pickRace(cls,''),t:Date.now()};c.v57recruit=id;c.hxp[id]=0;S.specs[id]=sp;
     if(c.v57onboarding){setQ('tutorial57_hire',3);setQ('tutorial57_party',1);S.qsel='tutorial57_party';S.qopen=false;}save();renderHead();
     const o={free:true,rar:br,cls,sp,nm:g.n,kind:'new',msg:'Первый спутник получен бесплатно. Добавь его в отряд через пустой слот.',k0:0,r0:br,k1:1,r1:br,gain:0,id,joined:false};tavReveal(o,s0,tv);if(S.tab==='party')renderPrep();
   }
@@ -2271,7 +2271,7 @@ function renderCreate() {
   function v571TavControls(){
     document.getElementById('v57-free-hire')?.remove();let note=document.getElementById('v571-first-note');if(!note){note=document.createElement('p');note.id='v571-first-note';note.className='hint';document.querySelector('#tavsheet .tav-top').after(note);}
     note.textContent=v571CanFree()?'Первый призыв бесплатный. Нажми кнопку — карта откроется с обычной анимацией.':S.hero?.v57recruit?'Первый спутник уже получен. Он доступен в каталоге и в подборе через слот.':'';note.hidden=!note.textContent;
-    let replay=document.getElementById('v571-replay-first');if(!replay){replay=document.createElement('button');replay.id='v571-replay-first';replay.type='button';replay.className='btn';replay.textContent='Показать карту первого спутника';replay.onclick=v571ReplayFirst;note.after(replay);}replay.hidden=!(S.hero?.v57recruit&&S.hero.tav?.coll?.[S.hero.v57recruit]);
+    document.getElementById('v571-replay-first')?.remove();
   }
   function v571CatalogEntries(){const a=[];for(const cls of Object.keys(AZ54_POOL))for(const sp of Object.keys(AZ54_POOL[cls]))for(let br=0;br<4;br++)a.push({id:cls+':'+sp+':'+br,cls,sp,br,n:AZ54_POOL[cls][sp][br],chance:RAR[br].w/Object.keys(B.CLASSES).length/Object.keys(B.CLASSES[cls].specs).length});for(const l of AZ54_LEG)a.push({id:l.cls+':'+l.sp+':4',cls:l.cls,sp:l.sp,br:4,n:l.n,chance:RAR[4].w/AZ54_LEG.length});return a;}
   function v571Owned(entry){const coll=S.hero?.tav?.coll||{};return Object.keys(coll).find(k=>coll[k].cls===entry.cls&&coll[k].sp===entry.sp&&coll[k].br===entry.br)||null;}
