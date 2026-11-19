@@ -1,0 +1,35 @@
+name: Party picker and quest UI regression
+on:
+  push:
+    branches: ['work/roster-xp-and-updates']
+    paths: ['src/**', 'scripts/**', '.github/workflows/party-quest-ui.yml']
+  pull_request:
+    branches: ['main']
+    paths: ['src/**', 'scripts/**', '.github/workflows/party-quest-ui.yml']
+permissions:
+  contents: read
+jobs:
+  party-quest-ui:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 scripts/check_source_edits.py
+      - run: python3 scripts/build_game.py
+      - run: python -m pip install playwright==1.56.0
+      - run: python -m playwright install --with-deps chromium
+      - run: python3 scripts/test_party_quest_ui.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: party-quest-ui-results
+          path: results/party-quest-ui/
+          retention-days: 14
