@@ -1,0 +1,36 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Starter world-drop pilot: actual Classic IDs, armor and level requirements; working Russian names, local schematic SVGs, adapted prices and 2% per eligible killed enemy capped at one item per won battle. Enemies level 2-10 only. No summon stones, original item art, skipped-run drops or quest choice UI in this patch.",
+  "edits": [
+    {
+      "name": "append two common cloth world-drop items to persistent catalogue",
+      "old": "price:0,color:'#1eff00'}];",
+      "new": "price:0,color:'#1eff00'},{id:1433,slot:'chest',label:'Грудь',name:'Лоскутная броня',englishName:'Patchwork Armor',armorFlat:13,requiredLevel:2,price:8,color:'#9d9d9d',worldDrop:true,dropMin:2,dropMax:10,source:'https://classicdb.ch/?item=1433',iconPath:'M9 4 4 8l3 8 4-2v13h10V14l4 2 3-8-5-4-4 4h-6z'},{id:1427,slot:'feet',label:'Ступни',name:'Лоскутные ботинки',englishName:'Patchwork Shoes',armorFlat:12,requiredLevel:5,price:6,color:'#9d9d9d',worldDrop:true,dropMin:5,dropMax:10,source:'https://classicdb.ch/?item=1427',iconPath:'M8 4h11v13l7 4v6H5v-8h3z'}];"
+    },
+    {
+      "name": "eligible drop roll and once-per-battle item receipt",
+      "old": "  function creditBattleCoins(state) {",
+      "new": "  const worldDropReceipts = new WeakMap();\n  function rollWorldDrop(state, heroLevel, random) {\n    random = random || Math.random;\n    if (!state || state.test || state.result !== 'win' || /^tutorial/.test(state.encounter || '')) return null;\n    const encounter = B.ENCOUNTERS[state.encounter];\n    if (!encounter || !Array.isArray(encounter.enemies) || !Array.isArray(state.enemies)) return null;\n    const level = Number(encounter.level);\n    if (!Number.isFinite(level) || level < 2 || level > 10) return null;\n    const pool = gearItems.filter(function (item) { return item.worldDrop && level >= item.dropMin && level <= item.dropMax && heroLevel >= item.requiredLevel; });\n    if (!pool.length) return null;\n    const remaining = new Map();\n    encounter.enemies.forEach(function (key) { if (typeof key === 'string' && !/dummy|training/i.test(key)) remaining.set(key, (remaining.get(key) || 0) + 1); });\n    let killed = 0;\n    state.enemies.forEach(function (enemy) { if (enemy.hp <= 0 && (remaining.get(enemy.key) || 0) > 0) { killed++; remaining.set(enemy.key, remaining.get(enemy.key) - 1); } });\n    if (!killed) return null;\n    const chance = 1 - Math.pow(0.98, killed), roll = random();\n    if (!Number.isFinite(roll) || roll < 0 || roll >= chance) return null;\n    const pick = random();\n    return Number.isFinite(pick) && pick >= 0 && pick < 1 ? pool[Math.floor(pick * pool.length)] : null;\n  }\n  function creditWorldDrop(state) {\n    if (!state || state.test || state.result !== 'win' || !S.hero) return null;\n    if (worldDropReceipts.has(state)) return worldDropReceipts.get(state);\n    const receipt = { item: null, saved: true, failed: false };\n    worldDropReceipts.set(state, receipt);\n    const item = rollWorldDrop(state, hLevel('me'));\n    if (!item) return receipt;\n    if (!addInventoryItem(S.hero, item.id, 1)) { receipt.failed = true; return receipt; }\n    receipt.item = item;\n    try { receipt.saved = save() === true; } catch (_) { receipt.saved = false; }\n    return receipt;\n  }\n  function worldDropHtml(receipt) {\n    if (!receipt) return '';\n    if (receipt.failed) return '<p role=\"alert\">Не удалось добавить выпавший предмет в сумку.</p>';\n    if (!receipt.item) return '';\n    const item = receipt.item;\n    return '<section class=\"box\" aria-label=\"Предметная добыча\"><h3>Предметная добыча</h3><div style=\"display:flex;gap:8px;align-items:center\"><span style=\"display:inline-block;border:2px solid #9d9d9d;padding:4px\"><svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" aria-hidden=\"true\"><path d=\"' + esc(item.iconPath) + '\" fill=\"currentColor\" stroke=\"#c9ab79\"/></svg></span><span>' + esc(item.name) + ' ×1<br><small>' + esc(item.label) + ' · Броня +' + item.armorFlat + ' · Требуется ' + item.requiredLevel + ' ур.</small></span></div><p>Добавлено в сумку. Не надето автоматически.</p>' + (receipt.saved ? '' : '<p role=\"alert\">Не удалось сохранить добычу. Не закрывайте вкладку до успешного сохранения.</p>') + '</section>';\n  }\n  function creditBattleCoins(state) {"
+    },
+    {
+      "name": "award world drop after a completed live battle",
+      "old": "    const battleCoins = creditBattleCoins(st);",
+      "new": "    const battleCoins = creditBattleCoins(st);\n    const worldDrop = creditWorldDrop(st);"
+    },
+    {
+      "name": "show actual item receipt beside battle coin receipt",
+      "old": "      battleCoinsHtml(battleCoins) +",
+      "new": "      battleCoinsHtml(battleCoins) + worldDropHtml(worldDrop) +"
+    },
+    {
+      "name": "use embedded schematic slot art for new bag items",
+      "old": "'+icons[i.id]+'",
+      "new": "'+(i.iconPath||icons[i.id]||icons[57001])+'"
+    },
+    {
+      "name": "respect world-drop item level requirements on equip",
+      "old": "    detail.append(document.createElement('br'),gearButton(on?'Снять':'Надеть',()=>{if(!h.items?.[selected.id])return;if(on)delete h.gear[selected.slot];else(h.gear||={})[selected.slot]=selected.id;save();renderHero();}));",
+      "new": "    const required=selected.requiredLevel||0;\n    if(required)detail.append(document.createElement('br'),'Требуется уровень '+required);\n    const action=gearButton(on?'Снять':'Надеть',()=>{if(S.hero!==h||!h.items?.[selected.id]||(!on&&hLevel('me')<required))return;if(on)delete h.gear[selected.slot];else(h.gear||={})[selected.slot]=selected.id;save();renderHero();});\n    action.disabled=!on&&hLevel('me')<required;\n    detail.append(document.createElement('br'),action);"
+    }
+  ]
+}
