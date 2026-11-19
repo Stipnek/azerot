@@ -1,6 +1,6 @@
 {
   "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
-  "description": "Explicit checked build-time edits to the monolithic UI. These do not modify production game parts. Initial coin tuning reuses the existing ambush per-enemy scale; world drops, stones, quest choices and skipped runs are not implemented here.",
+  "description": "Checked UI build edits: battle coins and existing quest-item receipts. World drops, coin images, choice rewards and skipped-run coins remain pending.",
   "edits": [
     {
       "name": "battle coin receipt helpers",
@@ -16,6 +16,26 @@
       "name": "show receipt next to victory statistics",
       "old": "      (ambTxt ? '<p class=\"hint\">' + esc(ambTxt) + '</p>' : '')",
       "new": "      battleCoinsHtml(battleCoins) +\n      (ambTxt ? '<p class=\"hint\">' + esc(ambTxt) + '</p>' : '')"
+    },
+    {
+      "name": "quest item receipt renderer",
+      "old": "  function turnIn(k) {",
+      "new": "  function questItemReceipt(before, after) {\n    return gearItems.map(function (item) {\n      const count = Math.max(0, (+after[item.id] || 0) - (+before[item.id] || 0));\n      return Number.isSafeInteger(count) && count > 0 ? { item: item, count: count } : null;\n    }).filter(Boolean);\n  }\n  function questItemReceiptHtml(receipt) {\n    if (!receipt.length) return '';\n    return '<div class=\"box\" aria-label=\"Полученные предметы\"><b>Получено в сумку</b><ul>' + receipt.map(function (entry) {\n      const item = entry.item, stats = [];\n      if (item.armorFlat) stats.push('Броня +' + item.armorFlat);\n      if (item.stamina) stats.push('Выносливость +' + item.stamina);\n      if (item.intellect) stats.push('Интеллект +' + item.intellect);\n      return '<li>' + esc(item.name) + ' ×' + entry.count + '<br><small>' + esc([item.label].concat(stats).filter(Boolean).join(' · ')) + '</small></li>';\n    }).join('') + '</ul></div>';\n  }\n  function turnIn(k) {"
+    },
+    {
+      "name": "require completed quest and snapshot items before granting",
+      "old": "    const q56=QUESTS[qIdx(k)];if(!q56)return;if(q56.v56&&(qState(k)!==2||!questGoalsDone(q56)))return;",
+      "new": "    const q56=QUESTS[qIdx(k)];if(!q56||qState(k)!==2)return;if(q56.v56&&!questGoalsDone(q56))return;\n    const questItemsBefore = Object.assign({}, S.hero.items || {});"
+    },
+    {
+      "name": "capture actual granted items and save result",
+      "old": "    syncLevel(); save();\n    const vis = QUESTS.filter(function (q, i) { return qVisible(i); });",
+      "new": "    const questItemsReceived = questItemReceipt(questItemsBefore, S.hero.items || {});\n    syncLevel(); const questRewardSaved = save() === true;\n    const vis = QUESTS.filter(function (q, i) { return qVisible(i); });"
+    },
+    {
+      "name": "append granted item receipt to existing quest toast",
+      "old": "    tvToast('✔ Квест сдан<br>+' + r.main + ' опыта · +' + moneyTxt(cu) + (e.res ? '<br>Ресурсы +' + e.res : '') + (stR ? '<br>💎 +' + stR + ' камней призыва' : '') + (r.mainUp ? '<br>Новый уровень: ' + r.mainUp : '') + (tv && stR && stBefore < PULL_COST && tv.st >= PULL_COST ? '<br>Хватает на призыв героя: загляни в таверну 🍺' : ''), 4200);",
+      "new": "    tvToast('✔ Квест сдан<br>+' + r.main + ' опыта · +' + moneyHtml(cu) + (e.res ? '<br>Ресурсы +' + e.res : '') + (stR ? '<br>💎 +' + stR + ' камней призыва' : '') + questItemReceiptHtml(questItemsReceived) + (r.mainUp ? '<br>Новый уровень: ' + r.mainUp : '') + (tv && stR && stBefore < PULL_COST && tv.st >= PULL_COST ? '<br>Хватает на призыв героя: загляни в таверну 🍺' : '') + (questRewardSaved ? '' : '<br>Не удалось сохранить награду. Не закрывайте вкладку до успешного сохранения.'), questItemsReceived.length || !questRewardSaved ? 6500 : 4200);"
     }
   ]
 }

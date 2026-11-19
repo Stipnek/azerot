@@ -1,4 +1,4 @@
-name: Battle coin reward tests
+name: Battle and quest reward tests
 on:
   push:
     branches: ['work/roster-xp-and-updates']
@@ -20,4 +20,5 @@ jobs:
         with:
           node-version: '22'
       - run: node scripts/test_battle_coins.cjs
+      - run: node scripts/test_quest_receipts.cjs
       - run: python3 scripts/build_game.py
