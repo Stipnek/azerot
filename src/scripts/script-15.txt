@@ -1,0 +1,18 @@
+(()=>{'use strict';const $=id=>document.getElementById(id),root=document.documentElement;
+function nav(){const b=document.querySelector('.bnav');if(!b)return;const r=b.getBoundingClientRect();root.style.setProperty('--az54-nav',(r.height&&r.top>innerHeight/2?Math.ceil(r.height):0)+'px');}
+if(window.ResizeObserver){const b=document.querySelector('.bnav');if(b)new ResizeObserver(nav).observe(b);}addEventListener('resize',nav);nav();
+const vv=window.visualViewport;let typing=false;function view(){if(!vv)return;const yes=typing&&vv.scale<=1.02&&vv.height<innerHeight-60;root.classList.toggle('az54-keyboard',yes);if(yes){root.style.setProperty('--az54-vh',Math.round(vv.height)+'px');root.style.setProperty('--az54-vtop',Math.round(vv.offsetTop)+'px');}}
+document.addEventListener('focusin',e=>{if(e.target.id==='cr-name'){typing=true;$('create').classList.add('az54-typing');view();}});
+document.addEventListener('focusout',e=>{if(e.target.id==='cr-name')setTimeout(()=>{if(document.activeElement!==$('cr-name')){typing=false;$('create').classList.remove('az54-typing');view();}},100);});if(vv)vv.addEventListener('resize',view);
+let hold=null,suppress=0;function clear(){if(hold){hold.c.classList.remove('az54-shake');hold=null;}}
+function pull(){const b=$('tav-pull');if(b&&!b.disabled){b.click();return;}const t=$('tav-result');if(t&&!t.querySelector('.az54-notice')){const n=document.createElement('p');n.className='az54-notice';n.setAttribute('role','status');n.textContent='Не хватает камней призыва. Нужно 50.';t.append(n);setTimeout(()=>n.remove(),2200);}}
+document.addEventListener('pointerdown',e=>{const c=e.target.closest&&e.target.closest('.tav-ready-card');if(!c||e.isPrimary===false||(e.pointerType==='mouse'&&e.button!==0))return;hold={c,x:e.clientX,y:e.clientY};c.classList.add('az54-shake');});
+document.addEventListener('pointermove',e=>{if(hold&&Math.hypot(e.clientX-hold.x,e.clientY-hold.y)>12){suppress=performance.now()+500;clear();}});
+document.addEventListener('pointerup',e=>{if(!hold)return;const ok=hold.c.contains(e.target);clear();suppress=performance.now()+500;if(ok)pull();});
+document.addEventListener('pointercancel',()=>{suppress=performance.now()+500;clear();});
+document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('.tav-ready-card');if(c){e.preventDefault();if(performance.now()>suppress)pull();}},true);
+document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.tav-ready-card'))e.preventDefault();});
+document.addEventListener('keydown',e=>{if(e.target.closest&&e.target.closest('.tav-ready-card')&&(e.key==='Enter'||e.key===' ')){e.preventDefault();pull();}});
+function cards(){document.querySelectorAll('#tavsheet .tav-ready-card:not([data-az54])').forEach(c=>{c.dataset.az54='1';c.tabIndex=0;c.setAttribute('role','button');c.setAttribute('aria-label','Призвать героя за 50 камней');});}
+if($('tavsheet'))new MutationObserver(cards).observe($('tavsheet'),{childList:true,subtree:true});cards();
+})();

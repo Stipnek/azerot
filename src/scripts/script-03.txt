@@ -1,0 +1,45 @@
+
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),clamp=v=>Math.max(0,Math.min(1,v));
+const cfg={enabled:true,master:1,musicEnabled:true,music:.3,sfx:1,forceNight:false};
+try{const old=JSON.parse(localStorage.getItem('azeroth-ab-audio-v2')||'{}');for(const k of ['enabled','musicEnabled','forceNight'])if(typeof old[k]==='boolean')cfg[k]=old[k];for(const k of ['master','music','sfx'])if(Number.isFinite(old[k]))cfg[k]=clamp(old[k]);}catch(_){}
+let effects=true;try{effects=JSON.parse(localStorage.getItem('azeroth-ab-setup-v5')||'{}').sound!==false;}catch(_){}
+$('chk-snd').checked=effects;
+const names=['Legends of Azeroth','DayForest01','DayForest02','DayForest03','DayPlains01','DayPlains02','NightPlains01','NightPlains02'];
+const zoneNames={menu:'Выбор персонажа',entry:'Вход в мир',elwynn:'Элвиннский лес',redridge:'Красногорье',westfall:'Западный край',duskwood:'Сумеречный лес',stormwind:'Штормград',wetlands_route:'Болотина'};
+let mode='menu',index=0,unlocked=false,entering=false,entryTimer=0,ctx=null,entryBus=null;
+const buses=new Map();
+const records=names.map((name,i)=>({a:$('az-a'+i),gain:0,frame:0,pending:false,token:0}));
+const clockNight=()=>{const h=new Date().getHours();return h<6||h>=18;};
+const isNight=()=>cfg.forceNight||clockNight();
+const playlist=()=>mode==='menu'?[0]:mode==='stormwind'?[1,2,3]:mode==='wetlands_route'?[6,7]:mode==='duskwood'?[6,7]:mode==='elwynn'||mode==='redridge'?[1,2,3]:mode==='westfall'?(isNight()?[6,7]:[4,5]):[];
+const current=()=>playlist()[index]??null;
+let lastPlaylist=playlist().join(',');
+const allowed=()=>unlocked&&cfg.enabled&&cfg.musicEnabled&&!document.hidden;
+const musicVolume=()=>cfg.enabled&&cfg.musicEnabled?cfg.master*cfg.music:0;
+const effectVolume=()=>cfg.enabled&&effects?cfg.master*cfg.sfx:0;
+function save(){try{localStorage.setItem('azeroth-ab-audio-v2',JSON.stringify(cfg));}catch(_){}}
+function levels(){records.forEach(r=>r.a.volume=clamp(r.gain*musicVolume()));buses.forEach(b=>b.gain.value=effectVolume());if(entryBus)entryBus.gain.value=effectVolume();}
+function fade(r,to,ms){cancelAnimationFrame(r.frame);const from=r.gain,start=performance.now();function tick(){const p=ms?clamp((performance.now()-start)/ms):1;r.gain=from+(to-from)*p;r.a.volume=clamp(r.gain*musicVolume());if(p<1)r.frame=requestAnimationFrame(tick);else if(to===0)r.a.pause();}tick();}
+function render(){for(const k of ['enabled','musicEnabled'])$('az-'+k).checked=cfg[k];$('az-force-night').checked=cfg.forceNight;for(const k of ['master','music','sfx']){$('az-'+k).value=Math.round(cfg[k]*100);$('az-'+k+'-value').textContent=Math.round(cfg[k]*100)+'%';}
+const now=new Date(),time=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+$('az-time-status').textContent=(cfg.forceNight?'Тест: принудительно ночь':'Авто: '+(clockNight()?'ночь':'день'))+' · время устройства '+time;
+const key=current();let text=(zoneNames[mode]||mode)+(key===null?'':' · '+names[key]);if(!cfg.enabled)text+=' · звук выключен';else if(!cfg.musicEnabled)text+=' · музыка выключена';else if(!unlocked)text+=' · начнётся после первого нажатия';$('az-status').textContent=text;
+$('az-fallback').textContent=isNight()&&(mode==='elwynn'||mode==='redridge')?'Ночные треки леса ещё не загружены — пока играет дневная музыка.':'';}
+function sync(ms=900){const w=allowed()?current():null;records.forEach((r,i)=>{if(i===w){if(r.a.paused&&!r.pending){r.pending=true;const token=++r.token;fade(r,0,0);Promise.resolve(r.a.play()).then(()=>{r.pending=false;if(token!==r.token||!allowed()||current()!==i){fade(r,0,0);return;}fade(r,1,ms);render();}).catch(()=>{r.pending=false;});}else if(!r.a.paused)fade(r,1,ms);}else{r.token++;if(!r.a.paused||r.gain)fade(r,0,allowed()?ms:0);}});levels();render();}
+function checkClock(){const next=playlist().join(',');if(next!==lastPlaylist){lastPlaylist=next;index=0;sync(1200);}else render();}
+function world(z){z=z||'elwynn';if(mode===z&&!entering){checkClock();return;}mode=z;entering=false;index=0;lastPlaylist=playlist().join(',');sync(1000);}
+function menu(){clearTimeout(entryTimer);entering=false;$('az-entry').hidden=true;if(mode!=='menu'){mode='menu';index=0;lastPlaylist='0';sync(900);}else render();}
+function entryEffect(){if(!effectVolume())return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!ctx){ctx=new AC();entryBus=ctx.createGain();entryBus.connect(ctx.destination);}if(ctx.state==='suspended')ctx.resume().catch(()=>{});entryBus.gain.value=effectVolume();const t=ctx.currentTime+.01;[[130,0,.9,.18,45],[260,0,.4,.07,90],[440,.08,1.1,.05,440],[660,.12,1.15,.035,660],[880,.16,.9,.02,880]].forEach(([f,at,len,vol,end])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(f,t+at);o.frequency.exponentialRampToValueAtTime(end,t+at+len);g.gain.setValueAtTime(.0001,t+at);g.gain.exponentialRampToValueAtTime(vol,t+at+.015);g.gain.exponentialRampToValueAtTime(.0001,t+at+len);o.connect(g);g.connect(entryBus);o.start(t+at);o.stop(t+at+len+.02);o.onended=()=>{o.disconnect();g.disconnect();};});}catch(_){}}
+function enter(z,done){if(entering)return;unlocked=true;entering=true;mode='entry';index=0;lastPlaylist='';$('az-entry-zone').textContent=zoneNames[z]||z;$('az-entry').hidden=false;sync(1200);entryEffect();entryTimer=setTimeout(()=>{$('az-entry').hidden=true;try{done();}finally{if(entering)world(z);}},1500);}
+window.AzerothAudio=Object.freeze({menu,world,enter,isEntering:()=>entering,effectsOutput(c){if(!buses.has(c)){const b=c.createGain();b.gain.value=effectVolume();b.connect(c.destination);buses.set(c,b);}return buses.get(c);}});
+for(const k of ['enabled','musicEnabled'])$('az-'+k).addEventListener('change',function(){cfg[k]=this.checked;unlocked=true;save();sync(200);});
+for(const k of ['master','music','sfx'])$('az-'+k).addEventListener('input',function(){cfg[k]=clamp(Number(this.value)/100);save();levels();render();});
+$('az-force-night').addEventListener('change',function(){cfg.forceNight=this.checked;save();checkClock();});
+$('chk-snd').addEventListener('change',function(){effects=this.checked;levels();render();});
+function unlock(e){if(e.type==='keydown'&&(e.ctrlKey||e.metaKey||e.altKey||['Tab','Escape','Shift','Control','Meta','Alt'].includes(e.key)))return;if(e.target.closest&&e.target.closest('#az-settings'))return;const first=!unlocked;unlocked=true;if(ctx&&ctx.state==='suspended')ctx.resume().catch(()=>{});checkClock();const w=current();if(first||(w!==null&&records[w].a.paused))sync(500);}
+document.addEventListener('pointerdown',unlock,{passive:true});document.addEventListener('keydown',unlock);
+document.addEventListener('visibilitychange',()=>{checkClock();sync(document.hidden?0:650);});window.addEventListener('focus',checkClock);window.addEventListener('pagehide',()=>records.forEach(r=>fade(r,0,0)));window.addEventListener('pageshow',()=>{checkClock();if(unlocked)sync(500);});setInterval(checkClock,10000);
+records.forEach((r,i)=>r.a.addEventListener('ended',()=>{checkClock();if(current()!==i)return;const list=playlist();index=(index+1)%list.length;try{records[current()].a.currentTime=0;}catch(_){}sync(800);}));levels();render();
+})();

@@ -1,0 +1,1 @@
+window.__az52UIAssets=JSON.parse(document.getElementById('az52-ui-assets').textContent);
