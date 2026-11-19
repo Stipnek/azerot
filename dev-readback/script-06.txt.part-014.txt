@@ -1,0 +1,105 @@
+newGid() { return 'g' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36); }
+  function tavPull() {
+    if (tavBusy) { tavBusy.skip(); return; }
+    if(v571CanFree()){v57Hire();return;}
+    const t = tavOf(); if (!t || t.st < PULL_COST) return;
+    const s0 = t.st;
+    t.st -= PULL_COST;
+    renderHead();
+    let roll = Math.random() * 100, rar = 0, acc = 0;
+    for (let i = 0; i < RAR.length; i++) { acc += RAR[i].w; if (roll < acc) { rar = i; break; } }
+    let cls,sp;if(rar===4){const L=AZ54_LEG[Math.floor(Math.random()*AZ54_LEG.length)];cls=L.cls;sp=L.sp;}else{const cs=Object.keys(B.CLASSES);cls=cs[Math.floor(Math.random()*cs.length)];const ss=Object.keys(B.CLASSES[cls].specs);sp=ss[Math.floor(Math.random()*ss.length)];}
+    const c=B.CLASSES[cls],sk=Object.keys(c.specs),nm=az54HeroName(cls,sp,rar);
+    /* та же линия: класс + спек + редкость выпадения */
+    const id0 = Object.keys(t.coll).find(function (k) { const g = t.coll[k]; return g.cls === cls && g.sp === sp && g.br === rar; });
+    const cur = id0 ? t.coll[id0] : null;
+    const o = { rar: rar, cls: cls, sp: sp, nm: cur ? cur.n : nm, kind: '', msg: '', k0: cur ? cur.k : 0, r0: cur ? cur.r : rar, k1: 1, r1: rar, gain: 0, id: id0 || null, joined: false };
+    if (cur) {
+      if (cur.r >= 4 && cur.k >= 5) { t.st += 25; o.gain = 25; o.kind = 'maxmerge'; o.msg = esc(cur.n) + ' уже Легендарный на пяти звёздах: таверна вернула +25 💎.'; }
+      else {
+        if (cur.k >= 5 && cur.r < 4) { cur.r++; cur.k = 1; o.kind = 'ascend'; o.msg = esc(cur.n) + ' получил шестой дубль: теперь ' + RAR[cur.r].n.toLowerCase() + '. Сила +' + Math.round(tavBonus(cur) * 100) + '% ко всем характеристикам.'; }
+        else { cur.k++; o.kind = 'merge'; o.msg = 'Такой же герой: ' + esc(cur.n) + ' получает +1 ★. ' + (cur.r >= 4 ? (cur.k >= 5 ? 'Это предел.' : '') : cur.k >= 5 ? 'Следующий дубль повысит редкость.' : 'До новой редкости: ' + (6 - cur.k) + ' дубл.') ; }
+      }
+      o.k1 = cur.k; o.r1 = cur.r;
+    } else {
+      const id = newGid();
+      t.coll[id] = { cls: cls, n: nm, sp: sp, br: rar, r: rar, k: 1, race: pickRace(cls, nm), t: Date.now() };
+      S.specs[id] = sp;
+      S.hero.hxp[id] = S.hero.hxp.me || 0; /* новичок приходит на уровне мейна */
+      o.id = id; o.kind = 'new';
+      if (S.party.length < LIMIT) { S.party.push(id); o.joined = true; }
+      o.msg = o.joined ? 'Новый герой вступил в отряд.' : 'Новый герой в коллекции. Отряд полон: замени кого-нибудь во вкладке «Отряд».';
+    }
+    save();
+    tavReveal(o, s0, t);
+    if (S.tab === 'party') renderPrep();
+  }
+  function tavReveal(o, s0, t) {
+    const R = RAR[o.rar], cc = B.CLASSES[o.cls], g = t.coll[o.id], s1 = s0 - (o.free?0:PULL_COST);
+    const host = $('tav-result');
+    let parts = '';
+    const pn = [0, 0, 6, 12, 22][o.rar];
+    for (let i = 0; i < pn; i++) {
+      const a = Math.random() * 6.283, d = 70 + Math.random() * (o.rar === 4 ? 150 : 100);
+      parts += '<i class="tv-p" style="--dx:' + Math.round(Math.cos(a) * d) + 'px;--dy:' + Math.round(Math.sin(a) * d) + 'px;--d:' + Math.round(Math.random() * 180) + 'ms"></i>';
+    }
+    const raceT = g && g.race ? raceName(g.race) + ' · ' : '';
+    const stage = '<div class="tv-stage" id="tv-stage" data-r="' + o.rar + '" style="--rc:' + R.c + '"><div class="tv-glow"></div><div class="tv-rays"></div>' +
+      '<div class="tv-shaker"><div class="tv-card"><div class="tv-face tv-back"><img class="alliance-crest" src="data:image/png;base64,__AZEROT_HTML_ASSET_fbdeb4e6c8e2dd3de8587c81a9248dfa42c6fae811dd0c3e27a9d12c057f7506__" alt="Золотой лев Альянса на синем щите" width="1149" height="1464" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.hidden=true;this.parentElement.classList.add(&quot;crest-unavailable&quot;)"><span class="faction-name">АЛЬЯНС</span></div>' +
+      '<div class="tv-face tv-front"><img class="az-lion-front" src="data:image/png;base64,__AZEROT_HTML_ASSET_fbdeb4e6c8e2dd3de8587c81a9248dfa42c6fae811dd0c3e27a9d12c057f7506__" alt=""><i class="tv-ribbon">' + TV_KIND[o.kind] + '</i><div class="tv-ico">' + classBadge(o.cls, o.sp) + '</div><div class="tn">' + esc(o.nm) + '</div>' +
+      '<small>' + esc(raceT + cc.name) + ' · ' + esc(B.specOf(o.cls, o.sp).name) + '</small><div class="tv-rar">' + R.n + '</div>' +
+      '<div class="tv-stars">' + tvStars(o.kind === 'ascend' ? 5 : o.k1, o.kind === 'merge' ? o.k1 - 1 : o.kind === 'ascend' ? 4 : -1) + '</div></div></div></div>' + parts + '<i class="tv-flash"></i></div>';
+    let tag;
+    if (o.kind === 'new') tag = '<span class="tv-tag good">Новый герой' + (tavBonus(g) > 0 ? ': +' + Math.round(tavBonus(g) * 100) + '% ко всем характеристикам' : '') + '</span>';
+    else if (o.kind === 'merge') tag = '<span class="tv-tag gold">★ ' + o.k0 + ' → ' + o.k1 + '</span>';
+    else if (o.kind === 'ascend') tag = '<span class="tv-tag good" style="color:' + RAR[o.r1].c + '">' + RAR[o.r0].n + ' → ' + RAR[o.r1].n + '</span>';
+    else tag = '<span class="tv-tag gold">+' + o.gain + ' 💎</span>';
+    host.innerHTML = stage + '<div class="tv-out" id="tv-out">' + tag + '<p>' + o.msg + '</p></div>';
+    if(o.replay)host.querySelector('.tv-ribbon').textContent='Первый спутник';
+    const st = $('tv-stage'), out = $('tv-out');
+    const hl = null;
+    o.up = o.kind === 'ascend';
+    const brief = { new: o.joined ? 'вступает в отряд' : 'в коллекции', merge: '+1 ★', ascend: RAR[o.r1].n.toLowerCase() + '!', maxmerge: '+25 💎' }[o.kind];
+    const timers = [], later = function (fn, ms) { timers.push(setTimeout(fn, ms)); };
+    function showOut(instant) {
+      out.classList.add('show');
+      if (!instant && o.gain) { tvFloat('+' + o.gain + ' 💎', 'up'); tvCount(s1, t.st, 700); tvSfx('coin'); }
+    }
+    function finish(early) {
+      if (!tavBusy) return;
+      tavBusy = null;
+      cancelAnimationFrame(tvRaf);
+      $('tav-pull').textContent = 'Призыв героя · ' + PULL_COST + ' 💎';
+      tavRender(null, hl, true);
+      renderMap();
+      if (early) tvToast('🍺 ' + R.n + ': ' + esc(o.nm) + ' — ' + brief, 3600);
+    }
+    function skip(early) {
+      timers.forEach(clearTimeout); timers.length = 0;
+      st.classList.remove('shake', 'tell'); st.classList.add('skip', 'flip', 'done');
+      out.classList.add('skip');
+      showOut(true);
+      finish(!!early);
+    }
+    tavBusy = { skip: skip };
+    $('tav-pull').textContent = 'Пропустить'; $('tav-pull').disabled = false;
+    st.addEventListener('click', function () { if (tavBusy) tavBusy.skip(); });
+    if(o.free)tvFloat(o.replay?'Просмотр':'Бесплатно','up');else tvFloat('−' + PULL_COST, 'dn');
+    if (reduced) { tvCount(s0, s1, 0); tvSfx('reveal', o.rar); skip(false); return; }
+    const T = TV_SUSP[o.rar];
+    tvCount(s0, s1, 350);
+    tvSfx('wind', T / 1000);
+    later(function () { st.classList.add('shake'); }, 30);
+    later(function () { st.classList.add('tell'); tvSfx('tell'); }, T - 450);
+    later(function () { st.classList.add('flip'); tvSfx('reveal', o.rar); tvBuzz(TV_BUZZ[o.rar]); }, T);
+    later(function () { st.classList.add('done'); if (o.kind === 'merge' || o.up) tvSfx('star'); }, T + 650);
+    later(function () { showOut(false); }, T + 900);
+    later(function () { finish(false); }, T + (o.up ? 2500 : 1900));
+  }
+  function polyClose() { $('polysheet').hidden = true; document.body.classList.remove('qlock'); }
+  /* ===== Карта мира: обзор локаций с уровнями как в классике, путешествие по клику ===== */
+  /* Остальные зоны Восточных королевств: только подписи с уровнями (Warcraft Tavern, Classic). Закрыты до появления контента. */
+  const WM_ZONES = [
+    ['Тирисфальские леса', '1–10', 30, 12], ['Серебряный бор', '10–20', 21, 23], ['Западные Чумные земли', '51–58', 44, 14], ['Восточные Чумные земли', '53–60', 64, 10],
+    ['Предгорья Хилсбрада', '20–30', 34, 29], ['Альтеракские горы', '30–40', 42, 22], ['Внутренние земли', '40–50', 66, 22], ['Нагорье Арати', '30–40', 55, 30],
+    ['Дун Морог', '1–10', 42, 51], ['Лок Модан', '10–20', 61, 48], ['Бесплодные

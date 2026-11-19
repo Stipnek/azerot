@@ -1,0 +1,113 @@
+cial) pr = '<div class="pasrow" aria-hidden="true" style="visibility:hidden"><div class="pasbox"><div class="ab pass"><span>•</span></div></div></div>'; else pr = '<div class="pasrow"><div class="pasbox">' + pss.map(function (ps, i) { return '<div class="ab pass" data-sk="passive:' + i + '" title="' + esc(ps.name) + '"><span aria-hidden="true">' + wowIcon(ps) + '</span></div>'; }).join('') + (u.racial ? '<div class="ab pass racial' + ((u.cd[u.racial] || 0) ? ' oncd' : '') + '" data-sk="racial" title="' + esc(B.SKILLS[u.racial].name) + '"><span aria-hidden="true">' + wowIcon(B.SKILLS[u.racial]) + '</span></div>' : '') + '</div></div>';
+    } else {
+      h += '<div class="ab auto foe" data-sk="atk" title="Атака"><span aria-hidden="true">⚔️</span></div>';
+      h += u.eskills.map(function (s) {
+        const left = cdHide && cdHide.id === u.id && cdHide.sk === s.id ? 0 : (u.cd[s.id] || 0);
+        return '<div class="ab" data-sk="' + s.id + '"><span aria-hidden="true">' + s.icon + '</span><span class="sw" style="--p: ' + (left ? left / (s.cd || 1) * 100 : 0) + '%"></span><span class="cdn">' + (left || '') + '</span></div>';
+      }).join('');
+    }
+    el.innerHTML = pr + '<div class="abrow">' + h + '</div>';
+    const pe = el.querySelector('.pasrow');
+    if (el.parentElement) { const pv = (PORTRAIT_MQ.matches && pe ? pe.offsetHeight + 6 : 0) + 'px'; if (el.parentElement.style.getPropertyValue('--pad') !== pv) { el.parentElement.style.setProperty('--pad', pv); relayout(); } }
+  }
+
+  function float(id, text, cls) {
+    const t = toks[id]; if (!t) return;
+    const c = center(t.tc);
+    const s = document.createElement('span');
+    s.textContent = text; s.className = 'ffct ' + (cls || '');
+    s.style.left = (c.x + (Math.random() * 30 - 15)) + 'px'; s.style.top = (c.y - 6) + 'px';
+    $('fx').appendChild(s);
+    setTimeout(function () { s.remove(); }, 1050);
+  }
+  function glow(id, col, ms) {
+    const t = toks[id]; if (!t || reduced) return;
+    const tc = t.tc;
+    if (tc.classList.contains('spr')) {
+      const pz = tc.dataset.pose || 'idle';
+      tc.querySelectorAll(pz === 'idle' ? '.spi.idle, .spi.idle2' : '.spi.' + pz).forEach(function (im) { im.animate([{ filter: 'drop-shadow(0 0 3px ' + col + ') drop-shadow(0 0 10px ' + col + ')' }, { filter: 'drop-shadow(0 0 0 transparent)' }], { duration: ms }); });
+    } else {
+      tc.animate([{ boxShadow: '0 0 0 3px ' + col + ', 0 0 18px 4px ' + col }, { boxShadow: '0 5px 0 rgba(0,0,0,.35)' }], { duration: ms });
+    }
+  }
+  function hitFx(e) {
+    if (!st) return;
+    const tgt = B.byId(st, e.tgt); if (!tgt || !toks[e.tgt]) return;
+    if (e.t === 'dmg') {
+      const shown = e.miss ? 'Промах' : e.dodge ? 'Уклонение' : (e.amt ? ((tgt.side === 'hero' ? '−' : '') + Math.round(e.amt) + (e.absorbed ? ' (щит ' + Math.round(e.absorbed) + ')' : '')) : ('щит ' + Math.round(e.absorbed)));
+      float(e.tgt, shown, (tgt.side === 'hero' && e.amt ? 'hurt' : '') + (e.crit ? ' crit' : '') + (e.dot ? ' tick' : ''));
+      if (!e.dot && e.amt) setPose(e.tgt, 'hit', 340);
+      if (!reduced && !e.dot && !e.dodge && !e.miss) toks[e.tgt].tc.animate([{ transform: 'translateX(0)', filter: 'brightness(1)' }, { transform: 'translateX(-5px)', filter: 'brightness(2) saturate(.3)' }, { transform: 'translateX(5px)' }, { transform: 'translateX(0)', filter: 'brightness(1)' }], { duration: 260 });
+    } else if (e.t === 'heal' && e.amt > 0) {
+      float(e.tgt, '+' + Math.round(e.amt), 'heal' + (e.crit ? ' crit' : '') + (e.hot ? ' tick' : ''));
+      if (!e.hot) glow(e.tgt, '#6dff7a', 500);
+    } else if ((e.t === 'buff' || e.t === 'debuff') && !reduced) {
+      const col = e.t === 'buff' ? '#6aa6ff' : '#b46bff';
+      glow(e.tgt, col, 550);
+    }
+  }
+  function projectile(fromId, toId, icon, dur) {
+    const a = center(toks[fromId].tc), b = center(toks[toId].tc);
+    const p = document.createElement('span');
+    p.className = 'proj'; if (String(icon).indexOf('<span class="az-skill-icon"') === 0) p.innerHTML = icon; else p.textContent = icon; p.style.left = a.x + 'px'; p.style.top = a.y + 'px';
+    $('fx').appendChild(p);
+    const dx = b.x - a.x, dy = b.y - a.y;
+    p.animate([
+      { transform: 'translate(-50%, -50%) scale(.7)' },
+      { transform: 'translate(calc(-50% + ' + dx / 2 + 'px), calc(-50% + ' + (dy / 2 - 24) + 'px)) scale(1.15)' },
+      { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(.9)' }
+    ], { duration: dur, easing: 'ease-in' });
+    setTimeout(function () { p.remove(); }, dur);
+  }
+  function ring(id, color) {
+    if (!toks[id]) return;
+    const c = center(toks[id].tc), r = document.createElement('span');
+    r.className = 'ring'; r.style.left = c.x + 'px'; r.style.top = c.y + 'px'; r.style.borderColor = color;
+    $('fx').appendChild(r);
+    r.animate([{ transform: 'scale(.4)', opacity: 1 }, { transform: 'scale(2.6)', opacity: 0 }], { duration: 600, easing: 'ease-out' });
+    setTimeout(function () { r.remove(); }, 600);
+  }
+
+  function animateStep(evs) {
+    const actIdx = evs.findIndex(function (e) { return e.t === 'act'; });
+    const pre = actIdx === -1 ? evs : evs.slice(0, actIdx);
+    pre.forEach(function (e) { if (e.t === 'dmg' || e.t === 'heal') hitFx(e); });
+    if (actIdx === -1) return;
+    const after = evs.slice(actIdx + 1);
+    const actor = B.byId(st, evs[actIdx].id);
+    if (!actor || !toks[actor.id]) return;
+    if (actor.ghost) { after.forEach(function (e) { if (e.t === 'dmg' || e.t === 'heal') hitFx(e); }); return; }
+    const sk = after.find(function (e) { return e.t === 'skill'; });
+    const es = after.find(function (e) { return e.t === 'eskill'; });
+    const icon = sk ? wowIcon(B.SKILLS[sk.skill]) : (es && es.icon ? es.icon : (actor.side === 'hero' ? '✦' : '✸'));
+    const effects = after.filter(function (e) { return e.t === 'dmg' || (e.t === 'heal' && e.amt > 0) || e.t === 'buff' || e.t === 'debuff'; });
+    const D = Math.min(760, 600 / speed * 0.72);
+    if (sk && (sk.skill === 'taunt' || sk.skill === 'roar' || sk.skill === 'reckoning')) ring(actor.id, '#ffd75e');
+    if (after.some(function (e) { return e.t === 'yell'; })) ring(actor.id, '#ff9a1f');
+    const autoFx = effects.filter(function (e) { return e.auto; }), skFx = effects.filter(function (e) { return !e.auto; });
+    const autoEv = after.find(function (e) { return e.t === 'auto'; });
+    if (reduced) { effects.forEach(hitFx); return; }
+    const targets = [];
+    effects.forEach(function (e) { if (e.tgt !== actor.id && targets.indexOf(e.tgt) === -1 && toks[e.tgt]) targets.push(e.tgt); });
+    const dmgTargets = targets.filter(function (id) { return effects.some(function (e) { return e.t === 'dmg' && e.tgt === id; }); });
+    const hitAt = D * 0.45;
+    if (actor.side === 'hero' && SPR[actor.cls]) {
+      const sp = SPR[actor.cls];
+      const pose = (sk && sp[sk.skill]) ? sk.skill : (dmgTargets.length ? 'heroic' : null);
+      if (pose) setPose(actor.id, pose, D * 0.9);
+    }
+    if (isMelee(actor) && dmgTargets.length) {
+      const a = center(toks[actor.id].tc);
+      let bx = 0, by = 0;
+      dmgTargets.forEach(function (id) { const c = center(toks[id].tc); bx += c.x; by += c.y; });
+      bx /= dmgTargets.length; by /= dmgTargets.length;
+      const dx = (bx - a.x) * 0.62, dy = toks[actor.id].tc.classList.contains('spr') ? 0 : (by - a.y) * 0.62;
+      toks[actor.id].el.animate([
+        { transform: 'translate(-50%, -100%)' },
+        { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-100% + ' + dy + 'px))', offset: 0.45 },
+        { transform: 'translate(-50%, -100%)' }
+      ], { duration: D, easing: 'ease-in-out' });
+      if (dmgTargets.length > 1) setTimeout(function () { ring(actor.id, '#ffffff'); }, hitAt * 0.8);
+    } else {
+      if (autoFx.length && autoEv) autoFx.forEach(function (e) { if (toks[e.tgt]) projectile(actor.id, e.tgt, autoEventIcon(autoEv,st), hitAt * 0.55); });
+      skFx.map(function (e) { return e.tgt; }).filter(function (id, i, a) { return a.indexOf(

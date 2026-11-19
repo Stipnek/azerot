@@ -1,0 +1,71 @@
+,{kind:'slow',amt:0.10,turns:3,src:h.id,name:'Удар грома',icon:'⚡'});});return; }
+        if (sk('shieldslam')) { if(!use(st,h,'shieldslam'))return;damage(st,h,tankTarget(st,h),1.4,{threatBonus:2});return; }
+        if (h.revengeReady>0 && sk('revenge')) { if(!use(st,h,'revenge'))return;damage(st,h,tankTarget(st,h),PROT_CFG.revengeMultiplier,{threatBonus:2});return; }
+        if (sk('heroicstrike') && h.rage >= RAGE_COST.heroicstrike+PROT_CFG.reserve) { if(!use(st,h,'heroicstrike'))return;damage(st,h,tankTarget(st,h),PROT_CFG.heroicMultiplier,{threatBonus:1.5});return; }
+        return;
+      }
+      case 'warrior_arms': {
+        const rendOn = t.effects.some(function (f) { return f.bleed && f.name === 'Кровопускание'; });
+        if (sk('execute') && pct(t) < 0.2) { if (!use(st, h, 'execute')) return; damage(st, h, t, 3 * (1 + Math.max(0, h.lastRageSpent - 15) / 85)); return; }
+        if (sk('mortal')) { if (!use(st, h, 'mortal')) return; damage(st, h, t, 1.8); if (t.hp > 0) addEffect(t, { kind: 'healred', amt: 0.25, stacks: 1, turns: 3, src: h.id, name: 'Смертельный удар', icon: '💀' }); return; }
+        if (sk('cleave') && multi && h.rage >= RAGE_COST.cleave + RAGE_COST.mortal) { if (!use(st, h, 'cleave')) return; damage(st, h, t, 0.8); const o = alive(st.enemies).find(function (e) { return e !== t; }); if (o) damage(st, h, o, 0.8); return; }
+        if (sk('rend') && !rendOn) { if (!use(st, h, 'rend')) return; addEffect(t, { kind: 'dot', bleed: true, mult: 0.12, turns: 6, src: h.id, name: 'Кровопускание', icon: '🩸' }); emit(st, { t: 'debuff', tgt: t.id }); return; }
+        if (sk('slam') && h.rage >= RAGE_COST.slam + 30) { if (!use(st, h, 'slam')) return; damage(st, h, t, 1.0); return; }
+        return;
+      }
+      case 'warrior_fury':
+        if (sk('execute') && pct(t) < 0.2) { if (!use(st, h, 'execute')) return; damage(st, h, t, 3 * (1 + Math.max(0, h.lastRageSpent - 15) / 85)); return; }
+        if (sk('deathwish') && h.rage >= RAGE_COST.deathwish + RAGE_COST.bloodthirst && !hasEff(h, 'deathwish') && pct(h) >= 0.4) { if (!use(st, h, 'deathwish')) return; addEffect(h, { kind: 'deathwish', turns: 3, src: h.id, name: 'Жажда смерти', icon: '🔥' }); emit(st, { t: 'buff', tgt: h.id }); return; }
+        if (multi && h.lastMainRageSkill !== 'whirlwind' && !h.cd.whirlwind) { if (sk('whirlwind')) { if (!use(st, h, 'whirlwind')) return; aoe(st, h, 0.6); } return; }
+        if (sk('bloodthirst')) { if (!use(st, h, 'bloodthirst')) return; damage(st, h, t, 1.6); addEffect(h, { kind: 'btheal', charges: 3, turns: 4, src: h.id, name: 'Кровожадность', icon: '🩸' }); return; }
+        if (sk('slam') && h.rage >= RAGE_COST.slam + 30) { if (!use(st, h, 'slam')) return; damage(st, h, t, 1.0); return; }
+        return;
+      case 'paladin_holy':
+        if (sk('holylight') && low && pct(low) < 0.4) { use(st, h, 'holylight'); heal(st, h, low, h.healPow * 2.2); return; }
+        if (sk('divinefavor') && low && pct(low) < 0.6 && !hasEff(h, 'favor')) { use(st, h, 'divinefavor'); addEffect(h, { kind: 'favor', turns: 4, src: h.id, name: 'Божественное одобрение', icon: '🙌' }); emit(st, { t: 'buff', tgt: h.id }); return; }
+        const stunT = foes.filter(function (e) { return !e.boss && !e.effects.some(function (f) { return f.kind === 'stun'; }); }).sort(function (a, b) { return b.atk - a.atk; })[0];
+        if (sk('hoj') && stunT && low && pct(low) < 0.9) { use(st, h, 'hoj'); addEffect(stunT, { kind: 'stun', turns: 2, src: h.id, name: 'Молот правосудия', icon: '💫' }); emit(st, { t: 'debuff', tgt: stunT.id }); return; }
+        if (sk('hshock')) {
+          use(st, h, 'hshock');
+          if (low && pct(low) < 0.9) heal(st, h, low, h.healPow * 1.1);
+          else damage(st, h, t, 1.4, { type: 'magic' });
+          return;
+        }
+        return;
+      case 'paladin_prot': {
+        const looseE = foes.filter(function (e) { return e.aggro && e.aggro !== h.id; }).sort(function (a, b) { return b.atk - a.atk; })[0];
+        if (sk('holyshield') && pct(h) < 0.65 && !hasEff(h, 'reflect')) { use(st, h, 'holyshield'); mitig(h, 'holyshield', 0.7, 3); addEffect(h, { kind: 'reflect', amt: 0.3, turns: 3, src: h.id, name: 'Святой щит', icon: '🔰' }); return; }
+        if (sk('pjudgement')) { const jt = tankTarget(st, h); use(st, h, 'pjudgement'); damage(st, h, jt, 1.0, { type: 'magic', threatBonus: 1.5 }); if (jt.hp > 0) addEffect(jt, { kind: 'weak', turns: 3, src: h.id, name: 'Правосудие', icon: '⚖️' }); return; }
+        const stunT = foes.filter(function (e) { return !e.boss && !e.effects.some(function (f) { return f.kind === 'stun'; }); }).sort(function (a, b) { return b.atk - a.atk; })[0];
+        if (sk('hoj') && stunT) { use(st, h, 'hoj'); addEffect(stunT, { kind: 'stun', turns: 2, src: h.id, name: 'Молот правосудия', icon: '💫' }); emit(st, { t: 'debuff', tgt: stunT.id }); return; }
+        if (sk('pconsecrate')) { use(st, h, 'pconsecrate'); aoe(st, h, 0.5, { threatBonus: 1.5 }); return; }
+        return;
+      }
+      case 'paladin_ret': {
+        if (sk('hammer') && pct(t) < 0.2) { use(st, h, 'hammer'); damage(st, h, t, 2.8); return; }
+        if (sk('seal') && !hasEff(h, 'seal')) { use(st, h, 'seal'); addEffect(h, { kind: 'seal', turns: 4, src: h.id, name: 'Печать повиновения', icon: '📜' }); emit(st, { t: 'buff', tgt: h.id }); return; }
+        if (sk('judgement')) { const sl = h.effects.find(function (f) { return f.kind === 'seal'; }); use(st, h, 'judgement'); if (sl) { h.effects = h.effects.filter(function (f) { return f !== sl; }); damage(st, h, t, 1.6 * 1.6, { type: 'magic' }); } else damage(st, h, t, 1.6, { type: 'magic' }); return; }
+        const stunR = foes.filter(function (e) { return !e.boss && !e.effects.some(function (f) { return f.kind === 'stun'; }); }).sort(function (a, b) { return b.atk - a.atk; })[0];
+        if (sk('hoj') && stunR) { use(st, h, 'hoj'); addEffect(stunR, { kind: 'stun', turns: 2, src: h.id, name: 'Молот правосудия', icon: '💫' }); emit(st, { t: 'debuff', tgt: stunR.id }); return; }
+        if (sk('crusader')) { use(st, h, 'crusader'); damage(st, h, t, 1.0); return; }
+        return;
+      }
+      case 'druid_bear': {
+        const looseB = foes.filter(function (e) { return e.aggro && e.aggro !== h.id; }).sort(function (a, b) { return b.atk - a.atk; })[0];
+        if (sk('regen') && pct(h) < 0.45) { if (!use(st, h, 'regen')) return; heal(st, h, h, h.maxHp * 0.01 * h.lastRageSpent, { noCrit: true }); return; }
+        if (sk('roar') && looseB) { if (!use(st, h, 'roar')) return; doTaunt(st, h, 'roar', looseB); return; }
+        if (multi && h.lastMainRageSkill !== 'swipe' && !h.cd.swipe) { if (sk('swipe')) { if (!use(st, h, 'swipe')) return; aoe(st, h, 0.5, { threatBonus: 1.5 }); } return; }
+        if (sk('maul')) { if (!use(st, h, 'maul')) return; damage(st, h, tankTarget(st, h), 1.4, { threatBonus: 1.3 }); return; }
+        return;
+      }
+      case 'druid_resto': {
+        const stunD = foes.filter(function (e) { return !e.boss && !e.effects.some(function (f) { return f.kind === 'stun'; }); }).sort(function (a, b) { return b.atk - a.atk; })[0];
+        if (sk('innervate')) {
+          const mt = alive(st.heroes).filter(function (x) { return x.maxMana; }).sort(function (a, b) { return a.mana / a.maxMana - b.mana / b.maxMana; })[0];
+          if (mt && mt.mana / mt.maxMana < (mt === h ? 0.4 : 0.5)) { use(st, h, 'innervate'); mt.mana = Math.min(mt.maxMana, mt.mana + mt.maxMana * (mt === h ? 0.2 : 0.5)); emit(st, { t: 'buff', tgt: mt.id }); return; }
+        }
+        if (sk('regrowth') && low && pct(low) < 0.8) { use(st, h, 'regrowth'); heal(st, h, low, h.healPow * 0.85); hot(st, h, low, 'regrowth', h.healPow * 0.25, 2); return; }
+        if (sk('rejuv')) {
+          const tank = mostTargeted(st);
+          const tg = [low, tank].find(function (x) { return x && pct(x) < 0.9 && !hasEff(x, 'hot', h.id); });
+          if (tg) { use(st, h, 'rejuv'); hot(st, h, tg, 'rejuv', h.healPow * 0.5, 3); emit(st, { t: 'buff', tgt: tg.id }); return; 
