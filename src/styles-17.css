@@ -1,0 +1,22 @@
+
+#select #sel-stage{isolation:isolate;background:radial-gradient(ellipse at 50% 35%,#3b3529,#201d17 58%,#11100d)!important}
+#select #sel-stage>:not(.az51-slide):not(.az51-note){display:none!important}
+#select #sel-stage .az51-slide{position:absolute!important;inset:10px!important;width:calc(100% - 20px)!important;height:calc(100% - 20px)!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:50% 100%!important;transform:none!important;display:block!important;opacity:0;transition:opacity .2s;pointer-events:none;filter:drop-shadow(0 5px 6px #0008)}
+#select #sel-stage .az51-note{position:absolute;inset:0;display:grid;place-items:center;color:#dfcfaf;text-align:center;padding:18px;font-size:14px}
+#sel-delbox{position:fixed!important;inset:0!important;z-index:10000!important;padding:16px!important;background:#000b!important;display:flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;color:#f3e2c8!important;font:16px/1.45 system-ui,sans-serif!important;transform:none!important;filter:none!important;overflow:auto!important}
+#sel-delbox[hidden]{display:none!important}
+#sel-delbox .del-card{position:relative!important;display:grid!important;gap:12px!important;width:min(100%,470px)!important;max-height:calc(100dvh - 32px)!important;overflow-y:auto!important;padding:20px!important;border:1px solid #bb7962!important;border-radius:12px!important;background:#251b18!important;color:#f3e2c8!important;box-shadow:0 12px 45px #000b!important;opacity:1!important;visibility:visible!important}
+#sel-delbox *{visibility:visible!important;opacity:1!important;-webkit-text-fill-color:currentColor}
+#sel-delbox h2{display:block!important;font:400 24px/1.2 Georgia,serif!important;color:#edc6a0!important;margin:0 36px 0 0!important}
+#sel-delbox #del-t{display:block!important;color:#f3e2c8!important;font:15px/1.5 system-ui,sans-serif!important;margin:0!important;padding:0!important;max-height:none!important;overflow:visible!important;white-space:normal!important;-webkit-line-clamp:unset!important}
+#sel-delbox #del-in{display:block!important;width:100%!important;min-width:0!important;min-height:46px!important;font:16px system-ui!important;background:#100e0d!important;color:#fff1d6!important;border:1px solid #b38d68!important;border-radius:6px!important;padding:10px!important}
+#sel-delbox #del-in::placeholder{color:#bca58c!important;opacity:1!important}
+#sel-delbox .del-b{display:flex!important;gap:10px!important}
+#sel-delbox .del-b button{display:block!important;flex:1!important;min-height:46px!important;padding:9px!important;font:600 15px system-ui!important;border-radius:6px!important;border:1px solid #a78d69!important;background:#3a2c24!important;color:#f3e2c8!important;cursor:pointer!important}
+#sel-delbox #del-yes{background:#743a30!important;border-color:#c0886b!important;color:#fff0dc!important}
+#sel-delbox #del-yes:disabled{opacity:.45!important;cursor:not-allowed!important}
+#sel-delbox #del-x{display:block!important;position:absolute!important;right:9px!important;top:9px!important;width:34px!important;height:34px!important;font:20px/1 system-ui!important;background:#3a2b25!important;color:#f3e2c8!important;border:1px solid #a78d69!important;border-radius:50%!important;cursor:pointer!important}
+#az51-del-status{display:block!important;color:#ffb49d!important;margin:0!important;font-size:13px!important}
+#az51-del-status:empty{display:none!important}
+body.az51-modal-open{overflow:hidden!important}
+@media(prefers-reduced-motion:reduce){#select #sel-stage .az51-slide{transition:none}}

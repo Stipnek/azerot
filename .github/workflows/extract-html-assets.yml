@@ -1,0 +1,23 @@
+name: Extract HTML assets
+on:
+  push:
+    branches: ['test/css-roundtrip']
+    paths: ['.github/workflows/extract-html-assets.yml']
+permissions:
+  contents: write
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - run: python3 scripts/html_assets.py --extract
+      - name: Save verified sources on test branch
+        run: |
+          test "$GITHUB_REF" = refs/heads/test/css-roundtrip
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- src/template.html src/html-assets/
+          git commit -m 'Separate HTML embedded payloads from markup and scripts'
+          git push origin HEAD:refs/heads/test/css-roundtrip

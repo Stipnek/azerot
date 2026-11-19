@@ -1,0 +1,95 @@
+
+/* v52b: fixed viewport shell. Proportional rows/columns; footer buttons are pinned; only inner panels scroll. */
+#create:not([hidden]),#select:not([hidden]){height:100vh!important;height:100dvh!important;min-height:0!important;max-height:100dvh!important;overflow:hidden!important;overscroll-behavior:none!important}
+#create>.wrap.cr48-shell,#select>.wrap.cr48-shell{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;max-height:100%!important;overflow:hidden!important;box-sizing:border-box!important;gap:clamp(5px,1.2dvh,10px)!important;padding:max(8px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))!important}
+#create .cr48-shell>*,#select .cr48-shell>*{flex:none!important;min-width:0!important}
+#create .cr48-shell>.cr,#select .cr48-shell>.sel{flex:1 1 0!important;min-height:0!important;display:grid!important;gap:clamp(8px,1.6dvh,14px)!important;overflow:hidden!important;padding:0!important;align-items:stretch!important}
+#create .cr48-shell>.cr{grid-template-columns:minmax(0,40fr) minmax(0,60fr)!important;grid-template-rows:minmax(0,1fr)!important}
+#select .cr48-shell>.sel{grid-template-columns:minmax(0,50fr) minmax(0,50fr)!important;grid-template-rows:minmax(0,1fr)!important}
+#create .cr48-shell>.cr>.cr-col,#select .cr48-shell>.sel>.cr-col{min-width:0!important;min-height:0!important;max-width:100%!important;height:auto!important;max-height:none!important;box-sizing:border-box!important;margin:0!important}
+#create .cr48-shell>.cr>.cr-fig,#select .cr48-shell>.sel>.sel-fig{display:grid!important;grid-template-rows:minmax(0,1fr) auto!important;overflow:hidden!important}
+#create #cr-stage,#select #sel-stage{display:block!important;position:relative!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+#create #cr-stage .az50-slide,#select #sel-stage .az51-slide{inset:6px!important;left:6px!important;width:calc(100% - 12px)!important;height:calc(100% - 12px)!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:center bottom!important;transform:none!important}
+#create #cr-cap{padding:5px 8px!important;font-size:10px!important;line-height:1.25!important}
+#create .cr48-shell>.cr>.cr48-controls{display:block!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;padding:clamp(8px,1.8dvh,14px) clamp(8px,2vw,14px) 18px!important;scrollbar-gutter:auto!important}
+#create .cr48-head,#select .cr48-head{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:flex-start!important;gap:5px 10px!important;padding:0 40px 0 0!important;min-width:0!important}
+#create .cr48-head .cr-h,#select .cr48-head .cr-h{font-size:clamp(16px,2.6dvh,20px)!important;margin:0!important;flex:0 0 auto!important}
+#create .cr48-head .cr-steps{display:flex!important;flex:1 1 auto!important;flex-wrap:wrap!important;gap:4px 9px!important;margin:0!important;min-width:0!important}
+#create .cr48-head .stp{font-size:11px!important}
+#az50-factions{flex:1 1 100%!important;display:flex!important;gap:7px!important;margin:0!important;min-width:0!important}
+#az50-factions button.az52-faction{flex:1 1 0!important;min-width:0!important;min-height:44px!important;display:grid!important;grid-template-columns:30px minmax(0,1fr)!important;align-items:center!important;column-gap:7px!important;padding:5px 8px!important;font-size:13px!important;line-height:1.2!important;text-align:left!important;overflow:hidden!important}
+#az50-factions .az52-crest{grid-column:1!important;grid-row:1/span 2!important;width:30px!important;height:30px!important;max-width:30px!important;max-height:30px!important;object-fit:contain!important;position:static!important;transform:none!important}
+#az50-factions button small{grid-column:2!important;margin:0!important;font-size:10px!important;line-height:1.2!important}
+#create .cr48-races{padding:0!important}#create #cr48-race-label{margin:0 0 4px!important;font-size:11px!important}
+#create #cr48-races{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
+#create #cr48-races button.cr48-race{--az53-icon:26px;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:var(--az53-icon) auto!important;justify-items:center!important;align-items:center!important;align-content:center!important;gap:4px!important;min-width:0!important;max-width:100%!important;min-height:clamp(58px,9dvh,76px)!important;height:auto!important;padding:6px 3px!important;overflow:hidden!important;font-size:12px!important;line-height:1.2!important;text-align:center!important;box-sizing:border-box!important}
+#create #cr48-races button.cr48-race>.cr48-mini,#create #cr48-races button.cr48-race .az-race-portrait{display:block!important;position:relative!important;inset:auto!important;width:var(--az53-icon)!important;height:var(--az53-icon)!important;min-width:var(--az53-icon)!important;min-height:var(--az53-icon)!important;max-width:var(--az53-icon)!important;max-height:var(--az53-icon)!important;margin:0!important;padding:0!important;border-radius:6px!important;overflow:hidden!important;transform:none!important;box-sizing:border-box!important}
+#create #cr48-races button.cr48-race .az-race-portrait>img{position:static!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;margin:0!important;padding:0!important;object-fit:cover!important;transform:none!important}
+#create #cr48-races button.cr48-race>span:last-child{display:block!important;max-width:100%!important;white-space:normal!important;overflow-wrap:normal!important;word-break:normal!important;text-align:center!important}
+#create .cr48-title{font-size:clamp(19px,3.2dvh,24px)!important;margin:0 0 6px!important}
+#create .cr48-classes{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))!important;gap:6px!important}
+#create .cr48-class{min-height:46px!important;gap:8px!important;padding:6px 9px!important;overflow:hidden!important}
+#create .cr48-class>span:first-child{width:28px!important;height:28px!important;min-width:28px!important;max-width:28px!important;min-height:28px!important;max-height:28px!important;overflow:hidden!important;flex:none!important}
+#create .cr48-class .az-badge{--az-size:28px!important}#create .cr48-class>span:last-child{min-width:0!important;white-space:normal!important}
+#create .cr48-shell>.cr-bot{display:grid!important;grid-template-columns:minmax(88px,.4fr) minmax(0,1fr)!important;gap:8px!important;padding:0!important}
+#create .cr48-shell>.cr-bot>button,#select .cr48-enter>button{min-height:46px!important;padding:9px!important}
+#cr-msg{min-height:0!important;margin:0!important;font-size:12px!important}#cr-msg:empty{display:none!important}
+#select .cr48-shell>.sel>.cr48-roster{display:grid!important;grid-template-rows:auto minmax(0,1fr) auto!important;gap:8px!important;overflow:hidden!important;padding:10px!important}
+#select .cr48-roster>.sect{margin:0!important}#select .cr48-roster>#sel-chars{min-height:0!important;max-height:none!important;overflow-y:auto!important;overscroll-behavior:contain!important}
+#select .cr48-roster-actions{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(104px,1fr))!important;gap:6px!important}#select .cr48-roster-actions button{min-height:44px!important;padding:6px 8px!important;line-height:1.2!important}
+#select .cr48-hero-summary{max-height:clamp(96px,30dvh,230px)!important;overflow-y:auto!important;padding:8px 10px!important}
+.az53-actions{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 6px}
+.az53-action{display:inline-flex;align-items:center;justify-content:center;min-height:44px;max-width:100%;padding:8px 12px;border:1px solid #b49a6655;border-radius:8px;background:#b49a660e;color:#e1c997;font:inherit;font-size:13px;line-height:1.3;cursor:pointer;white-space:normal;text-align:left;box-sizing:border-box;flex:1 1 130px}
+.az53-abilities{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:6px;margin:6px 0}
+.az53-ability{display:grid;grid-template-columns:32px minmax(0,1fr);align-items:center;gap:8px;min-height:50px;padding:6px 8px;border:1px solid #ffffff24;border-radius:8px;background:#ffffff05;color:#e9decb;font:inherit;font-size:12px;line-height:1.25;text-align:left;cursor:pointer;box-sizing:border-box;min-width:0;max-width:100%;overflow:hidden}
+.az53-ability>span:first-child{width:32px;height:32px;overflow:hidden;display:grid;place-items:center}
+.az53-ability .az-skill-icon{width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;max-width:30px!important;max-height:30px!important}
+.az53-ability .az-skill-icon img{width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important}
+.az53-ability small{display:block;color:#aab0ba;font-size:10px;line-height:1.25;margin-top:2px}
+.az53-hint{color:#aeb4bd;font-size:11px;line-height:1.5;margin:6px 0}
+.az53-action:focus-visible,.az53-ability:focus-visible,#az53-dialog button:focus-visible{outline:2px solid #e0bc72;outline-offset:2px}
+#az53-dialog{position:fixed;inset:0;width:calc(100% - 20px);max-width:660px;max-height:calc(100dvh - 20px);margin:auto;padding:0;border:1px solid #957a4c;border-radius:12px;background:#1d1914;color:#eee0c8;box-shadow:0 15px 70px #000b;font:15px/1.6 system-ui,sans-serif;overflow:hidden;box-sizing:border-box}
+#az53-dialog::backdrop{background:#000b}#az53-dialog[open]{display:flex!important;flex-direction:column!important}
+.az53-modal-head{display:flex;align-items:start;justify-content:space-between;gap:10px;flex:none;padding:12px 14px;border-bottom:1px solid #ffffff1a;background:#292117}
+#az53-dialog h2{font:400 clamp(20px,3.4dvh,26px)/1.2 Georgia,serif;color:#e6c78b;margin:0;overflow-wrap:anywhere}
+#az53-dialog button[data-az53-close]{min-width:44px;min-height:44px;border:1px solid #947c56;border-radius:7px;background:#392d1e;color:#eedfc6;font:15px system-ui;cursor:pointer;flex:none}
+#az53-modal-body{padding:14px;overflow-y:auto;overscroll-behavior:contain;min-height:0;-webkit-overflow-scrolling:touch}
+#az53-modal-body p{margin:0 0 10px}#az53-modal-body h3{font-size:16px;color:#e0c18a;margin:14px 0 6px}#az53-modal-body a{color:#d8b77b;overflow-wrap:anywhere}#az53-modal-body ul{margin:6px 0 10px;padding-left:20px}
+.az53-spec{padding:10px;border:1px solid #ffffff1d;border-radius:8px;margin:8px 0;background:#ffffff03}.az53-spec h3{margin-top:0!important}.az53-spec small{display:block;color:#bca77e;font-size:12px}.az53-tag{display:inline-block;padding:3px 7px;border:1px solid #81704d;border-radius:5px;font-size:11px;color:#ddc38d;margin:3px 0 7px}
+#az53-tooltip{position:fixed;z-index:20000;width:max-content;max-width:min(330px,calc(100vw - 24px));max-height:45dvh;overflow:auto;padding:10px;border:1px solid #b29966;border-radius:9px;background:#17130f;color:#f1e4ce;box-shadow:0 8px 30px #000a;font:13px/1.45 system-ui,sans-serif;pointer-events:none;box-sizing:border-box}
+#az53-tooltip[hidden]{display:none!important}#az53-tooltip strong{display:block;color:#e1bd79;margin-bottom:4px;font-size:14px}
+#create[data-az50-faction=horde] .cr48-shell{overflow-y:auto!important;overscroll-behavior:contain!important}
+#create[data-az50-faction=horde] .cr48-shell>.cr,#create[data-az50-faction=horde] .cr48-shell>.cr-bot,#create[data-az50-faction=horde] .cr48-races,#create[data-az50-faction=horde] .cr-steps{display:none!important}
+#create .cr48-head>#az50-horde{flex:1 1 100%!important;width:100%!important;box-sizing:border-box!important;margin:0!important}
+#az50-horde .az50-races{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
+#az50-horde .az50-races button.az52-race{min-width:0!important;max-width:100%!important;min-height:84px!important;padding:6px 3px!important;overflow:hidden!important;font-size:12px!important;line-height:1.2!important;gap:4px!important}
+#az50-horde .az52-race-icon{width:28px!important;height:28px!important;min-width:28px!important;max-width:28px!important;min-height:28px!important;max-height:28px!important}
+body:has(#az53-dialog[open]){overflow:hidden!important}
+/* portrait: stacked, picture gets a fixed share of height, controls the rest */
+@media(orientation:portrait){
+ #create .cr48-shell>.cr{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,43fr) minmax(0,57fr)!important}
+ #select .cr48-shell>.sel{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,56fr) minmax(0,44fr)!important}
+}
+@media(orientation:portrait) and (min-height:720px){#create .cr48-shell>.cr{grid-template-rows:minmax(0,48fr) minmax(0,52fr)!important}}
+@media(orientation:portrait) and (min-height:800px){#create .cr48-shell>.cr{grid-template-rows:minmax(0,52fr) minmax(0,48fr)!important}}
+@media(orientation:portrait) and (max-height:700px){#az50-factions button small,#create #cr48-race-label{display:none!important}#az50-factions button.az52-faction{min-height:40px!important}#create #cr48-races button.cr48-race{min-height:56px!important;--az53-icon:24px}.az53-hint{display:none}}
+@media(orientation:landscape){
+ #create .cr48-head,#select .cr48-head{flex-wrap:nowrap!important}
+ #create .cr48-head .cr-steps{flex:0 1 auto!important}
+ #az50-factions{flex:0 1 min(320px,44vw)!important;margin-left:auto!important}
+ #create #cr-stage{min-height:0!important}
+}
+@media(orientation:landscape) and (max-height:540px){
+ #create .cr48-races{display:block!important}#create #cr48-race-label{display:none!important}
+ #create #cr48-races button.cr48-race{--az53-icon:24px;grid-template-columns:var(--az53-icon) minmax(0,1fr)!important;grid-template-rows:auto!important;justify-items:start!important;gap:6px!important;min-height:38px!important;padding:5px 7px!important;text-align:left!important}
+ #create #cr48-races button.cr48-race>span:last-child{text-align:left!important}
+ #az50-factions button.az52-faction{min-height:38px!important;grid-template-columns:26px minmax(0,1fr)!important;padding:3px 7px!important}#az50-factions .az52-crest{width:26px!important;height:26px!important;max-width:26px!important;max-height:26px!important}#az50-factions button small,.az53-hint{display:none!important}
+ #create .cr48-shell>.cr-bot>button,#select .cr48-enter>button{min-height:40px!important;padding:6px!important}
+ #create .cr48-title{margin-bottom:4px!important;font-size:18px!important}.az53-action,.az53-ability{min-height:40px!important}
+ #select .cr48-shell>.disc{font-size:9px!important;line-height:1.2!important;margin:0!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+}
+@media(max-width:350px){#create #cr48-races button.cr48-race{font-size:11px!important}.az53-action,.az53-ability{font-size:12px}}
+
+#create[data-az50-faction=horde] .cr48-head{flex-wrap:wrap!important;padding-right:40px!important}
+#create[data-az50-faction=horde] #az50-factions{flex:1 1 100%!important;margin-left:0!important}
+#create[data-az50-faction=horde] .cr48-shell>.cr48-head{flex:0 0 auto!important}

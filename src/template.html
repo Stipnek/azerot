@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>v57.3 · Азерот: сумка и отряд</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Forum&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>__AZEROT_CSS_BLOCK_1__</style>
+<style id="az-responsive-v21">__AZEROT_CSS_BLOCK_2__</style>
+<style id="az-landscape-v23">__AZEROT_CSS_BLOCK_3__</style><style id="az-tavern-v27">__AZEROT_CSS_BLOCK_4__</style>
+<style id="az-rage-cost-v29">__AZEROT_CSS_BLOCK_5__</style>
+<style id="az-energy-v31">__AZEROT_CSS_BLOCK_6__</style>
+<style id="az-lion-v36">__AZEROT_CSS_BLOCK_7__</style>
+<style id="az-v37-character-selection">__AZEROT_CSS_BLOCK_8__</style>
+<style id="az-class-spec-icons-v39">__AZEROT_CSS_BLOCK_9__</style>
+
+<style id="az-icon-layout-fix-v40">__AZEROT_CSS_BLOCK_10__</style>
+
+<style id="az-v42-ability-icons">__AZEROT_CSS_BLOCK_11__</style>
+<style id="az-v45-race-portraits">__AZEROT_CSS_BLOCK_12__</style>
+<style id="az-v46-creator-ui">__AZEROT_CSS_BLOCK_13__</style>
+<style id="az-v47-selection-ui">__AZEROT_CSS_BLOCK_14__</style>
+<style id="az-v48-mobile-fix">__AZEROT_CSS_BLOCK_15__</style>
+
+<style id="az50-style">__AZEROT_CSS_BLOCK_16__</style>
+
+<style id="az51-style">__AZEROT_CSS_BLOCK_17__</style>
+
+<style id="az52-style">__AZEROT_CSS_BLOCK_18__</style>
+<script type="application/json" id="az52-ui-assets">__AZEROT_SCRIPT_SOURCE_01__</script>
+<script id="az52-bootstrap">__AZEROT_SCRIPT_SOURCE_02__</script>
+
+<style id="az53-style">__AZEROT_CSS_BLOCK_19__</style>
+<style id="az54-style">__AZEROT_CSS_BLOCK_20__</style>
+<style id="az545">__AZEROT_CSS_BLOCK_21__</style><style id="v57-goldshire">__AZEROT_CSS_BLOCK_22__</style><style id="v571-regressions">__AZEROT_CSS_BLOCK_23__</style><style id="az-local-lion">__AZEROT_CSS_BLOCK_24__</style><style id="az573-style">__AZEROT_CSS_BLOCK_25__</style><style id="az-lion-frame-fix">__AZEROT_CSS_BLOCK_26__</style><style id="az-clean-crest">__AZEROT_CSS_BLOCK_27__</style></head>
+<body>
+
+<div class="rot">Игра рассчитана на горизонтальный экран: поверни телефон</div>
+<button id="fsb" type="button" aria-label="На весь экран" title="На весь экран">⛶</button>
+<main>
+  <section id="world" hidden>
+    <div class="wrap">
+      <div class="w-head" id="w-head"></div>
+      <div class="mapw" id="w-map">
+        <div class="map" id="map" role="group" aria-label="Карта Элвиннского леса"></div>
+        <div class="journal">
+          <p class="msg" id="jmsg" role="status"></p>
+          <div class="jl" id="jl" role="group" aria-label="Журнал квестов"></div>
+        </div>
+        <div class="qsheet" id="qsheet" hidden>
+          <div class="qs-in" role="dialog" aria-modal="true" aria-label="Квест">
+            <button class="qclose" id="qclose" type="button" aria-label="Закрыть">✕</button>
+            <div class="jd" id="jd"></div>
+            <div class="runopts" id="runopts" hidden>
+            <label class="chk"><input type="checkbox" id="chk-auto"> Авто-режим</label>
+            <label class="chk"><input type="checkbox" id="chk-test"> Данж уже пройден (тест)</label>
+            <button class="btn" id="skipbtn">Пропустить забег</button>
+            <p class="hint" id="runnote"></p>
+          </div>
+          </div>
+        </div>
+      <aside class="az-desktop-guide"><h2>Приключения в Азероте</h2><p>Выбери задание в журнале справа или нажми на метку на карте. Здесь появятся описание, цель и доступные действия.</p><p>Кнопка «Карта мира» открывает путешествия между доступными территориями. Герой, отряд и настройки находятся в верхнем меню.</p></aside>
+</div>
+      <div class="more hero" id="w-hero" hidden></div>
+      <div class="more" id="w-more" hidden>
+        <div class="box"><p class="sect">Меню</p><button class="btn" id="tosel">К выбору персонажа</button></div>
+        <div class="box" id="az-settings"><p class="sect">Звук и музыка</p><label class="chk"><input type="checkbox" id="az-enabled" checked> Включить звук</label><label class="az-slider" for="az-master">Общая громкость<output id="az-master-value">100%</output><input type="range" id="az-master" min="0" max="100" value="100" aria-label="Общая громкость"></label><label class="chk"><input type="checkbox" id="az-musicEnabled" checked> Музыка</label><label class="az-slider" for="az-music">Громкость музыки<output id="az-music-value">30%</output><input type="range" id="az-music" min="0" max="100" value="30" aria-label="Громкость музыки"></label><label class="chk"><input type="checkbox" id="chk-snd"> Звуковые эффекты</label><label class="az-slider" for="az-sfx">Громкость эффектов<output id="az-sfx-value">100%</output><input type="range" id="az-sfx" min="0" max="100" value="100" aria-label="Громкость эффектов"></label><p class="hint" id="az-status" role="status"></p><p class="hint" id="az-time-status"></p><p class="hint" id="az-fallback"></p><p class="hint">День: 06:00–18:00, ночь: 18:00–06:00 по местному времени устройства. В Западном Крае днём DayPlains01–02, ночью NightPlains01–02. В лесных зонах пока DayForest01–03.</p><p class="hint">Звук входа синтезированный, не оригинальная запись Blizzard. Настройки сохраняются.</p></div><div class="box"><p class="sect">Тест</p><label class="chk"><input type="checkbox" id="az-force-night"> Включить ночную музыку (тест)</label><p class="hint">Принудительно включает ночные треки. Сними галочку, чтобы вернуться к времени устройства. Пока ночные треки есть только для Западного Края.</p>
+          <div class="lvl">
+            <button class="btn" id="lv-minus" aria-label="Понизить уровень">−</button>
+            <span class="lvl-v" id="lv-val" aria-live="polite"></span>
+            <button class="btn" id="lv-plus" aria-label="Повысить уровень">+</button>
+            <span class="lvl-n">тест: всем героям этот уровень (опыт сбрасывается)</span>
+          </div>
+          <label class="chk"><input type="checkbox" id="chk-allq"> Открыть все квесты</label>
+          <label class="chk"><input type="checkbox" id="chk-allspecs"> Все спеки с любого уровня (тест)</label>
+          <label class="chk"><input type="checkbox" id="chk-amb"> Засада в каждом походе (тест)</label>
+          <label class="chk"><input type="checkbox" id="chk-comp"> Компаньоны всех классов (тест)</label>
+          <div class="row"><button class="btn" id="tav-give">+200 камней призыва (тест)</button></div>
+      </div>
+        <p class="hint disc">Фан-игра, не связана с Blizzard Entertainment.</p>
+      </div>
+    </div>
+  </section>
+  <div class="holdring" id="holdring" hidden aria-hidden="true"><svg viewBox="0 0 48 48"><circle class="bg" cx="24" cy="24" r="20"/><circle class="fg" cx="24" cy="24" r="20"/></svg></div>
+  <nav class="bnav" id="bnav" aria-label="Навигация" hidden>
+    <button type="button" data-tab="hero"><span class="i" aria-hidden="true">🧙</span>Герой</button>
+    <button type="button" data-tab="party"><span class="i" aria-hidden="true">🛡️</span>Отряд</button>
+    <button type="button" data-tab="map" class="big"><span class="i" aria-hidden="true">🗺️</span>Карта</button>
+    <button type="button" data-tab="more"><span class="i" aria-hidden="true">☰</span>Ещё</button>
+  </nav>
+  <div class="pop" id="pop" role="dialog" aria-modal="true" aria-label="Подробнее" hidden><div class="pop-b"><button class="btn pop-x" id="pop-x" aria-label="Закрыть">✕</button><div id="pop-c"></div></div></div>
+  <dialog id="sel-all-dialog" aria-labelledby="sel-all-title"><div class="sel-all-head"><h2 id="sel-all-title">Все персонажи</h2><button class="btn" id="sel-all-close" aria-label="Закрыть">Закрыть</button></div><div id="sel-all-list" class="chars" role="group" aria-label="Все персонажи"></div></dialog>
+<section id="select" hidden><div class="wrap cr48-shell">
+<header class="cr48-head"><p class="brand">Азерот: автобатлер</p><h1 class="cr-h">Ваши герои</h1></header>
+<div class="sel"><div class="cr-col sel-fig"><div class="cr-stage big" id="sel-stage"></div><div class="cr48-hero-summary"><p class="sel-nm" id="sel-name"></p><p class="sel-in" id="sel-info"></p><details class="cr48-aura"><summary>Аура лидера</summary><p class="sel-au" id="sel-aura"></p></details></div></div>
+<div class="cr-col cr48-roster"><p class="sect">Последние герои <small>Альянс</small></p><div class="chars" id="sel-chars" role="group" aria-label="Персонажи"></div><div class="cr48-roster-actions"><div class="pager" id="sel-pager" hidden></div><button class="btn" id="sel-all">Все персонажи</button><button class="btn" id="sel-new">Создать персонажа</button><button class="btn" id="sel-del">Удалить персонажа</button></div></div></div>
+<div class="cr48-enter"><button class="go sel-go" id="sel-enter">Войти в мир</button></div><p class="hint disc">Фан-игра, не связана с Blizzard Entertainment.</p>
+<div aria-labelledby="del-t" aria-modal="true" class="delbox" hidden="" id="sel-delbox" role="alertdialog">
+<div class="del-card">
+<button aria-label="Закрыть" class="qclose" id="del-x" type="button">✕</button>
+<p id="del-t"></p>
+<input aria-label="Подтверждение удаления" autocomplete="off" id="del-in" placeholder="УДАЛИТЬ" spellcheck="false"/>
+<div class="del-b"><button class="btn" id="del-no">Отмена</button><button class="btn del-go" disabled="" id="del-yes">Удалить</button></div>
+</div>
+</div>
+</div></section>
+  <section id="create" hidden>
+<div class="wrap cr48-shell">
+<header class="cr48-head"><p class="brand">Азерот: автобатлер</p><h1 class="cr-h">Создание героя</h1><div class="cr-steps" id="cr-steps"></div></header>
+<div class="cr48-races"><p id="cr48-race-label">Раса героя</p><div id="cr48-races" role="group" aria-labelledby="cr48-race-label"></div></div>
+<div class="cr"><div class="cr-col cr-fig"><div class="cr-stage" id="cr-stage"></div><p class="cr-cap" id="cr-cap"></p></div><div class="cr-col cr48-controls"><div id="cr-page"></div><div id="cr-namebox" hidden><input id="cr-name" maxlength="12" placeholder="Имя героя" autocomplete="off" spellcheck="false" aria-label="Имя героя"></div></div></div>
+<div class="cr-bot"><button class="btn" id="cr-back">Назад</button><button class="go" id="cr-go">Далее</button></div><p class="msg" id="cr-msg" role="status"></p>
+</div></section>
+  <section id="prep" hidden>
+    <div class="wrap pt">
+      <div class="pt-head" id="pt-head"><span class="pt-t">Отряд <small id="count"></small></span><button class="pt-an" id="pt-an" type="button" aria-label="Сила отряда">Сила отряда</button></div>
+      <div class="pick" id="pick" hidden>
+        <span id="pick-t"></span>
+        <div class="row"><button class="btn" id="pick-no">Назад</button><button class="go" id="pick-ok">ОК</button></div>
+      </div>
+      <div class="slots" id="slots"></div>
+      <div class="aura" id="aura"></div>
+      <div class="pt-card" id="pt-card"></div>
+      <p class="msg" id="msg" role="status"></p>
+      <div class="pt-flt" id="pt-flt"></div>
+      <div class="roster" id="roster"></div>
+      <div class="pager" id="ros-pager"></div>
+      <p class="hint" id="comp"></p>
+      <div id="mainspec" hidden></div><div id="mspec" hidden></div>
+      <div hidden><details class="legend">
+            <summary>Что значат характеристики</summary>
+            <p><b>ХП</b> — сколько урона выдержит герой. <b>Атака</b> — сила ударов; у лекарей вместо неё <b>сила лечения</b>. <b>Мана</b> есть только у лекарей: каждое лечение её тратит, и без неё лекарь не лечит.</p>
+            <p><b>Броня</b> — на сколько процентов меньше физического урона. <b>Скорость</b> — как часто ходит герой: при 115 примерно на 15% чаще, чем при 100.</p>
+            <p><b>Уровень</b> у каждого героя свой: ХП, атака и лечение растут примерно на 6% за уровень, броня и скорость не меняются. Танк получает +8% ХП и −10% атаки; лекарь +4% ХП и +8% лечения, но −15% атаки; ДД — +4% атаки и −2% ХП. Разница уровней с врагом сильно влияет на исход боя. Опыт за квест: мейн 100%, компаньон в бою 125% (пока он ниже мейна), остальные герои 25%.</p>
+          </details></div>
+    </div>
+  </section>
+
+  <section id="battle" hidden>
+    <div id="stage">
+      <div class="scene" id="scene"></div>
+      <svg class="aggro" id="aggro" aria-hidden="true"></svg>
+      <div class="tokens" id="tokens"></div>
+      <div class="fx" id="fx"></div>
+      <div class="hud tl"><div class="order" id="order" aria-label="Очередь ходов"></div><div class="enr" id="enr" aria-live="polite"></div><div class="room" id="room"></div><div class="resrow" id="resrow" aria-live="polite"></div></div>
+      <div class="hud tc2" id="bossbar"></div>
+      <div class="hud tr" role="group" aria-label="Управление боем">
+        <button class="hb" id="pause">Пауза</button>
+        <button class="hb" data-speed="1" aria-pressed="true">x1</button>
+        <button class="hb" data-speed="2" aria-pressed="false">x2</button>
+        <button class="hb" data-speed="4" aria-pressed="false">x4</button>
+        <button class="hb" data-speed="8" aria-pressed="false">x8</button>
+        <button class="hb" id="quit">Выйти</button>
+      </div>
+      <div class="banner" id="now" aria-live="polite"></div>
+      <div class="logbox" id="log" role="log" aria-label="Журнал боя"></div>
+      <div class="skillbar" id="skillbar"></div>
+      <div class="card" id="card" hidden></div>
+      
+      <div class="res" id="result" hidden></div>
+    </div>
+  </section>
+</main>
+
+<div class="qsheet" id="polysheet" hidden><div class="qs-in" role="dialog" aria-modal="true" aria-label="Полигон"><button class="qclose" id="polyclose" type="button" aria-label="Закрыть">✕</button><div id="polybody"></div></div></div>
+<div class="qsheet wmsheet" id="wmsheet" hidden><div class="qs-in wm-in" role="dialog" aria-modal="true" aria-label="Карта мира"><button class="qclose" id="wmclose" type="button" aria-label="Закрыть">✕</button><p class="wm-tt">Восточные королевства</p><div class="wm-vp" id="wm-vp"><div class="wm-cv" id="wm-map"></div><div class="wm-zb"><button type="button" class="btn" data-wmzoom="1" aria-label="Приблизить">+</button><button type="button" class="btn" data-wmzoom="-1" aria-label="Отдалить">−</button><button type="button" class="btn" data-wmzoom="0" aria-label="Показать весь континент">⤢</button></div></div><p class="hint wm-hint">Двигай карту пальцем, приближай щипком или кнопками. Открытые земли можно выбрать. Уровни зон — как в классическом WoW.</p></div></div>
+<div class="qsheet" id="tavsheet" hidden><div class="qs-in tav-in" role="dialog" aria-modal="true" aria-label="Таверна"><button class="qclose" id="tavclose" type="button" aria-label="Закрыть">✕</button>
+<h3 class="tav-h">Таверна Златоземья</h3>
+<div class="tav-top"><span class="tav-st" id="tav-stones"></span><button class="go" id="tav-pull">Призыв героя · 50 💎</button></div>
+<div id="tav-result"></div>
+<p class="hint tav-rule">5 одинаковых героев (класс, спек, редкость) = следующая редкость. Каждая ★ и редкость: +1,25% ко всем характеристикам. <span id="tav-coll"></span></p>
+</div></div>
+<audio id="az-a0" preload="metadata" playsinline hidden src="data:audio/mpeg;base64,__AZEROT_HTML_ASSET_8bff6636176243c2f3030079b89ef19a30ac674a14e05489adcb731034d8c7c7__"></audio><audio id="az-a1" preload="metadata" playsinline hidden src="data:audio/mpeg;base64,__AZEROT_HTML_ASSET_7bff58c9e4bb9b2a73985cbc0c983b00fb916ca707971472e51993e0b93b71c2__"></audio><audio id="az-a2" preload="metadata" playsinline hidden src="data:audio/mpeg;base64,__AZEROT_HTML_ASSET_fe035fb05d0439a744dcbe7252e4249f2233f36b8c097fd620326b7ce4116e30__"></audio><audio id="az-a3" preload="metadata" playsinline hidden src="data:audio/mpeg;base64,__AZEROT_HTML_ASSET_db2f11233a616624ad3a0def49e5167b756cb2840b2ce3ec1cfcf72ba47ef99c__"></audio><audio id="az-a4" preload="metadata" playsinline hidden src="data:audio/mpeg;base64,__AZEROT_HTML_ASSET_a4d3878a1ea46eba70e3fc6b90ccc58d5affe75a71974f4048a9631acb124f87__"></audio><audio id="az-a5" preload="metadata" playsinline hidden src="data:audio/mpeg;base64,__AZEROT_HTML_ASSET_c35533cdd12e9f8a38b742b88a1ecfae2da6ff47171fc0f7223cea28ceb73560__"></audio><audio id="az-a6" preload="metadata" playsinline hidden src="data:audio/mpeg;base64,__AZEROT_HTML_ASSET_f0141d6f7dcd63c25b7876af521514ede7f70be76af72cea724ad7146890b884__"></audio><audio id="az-a7" preload="metadata" playsinline hidden src="data:audio/mpeg;base64,__AZEROT_HTML_ASSET_eedcb105f55c9fc893938a6c9b619eb8fb7e26cbfa842314236908228aff7ac8__"></audio><div id="az-entry" role="status" hidden><h2 id="az-entry-zone"></h2><p>Вход в мир…</p></div><script id="az-audio-controller">__AZEROT_SCRIPT_SOURCE_03__</script><script type="application/json" id="az-asset-manifest">__AZEROT_SCRIPT_SOURCE_04__</script>
+<script>__AZEROT_SCRIPT_SOURCE_05__</script>
+<script>__AZEROT_SCRIPT_SOURCE_06__</script>
+<script id="az-responsive-accessibility">__AZEROT_SCRIPT_SOURCE_07__</script><dialog id="aura-info" aria-labelledby="aura-info-title"><h3 id="aura-info-title"></h3><div id="aura-info-body"></div><form method="dialog"><button class="aura-close" autofocus>Закрыть</button></form></dialog>
+
+<!-- AZ49_GALLERY_BEGIN -->
+<style id="az49-gallery-style">__AZEROT_CSS_BLOCK_28__</style>
+<script id="az49-look-data" type="application/json">__AZEROT_SCRIPT_SOURCE_08__</script>
+<script id="az49-gallery-runtime">__AZEROT_SCRIPT_SOURCE_09__</script>
+<!-- AZ49_GALLERY_END -->
+
+<script id="az50-runtime">__AZEROT_SCRIPT_SOURCE_10__</script>
+
+<script id="az51-runtime">__AZEROT_SCRIPT_SOURCE_11__</script>
+
+<script id="az52-runtime">__AZEROT_SCRIPT_SOURCE_12__</script>
+
+<script type="application/json" id="az53-info-data">__AZEROT_SCRIPT_SOURCE_13__</script>
+<script id="az53-runtime">__AZEROT_SCRIPT_SOURCE_14__</script>
+<script id="az54-runtime">__AZEROT_SCRIPT_SOURCE_15__</script>
+<script>__AZEROT_SCRIPT_SOURCE_16__</script><script id="az573-backdrop">__AZEROT_SCRIPT_SOURCE_17__</script></body>
+</html>
