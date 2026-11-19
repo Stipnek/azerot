@@ -1,0 +1,21 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Pilot only: independent 1% stone chance per eligible original defeated enemy, at most one stone per won battle, encounters level 2+. Uses the existing tavern balance. No shopping prices, collection scaling, skip-run payout or final economy tuning. Applied after the world-drop edits.",
+  "edits": [
+    {
+      "name": "stone drop roll, receipt and existing-wallet credit",
+      "old": "  function creditBattleCoins(state) {",
+      "new": "  const stoneDropReceipts = new WeakMap();\n  const STONE_DROP_CHANCE = 0.01;\n  function rollStoneDrop(state, random) {\n    random = random || Math.random;\n    if (!state || state.test || state.result !== 'win' || /^tutorial/.test(state.encounter || '')) return 0;\n    const encounter = B.ENCOUNTERS[state.encounter];\n    if (!encounter || !Number.isFinite(Number(encounter.level)) || Number(encounter.level) < 2 || !Array.isArray(encounter.enemies) || !Array.isArray(state.enemies)) return 0;\n    const remaining = new Map();\n    encounter.enemies.forEach(function (key) { if (typeof key === 'string' && !/dummy|training/i.test(key)) remaining.set(key, (remaining.get(key) || 0) + 1); });\n    let killed = 0;\n    state.enemies.forEach(function (enemy) { if (enemy.hp <= 0 && (remaining.get(enemy.key) || 0) > 0) { killed++; remaining.set(enemy.key, remaining.get(enemy.key) - 1); } });\n    if (!killed) return 0;\n    const roll = random();\n    return Number.isFinite(roll) && roll >= 0 && roll < 1 - Math.pow(1 - STONE_DROP_CHANCE, killed) ? 1 : 0;\n  }\n  function creditStoneDrop(state) {\n    if (!state || state.test || state.result !== 'win' || !S.hero) return null;\n    if (stoneDropReceipts.has(state)) return stoneDropReceipts.get(state);\n    const receipt = { stones: 0, saved: true, failed: false };\n    stoneDropReceipts.set(state, receipt);\n    const amount = rollStoneDrop(state);\n    if (!amount) return receipt;\n    const wallet = tavOf();\n    if (!wallet || !Number.isSafeInteger(wallet.st) || wallet.st < 0 || !Number.isSafeInteger(wallet.st + amount)) { receipt.failed = true; return receipt; }\n    wallet.st += amount; receipt.stones = amount;\n    try { receipt.saved = save() === true; } catch (_) { receipt.saved = false; }\n    return receipt;\n  }\n  function stoneDropHtml(receipt) {\n    if (!receipt) return '';\n    if (receipt.failed) return '<p role=\"alert\">Не удалось зачислить выпавший камень призыва.</p>';\n    if (!receipt.stones) return '';\n    return '<section class=\"box\" aria-label=\"Камни призыва за бой\"><h3>Камни призыва</h3><p>Получено: +' + receipt.stones + '. Добавлено в запас таверны.</p>' + (receipt.saved ? '' : '<p role=\"alert\">Не удалось сохранить камни. Не закрывайте вкладку до успешного сохранения.</p>') + '</section>';\n  }\n  function creditBattleCoins(state) {"
+    },
+    {
+      "name": "award independent stone drop on battle completion",
+      "old": "    const worldDrop = creditWorldDrop(st);",
+      "new": "    const worldDrop = creditWorldDrop(st);\n    const stoneDrop = creditStoneDrop(st);"
+    },
+    {
+      "name": "show stone receipt in victory results",
+      "old": "      battleCoinsHtml(battleCoins) + worldDropHtml(worldDrop) +",
+      "new": "      battleCoinsHtml(battleCoins) + worldDropHtml(worldDrop) + stoneDropHtml(stoneDrop) +"
+    }
+  ]
+}
