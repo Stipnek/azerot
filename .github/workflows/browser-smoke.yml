@@ -1,0 +1,82 @@
+name: Build and browser smoke test
+on:
+  push:
+    branches: ['test/css-roundtrip']
+    paths: ['src/**', 'scripts/**', '.github/workflows/browser-smoke.yml']
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Rebuild from sources and verify
+        run: |
+          mkdir -p preview results
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, re
+          root = Path('src')
+          def script(m):
+              return (root / 'scripts' / f'script-{int(m[1]):02d}.txt').read_bytes()
+          def asset(folder):
+              def restore(m):
+                  key = m[1].decode()
+                  data = (root / folder / (key + '.b64')).read_bytes()
+                  if hashlib.sha256(data).hexdigest() != key:
+                      raise SystemExit('Asset checksum mismatch')
+                  return data
+              return restore
+          def css(m):
+              i = int(m[1])
+              return (root / ('styles.css' if i == 1 else f'styles-{i}.css')).read_bytes()
+          data = (root / 'template.html').read_bytes()
+          data = re.sub(rb'__AZEROT_SCRIPT_SOURCE_([0-9]+)__', script, data)
+          data = re.sub(rb'__AZEROT_CSS_BLOCK_([0-9]+)__', css, data)
+          data = re.sub(rb'__AZEROT_HTML_ASSET_([a-f0-9]{64})__', asset('html-assets'), data)
+          data = re.sub(rb'__AZEROT_CSS_ASSET_([a-f0-9]{64})__', asset('css-assets'), data)
+          original = Path('game-1.txt').read_bytes() + Path('game-2.txt').read_bytes()
+          if data != original:
+              raise SystemExit('Rebuilt HTML differs from original')
+          Path('preview/index.html').write_bytes(data)
+          print(f'OK: {len(data)} identical bytes rebuilt from src')
+          PY
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install playwright==1.56.0
+      - run: python -m playwright install --with-deps chromium
+      - name: Check clean browser startup
+        run: |
+          python3 -m http.server 8765 --directory preview > /tmp/azerot-http.log 2>&1 &
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          errors = []
+          with sync_playwright() as p:
+              browser = p.chromium.launch()
+              context = browser.new_context(viewport={'width': 844, 'height': 390})
+              page = context.new_page()
+              page.on('pageerror', lambda e: errors.append(str(e)))
+              try:
+                  page.goto('http://127.0.0.1:8765/', wait_until='load', timeout=90000)
+                  page.locator('#create:visible, #select:visible').first.wait_for(timeout=30000)
+                  page.wait_for_timeout(3000)
+                  if errors:
+                      raise RuntimeError('JavaScript errors during startup')
+              finally:
+                  page.screenshot(path='results/startup.png', full_page=True)
+                  Path('results/javascript-errors.json').write_text(json.dumps(errors, ensure_ascii=False, indent=2))
+                  context.close()
+                  browser.close()
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-smoke-results
+          path: results/
+          retention-days: 14
