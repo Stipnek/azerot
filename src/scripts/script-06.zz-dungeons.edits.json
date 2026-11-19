@@ -1,0 +1,51 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Independent Deadmines service entry and repeatable fresh runs; live room XP, once-only room settlement and a separate one-time quest XP bonus. This does not implement ability unlock schedules, actual boss equipment tables, skipped-run rewards, or conversion of other legacy repeatable quests.",
+  "edits": [
+    {
+      "name": "independent entry and room settlement helpers",
+      "old": "  function startBattle() {",
+      "new": "  const dungeonRoomReceipts = new WeakMap();\n  function enterFreeDeadmines() {\n    if (!S.hero || S.walk || S.amb || run || playing || tavBusy || !$('battle').hidden) return false;\n    const dungeon = B.DUNGEONS.deadmines;\n    if (!dungeon || S.party.length > dungeon.size) return false;\n    const quest = QUESTS.find(function (q) { return q.k === 'dungeon:deadmines'; });\n    const destination = quest && PLACES[quest.d] ? quest.d : ZONES.westfall && ZONES.westfall.entry;\n    if (!destination || !PLACES[destination]) return false;\n    const hero = S.hero;\n    travel(destination, function () {\n      if (S.hero !== hero) return;\n      S.enc = 'dungeon:deadmines'; S.pick = null; S.auto = false;\n      startBattle();\n    });\n    return true;\n  }\n  function mountFreeDeadmines() {\n    const key = 'dungeon:deadmines', quest = QUESTS.find(function (q) { return q.k === key; });\n    if (quest) { delete quest.rep; delete quest.daily; }\n    let changed = false;\n    S.chars.forEach(function (hero) {\n      if ((hero.rep && hero.rep[key] > 0) || (hero.dly && hero.dly[key] > 0)) {\n        hero.q = hero.q || {};\n        if (hero.q[key] !== 3) { hero.q[key] = 3; changed = true; }\n      }\n    });\n    if (changed) save();\n    const bar = document.getElementById('v571-services');\n    if (!bar || document.getElementById('free-deadmines-entry')) return;\n    const button = gearButton('Мёртвые копи · новый забег', enterFreeDeadmines);\n    button.id = 'free-deadmines-entry';\n    button.title = 'Рекомендуется 19 уровень, до 5 героев. Можно проходить повторно без повторного квеста.';\n    bar.append(button);\n  }\n  function settleDungeonRoom(state) {\n    if (!run) return null;\n    if (run.dk !== 'deadmines') { B.endRoom(run, state); return null; }\n    if (dungeonRoomReceipts.has(state)) return dungeonRoomReceipts.get(state);\n    if (state.encounter !== B.roomKey(run)) return null;\n    const receipt = { xp: 0, saved: true };\n    dungeonRoomReceipts.set(state, receipt);\n    B.endRoom(run, state);\n    if (state.result === 'win') {\n      const reward = giveXp(B.ENCOUNTERS[state.encounter]);\n      receipt.xp = reward.main; syncLevel();\n      try { receipt.saved = save() === true; } catch (_) { receipt.saved = false; }\n    }\n    return receipt;\n  }\n  function startBattle() {"
+    },
+    {
+      "name": "settle Deadmines room once and pay roster XP immediately",
+      "old": "    if (run) B.endRoom(run, st);",
+      "new": "    if (run) settleDungeonRoom(st);"
+    },
+    {
+      "name": "mount permanent independent dungeon button on map services",
+      "old": "  v571Services();\n  S.chars.forEach(migrateV57);",
+      "new": "  v571Services(); mountFreeDeadmines();\n  S.chars.forEach(migrateV57);"
+    },
+    {
+      "name": "allow another fresh run after success or failure",
+      "old": "      '<div class=\"btns\">' + (run.state === 'cleared' ? '' : '<button class=\"btn\" id=\"again\">Ещё раз</button>') + '<button class=\"btn\" id=\"back\">На карту</button></div>';",
+      "new": "      '<div class=\"btns\"><button class=\"btn\" id=\"again\">Новый забег</button><button class=\"btn\" id=\"back\">На карту</button></div>';"
+    },
+    {
+      "name": "separate quest XP descriptor from accumulated room XP",
+      "old": "  function turnIn(k) {",
+      "new": "  function questRewardEncounter(k) {\n    const encounter = encOf(k);\n    return k === 'dungeon:deadmines' ? Object.assign({}, encounter, { rooms: null, type: 'talk', size: 1, xpMult: B.XPC.talk }) : encounter;\n  }\n  function turnIn(k) {"
+    },
+    {
+      "name": "grant only separate quest XP on Deadmines turn-in",
+      "old": "    const e = encOf(k), cu = qMoney(k), r = giveXp(e);",
+      "new": "    const e = encOf(k), cu = qMoney(k), r = giveXp(questRewardEncounter(k));"
+    },
+    {
+      "name": "display the same separate quest XP in journal",
+      "old": "    const xp = B.xpFor(S.level, e), cu = qMoney(k);",
+      "new": "    const xp = B.xpFor(S.level, questRewardEncounter(k)), cu = qMoney(k);"
+    },
+    {
+      "name": "do not present legacy boss names as granted equipment",
+      "old": "'.<br>Добыча:' + loot",
+      "new": "'.<br>Справочный список трофеев боссов (не предметы в сумке):' + loot"
+    },
+    {
+      "name": "label last legacy boss trophy accurately between rooms",
+      "old": "return l ? 'Добыча: ' + esc(l.item) + '.' : '';",
+      "new": "return l ? 'Трофей босса (справочно): ' + esc(l.item) + '.' : '';"
+    }
+  ]
+}
