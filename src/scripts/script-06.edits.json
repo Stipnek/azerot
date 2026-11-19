@@ -1,0 +1,21 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Explicit checked build-time edits to the monolithic UI. These do not modify production game parts. Initial coin tuning reuses the existing ambush per-enemy scale; world drops, stones, quest choices and skipped runs are not implemented here.",
+  "edits": [
+    {
+      "name": "battle coin receipt helpers",
+      "old": "  function finish() {\n    clearTimeout(timer);\n    if (st.test) { finishTest(); return; }",
+      "new": "  const battleCoinReceipts = new WeakMap();\n  function creditBattleCoins(state) {\n    if (!state || state.test || state.result !== 'win' || !S.hero || S.amb) return null;\n    if (battleCoinReceipts.has(state)) return battleCoinReceipts.get(state);\n    const encounter = B.ENCOUNTERS[state.encounter];\n    if (!encounter || !Array.isArray(state.enemies)) return null;\n    const killed = state.enemies.filter(function (enemy) { return enemy.hp <= 0; }).length;\n    if (!killed) return null;\n    const level = Math.max(1, Number(encounter.level) || 1);\n    const receipt = { money: Math.max(1, Math.round(10 * (1 + 0.05 * (level - 1)) * killed)), saved: false };\n    battleCoinReceipts.set(state, receipt);\n    S.money += receipt.money;\n    try { receipt.saved = save() === true; } catch (_) {}\n    return receipt;\n  }\n  function battleCoinsHtml(receipt) {\n    if (!receipt) return '';\n    return '<section class=\"box\" aria-label=\"Добыча за бой\"><h3>Добыча</h3><p>Получено: ' + moneyHtml(receipt.money) + '</p>' + (receipt.saved ? '' : '<p role=\"alert\">Деньги начислены, но сохранить игру не удалось. Не закрывайте вкладку до успешного сохранения.</p>') + '</section>';\n  }\n  function finish() {\n    clearTimeout(timer);\n    if (st.test) { finishTest(); return; }"
+    },
+    {
+      "name": "credit each completed battle state only once",
+      "old": "    const win = st.result === 'win';\n    if (run) B.endRoom(run, st);",
+      "new": "    const win = st.result === 'win';\n    if (run) B.endRoom(run, st);\n    const battleCoins = creditBattleCoins(st);"
+    },
+    {
+      "name": "show receipt next to victory statistics",
+      "old": "      (ambTxt ? '<p class=\"hint\">' + esc(ambTxt) + '</p>' : '')",
+      "new": "      battleCoinsHtml(battleCoins) +\n      (ambTxt ? '<p class=\"hint\">' + esc(ambTxt) + '</p>' : '')"
+    }
+  ]
+}

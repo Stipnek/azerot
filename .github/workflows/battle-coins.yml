@@ -1,0 +1,23 @@
+name: Battle coin reward tests
+on:
+  push:
+    branches: ['work/roster-xp-and-updates']
+    paths: ['src/**', 'scripts/**', '.github/workflows/battle-coins.yml']
+  pull_request:
+    branches: ['main']
+    paths: ['src/**', 'scripts/**', '.github/workflows/battle-coins.yml']
+permissions:
+  contents: read
+jobs:
+  coins:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/test_battle_coins.cjs
+      - run: python3 scripts/build_game.py

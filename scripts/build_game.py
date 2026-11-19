@@ -1,6 +1,7 @@
 from pathlib import Path
 import argparse
 import hashlib
+import json
 import re
 
 p = argparse.ArgumentParser(description='Build Azerot without publishing')
@@ -11,7 +12,19 @@ root = a.root.resolve()
 src = root / 'src'
 
 def script(m):
-    return (src / 'scripts' / f'script-{int(m[1]):02d}.txt').read_bytes()
+    path = src / 'scripts' / f'script-{int(m[1]):02d}.txt'
+    data = path.read_bytes()
+    edits = path.with_suffix('.edits.json')
+    if edits.exists():
+        spec = json.loads(edits.read_text(encoding='utf-8'))
+        if hashlib.sha256(data).hexdigest() != spec['sourceSha256']:
+            raise SystemExit(f'Source changed: inspect edits for {path.name}')
+        for edit in spec['edits']:
+            old, new = edit['old'].encode('utf-8'), edit['new'].encode('utf-8')
+            if not old or data.count(old) != 1:
+                raise SystemExit(f'Non-unique source edit in {path.name}: {edit["name"]}')
+            data = data.replace(old, new, 1)
+    return data
 
 def asset(folder):
     def restore(m):
