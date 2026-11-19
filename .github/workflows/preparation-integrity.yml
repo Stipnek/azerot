@@ -1,0 +1,44 @@
+name: Preparation integrity gate
+on:
+  push:
+    branches: ['test/css-roundtrip']
+  pull_request:
+    branches: ['main']
+permissions:
+  contents: read
+jobs:
+  integrity:
+    if: github.event_name == 'push' || github.head_ref == 'test/css-roundtrip'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify preparation boundary and report every changed file
+        run: |
+          mkdir -p results
+          python3 - <<'PY'
+          import subprocess
+          from pathlib import Path
+          base = '1c23a2cb26d171a73f131af68f5e5478f7f5f8f2'
+          protected = ['index.html', 'game-1.txt', 'game-2.txt', 'patches.json', '.github/workflows/pages.yml']
+          changes = subprocess.check_output(['git', 'diff', '--name-status', '--no-renames', base, 'HEAD'], text=True)
+          Path('results/changed-files.txt').write_text(changes, encoding='utf-8')
+          print(changes)
+          subprocess.run(['git', 'diff', '--exit-code', base, 'HEAD', '--', *protected], check=True)
+          names = subprocess.check_output(['git', 'diff', '--name-only', '--no-renames', base, 'HEAD'], text=True).splitlines()
+          unexpected = [p for p in names if p != 'DEVELOPMENT.md' and not p.startswith(('src/', 'scripts/', '.github/workflows/'))]
+          if unexpected:
+              raise SystemExit('Unexpected integration paths: ' + repr(unexpected))
+          PY
+      - name: Compare current assembled sources with unchanged production game parts
+        run: python3 scripts/build_game.py --check-original
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: preparation-integrity-report
+          path: results/
+          retention-days: 14
