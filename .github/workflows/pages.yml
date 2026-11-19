@@ -1,0 +1,53 @@
+name: Publish Azerot
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/pages.yml', 'patches.json', 'index.html', 'game-1.txt', 'game-2.txt']
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: azerot-pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build site
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          def require(condition, message):
+              if not condition:
+                  raise SystemExit(message)
+          game = (Path('game-1.txt').read_bytes() + Path('game-2.txt').read_bytes()).decode('utf-8')
+          patch = Path('patches.json')
+          for i, op in enumerate(json.loads(patch.read_text(encoding='utf-8')) if patch.exists() else [], 1):
+              old, new = op['from'], op['to']
+              require(bool(old) and game.count(old) == 1, f'Patch {i}: expected exactly one match')
+              game = game.replace(old, new, 1)
+          require('id="az-clean-crest"' in game and '</html>' in game.lower(), 'Incomplete game or missing crest')
+          raw = game.encode('utf-8')
+          digest = hashlib.sha256(raw).hexdigest()
+          loader = Path('index.html').read_text(encoding='utf-8')
+          require(loader.count('?v=573crest') == 1, 'Loader anchor not found')
+          out = Path('_site')
+          out.mkdir()
+          (out / 'index.html').write_text(loader.replace('?v=573crest', '?v=' + digest), encoding='utf-8')
+          mid = len(raw) // 2
+          (out / 'game-1.txt').write_bytes(raw[:mid])
+          (out / 'game-2.txt').write_bytes(raw[mid:])
+          (out / 'version.json').write_text(json.dumps({'build': digest}), encoding='utf-8')
+          PY
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4
+        id: deployment
