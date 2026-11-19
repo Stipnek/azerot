@@ -9,4 +9,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: python3 scripts/check_css_roundtrip.py
+      - name: Extract and verify CSS
+        run: |
+          mkdir css-preview
+          python3 - <<'PY'
+          from contextlib import nullcontext
+          import runpy
+          from unittest.mock import patch
+          with patch('tempfile.TemporaryDirectory', return_value=nullcontext('css-preview')):
+              runpy.run_path('scripts/check_css_roundtrip.py', run_name='__main__')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-css-preview
+          path: css-preview/
+          if-no-files-found: error
+          retention-days: 30
