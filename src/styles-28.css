@@ -9,3 +9,20 @@
 .az49-dialog header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}.az49-dialog h2{font-size:19px;margin:0}.az49-note,.az49-caption{margin:0;font-size:12px}.az49-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;flex:none}.az49-filters label{display:flex;flex-direction:column;gap:3px;font-size:12px;min-width:0}.az49-filters select{box-sizing:border-box;width:100%;min-width:0;max-width:100%;height:38px;font:inherit;font-size:13px;color:#2a1f12;background:#fff7e2;border:1px solid #94774a;border-radius:5px}
 .az49-stage{display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 45%,#343026,#11100d);height:clamp(180px,43vh,410px);min-height:160px;flex:1 0 160px;overflow:hidden;border:1px solid #75603a;border-radius:7px}.az49-stage img{display:block;max-width:100%!important;max-height:100%!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center center!important}.az49-stage img[hidden]{display:none}.az49-stage p{color:#e8d9b3;padding:15px}.az49-caption{min-height:32px;text-align:center;flex:none}.az49-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:none}.az49-nav span{font-variant-numeric:tabular-nums}.az49-chips{display:flex;gap:5px;overflow:auto;max-height:98px;flex:none;padding:2px}.az49-chips button{white-space:nowrap;font-size:12px;min-height:34px}.az49-chips button[aria-pressed=true]{background:#6d4c21;color:#fff4d6}.az49-dialog button:focus-visible{outline:3px solid #a96516;outline-offset:2px}.az49-dialog button:disabled{opacity:.45;cursor:default}
 @media(max-height:500px) and (orientation:landscape){.az49-dialog{display:none;max-height:calc(100vh - 8px);height:calc(100vh - 8px);padding:8px}.az49-dialog[open]{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.8fr);grid-template-rows:auto auto 1fr auto;gap:5px 10px}.az49-dialog header{grid-column:1/3}.az49-note{grid-column:2;grid-row:2}.az49-filters{grid-column:2;grid-row:3;align-self:start}.az49-stage{grid-column:1;grid-row:2/5;height:100%;min-height:0}.az49-caption{grid-column:2;grid-row:3;align-self:end;pointer-events:none;padding-top:65px}.az49-nav{grid-column:2;grid-row:4}.az49-chips{display:none}}
+
+/* Portrait phone artwork: deliberate close crop, not stretched full-body thumbnails. */
+@media (max-width:700px) and (orientation:portrait){
+ #create #cr-stage,#select #sel-stage{background:#090909!important;border:0!important;box-shadow:none!important}
+ #create .cr48-shell>.cr>.cr-fig,#select .cr48-shell>.sel>.sel-fig{border-color:transparent!important;box-shadow:none!important}
+ #create #cr-stage .az50-slide,#select #sel-stage .az51-slide{
+  inset:0!important;left:0!important;top:0!important;bottom:0!important;
+  width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+  object-fit:cover!important;object-position:50% 20%!important;transform:none!important;filter:none!important;
+ }
+ #create #cr-stage::after,#select #sel-stage::after{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;border-radius:inherit;
+  box-shadow:inset 0 0 24px 7px #090909;
+  background:linear-gradient(to top,rgba(9,9,9,.55),transparent 25%);
+ }
+ #create #cr-stage .az50-note,#select #sel-stage .az51-note{z-index:2}
+}
