@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "tests": [
+    "new version notifies without automatic reload",
+    "same build stays silent",
+    "unknown preview build does not enable updater",
+    "combat blocks update",
+    "travel ambush and party selection block update",
+    "dungeon run and summon block update",
+    "open dialog blocks update",
+    "save failure cancels reload and shows error",
+    "save readback mismatch cancels reload",
+    "offline check does not reload",
+    "successful verified save precedes player-requested navigation",
+    "loader retains production version anchor and parses"
+  ],
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "scope": "Actual save/update functions in mocked DOM, network and storage; not a real-browser or production deployment test"
+}
