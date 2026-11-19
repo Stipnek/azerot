@@ -15,15 +15,15 @@ src = root / 'src'
 def script(m):
     path = src / 'scripts' / f'script-{int(m[1]):02d}.txt'
     data = path.read_bytes()
-    edits = path.with_suffix('.edits.json')
-    if edits.exists():
+    original_sha = hashlib.sha256(data).hexdigest()
+    for edits in sorted(path.parent.glob(path.stem + '*.edits.json')):
         spec = json.loads(edits.read_text(encoding='utf-8'))
-        if hashlib.sha256(data).hexdigest() != spec['sourceSha256']:
-            raise SystemExit(f'Source changed: inspect edits for {path.name}')
+        if original_sha != spec['sourceSha256']:
+            raise SystemExit(f'Source changed: inspect {edits.name}')
         for edit in spec['edits']:
             old, new = edit['old'].encode('utf-8'), edit['new'].encode('utf-8')
             if not old or data.count(old) != 1:
-                raise SystemExit(f'Non-unique source edit in {path.name}: {edit["name"]}')
+                raise SystemExit(f'Non-unique source edit in {edits.name}: {edit["name"]}')
             data = data.replace(old, new, 1)
     return data
 
