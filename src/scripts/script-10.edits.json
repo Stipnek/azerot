@@ -1,0 +1,41 @@
+{
+  "sourceBlobSha1": "bc91d77f004641e1f3fe7e99159613da73ce7918",
+  "description": "Shared two-layer cinema controller installed before the creator gallery. Decode before revealing, preserve the old opaque frame until the fade completes, bounded pan/zoom, pause, hidden-screen suspension and reduced motion.",
+  "edits": [
+    {
+      "name": "install shared cinematic gallery controller",
+      "old": "(()=>{'use strict';\n",
+      "new": "(()=>{'use strict';\nconst states=new Set(),byStage=new WeakMap(),reduced=window.matchMedia('(prefers-reduced-motion: reduce)');\nfunction visible(stage){return stage.isConnected&&!stage.closest('[hidden]')&&stage.getClientRects().length>0;}\nfunction dispose(state){clearTimeout(state.timer);state.moves.forEach(move=>move.cancel());states.delete(state);byStage.delete(state.stage);}\nfunction refresh(){for(const state of states){if(!state.stage.isConnected||state.nodes.some(node=>node.parentElement!==state.stage)){dispose(state);continue;}const pause=document.hidden||!visible(state.stage)||state.paused||reduced.matches;state.moves.forEach(move=>{if(reduced.matches)move.cancel();else if(pause)move.pause();else move.play();});state.button.disabled=reduced.matches;state.button.textContent=reduced.matches?'Без движения':state.paused?'Продолжить':'Пауза';state.button.setAttribute('aria-label',state.paused?'Продолжить смену иллюстраций':'Приостановить смену иллюстраций');state.button.setAttribute('aria-pressed',String(state.paused));}}\nfunction stateFor(seed){const stage=seed.parentElement;let state=byStage.get(stage);if(state&&state.nodes.every(node=>node.parentElement===stage))return state;if(state)dispose(state);const other=seed.cloneNode(false);other.removeAttribute('src');other.style.opacity='0';stage.append(other);const button=document.createElement('button');button.type='button';button.dataset.cinemaToggle='';button.dataset[seed.classList.contains('az50-slide')?'az50':'az51']='';button.style.cssText='position:absolute;right:8px;top:8px;z-index:4;min-height:44px;min-width:44px;padding:8px 12px;border:1px solid #cab17b66;border-radius:7px;background:#090909b8;color:#f1e4c8;font:13px system-ui;cursor:pointer';button.style.setProperty('display','block','important');stage.append(button);state={stage,nodes:[seed,other],active:-1,generation:0,moves:[],paused:false,button,timer:0,count:0};button.onclick=()=>{state.paused=!state.paused;refresh();};states.add(state);byStage.set(stage,state);refresh();return state;}\nwindow.AzerotCinema={\n isPaused(stage){refresh();return !stage||document.hidden||!visible(stage)||reduced.matches||!!byStage.get(stage)?.paused;},\n clear(stage){const state=byStage.get(stage);if(!state)return;state.generation++;clearTimeout(state.timer);state.moves.forEach(move=>move.cancel());state.moves=[];state.nodes.forEach(node=>{node.style.opacity='0';node.removeAttribute('src');node.setAttribute('aria-hidden','true');});state.active=-1;state.button.style.setProperty('display','none','important');},\n async show(seed,src,alt,guard){const state=stateFor(seed);if(state.paused&&state.active>=0)return false;const generation=++state.generation,index=state.active===0?1:0,node=state.nodes[index],previous=state.active>=0?state.nodes[state.active]:null;clearTimeout(state.timer);node.getAnimations().forEach(move=>move.cancel());node.style.transition='none';node.style.opacity='0';node.style.zIndex='1';node.src=src;node.alt=alt;try{if(node.decode)await node.decode();}catch(_){return false;}if(state.generation!==generation||!node.isConnected||!guard()||(state.paused&&previous))return false;if(previous){previous.style.zIndex='0';previous.setAttribute('aria-hidden','true');}node.removeAttribute('aria-hidden');state.nodes.forEach(image=>delete image.dataset.cinemaActive);node.dataset.cinemaActive='true';state.active=index;state.button.style.setProperty('display','block','important');const fade=reduced.matches?0:previous?1800:900;state.moves=state.moves.filter(move=>move.playState!=='idle'&&move.playState!=='finished');if(!reduced.matches&&node.animate){const direction=state.count++%2?1:-1;try{state.moves.push(node.animate([{scale:'1.015',translate:(direction*0.2)+'% 0'},{scale:'1.035',translate:(-direction*0.2)+'% 0'}],{duration:14000,easing:'linear',fill:'forwards'}));}catch(_){}}refresh();requestAnimationFrame(()=>requestAnimationFrame(()=>{if(state.generation!==generation||!node.isConnected)return;node.style.transition=fade?'opacity '+fade+'ms ease':'none';node.style.opacity='1';state.timer=setTimeout(()=>{if(state.generation!==generation)return;if(previous){previous.style.opacity='0';previous.getAnimations().forEach(move=>move.cancel());}refresh();},fade);}));return true;}
+};
+document.addEventListener('visibilitychange',refresh);reduced.addEventListener?.('change',refresh);for(const id of ['create','select']){const root=document.getElementById(id);if(root)new MutationObserver(refresh).observe(root,{attributes:true,attributeFilter:['hidden','data-az50-faction']});}
+})();
+(()=>{'use strict';
+"
+    },
+    {
+      "name": "do not hide the visible frame while loading the next image",
+      "old": "im.style.opacity='0';",
+      "new": ""
+    },
+    {
+      "name": "clear stale creator art when no matching image exists",
+      "old": "im.removeAttribute('src');note('Для этого сочетания нет рендеров в галерее');",
+      "new": "window.AzerotCinema.clear(stage);im.removeAttribute('src');note('Для этого сочетания нет рендеров в галерее');"
+    },
+    {
+      "name": "show decoded creator image through the shared controller",
+      "old": "im.src=a.data;im.alt=a.file||'Классический комплект';im.style.opacity='1';note('');",
+      "new": "window.AzerotCinema.show(im,a.data,a.file||'Классический комплект',()=>token===ticket&&im.isConnected&&faction==='alliance');note('');"
+    },
+    {
+      "name": "honour gallery pause and reduced motion before advancing",
+      "old": "if(document.hidden||faction!=='alliance'||!visible($('create'))",
+      "new": "if(window.AzerotCinema.isPaused($('cr-stage'))||document.hidden||faction!=='alliance'||!visible($('create'))"
+    },
+    {
+      "name": "slow creator slideshow to twelve seconds",
+      "old": "},5500);",
+      "new": "},12000);"
+    }
+  ]
+}

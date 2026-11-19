@@ -1,0 +1,31 @@
+{
+  "sourceBlobSha1": "2b5c3c34e1336701f00768e7022ce8027ed69099",
+  "description": "Selected-character gallery uses the shared decoded-image crossfade and motion controller. Character deletion guards remain unchanged.",
+  "edits": [
+    {
+      "name": "keep selected character visible until replacement is decoded",
+      "old": "im.style.opacity='0';",
+      "new": ""
+    },
+    {
+      "name": "clear obsolete selection artwork",
+      "old": "im.removeAttribute('src');message(selection?",
+      "new": "window.AzerotCinema.clear(stage);im.removeAttribute('src');message(selection?"
+    },
+    {
+      "name": "use the same safe crossfade for selected characters",
+      "old": "im.src=a.data;im.alt=selection.name+' — '+(a.file||'классический комплект');im.style.opacity='1';",
+      "new": "window.AzerotCinema.show(im,a.data,selection.name+' — '+(a.file||'классический комплект'),()=>{const live=chosen();return token===ticket&&expected===key&&im.isConnected&&live&&String(live.id)===String(selection?.id);});"
+    },
+    {
+      "name": "respect pause and system motion preferences",
+      "old": "if(document.hidden||!visible($('select'))",
+      "new": "if(window.AzerotCinema.isPaused($('sel-stage'))||document.hidden||!visible($('select'))"
+    },
+    {
+      "name": "slow selected-character slideshow to twelve seconds",
+      "old": "},5500);",
+      "new": "},12000);"
+    }
+  ]
+}
