@@ -27,5 +27,6 @@ jobs:
       - run: node scripts/test_stone_drop.cjs
       - run: node scripts/test_free_dungeon.cjs
       - run: node scripts/test_vendor.cjs
+      - run: node scripts/test_free_travel.cjs
       - run: python3 -m unittest discover -s scripts -p test_coin_assets.py
       - run: python3 scripts/build_game.py
