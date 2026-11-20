@@ -17,7 +17,7 @@ function fixture(status=3){
  vm.createContext(c);vm.runInContext(code,c);return {c,hero,events,q,nodes};
 }
 for(const status of [0,1,2,3]){const f=fixture(status);assert.equal(vm.runInContext('enterFreeDeadmines()',f.c),true);assert.equal(f.c.run.idx,0);assert.equal(f.c.run.carry,null);assert.equal(f.events.begins[0].key,B.DUNGEONS.deadmines.rooms[0]);assert.equal(f.hero.q['dungeon:deadmines'],status);}
-let f=fixture();vm.runInContext('mountFreeDeadmines();mountFreeDeadmines()',f.c);assert.equal(f.events.buttons.length,1);assert.equal(f.q.rep,undefined);assert.equal(f.q.daily,undefined);
+let f=fixture();vm.runInContext('mountFreeDeadmines();mountFreeDeadmines()',f.c);assert.equal(f.events.buttons.length,0);assert.equal(f.q.rep,undefined);assert.equal(f.q.daily,undefined);
 f.hero.rep={'dungeon:deadmines':2};f.hero.q['dungeon:deadmines']=0;vm.runInContext('mountFreeDeadmines()',f.c);assert.equal(f.hero.q['dungeon:deadmines'],3);
 f=fixture();vm.runInContext('enterFreeDeadmines()',f.c);const first=f.c.run,initial=f.hero.hxp.me;
 for(const key of B.DUNGEONS.deadmines.rooms){f.c.room={encounter:key,result:'win',heroes:[{hp:100,maxHp:100,mana:50,maxMana:50}]};vm.runInContext('settleDungeonRoom(room)',f.c);const idx=f.c.run.idx,xp=f.hero.hxp.me;vm.runInContext('settleDungeonRoom(room)',f.c);assert.equal(f.c.run.idx,idx);assert.equal(f.hero.hxp.me,xp);}
@@ -27,4 +27,4 @@ f.c.room={encounter:B.roomKey(f.c.run),result:'lose',heroes:[]};const before=f.h
 f=fixture();f.c.S.walk={};assert.equal(vm.runInContext('enterFreeDeadmines()',f.c),false);f.c.S.walk=null;f.nodes.battle.hidden=false;assert.equal(vm.runInContext('enterFreeDeadmines()',f.c),false);
 f=fixture();const bonus=vm.runInContext("questRewardEncounter('dungeon:deadmines')",f.c);assert.equal(bonus.rooms,null);assert.ok(B.xpFor(20,bonus)>0);assert.ok(B.xpFor(20,bonus)<B.dungeonXp(20,'deadmines'));
 assert.ok(source.includes('mountFreeDeadmines();'));assert.ok(source.includes('id="again">Новый забег'));
-console.log('Free Deadmines tests passed with real Battle run/XP code and actual UI helper functions; mocked travel, DOM, save and battle presentation. Full browser completion, boss inventory drops and ability unlocks are not covered.');
+console.log('Free Deadmines entry, migration, room XP, repeat guards and fresh runs passed. Service instant-start button is absent. Lobby clicks are checked separately in Chromium.');
