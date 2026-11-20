@@ -1,6 +1,6 @@
 {
-  "checked_commit": "d909c703b9e40bfd427ee5dcd815a6e1925e219f",
-  "run_url": "https://github.com/Stipnek/azerot/actions/runs/44829007632",
+  "checked_commit": "dad702fdca3272e04e7e1ca96b4e679fe0f616b4",
+  "run_url": "https://github.com/Stipnek/azerot/actions/runs/44830785630",
   "steps": {
     "tools": "success",
     "source": "failure",
