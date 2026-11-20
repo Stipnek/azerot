@@ -2,3 +2,6 @@
 .v57-services{position:absolute;left:5px;bottom:5px;z-index:7;display:flex;gap:5px;max-width:calc(100% - 10px);flex-wrap:wrap}.v57-services button{min-height:36px;padding:6px 9px;border:1px solid #b69c63;border-radius:6px;background:#251f16ed;color:#f6e4bb;font:600 11px system-ui;cursor:pointer}.map.walking .v57-services{display:none}
 #tavsheet .tv-back .alliance-crest{width:56px!important;height:56px!important;max-width:56px!important;max-height:56px!important;object-fit:contain!important;border-radius:5px!important;image-rendering:auto;filter:none!important}
 #tavsheet .tv-back{background:radial-gradient(ellipse at 50% 38%,#17436d,#081d35 75%)!important;gap:14px!important}#tavsheet .tv-back .faction-name{font:600 11px/1.2 Georgia,serif!important;letter-spacing:2px!important;color:#efd69a!important}#v57-free-hire{width:100%;flex:1 1 100%;min-height:44px;font:600 15px system-ui!important;padding:10px!important}#tavsheet .tav-top{flex-wrap:wrap!important}
+.wmb.az-world-travel-hint{outline:2px solid #e6bd62;outline-offset:2px;animation:az-world-travel-pulse 1.8s ease-in-out infinite}
+@keyframes az-world-travel-pulse{0%,100%{box-shadow:0 0 0 0 #e6bd6240}50%{box-shadow:0 0 12px 4px #e6bd6290}}
+@media(prefers-reduced-motion:reduce){.wmb.az-world-travel-hint{animation:none;box-shadow:0 0 0 2px #e6bd6270}}
