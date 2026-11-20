@@ -3,10 +3,11 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 let source=fs.readFileSync('src/scripts/script-06.txt','utf8');const hash=crypto.createHash('sha256').update(source).digest('hex');
 for(const name of fs.readdirSync('src/scripts').filter(n=>n.startsWith('script-06')&&n.endsWith('.edits.json')).sort()){const spec=JSON.parse(fs.readFileSync('src/scripts/'+name,'utf8'));assert.equal(spec.sourceSha256,hash);for(const e of spec.edits){assert.ok(e.old);assert.equal(source.split(e.old).length-1,1,e.name);source=source.replace(e.old,e.new);}}
 new vm.Script(source);
+function catalogueCode(){const a=source.indexOf('  function dmCatalogue(){'),b=source.indexOf('  function dmGrant(',a);assert.ok(a>=0&&b>a,'Deadmines catalogue dependency');return source.slice(a,b);}
 const inventory=source.indexOf('  function inventoryCount('),inventoryEnd=source.indexOf('  function equipmentStats(',inventory);
 const drops=source.indexOf('  const worldDropReceipts'),dropsEnd=source.indexOf('  function creditBattleCoins(',drops);
 assert.ok(inventory>=0&&inventoryEnd>inventory&&drops>=0&&dropsEnd>drops);
-const catalog=source.slice(source.indexOf('  const gearItems='),inventory);
+const catalog=catalogueCode()+source.slice(source.indexOf('  const gearItems='),inventory);
 const helper=catalog+source.slice(inventory,inventoryEnd)+source.slice(drops,dropsEnd);
 function fixture(level=5){
  const h={level,items:{},gear:{}},env={rolls:[0,0],saved:[]},math=Object.create(Math);math.random=()=>env.rolls.shift()??0.5;

@@ -3,8 +3,9 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 let source=fs.readFileSync('src/scripts/script-06.txt','utf8');const hash=crypto.createHash('sha256').update(source).digest('hex');
 for(const name of fs.readdirSync('src/scripts').filter(n=>n.startsWith('script-06')&&n.endsWith('.edits.json')).sort()){const spec=JSON.parse(fs.readFileSync('src/scripts/'+name,'utf8'));assert.equal(spec.sourceSha256,hash);for(const e of spec.edits){assert.ok(e.old);assert.equal(source.split(e.old).length-1,1,e.name);source=source.replace(e.old,e.new);}}
 new vm.Script(source);
+function catalogueCode(){const a=source.indexOf('  function dmCatalogue(){'),b=source.indexOf('  function dmGrant(',a);assert.ok(a>=0&&b>a,'Deadmines catalogue dependency');return source.slice(a,b);}
 const start=source.indexOf('  function inventoryCount('),end=source.indexOf('  function equipmentStats(',start);assert.ok(start>=0&&end>start);
-const catalog=source.slice(source.indexOf('  const gearItems='),start),helper=source.slice(start,end);
+const catalog=catalogueCode()+source.slice(source.indexOf('  const gearItems='),start),helper=source.slice(start,end);
 function fixture(items={},gear={}){const h={items,gear,money:100},c={S:{hero:h},h};Object.defineProperty(c.S,'money',{get:()=>h.money,set:n=>{h.money=n;}});vm.createContext(c);vm.runInContext(catalog+helper,c);return c;}
 let c=fixture({57001:3,2954:1});
 let clean=vm.runInContext('cleanInventory(h.items)',c);assert.equal(clean[57001],3);assert.equal(clean[2954],1);

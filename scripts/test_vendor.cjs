@@ -3,8 +3,9 @@ const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/st
 let source=fs.readFileSync('src/scripts/script-06.txt','utf8');const hash=crypto.createHash('sha256').update(source).digest('hex');
 for(const name of fs.readdirSync('src/scripts').filter(n=>n.startsWith('script-06')&&n.endsWith('.edits.json')).sort()){const spec=JSON.parse(fs.readFileSync('src/scripts/'+name,'utf8'));assert.equal(spec.sourceSha256,hash);for(const e of spec.edits){assert.ok(e.old);assert.equal(source.split(e.old).length-1,1,e.name);source=source.replace(e.old,e.new);}}
 new vm.Script(source);
+function catalogueCode(){const a=source.indexOf('  function dmCatalogue(){'),b=source.indexOf('  function dmGrant(',a);assert.ok(a>=0&&b>a,'Deadmines catalogue dependency');return source.slice(a,b);}
 function section(start,end){const a=source.indexOf(start),b=source.indexOf(end,a);assert.ok(a>=0&&b>a,start);return source.slice(a,b);}
-const code=section('  const gearItems=','  function equipmentStats(')+section('  var vendorSavePending','  function vendorSaleRender(');
+const code=catalogueCode()+section('  const gearItems=','  function equipmentStats(')+section('  var vendorSavePending','  function vendorSaleRender(');
 function fixture(money=10000){const h={money,items:{},gear:{},tav:{st:5,coll:{}}},env={fail:false,saved:[]},c={h,env,S:{hero:h},tavOf:()=>h.tav,save:()=>{env.saved.push(JSON.stringify(h));return !env.fail;}};Object.defineProperty(c.S,'money',{get:()=>h.money,set:n=>{h.money=n;}});vm.createContext(c);vm.runInContext(code,c);return c;}
 function call(c,expression){return vm.runInContext(expression,c);}
 let c=fixture();let r=call(c,'buyVendorItem(h,1433)');assert.equal(r.ok,true);assert.equal(r.saved,true);assert.equal(c.h.money,9880);assert.equal(c.h.items[1433],1);assert.equal(c.h.gear.chest,undefined);let stored=JSON.parse(c.env.saved[0]);assert.equal(stored.money,9880);assert.equal(stored.items[1433],1);

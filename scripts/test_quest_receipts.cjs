@@ -4,11 +4,12 @@ let source=fs.readFileSync('src/scripts/script-06.txt','utf8');
 const hash=crypto.createHash('sha256').update(source).digest('hex');
 for(const name of fs.readdirSync('src/scripts').filter(n=>n.startsWith('script-06')&&n.endsWith('.edits.json')).sort()){const spec=JSON.parse(fs.readFileSync('src/scripts/'+name,'utf8'));assert.equal(spec.sourceSha256,hash);for(const edit of spec.edits){assert.equal(source.split(edit.old).length-1,1,edit.name);source=source.replace(edit.old,edit.new);}}
 new vm.Script(source);
+function catalogueCode(){const a=source.indexOf('  function dmCatalogue(){'),b=source.indexOf('  function dmGrant(',a);assert.ok(a>=0&&b>a,'Deadmines catalogue dependency');return source.slice(a,b);}
 const engine={module:{exports:{}}};vm.runInNewContext(fs.readFileSync('src/scripts/script-05.txt','utf8'),engine,{timeout:15000});const B=engine.module.exports;
 const begin=source.indexOf('  function questItemReceipt('),end=source.indexOf('  function navOff()',begin);
 const catalogStart=source.indexOf('  const gearItems='),inventoryEnd=source.indexOf('  function equipmentStats(',catalogStart),statsEnd=source.indexOf('  function hasMorbentsBane(',inventoryEnd);
 assert.ok(catalogStart>=0&&inventoryEnd>catalogStart&&statsEnd>inventoryEnd&&begin>=0&&end>begin);
-const code=source.slice(catalogStart,statsEnd)+source.slice(begin,end);
+const code=catalogueCode()+source.slice(catalogStart,statsEnd)+source.slice(begin,end);
 function fixture(key='kobold_camp',options={}){
  const q={k:key,v56:options.v56!==false,daily:!!options.daily,rep:!!options.rep};
  const hero={cls:options.cls,level:8,items:Object.assign({},options.items),gear:Object.assign({},options.gear),q:{[key]:options.state??2},dly:{},rep:{}};
