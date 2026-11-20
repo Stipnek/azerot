@@ -1,50 +1,83 @@
 name: Publish Azerot
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish pinned source build to live after successful checks'
+        required: true
+        type: boolean
+        default: false
 permissions:
   contents: read
-  pages: write
-  id-token: write
 concurrency:
   group: azerot-pages
   cancel-in-progress: false
+env:
+  SOURCE_COMMIT: 01ed5fb1f32349b18745911c35a605871fc3e637
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Build site
+        with:
+          ref: '01ed5fb1f32349b18745911c35a605871fc3e637'
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify pinned source
+        run: test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+      - run: python3 scripts/check_source_edits.py
+      - name: Run reward and gameplay module regressions
+        run: |
+          for test in scripts/test_*.cjs; do
+            node "$test"
+          done
+      - run: python3 -m unittest discover -s scripts -p test_coin_assets.py
+      - run: python3 scripts/build_game.py
+      - name: Package the source build with the existing loader
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import hashlib, json
-          def require(condition, message):
-              if not condition:
-                  raise SystemExit(message)
-          game = (Path('game-1.txt').read_bytes() + Path('game-2.txt').read_bytes()).decode('utf-8')
-          patch = Path('patches.json')
-          for i, op in enumerate(json.loads(patch.read_text(encoding='utf-8')) if patch.exists() else [], 1):
-              old, new = op['from'], op['to']
-              require(bool(old) and game.count(old) == 1, f'Patch {i}: expected exactly one match')
-              game = game.replace(old, new, 1)
-          require('id="az-clean-crest"' in game and '</html>' in game.lower(), 'Incomplete game or missing crest')
-          raw = game.encode('utf-8')
-          digest = hashlib.sha256(raw).hexdigest()
+          import hashlib, json, os
+          raw = Path('preview/index.html').read_bytes()
+          game = raw.decode('utf-8')
+          if 'id="az-clean-crest"' not in game or '</html>' not in game.lower() or 'function dmCatalogue()' not in game:
+              raise SystemExit('Incomplete source build or missing Deadmines patch')
           loader = Path('index.html').read_text(encoding='utf-8')
-          require(loader.count('?v=573crest') == 1, 'Loader anchor not found')
+          if loader.count('?v=573crest') != 1:
+              raise SystemExit('Loader anchor mismatch')
+          digest = hashlib.sha256(raw).hexdigest()
           out = Path('_site')
           out.mkdir()
           (out / 'index.html').write_text(loader.replace('?v=573crest', '?v=' + digest), encoding='utf-8')
           mid = len(raw) // 2
           (out / 'game-1.txt').write_bytes(raw[:mid])
           (out / 'game-2.txt').write_bytes(raw[mid:])
-          (out / 'version.json').write_text(json.dumps({'build': digest}), encoding='utf-8')
+          (out / 'version.json').write_text(json.dumps({'build':digest,'sourceCommit':os.environ['SOURCE_COMMIT']}), encoding='utf-8')
+          if (out / 'game-1.txt').read_bytes() + (out / 'game-2.txt').read_bytes() != raw:
+              raise SystemExit('Release split mismatch')
+          print('Release source:', os.environ['SOURCE_COMMIT'], 'build:', digest, 'bytes:', len(raw))
           PY
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+  deploy:
+    if: github.ref == 'refs/heads/main' && inputs.publish
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - uses: actions/deploy-pages@v4
         id: deployment
