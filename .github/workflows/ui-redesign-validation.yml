@@ -56,13 +56,17 @@ jobs:
         run: |
           python3 scripts/build_game.py
           python3 - <<'PY'
-          import hashlib
+          import hashlib, re
           from pathlib import Path
           raw = Path('preview/index.html').read_bytes()
           digest = hashlib.sha256(raw).hexdigest()
           print('Build bytes:', len(raw), 'SHA-256:', digest)
           assert b'</html>' in raw.lower(), 'Incomplete build'
-          assert b'__AZEROT_' not in raw, 'Unresolved source marker'
+          pattern = rb'__AZEROT_(?:(?:SCRIPT_SOURCE|CSS_BLOCK)_[0-9]+|(?:HTML_ASSET|CSS_ASSET)_[a-f0-9]{64}|COIN_ICON_(?:gold|silver|copper)|DUNGEON_ENTRANCE)__'
+          matches = list(re.finditer(pattern, raw))
+          for match in matches[:20]:
+              print('Unresolved placeholder:', match.group().decode('ascii'), 'offset:', match.start(), 'context:', repr(raw[max(0, match.start()-60):match.end()+60]))
+          assert not matches, 'Unresolved build placeholders: ' + str(len(matches))
           PY
       - name: Dungeon lobby Chromium test
         id: lobby
