@@ -1,0 +1,20 @@
+# HANDOFF_PATHS — Azerot UI review (окно «Город» + подготовка Мёртвых копей)
+# Формат: путь в пакете | точный путь в проекте | статус | SHA-256 | основание
+# Путь в проекте указан относительно корня репозитория (как в Azerot-review-source.zip).
+
+HANDOFF_CHANGED_ONLY/src/template.html | src/template.html | изменён | bd6e334019f13d8b978aad8112c969f6f305c0bb89479e11004f762a43833fdd | подтверждено сборкой: откат 2 правок даёт базовую сборку b3b58be…; откатанный шаблон байт-в-байт равен template.txt снимка 30b31a11
+HANDOFF_CHANGED_ONLY/src/styles-29.css | src/styles-29.css | добавлен | 18e8fc9e0b60ae757b81e55b77be766005dcc12162e18d597301744667c2c7a3 | подтверждено сборкой: в базовом шаблоне нет маркера блока 29
+HANDOFF_CHANGED_ONLY/src/scripts/script-06.zzzzzzzzzzzz.review-ui.edits.json | src/scripts/script-06.zzzzzzzzzzzz.review-ui.edits.json | добавлен | 83de355c6b54575b1d69444be700375d83062996058fd7f2f39b40da6d7e78f3 | подтверждено сборкой: без файла получается базовая сборка b3b58be…
+HANDOFF_CHANGED_ONLY/src/scripts/script-17.zzzzzzzzzzzz.review-ui.edits.json | src/scripts/script-17.zzzzzzzzzzzz.review-ui.edits.json | добавлен | 6f10be6967f30509a87796864b782baf6a09fa77ffb9bdfa6c1b3babe20dd1d4 | подтверждено сборкой: без файла получается базовая сборка b3b58be…
+HANDOFF_CHANGED_ONLY/scripts/test_dungeon_lobby.py | scripts/test_dungeon_lobby.py | изменён | 8989bb7fb3bfcba6a8ae39bca79aa546e3ce7bad75623665efbbdb2451f169cd | НЕ подтверждено сравнением (нет исходной версии); время в ZIP 15:41; файл уже вызывался неизменённым .github/workflows/pages.yml, значит существовал до переделки
+HANDOFF_CHANGED_ONLY/scripts/test_party_quest_ui.py | scripts/test_party_quest_ui.py | изменён | 3ebd5728d8b16784385b7802bfaba37c50dae495b88ae5f9264ae1487bc843bf | НЕ подтверждено сравнением (нет исходной версии); время в ZIP 15:43; файл уже вызывался неизменённым .github/workflows/party-quest-ui.yml
+HANDOFF_CHANGED_ONLY/scripts/browser_ui_review.cjs | scripts/browser_ui_review.cjs | добавлен (по CHANGELOG) | 16747acc8c636b07419c67252021e4afc0555cf769bc598693fe06b91d31b1ac | НЕ подтверждено сравнением; время в ZIP 15:41; ни один другой файл на него не ссылается, CHANGELOG пишет «Added»
+HANDOFF_CHANGED_ONLY/CHANGELOG.md | CHANGELOG.md | не установлено: добавлен или изменён | 4b757cffbd79ad0014541a06e61a1f77a1ce98386e8a79bbbf4514f7ae769368 | НЕ подтверждено сравнением; время в ZIP 15:44; содержит только запись о UI review
+HANDOFF_CHANGED_ONLY/docs/ui-review-register.md | docs/ui-review-register.md | не установлено: добавлен или изменён | c99cd4b7d031ebb7f2452b1bca341af2c7188bce5484f6368c217f3ef0044b42 | НЕ подтверждено сравнением; время в ZIP 15:44; README (не менялся) на него не ссылается
+
+# Удалённые файлы: не обнаружено. Для входов сборки удаления исключены совпадением хеша базовой сборки;
+# для файлов вне сборки (тесты, документы, workflows) отсутствие удалений доказать нельзя — нет исходного архива.
+
+# Отдельно, НЕ код редизайна (ревизия 135e657dee15021c1b3320f0f0456e09f4af85f9, лежат в архиве как dev-readback/, время 12:40):
+SEPARATE_135e657_PARTS/dev-readback/script-06.txt.part-040.txt | dev-readback/script-06.txt.part-040.txt | часть старой ревизии, не изменялась переделкой | 3530cb155c0f6019bcf2b3529542bd627ffe1050c96ec3d8a4f39ebaf31974c2 | собранный из 41 части script-06 даёт SHA-256 434853bf…cc5e из manifest.json; текущий src/scripts/script-06.txt другой
+SEPARATE_135e657_PARTS/dev-readback/script-06.txt.part-041.txt | dev-readback/script-06.txt.part-041.txt | часть старой ревизии, не изменялась переделкой | 9cc7a904f03d91de89b33e60031f381fa863defcb59844120ea8bde92ff3aeff | собранный из 41 части script-06 даёт SHA-256 434853bf…cc5e из manifest.json; текущий src/scripts/script-06.txt другой

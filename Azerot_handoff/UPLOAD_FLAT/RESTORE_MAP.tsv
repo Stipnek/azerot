@@ -1,0 +1,12 @@
+# Карта восстановления: плоское имя -> точный путь в проекте (TAB-разделитель). SHA-256 совпадает с HANDOFF_PATHS.txt.
+# Правило имён: "/" в пути заменён на "__". Имена уникальны, перезаписи нет.
+flat_name	project_path	sha256
+src__template.html	src/template.html	bd6e334019f13d8b978aad8112c969f6f305c0bb89479e11004f762a43833fdd
+src__styles-29.css	src/styles-29.css	18e8fc9e0b60ae757b81e55b77be766005dcc12162e18d597301744667c2c7a3
+src__scripts__script-06.zzzzzzzzzzzz.review-ui.edits.json	src/scripts/script-06.zzzzzzzzzzzz.review-ui.edits.json	83de355c6b54575b1d69444be700375d83062996058fd7f2f39b40da6d7e78f3
+src__scripts__script-17.zzzzzzzzzzzz.review-ui.edits.json	src/scripts/script-17.zzzzzzzzzzzz.review-ui.edits.json	6f10be6967f30509a87796864b782baf6a09fa77ffb9bdfa6c1b3babe20dd1d4
+scripts__test_dungeon_lobby.py	scripts/test_dungeon_lobby.py	8989bb7fb3bfcba6a8ae39bca79aa546e3ce7bad75623665efbbdb2451f169cd
+scripts__test_party_quest_ui.py	scripts/test_party_quest_ui.py	3ebd5728d8b16784385b7802bfaba37c50dae495b88ae5f9264ae1487bc843bf
+scripts__browser_ui_review.cjs	scripts/browser_ui_review.cjs	16747acc8c636b07419c67252021e4afc0555cf769bc598693fe06b91d31b1ac
+CHANGELOG.md	CHANGELOG.md	4b757cffbd79ad0014541a06e61a1f77a1ce98386e8a79bbbf4514f7ae769368
+docs__ui-review-register.md	docs/ui-review-register.md	c99cd4b7d031ebb7f2452b1bca341af2c7188bce5484f6368c217f3ef0044b42
