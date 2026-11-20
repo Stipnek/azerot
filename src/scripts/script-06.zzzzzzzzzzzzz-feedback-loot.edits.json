@@ -1,0 +1,21 @@
+{
+  "sourceSha256":"d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description":"Shared dark item receipts with quality border, existing schematic icon and quantity; no reward, storage or window-position changes. Full item artwork remains pending.",
+  "edits":[
+    {
+      "name":"shared receipt renderer",
+      "old":"  function questItemReceiptHtml(receipt) {",
+      "new":"  function azItemReceiptHtml(item,count) {\n    const color=/^#[0-9a-f]{6}$/i.test(item.color||'')?item.color:'#ffffff';\n    const paths={feet:'M8 4h11v13l7 4v6H5v-8h3z',chest:'M9 4 4 8l3 8 4-2v13h10V14l4 2 3-8-5-4-4 4h-6z',legs:'M7 5h18v22h-7l-2-13-2 13H7z',head:'M5 18v-5a11 11 0 0 1 22 0v5l-5 3v7l-6-3-6 3v-7z'};\n    const path=item.iconPath||paths[item.slot];\n    const image=path?'<svg width=\"38\" height=\"38\" viewBox=\"0 0 32 32\" aria-hidden=\"true\"><path d=\"'+esc(path)+'\" fill=\"#bba47b\" stroke=\"#f5d79d\" stroke-width=\"1\"/></svg>':'<span aria-hidden=\"true\">?</span>';\n    const material={cloth:'Ткань',leather:'Кожа',mail:'Кольчуга',plate:'Латы'}[item.armorType||item.questProfile?.split(':')[0]];\n    const stats=[['armorFlat','Броня'],['stamina','Выносливость'],['strength','Сила'],['agility','Ловкость'],['intellect','Интеллект']].filter(([key])=>item[key]).map(([key,label])=>label+' +'+item[key]);\n    const detail=[material,item.label,item.requiredLevel?'Требуется уровень '+item.requiredLevel:''].filter(Boolean).join(' · ');\n    return '<div class=\"az-item-receipt\" style=\"display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;align-items:start;padding:12px;margin:8px 0;background:#191c20;border:1px solid #635b4b;border-radius:7px;color:#f5ead4;text-align:left;box-sizing:border-box;max-width:100%\"><span class=\"az-item-receipt-icon\" style=\"position:relative;display:grid;place-items:center;box-sizing:border-box;width:56px;height:56px;background:#101215;border:2px solid '+color+';border-radius:5px;box-shadow:inset 0 0 0 2px #0008;color:#f5ead4\">'+image+'<small style=\"position:absolute;right:2px;bottom:1px;padding:0 3px;background:#101215;color:#ffffff;font-size:12px;line-height:16px\">×'+esc(String(count))+'</small></span><span style=\"min-width:0;overflow-wrap:anywhere\"><strong style=\"display:block;color:'+color+';font-size:1rem;line-height:1.35;text-shadow:none;margin:0 0 4px\">'+esc(item.name)+'</strong><small style=\"display:block;color:#ded4c0;line-height:1.4\">'+esc(detail)+'</small><small style=\"display:block;color:#ded4c0;line-height:1.4\">'+esc(stats.join(' · '))+'</small></span></div>';\n  }\n  function questItemReceiptHtml(receipt) {"
+    },
+    {
+      "name":"framed quest notification items",
+      "old":"      return '<li>' + esc(item.name) + ' ×' + entry.count + '<br><small>' + esc([item.label].concat(stats).filter(Boolean).join(' · ')) + '</small></li>';",
+      "new":"      return '<li style=\"list-style:none;margin:0;padding:0\">'+azItemReceiptHtml(item,entry.count)+'</li>';"
+    },
+    {
+      "name":"framed battle drop receipt",
+      "old":"    return '<section class=\"box\" aria-label=\"Предметная добыча\"><h3>Предметная добыча</h3><div style=\"display:flex;gap:8px;align-items:center\"><span style=\"display:inline-block;border:2px solid #9d9d9d;padding:4px\"><svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" aria-hidden=\"true\"><path d=\"' + esc(item.iconPath) + '\" fill=\"currentColor\" stroke=\"#c9ab79\"/></svg></span><span>' + esc(item.name) + ' ×1<br><small>' + esc(item.label) + ' · Броня +' + item.armorFlat + ' · Требуется ' + item.requiredLevel + ' ур.</small></span></div><p>Добавлено в сумку. Не надето автоматически.</p>' + (receipt.saved ? '' : '<p role=\"alert\">Не удалось сохранить добычу. Не закрывайте вкладку до успешного сохранения.</p>') + '</section>';",
+      "new":"    return '<section class=\"box az-loot-receipt\" aria-label=\"Предметная добыча\" style=\"display:block;text-align:left;min-width:0\"><h3 style=\"text-align:left\">Предметная добыча</h3>'+azItemReceiptHtml(item,1)+'<p>Добавлено в сумку. Не надето автоматически.</p>'+(receipt.saved?'':'<p role=\"alert\">Не удалось сохранить добычу. Не закрывайте вкладку до успешного сохранения.</p>')+'</section>';"
+    }
+  ]
+}
