@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Feedback: mark the quest reward heading for left-aligned CSS; reward logic unchanged.",
+  "edits": [
+    {
+      "name": "Mark reward heading",
+      "old": "<h4>Награда</h4><p>' + (xp ?",
+      "new": "<h4 class=az-reward-title>Награда</h4><p>' + (xp ?"
+    }
+  ]
+}

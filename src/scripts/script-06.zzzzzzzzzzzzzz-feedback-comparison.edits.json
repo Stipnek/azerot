@@ -1,0 +1,16 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Neutral intrinsic stats for inspected equipment; explicit replacement comparison only for unworn items. No equipment math, eligibility or saving changes.",
+  "edits": [
+    {
+      "name": "pure comparison rows for inspection",
+      "old": "  function renderV56Gear(root,selected=null,onChange=null){",
+      "new": "  function azGearStatRows(selected,other,on){\n    return [['armorFlat','Броня'],['stamina','Выносливость'],['strength','Сила'],['agility','Ловкость'],['intellect','Интеллект']].map(([key,label])=>{const value=selected[key]||0,delta=on?null:value-(other?.[key]||0);return {key,label,value,delta};}).filter(row=>row.value||(!on&&row.delta));\n  }\n  function renderV56Gear(root,selected=null,onChange=null){"
+    },
+    {
+      "name": "render neutral stats and separately labelled differences",
+      "old": "    for(const [key,label] of [['armorFlat','Броня'],['stamina','Выносливость'],['strength','Сила'],['agility','Ловкость'],['intellect','Интеллект']]){const value=selected[key]||0,delta=on?-value:value-(other?.[key]||0);if(!value&&!delta)continue;const line=document.createElement('span');line.className=delta>0?'az573-up':delta<0?'az573-down':'';line.textContent=label+' '+value+' ('+(delta>0?'+':'')+delta+')';detail.append(line,' ');}",
+      "new": "    for(const row of azGearStatRows(selected,other,on)){\n      const line=document.createElement('div');line.className='az-item-stat';line.style.cssText='display:block;color:#efdfc0;line-height:1.5';line.textContent=row.label+' '+(row.value>0?'+':'')+row.value;\n      if(row.delta!==null&&row.delta!==0){const comparison=document.createElement('small');comparison.className=row.delta>0?'az573-up':'az573-down';comparison.textContent=' · При замене: '+(row.delta>0?'+':'')+row.delta;line.append(comparison); }\n      detail.append(line);\n    }"
+    }
+  ]
+}

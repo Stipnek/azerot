@@ -68,7 +68,8 @@ try:
                 assert saved_hero(page)['party']==['me','ghighrare']
                 checks.append('Real slot picker: current-rarity frame/label, level/rarity ordering, power mode, combined filters and manual selection')
                 page.locator('#bnav [data-tab="map"]').click()
-                page.locator('#v571-services button').filter(has_text='Таверна').first.click()
+                page.locator('#az-services-toggle').click()
+                page.locator('#az-services-menu button').filter(has_text='Таверна').first.click()
                 page.evaluate('window.__originalRandom=Math.random;let n=0;const values=[0.1,0.2,0,0.4];Math.random=()=>values[Math.min(n++,values.length-1)];')
                 page.locator('#tav-pull').click()
                 page.wait_for_function('key=>Object.keys(JSON.parse(localStorage.getItem(key)).chars[0].tav.coll).length===4',arg=key,timeout=15000)
@@ -108,7 +109,8 @@ try:
                 errors=[]
                 page.on('pageerror',lambda error:errors.append(str(error)))
                 enter(page,setup_script(False))
-                page.locator('#v571-services button').filter(has_text='Таверна').first.click()
+                page.locator('#az-services-toggle').click()
+                page.locator('#az-services-menu button').filter(has_text='Таверна').first.click()
                 page.locator('#tav-pull').click()
                 page.wait_for_function('key=>Object.keys(JSON.parse(localStorage.getItem(key)).chars[0].tav.coll).length===1',arg=key,timeout=15000)
                 hero=saved_hero(page)

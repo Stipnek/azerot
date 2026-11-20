@@ -1,0 +1,161 @@
+name: Validate clean UI redesign
+on:
+  push:
+    branches: ['work/ui-redesign-clean']
+    paths: ['.github/workflows/ui-redesign-validation.yml', 'src/**', 'scripts/**']
+permissions:
+  contents: write
+concurrency:
+  group: ui-redesign-validation
+  cancel-in-progress: false
+jobs:
+  validate:
+    if: github.ref == 'refs/heads/work/ui-redesign-clean'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Initialize runner-local paths
+        shell: bash
+        run: |
+          echo "PLAYWRIGHT_BROWSERS_PATH=$RUNNER_TEMP/azerot-browsers" >> "$GITHUB_ENV"
+          echo "NODE_PATH=$RUNNER_TEMP/azerot-ui-tools/node_modules" >> "$GITHUB_ENV"
+      - name: Install browser test tools
+        id: tools
+        continue-on-error: true
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+          npm install --prefix "$RUNNER_TEMP/azerot-ui-tools" --no-package-lock --no-audit --no-fund playwright@1.56.0
+      - name: Source edit invariants
+        id: source
+        continue-on-error: true
+        run: python3 scripts/check_source_edits.py
+      - name: Node regressions
+        id: modules
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          for test in scripts/test_*.cjs; do node "$test"; done
+      - name: Coin unit tests
+        id: coins
+        continue-on-error: true
+        run: python3 -m unittest discover -s scripts -p test_coin_assets.py
+      - name: Build and verify complete game
+        id: build
+        continue-on-error: true
+        run: |
+          python3 scripts/build_game.py
+          python3 - <<'PY'
+          import hashlib, re
+          from pathlib import Path
+          raw = Path('preview/index.html').read_bytes()
+          digest = hashlib.sha256(raw).hexdigest()
+          print('Build bytes:', len(raw), 'SHA-256:', digest)
+          assert b'</html>' in raw.lower(), 'Incomplete build'
+          pattern = rb'__AZEROT_(?:(?:SCRIPT_SOURCE|CSS_BLOCK)_[0-9]+|(?:HTML_ASSET|CSS_ASSET)_[a-f0-9]{64}|COIN_ICON_(?:gold|silver|copper)|DUNGEON_ENTRANCE)__'
+          matches = list(re.finditer(pattern, raw))
+          for match in matches[:20]:
+              print('Unresolved placeholder:', match.group().decode('ascii'), 'offset:', match.start(), 'context:', repr(raw[max(0, match.start()-60):match.end()+60]))
+          assert not matches, 'Unresolved build placeholders: ' + str(len(matches))
+          PY
+      - name: Dungeon lobby Chromium test
+        id: lobby
+        if: steps.tools.outcome == 'success' && steps.build.outcome == 'success'
+        continue-on-error: true
+        run: python3 scripts/test_dungeon_lobby.py
+      - name: Party and quest Chromium regressions
+        id: party
+        if: steps.tools.outcome == 'success' && steps.build.outcome == 'success'
+        continue-on-error: true
+        run: python3 scripts/test_party_quest_ui.py
+      - name: UI review in Chromium at three viewports
+        id: ui
+        if: steps.tools.outcome == 'success' && steps.build.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path('scripts/browser_ui_review.cjs').read_text(encoding='utf-8')
+          old = "const {default:bin}=await import('@sparticuz/chromium');const browser=await chromium.launch({executablePath:await bin.executablePath(),args:bin.args.filter(x=>!x.includes('single-process'))});"
+          assert text.count(old) == 1, 'Browser launcher changed; do not silently alter test'
+          Path('scripts/.ci-browser-ui-review.cjs').write_text(text.replace(old, 'const browser=await chromium.launch();', 1), encoding='utf-8')
+          PY
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory preview > "$RUNNER_TEMP/azerot-preview.log" 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" || true' EXIT
+          for i in $(seq 1 30); do if curl -fsS -o /dev/null http://127.0.0.1:8765/; then break; fi; sleep 1; done
+          node scripts/.ci-browser-ui-review.cjs
+      - name: Record actual outcomes
+        if: always()
+        env:
+          CHECKED_COMMIT: ${{ github.sha }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          OUTCOMES: '{"tools":"${{ steps.tools.outcome }}","source":"${{ steps.source.outcome }}","modules":"${{ steps.modules.outcome }}","coins":"${{ steps.coins.outcome }}","build":"${{ steps.build.outcome }}","lobby":"${{ steps.lobby.outcome }}","party":"${{ steps.party.outcome }}","ui":"${{ steps.ui.outcome }}"}'
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          steps = json.loads(os.environ['OUTCOMES'])
+          build = Path('preview/index.html')
+          report = {
+              'checked_commit': os.environ['CHECKED_COMMIT'],
+              'run_url': os.environ['RUN_URL'],
+              'steps': steps,
+              'all_passed': all(v == 'success' for v in steps.values()),
+              'build_sha256': hashlib.sha256(build.read_bytes()).hexdigest() if build.exists() else None,
+              'screenshots': [str(p) for p in sorted(Path('results/ui-review').glob('*.png'))],
+              'scope': 'Automated Chromium and module checks; not physical Android or full dungeon-run acceptance. No merge or deployment.',
+              'browser_adapter': 'Temporary test copy replaces only the Sparticuz launcher with Playwright Chromium. Assertions unchanged; original source not modified.',
+              'network': 'Test-tool installation, existing coin fetch and existing runtime hosts may require network. No new runtime hosts added.',
+          }
+          out = Path('docs/validation/ui-redesign-ci.json')
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          print(out.read_text(encoding='utf-8'))
+          PY
+      - name: Upload report, screenshots and built game only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-redesign-validation-${{ github.run_number }}
+          retention-days: 14
+          if-no-files-found: warn
+          path: |
+            docs/validation/ui-redesign-ci.json
+            results/ui-review/*.png
+            results/party-quest-ui/*.png
+            preview/index.html
+      - name: Save report to review branch only
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f docs/validation/ui-redesign-ci.json
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/validation/ui-redesign-ci.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'test: record actual clean UI validation outcomes'
+            git push origin HEAD:refs/heads/work/ui-redesign-clean
+          fi
+      - name: Fail validation if any required check did not pass
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('docs/validation/ui-redesign-ci.json').read_text(encoding='utf-8'))
+          assert report['all_passed'], report['steps']
+          PY

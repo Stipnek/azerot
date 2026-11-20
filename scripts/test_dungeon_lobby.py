@@ -27,7 +27,7 @@ try:
             lobby=page.locator('#dm-lobby[open]')
             lobby.wait_for()
             assert page.locator('#battle').is_hidden()
-            assert '6 основных комнат / боссов + 1 необязательный' in lobby.inner_text()
+            assert '6 основных боёв' in lobby.inner_text()
             assert lobby.locator('[data-dm-bosses] li').count()==7
             assert lobby.locator('[data-dm-loot] details').count()==7
             assert lobby.locator('[data-dm-loot] p').count()==21

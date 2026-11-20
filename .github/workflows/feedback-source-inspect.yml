@@ -1,0 +1,60 @@
+name: Inspect feedback UI source
+on:
+  push:
+    branches: ['work/ui-redesign-clean']
+    paths: ['.github/workflows/feedback-source-inspect.yml']
+permissions:
+  contents: write
+concurrency:
+  group: feedback-source-inspect
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - name: Extract real patched source without running game
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root = Path('src/scripts')
+          source = (root / 'script-06.txt').read_bytes()
+          digest = hashlib.sha256(source).hexdigest()
+          for path in sorted(root.glob('script-06*.edits.json')):
+              spec = json.loads(path.read_text(encoding='utf-8'))
+              assert spec['sourceSha256'] == digest, path.name
+              for edit in spec['edits']:
+                  old, new = edit['old'].encode(), edit['new'].encode()
+                  assert old and source.count(old) == 1, (path.name, edit['name'])
+                  source = source.replace(old, new, 1)
+          text = source.decode('utf-8')
+          excerpts = {}
+          for name, marker, before, after in [('inventory', 'const required=selected.requiredLevel||0;', 7000, 3000), ('finish', '  function finish() {', 0, 9000), ('popup', 'function tvToast(', 200, 2000)]:
+              pos = text.find(marker)
+              excerpts[name] = {'found': pos >= 0, 'marker': marker, 'text': text[max(0,pos-before):pos+after] if pos >= 0 else ''}
+          css = []
+          for path in sorted(Path('src').glob('styles*.css')):
+              for line in path.read_text(encoding='utf-8').splitlines():
+                  if any(term in line for term in ['az573-detail', 'az573-down', '#pop', '.pop-', '#result', '#summary']):
+                      css.append({'file': str(path), 'text': line[:2000]})
+          report = {'source_commit': os.environ['SOURCE_COMMIT'], 'excerpts': excerpts, 'styles': css[:40], 'scope': 'Source excerpts only; no gameplay execution, publication or acceptance claim.'}
+          out = Path('docs/validation/feedback-ui-source.json')
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+          PY
+      - name: Save diagnostic source excerpts to review branch
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/validation/feedback-ui-source.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: record focused UI source excerpts'
+            git push origin HEAD:refs/heads/work/ui-redesign-clean
+          fi

@@ -1,0 +1,30 @@
+{
+  "checked_commit": "c55fa846caf22c860019372f58d093c5f0b5e1db",
+  "run_url": "https://github.com/Stipnek/azerot/actions/runs/44797775396",
+  "steps": {
+    "tools": "success",
+    "source": "success",
+    "modules": "success",
+    "coins": "success",
+    "build": "success",
+    "lobby": "success",
+    "party": "success",
+    "ui": "success"
+  },
+  "all_passed": true,
+  "build_sha256": "37e095c37cb57a9be3b33d9d5d0386177c865ab22b03827b3627cee341c2919d",
+  "screenshots": [
+    "results/ui-review/city-desktop.png",
+    "results/ui-review/city-landscape.png",
+    "results/ui-review/city-portrait.png",
+    "results/ui-review/deadmines-desktop.png",
+    "results/ui-review/deadmines-landscape.png",
+    "results/ui-review/deadmines-portrait.png",
+    "results/ui-review/loot-portrait.png",
+    "results/ui-review/route-desktop.png",
+    "results/ui-review/route-landscape.png"
+  ],
+  "scope": "Automated Chromium and module checks; not physical Android or full dungeon-run acceptance. No merge or deployment.",
+  "browser_adapter": "Temporary test copy replaces only the Sparticuz launcher with Playwright Chromium. Assertions unchanged; original source not modified.",
+  "network": "Test-tool installation, existing coin fetch and existing runtime hosts may require network. No new runtime hosts added."
+}
