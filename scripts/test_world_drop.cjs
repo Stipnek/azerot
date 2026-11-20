@@ -6,9 +6,10 @@ new vm.Script(source);
 function catalogueCode(){const a=source.indexOf('  function dmCatalogue(){'),b=source.indexOf('  function dmGrant(',a);assert.ok(a>=0&&b>a,'Deadmines catalogue dependency');return source.slice(a,b);}
 const inventory=source.indexOf('  function inventoryCount('),inventoryEnd=source.indexOf('  function equipmentStats(',inventory);
 const drops=source.indexOf('  const worldDropReceipts'),dropsEnd=source.indexOf('  function creditBattleCoins(',drops);
-assert.ok(inventory>=0&&inventoryEnd>inventory&&drops>=0&&dropsEnd>drops);
+const render=source.indexOf('  function azItemReceiptHtml('),renderEnd=source.indexOf('  function questItemReceiptHtml(',render);
+assert.ok(inventory>=0&&inventoryEnd>inventory&&drops>=0&&dropsEnd>drops&&render>=0&&renderEnd>render);
 const catalog=catalogueCode()+source.slice(source.indexOf('  const gearItems='),inventory);
-const helper=catalog+source.slice(inventory,inventoryEnd)+source.slice(drops,dropsEnd);
+const helper=catalog+source.slice(inventory,inventoryEnd)+source.slice(render,renderEnd)+source.slice(drops,dropsEnd);
 function fixture(level=5){
  const h={level,items:{},gear:{}},env={rolls:[0,0],saved:[]},math=Object.create(Math);math.random=()=>env.rolls.shift()??0.5;
  const c={h,env,Math:math,S:{hero:h},hLevel:()=>h.level,
@@ -38,6 +39,6 @@ c.h.items=JSON.parse(c.env.saved.at(-1)).items;assert.equal(vm.runInContext('cle
 c=fixture();c.env.rolls=[0.9];s=battle();r=credit(c,s);assert.equal(r.item,null);c.env.rolls=[0,0];assert.equal(credit(c,s).item,null);assert.equal(c.h.items[1433],undefined);
 c=fixture();c.save=()=>false;r=credit(c,battle());assert.equal(r.saved,false);assert.equal(c.h.items[1433],1);c.receipt=r;assert.ok(vm.runInContext('worldDropHtml(receipt)',c).includes('Не удалось сохранить'));
 c=fixture();c.h.items[1433]=Number.MAX_SAFE_INTEGER;r=credit(c,battle());assert.equal(r.failed,true);assert.equal(r.item,null);assert.equal(c.env.saved.length,0);
-c=fixture();r=credit(c,battle());c.receipt=r;assert.ok(vm.runInContext('worldDropHtml(receipt)',c).includes('Лоскутная броня'));assert.equal(vm.runInContext('worldDropHtml(null)',c),'');
-assert.ok(source.includes('const worldDrop = creditWorldDrop(st);'));assert.ok(source.includes('worldDropHtml(worldDrop)'));assert.ok(source.includes('action.disabled=!on&&hLevel(\'me\')<required'));
-console.log('Starter world-drop tests passed: complete patched UI parses, eligible kills, bounded probability, level filtering, training exclusions, repeat/no-reroll protection, real inventory helpers, saved quantities and receipt errors. Full browser gameplay and final item artwork are not covered.');
+c=fixture();r=credit(c,battle());c.receipt=r;assert.ok(vm.runInContext('worldDropHtml(receipt)',c).includes('Лоскутная броня'));assert.ok(vm.runInContext('worldDropHtml(receipt)',c).includes('az-item-receipt'));assert.equal(vm.runInContext('worldDropHtml(null)',c),'');
+assert.ok(source.includes('const worldDrop = creditWorldDrop(st);'));assert.ok(source.includes('worldDropHtml(worldDrop)'));assert.ok(source.includes("action.disabled=!on&&hLevel('me')<required"));
+console.log('Starter world-drop tests passed: complete patched UI parses, eligible kills, bounded probability, level filtering, training exclusions, repeat/no-reroll protection, real inventory helpers, saved quantities, framed receipt and receipt errors. Full browser gameplay and final item artwork are not covered.');

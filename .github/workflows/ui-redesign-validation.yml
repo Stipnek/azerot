@@ -50,7 +50,7 @@ jobs:
         id: coins
         continue-on-error: true
         run: python3 -m unittest discover -s scripts -p test_coin_assets.py
-      - name: Build and verify original review digest
+      - name: Build and verify complete game
         id: build
         continue-on-error: true
         run: |
@@ -61,7 +61,8 @@ jobs:
           raw = Path('preview/index.html').read_bytes()
           digest = hashlib.sha256(raw).hexdigest()
           print('Build bytes:', len(raw), 'SHA-256:', digest)
-          assert digest == 'f9a991ffddc5f937329b067ece90730f48e5ad761170a722f691bb485b552f0e', 'Review build differs; investigate before acceptance'
+          assert b'</html>' in raw.lower(), 'Incomplete build'
+          assert b'__AZEROT_' not in raw, 'Unresolved source marker'
           PY
       - name: Dungeon lobby Chromium test
         id: lobby

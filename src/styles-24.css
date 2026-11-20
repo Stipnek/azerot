@@ -17,3 +17,7 @@
 .az573-pick::-webkit-scrollbar-track{background:#211e19}
 .az573-pick::-webkit-scrollbar-thumb{background:#9f865c;border:2px solid #211e19;border-radius:6px}
 @media(max-width:600px){.az573-pick .az-buttons:has([data-picker-sort]){grid-template-columns:minmax(0,1fr)}}
+
+/* Feedback pass 2: quest reward heading stays top-left. */
+.az-quest-rewards{display:block!important;text-align:left!important}
+.az-quest-rewards h4.az-reward-title{display:block!important;position:static!important;float:none!important;transform:none!important;text-align:left!important;margin:0 0 8px!important;padding:0!important;font-size:1rem;line-height:1.3}
