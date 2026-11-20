@@ -1,0 +1,21 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Implemented zones remain visitable without available quests or a level gate. Missing/unimplemented entry points remain disabled. Quest prerequisites, onboarding goals and removed placeholder zones are unchanged.",
+  "edits": [
+    {
+      "name": "only missing physical zone entries block world-map buttons",
+      "old": "      const lock = !n && !zoneHas(z) && heroZone() !== z, here = heroZone() === z;",
+      "new": "      const lock = !PLACES[zn.entry] || PLACES[zn.entry].z !== z, here = heroZone() === z;\n      const recommended = parseInt(zn.lv, 10), danger = Number.isFinite(recommended) && S.level < recommended;"
+    },
+    {
+      "name": "explain danger as a recommendation rather than a travel requirement",
+      "old": "      return '<button type=\"button\" class=\"wmz' + (z === Z ? ' cur' : '') + (lock ? ' lock' : '') + '\" data-wmz=\"' + z + '\"' + (lock ? ' disabled' : '') + ' style=\"left: ' + pos[0] + '%; top: ' + pos[1] + '%\" aria-label=\"' + esc(zn.name) + ', ' + zn.lv + ' уровень' + (lock ? ', закрыто' : '') + (n ? ', заданий: ' + n : '') + '\"><span class=\"mk\" aria-hidden=\"true\">' + (lock ? '🔒' : (zn.icon || '📍')) + (n ? '<b>' + n + '</b>' : '') + '</span><span class=\"wmz-n\">' + esc(zn.short || zn.name) + '</span><span class=\"wmz-l\">' + zn.lv + ' ур.</span>' + (here ? '<span class=\"wmz-h\">👤 ты здесь</span>' : '') + '</button>';",
+      "new": "      return '<button type=\"button\" class=\"wmz' + (z === Z ? ' cur' : '') + (lock ? ' lock' : '') + '\" data-wmz=\"' + z + '\"' + (lock ? ' disabled' : '') + ' style=\"left: ' + pos[0] + '%; top: ' + pos[1] + '%\" aria-label=\"' + esc(zn.name) + ', рекомендуется ' + esc(zn.lv) + ' уровень' + (lock ? ', вход ещё не реализован' : danger ? ', опасно для текущего уровня, посещение разрешено' : ', посещение разрешено') + (n ? ', заданий: ' + n : '') + '\"><span class=\"mk\" aria-hidden=\"true\">' + (lock ? '🔒' : (zn.icon || '📍')) + (n ? '<b>' + n + '</b>' : '') + '</span><span class=\"wmz-n\">' + esc(zn.short || zn.name) + '</span><span class=\"wmz-l\">Реком. ' + esc(zn.lv) + ' ур.</span>' + (here || danger ? '<span class=\"wmz-h\">' + (here ? 'Ты здесь' + (danger ? ' · опасно' : '') : 'Опасно') + '</span>' : '') + '</button>';"
+    },
+    {
+      "name": "keep the current zone on screen even when it has no available quests",
+      "old": "    if (!S.view && !zoneHas(Z)) { const o = Object.keys(ZONES).find(zoneHas); if (o) Z = o; }\n",
+      "new": ""
+    }
+  ]
+}

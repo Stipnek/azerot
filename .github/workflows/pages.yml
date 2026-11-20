@@ -1,8 +1,5 @@
 name: Publish Azerot
 on:
-  push:
-    branches: [main]
-    paths: ['.github/workflows/pages.yml', 'patches.json', 'index.html', 'game-1.txt', 'game-2.txt']
   workflow_dispatch:
 permissions:
   contents: read

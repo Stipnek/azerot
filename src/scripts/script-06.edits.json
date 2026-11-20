@@ -1,0 +1,46 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Checked UI build edits: battle coins, existing quest-item receipts and embedded WoW money icons. World drops, choice rewards and skipped-run coins remain pending.",
+  "edits": [
+    {
+      "name": "battle coin receipt helpers",
+      "old": "  function finish() {\n    clearTimeout(timer);\n    if (st.test) { finishTest(); return; }",
+      "new": "  const battleCoinReceipts = new WeakMap();\n  function creditBattleCoins(state) {\n    if (!state || state.test || state.result !== 'win' || !S.hero || S.amb) return null;\n    if (battleCoinReceipts.has(state)) return battleCoinReceipts.get(state);\n    const encounter = B.ENCOUNTERS[state.encounter];\n    if (!encounter || !Array.isArray(state.enemies)) return null;\n    const killed = state.enemies.filter(function (enemy) { return enemy.hp <= 0; }).length;\n    if (!killed) return null;\n    const level = Math.max(1, Number(encounter.level) || 1);\n    const receipt = { money: Math.max(1, Math.round(10 * (1 + 0.05 * (level - 1)) * killed)), saved: false };\n    battleCoinReceipts.set(state, receipt);\n    S.money += receipt.money;\n    try { receipt.saved = save() === true; } catch (_) {}\n    return receipt;\n  }\n  function battleCoinsHtml(receipt) {\n    if (!receipt) return '';\n    return '<section class=\"box\" aria-label=\"Добыча за бой\"><h3>Добыча</h3><p>Получено: ' + moneyHtml(receipt.money) + '</p>' + (receipt.saved ? '' : '<p role=\"alert\">Деньги начислены, но сохранить игру не удалось. Не закрывайте вкладку до успешного сохранения.</p>') + '</section>';\n  }\n  function finish() {\n    clearTimeout(timer);\n    if (st.test) { finishTest(); return; }"
+    },
+    {
+      "name": "credit each completed battle state only once",
+      "old": "    const win = st.result === 'win';\n    if (run) B.endRoom(run, st);",
+      "new": "    const win = st.result === 'win';\n    if (run) B.endRoom(run, st);\n    const battleCoins = creditBattleCoins(st);"
+    },
+    {
+      "name": "show receipt next to victory statistics",
+      "old": "      (ambTxt ? '<p class=\"hint\">' + esc(ambTxt) + '</p>' : '')",
+      "new": "      battleCoinsHtml(battleCoins) +\n      (ambTxt ? '<p class=\"hint\">' + esc(ambTxt) + '</p>' : '')"
+    },
+    {
+      "name": "quest item receipt renderer",
+      "old": "  function turnIn(k) {",
+      "new": "  function questItemReceipt(before, after) {\n    return gearItems.map(function (item) {\n      const count = Math.max(0, (+after[item.id] || 0) - (+before[item.id] || 0));\n      return Number.isSafeInteger(count) && count > 0 ? { item: item, count: count } : null;\n    }).filter(Boolean);\n  }\n  function questItemReceiptHtml(receipt) {\n    if (!receipt.length) return '';\n    return '<div class=\"box\" aria-label=\"Полученные предметы\"><b>Получено в сумку</b><ul>' + receipt.map(function (entry) {\n      const item = entry.item, stats = [];\n      if (item.armorFlat) stats.push('Броня +' + item.armorFlat);\n      if (item.stamina) stats.push('Выносливость +' + item.stamina);\n      if (item.intellect) stats.push('Интеллект +' + item.intellect);\n      return '<li>' + esc(item.name) + ' ×' + entry.count + '<br><small>' + esc([item.label].concat(stats).filter(Boolean).join(' · ')) + '</small></li>';\n    }).join('') + '</ul></div>';\n  }\n  function turnIn(k) {"
+    },
+    {
+      "name": "require completed quest and snapshot items before granting",
+      "old": "    const q56=QUESTS[qIdx(k)];if(!q56)return;if(q56.v56&&(qState(k)!==2||!questGoalsDone(q56)))return;",
+      "new": "    const q56=QUESTS[qIdx(k)];if(!q56||qState(k)!==2)return;if(q56.v56&&!questGoalsDone(q56))return;\n    const questItemsBefore = Object.assign({}, S.hero.items || {});"
+    },
+    {
+      "name": "capture actual granted items and save result",
+      "old": "    syncLevel(); save();\n    const vis = QUESTS.filter(function (q, i) { return qVisible(i); });",
+      "new": "    const questItemsReceived = questItemReceipt(questItemsBefore, S.hero.items || {});\n    syncLevel(); const questRewardSaved = save() === true;\n    const vis = QUESTS.filter(function (q, i) { return qVisible(i); });"
+    },
+    {
+      "name": "append granted item receipt to existing quest toast",
+      "old": "    tvToast('✔ Квест сдан<br>+' + r.main + ' опыта · +' + moneyTxt(cu) + (e.res ? '<br>Ресурсы +' + e.res : '') + (stR ? '<br>💎 +' + stR + ' камней призыва' : '') + (r.mainUp ? '<br>Новый уровень: ' + r.mainUp : '') + (tv && stR && stBefore < PULL_COST && tv.st >= PULL_COST ? '<br>Хватает на призыв героя: загляни в таверну 🍺' : ''), 4200);",
+      "new": "    tvToast('✔ Квест сдан<br>+' + r.main + ' опыта · +' + moneyHtml(cu) + (e.res ? '<br>Ресурсы +' + e.res : '') + (stR ? '<br>💎 +' + stR + ' камней призыва' : '') + questItemReceiptHtml(questItemsReceived) + (r.mainUp ? '<br>Новый уровень: ' + r.mainUp : '') + (tv && stR && stBefore < PULL_COST && tv.st >= PULL_COST ? '<br>Хватает на призыв героя: загляни в таверну 🍺' : '') + (questRewardSaved ? '' : '<br>Не удалось сохранить награду. Не закрывайте вкладку до успешного сохранения.'), questItemsReceived.length || !questRewardSaved ? 6500 : 4200);"
+    },
+    {
+      "name": "render original WoW coin images in shared money formatter",
+      "old": "  function moneyHtml(c) { const p = moneyParts(c), o = []; if (p[0]) o.push('<span class=\"cg\">' + p[0] + ' з</span>'); if (p[1]) o.push('<span class=\"cs\">' + p[1] + ' с</span>'); if (p[2] || !o.length) o.push('<span class=\"cm\">' + p[2] + ' м</span>'); return o.join(' '); }",
+      "new": "  function moneyHtml(c) {\n    const p = moneyParts(c), out = [];\n    const images = ['data:image/png;base64,__AZEROT_COIN_ICON_gold__', 'data:image/png;base64,__AZEROT_COIN_ICON_silver__', 'data:image/png;base64,__AZEROT_COIN_ICON_copper__'];\n    const names = ['золото', 'серебро', 'медь'], classes = ['cg', 'cs', 'cm'];\n    p.forEach(function (n, i) {\n      if (n || (i === 2 && !out.length)) out.push('<span class=\"' + classes[i] + '\">' + n + ' <img src=\"' + images[i] + '\" alt=\"' + names[i] + '\" width=\"14\" height=\"14\" style=\"vertical-align:-2px;object-fit:contain\"></span>');\n    });\n    return out.join(' ');\n  }"
+    }
+  ]
+}

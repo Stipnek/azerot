@@ -1,0 +1,11 @@
+{
+  "sourceBlobSha1": "bc91d77f004641e1f3fe7e99159613da73ce7918",
+  "description": "Finish pending pauses synchronously at the captured animation time; retain the existing browser pause assertion.",
+  "edits": [
+    {
+      "name": "freeze the cinematic frame synchronously when paused or hidden",
+      "old": "else if(pause)move.pause();else move.play();",
+      "new": "else if(pause){const held=move.currentTime;move.pause();if(held!==null)move.currentTime=held;}else move.play();"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+ земли', '35–45', 64, 57],
+    ['Тлеющее ущелье', '43–50', 47, 57], ['Пылающие степи', '50–58', 52, 62], ['Перевал Мёртвого Ветра', '55–60', 53, 80],
+    ['Болото Печали', '35–45', 66, 77], ['Выжженные земли', '45–55', 65, 87], ['Тернистая долина', '30–45', 37, 91]
+  ];
+  const WM_LAND = 'M30 4 C40 1 58 2 72 5 C80 7 84 12 80 18 C78 24 74 28 70 31 C64 35 58 37 54 38 C52 40 54 43 58 44 C66 44 72 48 72 54 C72 60 70 63 72 68 C76 74 74 82 72 88 C70 93 62 95 56 92 C52 90 50 92 47 97 C44 99 34 99 31 94 C28 88 32 84 30 80 C26 78 22 74 24 69 C26 64 32 62 34 58 C36 54 34 48 38 44 C42 41 46 40 44 37 C40 35 32 34 28 30 C22 28 14 26 14 20 C14 14 20 7 30 4 Z';
+  const WM = { z: 1, x: 0, y: 0 };
+  function wmApply() {
+    const vp = $('wm-vp'), cv = $('wm-map'); if (!vp || !cv) return;
+    const W = vp.clientWidth, H = vp.clientHeight, cw = W * WM.z, ch = W * 2 * WM.z;
+    WM.x = Math.min(0, Math.max(W - cw, WM.x)); WM.y = Math.min(0, Math.max(H - ch, WM.y));
+    if (ch < H) WM.y = (H - ch) / 2;
+    if (cw < W) WM.x = (W - cw) / 2;
+    cv.style.width = W + 'px'; cv.style.height = W * 2 + 'px';
+    cv.style.transform = 'translate(' + WM.x + 'px,' + WM.y + 'px) scale(' + WM.z + ')';
+    cv.style.setProperty('--iz', 1 / WM.z); cv.style.setProperty('--izb', (WM.z < 1 ? 0.55 : 1) / WM.z);
+    cv.classList.toggle('far', WM.z < 1.6);
+  }
+  function wmZoomAt(nz, px, py) {
+    const vp = $('wm-vp'); nz = Math.max(Math.min(1, vp.clientHeight / (vp.clientWidth * 2)), Math.min(4, nz));
+    const k = nz / WM.z; WM.x = px - (px - WM.x) * k; WM.y = py - (py - WM.y) * k; WM.z = nz; wmApply();
+  }
+  function wmFocus(z, pos) {
+    const vp = $('wm-vp'), W = vp.clientWidth, H = vp.clientHeight;
+    WM.z = z; WM.x = W / 2 - pos[0] / 100 * W * z; WM.y = H / 2 - pos[1] / 100 * W * 2 * z; wmApply();
+  }
+  function wmOpen() {
+    const Z = S.mapZ || viewZone();
+    const land = "<img class=\"wm-svg\" alt=\"\" draggable=\"false\" src=\"data:image/svg+xml;base64,__AZEROT_HTML_ASSET_642ff66f18e5b860f75147f071620e4196db911da148c3ab03a18a3570598dae__\">";
+    const deco = WM_ZONES.map(function (w) { return '<span class="wmx" style="left: ' + w[2] + '%; top: ' + w[3] + '%"><i>🔒</i><b>' + esc(w[0]) + '</b><small>' + w[1] + '</small></span>'; }).join('');
+    $('wm-map').innerHTML = land + deco + Object.keys(ZONES).map(function (z) {
+      const zn = ZONES[z], n = QUESTS.filter(function (q, i) { return qVisible(i) && qZone(q) === z; }).length;
+      const lock = !n && !zoneHas(z) && heroZone() !== z, here = heroZone() === z;
+      const pos = zn.wm || [50, 50];
+      return '<button type="button" class="wmz' + (z === Z ? ' cur' : '') + (lock ? ' lock' : '') + '" data-wmz="' + z + '"' + (lock ? ' disabled' : '') + ' style="left: ' + pos[0] + '%; top: ' + pos[1] + '%" aria-label="' + esc(zn.name) + ', ' + zn.lv + ' уровень' + (lock ? ', закрыто' : '') + (n ? ', заданий: ' + n : '') + '"><span class="mk" aria-hidden="true">' + (lock ? '🔒' : (zn.icon || '📍')) + (n ? '<b>' + n + '</b>' : '') + '</span><span class="wmz-n">' + esc(zn.short || zn.name) + '</span><span class="wmz-l">' + zn.lv + ' ур.</span>' + (here ? '<span class="wmz-h">👤 ты здесь</span>' : '') + '</button>';
+    }).join('');
+    S.qopen = false; S.hub = null; $('qsheet').hidden = true;
+    $('wmsheet').hidden = false; document.body.classList.add('qlock');
+    wmFocus(Math.min(1, $('wm-vp').clientHeight / ($('wm-vp').clientWidth * 2)), [50, 50]);
+  }
+  (function () {
+    const vp = $('wm-vp'); if (!vp) return;
+    const pts = new Map(); let moved = 0, d0 = 0, z0 = 1;
+    vp.addEventListener('pointerdown', function (e) { if (e.target.closest('.wm-zb')) return; pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); moved = 0; if (pts.size === 2) { const a = Array.from(pts.values()); d0 = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); z0 = WM.z; } });
+    vp.addEventListener('pointermove', function (e) {
+      const p = pts.get(e.pointerId); if (!p) return;
+      const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+      if (pts.size === 1) { moved += Math.abs(dx) + Math.abs(dy); if (moved > 6) { vp.classList.add('drag'); try { vp.setPointerCapture(e.pointerId); } catch (er) {} } WM.x += dx; WM.y += dy; wmApply(); }
+      else if (pts.size === 2) { moved = 99; const a = Array.from(pts.values()), r = vp.getBoundingClientRect(), d = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); if (d0) wmZoomAt(z0 * d / d0, (a[0].x + a[1].x) / 2 - r.left, (a[0].y + a[1].y) / 2 - r.top); }
+    });
+    const up = function (e) { pts.delete(e.pointerId); if (!pts.size) setTimeout(function () { vp.classList.remove('drag'); }, 0); };
+    vp.addEventListener('pointerup', up); vp.addEventListener('pointercancel', up);
+    vp.addEventListener('click', function (e) { if (moved > 6) { e.stopPropagation(); e.preventDefault(); moved = 0; } }, true);
+    vp.addEventListener('wheel', function (e) { e.preventDefault(); const r = vp.getBoundingClientRect(); wmZoomAt(WM.z * (e.deltaY < 0 ? 1.2 : 1 / 1.2), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
+    vp.addEventListener('click', function (e) {
+      const b = e.target.closest('[data-wmzoom]'); if (!b) return; e.stopPropagation();
+      const v = +b.dataset.wmzoom, W = vp.clientWidth, H = vp.clientHeight;
+      if (v === 0) { WM.z = Math.min(1, H / (W * 2)); WM.x = 0; WM.y = 0; wmApply(); } else wmZoomAt(WM.z * (v > 0 ? 1.5 : 1 / 1.5), W / 2, H / 2);
+    });
+    window.addEventListener('resize', function () { if (!$('wmsheet').hidden) wmApply(); });
+  })();
+  function wmClose() { $('wmsheet').hidden = true; document.body.classList.remove('qlock'); }
+  function polyRender() {
+    const c = S.polyCfg;
+    const chip = function (attr, val, label, on) { return '<button class="pchip" ' + attr + '="' + val + '" aria-pressed="' + on + '">' + label + '</button>'; };
+    let h = '<h3>Полигон Златоземья</h3><p class="hint">Тренировочный бой без наград: отряд берётся тот, что сейчас. «Ход» здесь ход вашего героя.</p>';
+    h += '<p class="sect">Манекен</p><div class="prow">' + Object.keys(POLY_MODE).map(function (k) { return chip('data-pmode', k, POLY_MODE[k][0] + ' ' + POLY_MODE[k][1], c.mode === k); }).join('') + '</div><p class="hint">' + esc(POLY_MODE[c.mode][2]) + '</p>';
+    h += '<p class="sect">Уровень манекена</p><div class="prow">' + POLY_LV.map(function (l) { return chip('data-plevel', l, l, c.level === l); }).join('') + '</div>';
+    if (c.mode === 'dps') h += '<p class="sect">Цели</p><div class="prow">' + chip('data-pcount', 1, 'Одна цель', c.count === 1) + chip('data-pcount', 3, 'Три цели', c.count === 3) + '</div>';
+    if (c.mode === 'heal') h += '<p class="sect">Урон по манекену</p><div class="prow">' + Object.keys(POLY_PAT).map(function (k) { return chip('data-ppat', k, POLY_PAT[k], c.pattern === k); }).join('') + '</div>';
+    h += '<p class="sect">Длительность</p><div class="prow">' + chip('data-plimit', 30, '30 ходов', c.limit === 30) + chip('data-plimit', 60, '60 ходов', c.limit === 60) + chip('data-plimit', 0, 'Без ограничения', c.limit === 0) + '</div>';
+    h += '<div class="prow"><button class="btn" id="poly-go">Начать</button><button class="btn" id="poly-auto">Автобаланс всех специализаций</button></div><div id="poly-auto-result"></div>'; 
+    const hist = ((S.hero && S.hero.tests) || []).slice(-5).reverse();
+    if (hist.length) h += '<p class="sect">Последние запуски</p><ul class="phist">' + hist.map(function (r) { return '<li><b>' + esc(POLY_MODE[r.mode][1]) + ', ' + r.level + ' ур., ' + (r.limit ? r.limit + ' ходов' : r.turns + ' ходов') + '</b>' + (r.mode === 'dps' ? ', ' + (r.count === 3 ? '3 цели' : '1 цель') : '') + '<br>' + r.rows.map(function (x) { return esc(x.name) + ' (' + esc(x.specName) + '): ' + (r.mode === 'dps' ? Math.round(x.avg) + '/ход' : r.mode === 'heal' ? Math.round(x.healAvg) + '/ход' : 'урона принято ' + Math.round(x.taken)); }).join('; ') + '</li>'; }).join('') + '</ul>';
+    $('polybody').innerHTML = h;
+  }
+  /* Автобаланс: пакетны

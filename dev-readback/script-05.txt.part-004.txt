@@ -1,0 +1,88 @@
+ct adaptations.
+  const PROT_CFG = Object.freeze({ heroicMultiplier: 1, revengeMultiplier: 1.2, reserve: 20, revengeTurns: 2, blockChance: 0.05, blockReduction: 0.30 });
+  const RAGE_COST = Object.freeze({ heroicstrike: 15, revenge: 5, shieldslam: 20, taunt: 0, thunder: 20, wall: 0,
+    mortal: 30, slam: 15, rend: 10, cleave: 20, execute: 15, bloodthirst: 30,
+    whirlwind: 25, deathwish: 10, maul: 15, swipe: 20, roar: 0, regen: 1 });
+  Object.keys(RAGE_COST).forEach(function (k) { SKILLS[k].rage = RAGE_COST[k]; });
+  SKILLS.execute.text = 'Цель ниже 20% ХП. От 15 ярости, расходует весь запас: 300–600% атаки в зависимости от дополнительной ярости.';
+  SKILLS.regen.text = 'При ХП ниже 45% переводит 1–30 ярости в здоровье: 1% максимума ХП за единицу ярости, до 30%. Мгновенная адаптация автобоя.';
+  function rageCostText(skill) {
+    if (skill === 'execute') return 'от 15, весь запас';
+    if (skill === 'regen') return '1–30';
+    return String(RAGE_COST[skill] || 0);
+  }
+  function canPayRage(h, skill) {
+    if (!Object.prototype.hasOwnProperty.call(RAGE_COST, skill)) return true;
+    return !!h.maxRage && Number.isFinite(h.rage) && h.rage + 1e-9 >= RAGE_COST[skill];
+  }
+  function rageCost(h, skill) {
+    if (!canPayRage(h, skill)) return null;
+    if (skill === 'execute') return h.rage;
+    if (skill === 'regen') return Math.min(30, h.rage);
+    return RAGE_COST[skill] || 0;
+  }
+
+  // v32: Classic energy costs. Deadly Poison is a free weapon coating in Classic; Ferocious Bite does not convert extra energy here.
+  const ENERGY_COST = Object.freeze({ sinister: 45, backstab: 60, eviscerate: 35, sliceanddice: 25, rupture: 25,
+    flurry: 25, ambush: 60, coldblood: 0, vanish: 0, preparation: 0, deadlypoison: 0,
+    shred: 60, rake: 40, rip: 30, bite: 35 });
+  Object.keys(ENERGY_COST).forEach(function (k) { SKILLS[k].energy = ENERGY_COST[k]; });
+  function canPayEnergy(h, skill) {
+    if (!Object.prototype.hasOwnProperty.call(ENERGY_COST, skill)) return true;
+    return !!h.maxEnergy && Number.isFinite(h.energy) && h.energy + 1e-9 >= ENERGY_COST[skill];
+  }
+  function energyBlocked(h, skill) {
+    return h.skills.indexOf(skill) !== -1 && !h.cd[skill] && !canPayEnergy(h, skill);
+  }
+
+  const ENEMIES = {
+    dummy_dps: { name: 'Манекен', icon: '🎯', hp: 1000000000, atk: 0, armor: 0.2, res: 0.1, spd: 90, ai: 'dummy', boss: true },
+    dummy_tank: { name: 'Боевой манекен', icon: '🥊', hp: 1000000000, atk: 55, armor: 0.2, res: 0.1, spd: 100, ai: 'tankdummy', boss: true },
+    dummy_src: { name: 'Источник урона', icon: '☄️', hp: 1000000000, atk: 0, armor: 0.2, res: 0.1, spd: 100, ai: 'srcdummy', boss: true },
+    watchman: { name: 'Страж Братства', icon: '💂', hp: 650, atk: 90, armor: 0.15, res: 0.05, spd: 100, ai: 'brute',
+      skills: [{ id: 'smash', name: 'Тяжёлый удар', icon: '💢', cd: 3, text: '170% урона цели' }] },
+    rhahkzor: { name: "Рахк'Зор", icon: '👹', hp: 5600, atk: 280, armor: 0.25, res: 0.10, spd: 95, ai: 'rhahk', boss: true,
+      skills: [{ id: 'slam', name: 'Сокрушение', icon: '💢', cd: 3, text: '210% урона по цели' }] },
+    shredder: { name: 'Крошилка Снида', icon: '⚙️', hp: 4800, atk: 265, armor: 0.35, res: 0.05, spd: 90, ai: 'shredder', boss: true, onDeath: 'sneed',
+      skills: [{ id: 'saw', name: 'Пила', icon: '🪚', cd: 3, text: '150% урона и кровотечение на 3 хода' }] },
+    sneed: { name: 'Снид', icon: '👺', hp: 3600, atk: 330, armor: 0.15, res: 0.10, spd: 112, ai: 'sneed', boss: true,
+      skills: [{ id: 'chop', name: 'Рубящий удар', icon: '🪓', cd: 3, text: '200% урона по цели' }] },
+    gilnid: { name: 'Гилнид', icon: '🧪', hp: 6200, atk: 275, armor: 0.20, res: 0.15, spd: 100, ai: 'gilnid', boss: true,
+      skills: [{ id: 'molten', name: 'Расплавленная сталь', icon: '🔥', cd: 4, text: '80% магического урона всему отряду' }] },
+    smite: { name: 'Мистер Смайт', icon: '🔨', hp: 7000, atk: 295, armor: 0.25, res: 0.10, spd: 105, ai: 'smite', boss: true,
+      skills: [{ id: 'stomp', name: 'Топот', icon: '🦶', cd: 4, text: '55% урона всему отряду' }],
+      phases: [{ at: 0.66, name: 'Новое оружие', icon: '🗡️', flag: 's1' }, { at: 0.33, name: 'Новое оружие', icon: '⚔️', flag: 's2' }] },
+    greenskin: { name: 'Капитан Гринскин', icon: '🏴‍☠️', hp: 4800, atk: 270, armor: 0.20, res: 0.10, spd: 100, ai: 'greenskin', boss: true,
+      skills: [{ id: 'cleave', name: 'Рассечение', icon: '🪓', cd: 3, text: '80% урона трём целям' }, { id: 'harpoon', name: 'Отравленный гарпун', icon: '🏹', cd: 4, text: '120% урона и яд на 3 хода' }] },
+    cookie: { name: 'Кук', icon: '🐟', hp: 3200, atk: 250, armor: 0.10, res: 0.10, spd: 100, ai: 'cookie', boss: true,
+      skills: [{ id: 'brew', name: 'Наваристое варево', icon: '🍲', cd: 4, text: 'лечит Кука на 15% ХП' }] },
+    boar: { name: 'Лесной кабан', icon: '🐗', hp: 380, atk: 45, armor: 0.10, res: 0.05, spd: 95, ai: 'brute',
+      skills: [{ id: 'smash', name: 'Рывок', icon: '💨', cd: 3, text: '170% урона цели' }] },
+    kobold: { name: 'Кобольд-землекоп', icon: '⛏️', hp: 300, atk: 40, armor: 0.10, res: 0.05, spd: 100, ai: 'brute',
+      skills: [{ id: 'smash', name: 'Удар киркой', icon: '⛏️', cd: 3, text: '170% урона цели' }] },
+    gnollBrute: { name: 'Гнолл-громила', icon: '🐺', hp: 1300, atk: 170, armor: 0.15, res: 0.05, spd: 95, ai: 'brute',
+      skills: [{ id: 'smash', name: 'Свирепый удар', icon: '💢', cd: 3, text: '170% урона цели' }] },
+    gnollMystic: { name: 'Гнолл-мистик', icon: '🔮', hp: 850, atk: 130, armor: 0.05, res: 0.15, spd: 105, ai: 'mystic',
+      skills: [{ id: 'heal', name: 'Лечение', icon: '💚', cd: 3, text: 'Лечит раненого гнолла', cond: true }] },
+    wolf: { name: 'Лесной волк', icon: '🐕', hp: 260, atk: 46, armor: 0.05, res: 0.0, spd: 108, ai: 'brute',
+      skills: [{ id: 'smash', name: 'Укус', icon: '🦷', cd: 3, text: '170% урона цели' }] },
+    thief: { name: 'Вор Братства', icon: '🥷', hp: 300, atk: 52, armor: 0.10, res: 0.05, spd: 106, ai: 'brute',
+      skills: [{ id: 'smash', name: 'Удар в бок', icon: '🗡️', cd: 3, text: '170% урона цели' }] },
+    murloc: { name: 'Мурлок-прибрежник', icon: '🐸', hp: 320, atk: 48, armor: 0.05, res: 0.05, spd: 100, ai: 'brute',
+      skills: [{ id: 'smash', name: 'Удар копьём', icon: '🔱', cd: 3, text: '170% урона цели' }] },
+    gnollRunt: { name: 'Гнолл-мародёр', icon: '🐺', hp: 420, atk: 66, armor: 0.10, res: 0.05, spd: 100, ai: 'brute',
+      skills: [{ id: 'smash', name: 'Свирепый удар', icon: '💢', cd: 3, text: '170% урона цели' }] },
+    garrick: { name: 'Гаррик Тихоступ', icon: '🗡️', hp: 3600, atk: 280, armor: 0.15, res: 0.05, spd: 108, ai: 'brute', boss: true,
+      skills: [{ id: 'smash', name: 'Подлый удар', icon: '🔪', cd: 3, text: '170% урона цели' }] },
+    goldtooth: { name: 'Золотозуб', icon: '⛏️', hp: 3800, atk: 290, armor: 0.20, res: 0.05, spd: 100, ai: 'brute', boss: true,
+      skills: [{ id: 'smash', name: 'Удар киркой', icon: '⛏️', cd: 3, text: '170% урона цели' }] },
+    princess: { name: 'Принцесса', icon: '🐗', hp: 3600, atk: 290, armor: 0.10, res: 0.05, spd: 95, ai: 'brute', boss: true,
+      skills: [{ id: 'smash', name: 'Рывок', icon: '💨', cd: 3, text: '170% урона цели' }] },
+    hogger: { name: 'Дробитель', icon: '🐺', hp: 2200, atk: 290, armor: 0.25, res: 0.10, spd: 100, ai: 'hogger', boss: true,
+      skills: [{ id: 'crush', name: 'Сокрушение', icon: '💢', cd: 3, text: '210% урона по цели' }],
+      phases: [{ at: 0.3, name: 'Ярость', icon: '😡', flag: 'enraged' }] },
+    vancleef: { name: 'Эдвин ван Клиф', icon: '🗡️', hp: 7000, atk: 250, armor: 0.20, res: 0.10, spd: 110, ai: 'vancleef', boss: true,
+      skills: [{ id: 'back', name: 'Удар в спину', icon: '🔪', cd: 3, text: '170% урона любому, кроме танка' }],
+      phases: [{ at: 0.5, name: 'Пираты', icon: '🏴‍☠️', flag: 'summoned' }, { at: 0.25, name: 'Ещё пираты', icon: '🏴‍☠️', flag: 'summoned2' }] },
+    pirate: { name: 'Пират Братства', icon: '🏴‍☠️', hp: 950, atk: 150, armor: 0.15, res: 0.05, spd: 100, ai: 'brute',
+      skills: [{ id: 'smash', name: 'Свирепый удар', icon: '💢', 

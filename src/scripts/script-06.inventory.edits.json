@@ -1,0 +1,51 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Quantity-safe known-item inventory. New item definitions, world drop tables and choice rewards remain pending.",
+  "edits": [
+    {
+      "name": "inventory quantities and spare-copy operations",
+      "old": "  function cleanGear(h){return Object.fromEntries(gearItems.filter(i=>h.items?.[i.id]&&h.gear?.[i.slot]===i.id).map(i=>[i.slot,i.id]));}",
+      "new": "  function inventoryCount(items, id) {\n    if (!items || typeof items !== 'object' || !Object.prototype.hasOwnProperty.call(items, id)) return 0;\n    const raw = items[id], n = raw === true ? 1 : typeof raw === 'number' ? raw : typeof raw === 'string' && /^[0-9]+$/.test(raw) ? Number(raw) : 0;\n    return Number.isSafeInteger(n) && n > 0 ? n : 0;\n  }\n  function cleanInventory(items) {\n    return Object.fromEntries(gearItems.map(function (item) { return [item.id, inventoryCount(items, item.id)]; }).filter(function (entry) { return entry[1] > 0; }));\n  }\n  function bagItemCount(hero, item) {\n    return Math.max(0, inventoryCount(hero.items, item.id) - (hero.gear?.[item.slot] === item.id ? 1 : 0));\n  }\n  function addInventoryItem(hero, id, count) {\n    if (!hero || !gearItems.some(function (item) { return item.id === id; }) || !Number.isSafeInteger(count) || count <= 0) return false;\n    const total = inventoryCount(hero.items, id) + count;\n    if (!Number.isSafeInteger(total)) return false;\n    if (!hero.items || typeof hero.items !== 'object' || Array.isArray(hero.items)) hero.items = {};\n    hero.items[id] = total; return true;\n  }\n  function sellInventoryItem(hero, id) {\n    const item = gearItems.find(function (entry) { return entry.id === id; });\n    if (!hero || S.hero !== hero || !item || !Number.isSafeInteger(item.price) || item.price <= 0 || !bagItemCount(hero, item)) return false;\n    const money = S.money + item.price;\n    if (!Number.isSafeInteger(money)) return false;\n    const left = inventoryCount(hero.items, id) - 1;\n    if (left) hero.items[id] = left; else delete hero.items[id];\n    S.money = money; return true;\n  }\n  function cleanGear(h){const items=cleanInventory(h.items);return Object.fromEntries(gearItems.filter(i=>items[i.id]&&h.gear?.[i.slot]===i.id).map(i=>[i.slot,i.id]));}"
+    },
+    {
+      "name": "preserve quantities during character load",
+      "old": "items:Object.fromEntries(gearItems.filter(i=>h.items?.[i.id]).map(i=>[i.id,1]))",
+      "new": "items:cleanInventory(h.items)"
+    },
+    {
+      "name": "add vest quest reward instead of overwriting stock",
+      "old": "    if(k==='kobold_camp'){if(qState(k)!==2)return;S.hero.items=S.hero.items||{};S.hero.items[57001]=1;}",
+      "new": "    if(k==='kobold_camp'){if(qState(k)!==2)return;addInventoryItem(S.hero,57001,1);}"
+    },
+    {
+      "name": "add pants quest reward instead of overwriting stock",
+      "old": "    if(k==='cl_sven15'){S.hero.items=S.hero.items||{};S.hero.items['2954']=1;}",
+      "new": "    if(k==='cl_sven15'){addInventoryItem(S.hero,2954,1);}"
+    },
+    {
+      "name": "show spare equipped-item copies in bag and count stock",
+      "old": "    const inventory=gearItems.filter(i=>h.items?.[i.id]&&!worn(i));root.querySelector('.az573-count').textContent=inventory.length+' / 12';",
+      "new": "    const inventory=gearItems.filter(i=>bagItemCount(h,i)>0);root.querySelector('.az573-count').textContent=inventory.length+' типов · '+inventory.reduce((sum,i)=>sum+bagItemCount(h,i),0)+' шт.';"
+    },
+    {
+      "name": "expand bag rows instead of hiding items after slot twelve",
+      "old": "    for(let n=0;n<12;n++)tile(bag,inventory[n],'Ячейка '+(n+1));",
+      "new": "    for(let n=0;n<Math.max(12,Math.ceil(inventory.length/6)*6);n++)tile(bag,inventory[n],'Ячейка '+(n+1));"
+    },
+    {
+      "name": "display per-item quantity on bag tiles",
+      "old": "cell.append(button);if(parent===equip){const cap=document.createElement('small');",
+      "new": "cell.append(button);if(parent===bag&&i){const count=document.createElement('small');count.textContent='×'+bagItemCount(h,i);cell.append(count);button.setAttribute('aria-label',label+': '+i.name+', количество '+bagItemCount(h,i));}if(parent===equip){const cap=document.createElement('small');"
+    },
+    {
+      "name": "list only sellable spare copies",
+      "old": "const items=gearItems.filter(i=>i.price>0&&h.items?.[i.id]);",
+      "new": "const items=gearItems.filter(i=>i.price>0&&bagItemCount(h,i)>0);"
+    },
+    {
+      "name": "sell exactly one spare copy and preserve worn item",
+      "old": "    for(const i of items){const on=h.gear?.[i.slot]===i.id;const b=gearButton(i.name+' · '+(on?'Сначала сними предмет':'Продать за '+moneyTxt(i.price)),()=>{if(S.hero!==h||!h.items?.[i.id]||h.gear?.[i.slot]===i.id)return;delete h.items[i.id];S.money+=i.price;save();renderHead();vendorRender('Продано: '+i.name);});b.disabled=on;list.append(b);}",
+      "new": "    for(const i of items){const b=gearButton(i.name+' ×'+bagItemCount(h,i)+' · Продать одну за '+moneyTxt(i.price),()=>{if(!sellInventoryItem(h,i.id))return;const saved=save()===true;renderHead();vendorRender('Продано: '+i.name+(saved?'':' · Не удалось сохранить. Не закрывайте вкладку.'));});list.append(b);}"
+    }
+  ]
+}

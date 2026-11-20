@@ -392,7 +392,7 @@
     if (d >= -5) return 'green';
     return 'grey';
   }
-  /* Опыт: на 1 уровень 350, дальше +10% от 350 за уровень; награда 100, +5% от 100 за уровень героя */
+  /* Опыт: на 1 уровень 350, дальше +10% от 350 за уровень; награда 100, +5% от 100 за уровень задания; уровень получателя не влияет */
   const XPC = { first: 350, step: 0.10, base: 100, rew: 0.05, cap: 30, talk: 0.6, elite: 2.5, group: 2, room: 1, mainPct: 1, fightPct: 1.25, rosterPct: 1 };
   function xpNeed(l) { return Math.round(XPC.first * (1 + XPC.step * (l - 1))); }
   function xpAt(l) { let s = 0; for (let i = 1; i < l; i++) s += xpNeed(i); return s; }
@@ -400,13 +400,12 @@
   function levelProgress(xp) { const l = levelOf(xp); return l >= XPC.cap ? { level: l, cur: 0, need: 0 } : { level: l, cur: Math.max(0, xp) - xpAt(l), need: xpNeed(l) }; }
   function xpFor(heroLvl, enc) {
     if (enc.rooms) return enc.rooms.reduce(function (a, r) { return a + xpFor(heroLvl, ENCOUNTERS[r]); }, 0);
-    const d = enc.level - heroLvl;
+    const rewardLevel = enc.level; // Reward belongs to the encounter, not its recipient.
     const mult = enc.xpMult != null ? enc.xpMult : (enc.type === 'talk' ? XPC.talk : enc.type === 'dungeon' ? XPC.room : enc.elite ? XPC.elite : 1);
-    const m = d <= -6 ? 0 : d <= -3 ? 0.5 : d > 0 ? 1 + 0.1 * Math.min(d, 6) : 1;
     const grp = enc.size >= 3 && enc.type !== 'talk' ? XPC.group : 1; /* групповые бои: ×2 опыта (решение 16 ноября) */
-    return Math.round(XPC.base * (1 + XPC.rew * (heroLvl - 1)) * mult * grp * m);
+    return Math.round(XPC.base * (1 + XPC.rew * (rewardLevel - 1)) * mult * grp);
   }
-  /* кто сколько получил за квест: мейн 100%, компаньон в бою 125% (пока ниже мейна), остальной ростер 25% */
+  /* кто сколько получил за квест: мейн 100%, компаньон в бою 125% (пока ниже мейна), остальной ростер 100% */
   function xpShares(enc, heroes) {
     const mainLv = (heroes.find(function (h) { return h.main; }) || { level: 1 }).level;
     return heroes.map(function (h) {

@@ -1,0 +1,121 @@
+name: Guarded roster XP correction
+on:
+  push:
+    branches: ['work/roster-xp-and-updates']
+    paths: ['.github/workflows/roster-xp-patch.yml']
+permissions:
+  contents: write
+concurrency:
+  group: roster-xp-patch
+  cancel-in-progress: false
+jobs:
+  patch-and-test:
+    if: github.ref == 'refs/heads/work/roster-xp-and-updates'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: work/roster-xp-and-updates
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply exact source replacements
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p = Path('src/scripts/script-05.txt')
+          raw = p.read_bytes()
+          if hashlib.sha256(raw).hexdigest() != '72dd440f99376a18469588c111273cee763c354d50df48ed04f869c01ee7b2f1':
+              raise SystemExit('Source changed; audit again before applying')
+          text = raw.decode('utf-8')
+          replacements = [
+              ('    const d = enc.level - heroLvl;', '    const rewardLevel = enc.level; // Reward belongs to the encounter, not its recipient.'),
+              ('    const m = d <= -6 ? 0 : d <= -3 ? 0.5 : d > 0 ? 1 + 0.1 * Math.min(d, 6) : 1;\n', ''),
+              ('    return Math.round(XPC.base * (1 + XPC.rew * (heroLvl - 1)) * mult * grp * m);', '    return Math.round(XPC.base * (1 + XPC.rew * (rewardLevel - 1)) * mult * grp);'),
+              ('награда 100, +5% от 100 за уровень героя', 'награда 100, +5% от 100 за уровень задания; уровень получателя не влияет'),
+              ('компаньон в бою 125% (пока ниже мейна), остальной ростер 25%', 'компаньон в бою 125% (пока ниже мейна), остальной ростер 100%')
+          ]
+          for old, new in replacements:
+              if text.count(old) != 1:
+                  raise SystemExit('Expected exactly one replacement: ' + old)
+              text = text.replace(old, new, 1)
+          p.write_bytes(text.encode('utf-8'))
+          PY
+      - name: Test the complete current battle module
+        run: |
+          node <<'JS'
+          const fs = require('node:fs');
+          const vm = require('node:vm');
+          const assert = require('node:assert/strict');
+          const crypto = require('node:crypto');
+          const source = fs.readFileSync('src/scripts/script-05.txt', 'utf8');
+          const context = { module: { exports: {} }, console };
+          vm.runInNewContext(source, context, { timeout: 15000 });
+          const B = context.module.exports;
+          const passed = [];
+          function test(name, fn) { fn(); passed.push(name); }
+          const e = { level: 1, type: 'solo', size: 1, xpMult: 10 };
+          test('current cap stays 30', () => assert.equal(B.XPC.cap, 30));
+          test('1000 reward independent of recipient level', () => {
+            for (const level of [1, 5, 15, 29, 30, 60]) assert.equal(B.xpFor(level, e), 1000);
+          });
+          const heroes = [
+            { cls: 'me', main: true, level: 30, fights: true },
+            { cls: 'g1', level: 1, fights: true },
+            { cls: 'g2', level: 1, fights: false },
+            { cls: 'g3', level: 30, fights: true },
+            { cls: 'g4', level: 29, fights: false }
+          ];
+          test('reserve 100 percent, lagging fighter 125 percent', () => {
+            assert.equal(JSON.stringify(B.xpShares(e, heroes).map(x => x.xp)), JSON.stringify([1000, 1250, 1000, 1000, 1000]));
+          });
+          test('roster size does not dilute awards', () => {
+            const large = heroes.concat(Array.from({ length: 100 }, (_, i) => ({ cls: 'extra' + i, level: 1, fights: false })));
+            const shares = B.xpShares(e, large);
+            assert.equal(shares[1].xp, 1250);
+            assert.equal(shares[104].xp, 1000);
+          });
+          test('bonus eligibility uses pre-award levels', () => {
+            assert.equal(B.xpShares(e, [{ cls: 'me', main: true, level: 2 }, { cls: 'g1', level: 1, fights: true }])[1].xp, 1250);
+          });
+          test('one award can cross multiple level thresholds', () => assert.equal(B.levelOf(1250), 4));
+          test('level cap cannot be exceeded', () => assert.equal(B.levelOf(B.xpAt(30) + 1000000), 30));
+          test('JSON round trip preserves awarded experience', () => {
+            const hxp = {};
+            for (const s of B.xpShares(e, heroes)) hxp[s.cls] = s.xp;
+            const restored = JSON.parse(JSON.stringify({ hxp }));
+            assert.equal(restored.hxp.g1, 1250);
+            assert.equal(restored.hxp.g2, 1000);
+          });
+          test('real dungeon reward equals its room sum for every recipient', () => {
+            const entry = Object.entries(B.DUNGEONS)[0];
+            assert.ok(entry);
+            const [key, dungeon] = entry;
+            const expected = dungeon.rooms.reduce((sum, room) => sum + B.xpFor(1, B.ENCOUNTERS[room]), 0);
+            assert.ok(expected > 0);
+            for (const level of [1, 15, 30]) {
+              assert.equal(B.xpFor(level, dungeon), expected);
+              assert.equal(B.dungeonXp(level, key), expected);
+            }
+          });
+          fs.mkdirSync('dev-readback', { recursive: true });
+          fs.writeFileSync('dev-readback/roster-xp-test-results.json', JSON.stringify({
+            status: 'passed',
+            sourceSha256: crypto.createHash('sha256').update(source).digest('hex'),
+            tests: passed,
+            scope: 'Battle module unit tests only; no browser, actual localStorage integration, duplicate payout, dungeon entry or per-room payout verification'
+          }, null, 2) + '\n');
+          console.log('Passed ' + passed.length + ' roster XP unit tests');
+          JS
+      - name: Build preview without publishing
+        run: python3 scripts/build_game.py
+      - name: Commit tested source and unit-test report only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- src/scripts/script-05.txt dev-readback/roster-xp-test-results.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'fix: make roster XP independent of recipient level'
+          git push origin HEAD:refs/heads/work/roster-xp-and-updates

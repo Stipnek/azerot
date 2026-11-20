@@ -1,0 +1,105 @@
+' + (f.icon || EFF_ICON[f.kind] || '•') + (f.turns && f.kind !== 'enrage' ? '<i>' + f.turns + '</i>' : '') + '</span>'; }).join('');
+      t.bf.innerHTML = shown + (efs.length > 3 ? '<span class="bf">+' + (efs.length - 3) + '</span>' : '');
+      if (u.side === 'enemy') t.el.classList.toggle('warn', u.hp > 0 && u.eskills.some(function (s) { return !s.cond && (u.cd[s.id] || 0) <= 1; }));
+      if (u.side === 'hero' && !u.pet && !u.dummy && u.hp > 0 && u.hp / u.maxHp < 0.25 && !saidLow[u.id]) { saidLow[u.id] = true; say(u, 'low'); }
+    });
+    updateBoss();
+    updateRes();
+    drawAggro();
+  }
+  /* Аура лидера и сработавшие резонансы: видно прямо в бою */
+  let resKey = '';
+  function updateRes() {
+    const el = $('resrow'); if (!el) return;
+    const a = st && st.aura; const nm = a && a.name ? a.name : '', rs = a && a.res ? a.res : [];
+    const key = nm + '|' + rs.join(',');
+    if (key === resKey) return; resKey = key;
+    el.innerHTML = nm ? '<button type="button" class="rc" data-aura-info="1" aria-haspopup="dialog" aria-label="' + esc('Аура: ' + nm + '. Показать бонусы') + '">✦ Аура: ' + esc(nm) + '</button>' + rs.map(function (r) { return '<span class="rc on">✓ ' + esc(r) + '</span>'; }).join('') : '';
+  }
+
+  let auraDialogBattle = null, auraDialogPause = null;
+  $('resrow').addEventListener('click', function (ev) {
+    if (!ev.target.closest('[data-aura-info]') || !st || !st.aura || !st.aura.name) return;
+    const dialog = $('aura-info'), a = st.aura;
+    $('aura-info-title').textContent = 'Аура: ' + a.name;
+    const hero = st.heroes.find(function (h) { return h.isMain; }) || st.heroes[0];
+    const def = hero && B.AURAS[hero.cls + ':' + hero.spec];
+    const active = def ? def.r.filter(function (r) { return a.res.indexOf(r.n) !== -1; }) : [];
+    $('aura-info-body').innerHTML = '<p>Аура вашего героя даёт бонус отряду.</p><p>' + esc(a.text || '') + '</p>' +
+      (active.length ? '<p>Активные резонансы:</p><ul>' + active.map(function (r) { return '<li>' + esc(r.n) + ': ' + esc(r.x) + '</li>'; }).join('') + '</ul>' : '<p>Дополнительные резонансы сейчас не активны.</p>');
+    auraDialogBattle = st; auraDialogPause = paused;
+    if (!st.over) { paused = true; clearTimeout(timer); $('pause').textContent = 'Продолжить'; }
+    dialog.onclose = function () {
+      if (st === auraDialogBattle && st && !st.over) { paused = auraDialogPause; $('pause').textContent = paused ? 'Продолжить' : 'Пауза'; if (!paused) schedule(200); }
+      auraDialogBattle = null; auraDialogPause = null;
+    };
+    dialog.showModal();
+  });
+
+  function updateBoss() {
+    const boss = st.enemies.find(function (e) { return e.boss && e.hp > 0; }) || st.enemies.find(function (e) { return e.boss; });
+    const el = $('bossbar');
+    if (!boss) { el.classList.remove('on'); return; }
+    el.classList.add('on');
+    if (!el.firstChild) el.innerHTML = '<div class="bossbar"><div class="bn"><span id="bn-n"></span><span id="bn-l"></span></div><div class="bb"><i id="bb-i"></i><span id="bb-p"></span><span class="bt" id="bb-t"></span></div></div>';
+    $('bn-n').textContent = boss.name;
+    $('bn-l').textContent = boss.level + ' ур.';
+    $('bb-i').style.width = Math.max(0, boss.hp / boss.maxHp * 100) + '%';
+    $('bb-t').textContent = boss.dummyInf ? '∞' : (boss.hp > 0 ? boss.hp + ' / ' + boss.maxHp : 'Повержен');
+    const ph = boss.phases.filter(function (p) { return !boss.flags[p.flag]; });
+    $('bb-p').innerHTML = ph.map(function (p) { return '<u style="left: ' + (p.at * 100) + '%" title="' + esc(p.name) + '"></u>'; }).join('');
+  }
+
+  function drawAggro() {
+    const svg = $('aggro'), f = stageRect();
+    svg.setAttribute('viewBox', '0 0 ' + f.width + ' ' + f.height);
+    let out = '<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1L9 5L1 9z" fill="#ff5a4a"/></marker></defs>';
+    if (!st.over) st.enemies.forEach(function (e) {
+      if (e.ghost || e.hp <= 0 || !e.aggro || !toks[e.id] || !toks[e.aggro]) return;
+      const tg = B.byId(st, e.aggro); if (!tg || tg.hp <= 0) return;
+      const a = topPoint(toks[e.id].el), b = topPoint(toks[e.aggro].el);
+      const lift = Math.max(24, f.height * 0.2 + Math.abs(a.x - b.x) * 0.08);
+      const cx = (a.x + b.x) / 2, cy = Math.min(a.y, b.y) - lift;
+      const taunted = e.effects.some(function (x) { return x.kind === 'taunt'; });
+      out += '<path d="M' + a.x + ' ' + a.y + ' Q' + cx + ' ' + cy + ' ' + b.x + ' ' + b.y + '" fill="none" stroke="#ff5a4a" stroke-width="' + (taunted ? 3 : 2) + '" stroke-dasharray="' + (taunted ? '0' : '6 5') + '" stroke-opacity=".9" marker-end="url(#ah)"/>';
+    });
+    svg.innerHTML = out;
+  }
+
+  function renderOrder() {
+    if (st.over) { $('order').innerHTML = ''; return; }
+    $('order').innerHTML = B.turnOrder(st, 9).filter(function (id) { const u = B.byId(st, id); return u && !u.ghost; }).slice(0, 8).map(function (id, i) {
+      const u = B.byId(st, id);
+      return '<span class="chip' + (u.side === 'enemy' ? ' e' : '') + (i === 0 ? ' first' : '') + '" title="' + esc(u.name) + '">' + unitBadge(u) + '</span>';
+    }).join('');
+  }
+  function turnsWord(n) {
+    const a = n % 10, b = n % 100;
+    return n + (a === 1 && b !== 11 ? ' ход' : (a >= 2 && a <= 4 && (b < 10 || b >= 20) ? ' хода' : ' ходов'));
+  }
+  function renderEnrage() {
+    const el = $('enr');
+    if (!st || !st.enrage || st.over) { el.textContent = ''; el.className = 'enr'; return; }
+    const n = B.enrageIn(st);
+    if (!st.enrageStacks) { el.className = 'enr' + (n <= 25 ? ' hot' : ''); el.textContent = 'Ярость врагов через ' + turnsWord(n); }
+    else { el.className = 'enr bad'; el.textContent = 'Враги в ярости: урон +' + Math.round(st.enrageStacks * st.enrage.step * 100) + '%, ещё рост через ' + turnsWord(n); }
+  }
+
+  function renderSkillBar() {
+    const u = st.current ? B.byId(st, st.current) : null;
+    const el = $('skillbar');
+    if (!u || st.over) { el.innerHTML = ''; return; }
+    if (u.side === 'enemy' || u.dummy) { el.classList.add('idle'); return; }
+    el.classList.remove('idle');
+    barUid = u.id;
+    let pr = '';
+    let h = '<div class="wico" title="' + esc(u.name) + '" style="--tc: var(--c-' + (u.pet ? u.ownerCls : u.cls) + ')"><span aria-hidden="true">' + unitBadge(u) + '</span>' + (u.maxCp ? '<i>' + '●'.repeat(u.cp) + '○'.repeat(u.maxCp - u.cp) + '</i>' : '') + '</div>';
+    if (u.side === 'hero') {
+      const A = presentationAuto(u);
+      h += '<div class="ab auto" data-sk="auto" title="' + esc(A.name) + '"><span aria-hidden="true">' + wowIcon(A) + '</span></div>';
+      h += u.skills.map(function (s) {
+        const d = B.SKILLS[s], left = cdHide && cdHide.id === u.id && cdHide.sk === s ? 0 : (u.cd[s] || 0), nomana = !(cdHide && cdHide.id === u.id && cdHide.sk === s) && d.mana && u.maxMana && u.mana < d.mana, norage = !(cdHide && cdHide.id === u.id && cdHide.sk === s) && d.rage !== undefined && !B.canPayRage(u, s), noenergy = !(cdHide && cdHide.id === u.id && cdHide.sk === s) && d.energy !== undefined && !B.canPayEnergy(u, s);
+        return '<div class="ab' + (nomana ? ' nomana' : '') + (norage ? ' norage' : '') + (noenergy ? ' noenergy' : '') + (s === 'revenge' && !(u.revengeReady > 0) ? ' noproc' : '') + '" data-sk="' + s + '" title="' + esc(d.name + (s === 'revenge' ? (u.revengeReady > 0 ? ': готов, осталось ' + u.revengeReady + ' х.' : ': нужен блок, уклонение или парирование') : '') + (norage ? ': недостаточно ярости' : '') + (noenergy ? ': недостаточно энергии' : '') + (d.rage !== undefined ? ', ярость ' + B.rageCostText(s) : '') + (d.energy !== undefined ? ', энергия ' + d.energy : '')) + '"><span aria-hidden="true">' + wowIcon(d) + '</span><span class="sw" style="--p: ' + (left ? left / (d.cd || 1) * 100 : 0) + '%"></span><span class="cdn">' + (left || '') + '</span></div>';
+      }).join('');
+      const pss = u.pet ? [] : passivesOf(B.specOf(u.cls, u.spec)).concat(u.racePassive ? [u.racePassive] : []);
+      if (!pss.length && !u.ra
