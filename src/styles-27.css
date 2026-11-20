@@ -1,1 +1,6 @@
 #tavsheet .tv-back .alliance-crest,#tavsheet .tav-ready-card .alliance-crest{width:88%!important;height:86%!important;max-width:88%!important;object-fit:contain!important;outline:none!important;border:0!important}#tavsheet .tv-back .faction-name{display:none}#tavsheet .tv-back:has(.alliance-crest)::before{display:none!important}
+#dm-map-entry{width:72px!important;height:55px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;isolation:isolate}
+#dm-map-entry .mk{display:block!important;position:absolute!important;inset:0!important;width:72px!important;height:55px!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent url("__AZEROT_DUNGEON_ENTRANCE__") center/contain no-repeat!important;box-shadow:none!important;font-size:0!important;color:transparent!important;transform:none!important;pointer-events:none}
+#dm-map-entry .mk::before,#dm-map-entry .mk::after{display:none!important}
+#dm-map-entry .nmx{position:absolute!important;top:100%!important;left:50%!important;transform:translateX(-50%)!important;white-space:nowrap;pointer-events:none}
+#dm-map-entry:focus-visible{outline:2px solid #e8cb85!important;outline-offset:3px}

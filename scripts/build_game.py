@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 import re
+from urllib.parse import quote
 from coin_assets import restore_coin
 
 p = argparse.ArgumentParser(description='Build Azerot without publishing')
@@ -47,7 +48,12 @@ data = re.sub(rb'__AZEROT_CSS_BLOCK_([0-9]+)__', css, data)
 data = re.sub(rb'__AZEROT_HTML_ASSET_([a-f0-9]{64})__', asset('html-assets'), data)
 data = re.sub(rb'__AZEROT_CSS_ASSET_([a-f0-9]{64})__', asset('css-assets'), data)
 data = re.sub(rb'__AZEROT_COIN_ICON_(gold|silver|copper)__', lambda m: restore_coin(root, m[1].decode()), data)
-if re.search(rb'__AZEROT_(?:SCRIPT_SOURCE|CSS_BLOCK|HTML_ASSET|CSS_ASSET|COIN_ICON)_[A-Za-z0-9_]*__', data):
+entrance_marker = b'__AZEROT_DUNGEON_ENTRANCE__'
+if entrance_marker in data:
+    entrance_svg = (src / 'assets' / 'dungeon-entrance.svg').read_text(encoding='utf-8')
+    entrance_uri = ('data:image/svg+xml,' + quote(entrance_svg, safe='')).encode('ascii')
+    data = data.replace(entrance_marker, entrance_uri)
+if re.search(rb'__AZEROT_(?:SCRIPT_SOURCE|CSS_BLOCK|HTML_ASSET|CSS_ASSET|COIN_ICON|DUNGEON_ENTRANCE)_[A-Za-z0-9_]*__', data) or entrance_marker in data:
     raise SystemExit('Unresolved source marker in build')
 if a.check_original:
     original = (root / 'game-1.txt').read_bytes() + (root / 'game-2.txt').read_bytes()
