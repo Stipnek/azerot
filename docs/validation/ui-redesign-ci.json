@@ -1,10 +1,10 @@
 {
-  "checked_commit": "953a0678a2a2125d2abcb4fbb1e2d7ed0ebcd0f5",
-  "run_url": "https://github.com/Stipnek/azerot/actions/runs/44789153597",
+  "checked_commit": "c23bf64dd22237c1dc976b91db9d6fd7efad4488",
+  "run_url": "https://github.com/Stipnek/azerot/actions/runs/44790527679",
   "steps": {
     "tools": "success",
     "source": "success",
-    "modules": "failure",
+    "modules": "success",
     "coins": "success",
     "build": "failure",
     "lobby": "skipped",
@@ -12,7 +12,7 @@
     "ui": "skipped"
   },
   "all_passed": false,
-  "build_sha256": "5b0b48ed815c4532653b2e0c10d7172e9412fa68a20a1d1a1a808085a4e817e7",
+  "build_sha256": "c791b6dbb55681d30df6040a7c28034654e995bcb0c0746cfdab90a9fda5d8b6",
   "screenshots": [],
   "scope": "Automated Chromium and module checks; not physical Android or full dungeon-run acceptance. No merge or deployment.",
   "browser_adapter": "Temporary test copy replaces only the Sparticuz launcher with Playwright Chromium. Assertions unchanged; original source not modified.",
