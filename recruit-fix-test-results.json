@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "sourceSha256": "b5a06fb960619261d59e8ca281f9a250c3eb0ac9b8f9c5d4fdfbdd496b7384f6",
+  "tests": [
+    "complete UI script parses",
+    "paid recruit starts at zero XP; main XP 0 unchanged",
+    "free recruit starts at zero XP; main XP 0 unchanged",
+    "paid recruit starts at zero XP; main XP 1000 unchanged",
+    "free recruit starts at zero XP; main XP 1000 unchanged",
+    "paid recruit starts at zero XP; main XP 50000 unchanged",
+    "free recruit starts at zero XP; main XP 50000 unchanged",
+    "duplicate preserves existing companion XP",
+    "unapproved replay control creation removed (static check)"
+  ],
+  "scope": "Real recruitment functions with mocked dependencies and state; syntax and static UI checks. Not a browser or persistence integration test."
+}

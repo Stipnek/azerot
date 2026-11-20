@@ -1,0 +1,63 @@
+T.mode === 'heal' ? o.healAvg : o.avg); if (!pv) return '<td>—</td>'; const d = (val / pv - 1) * 100; return '<td class="' + (d >= 0 ? 'up' : 'dn') + '">' + (d >= 0 ? '▲ ' : '▼ ') + Math.abs(d).toFixed(1) + '%</td>'; };
+    const end = st.result === 'lose' ? 'Отряд погиб на ходу ' + st.mainTurns : (T.limit && st.mainTurns >= T.limit ? 'Проба закончена: ' + st.mainTurns + ' ходов' : 'Остановлено на ходу ' + st.mainTurns);
+    const f0 = function (v) { return Math.round(v).toLocaleString('ru-RU'); };
+    let body = '';
+    if (T.mode === 'dps') body = '<div class="pscroll"><table class="ptab"><tr><th>Герой</th><th>В ход</th><th>Пик (5)</th><th>10 ходов</th><th>Крит</th><th>Δ</th></tr>' + rows.filter(function (r) { return r.total > 0 || r.role !== 'heal'; }).map(function (r) { return '<tr><td>' + classBadge(r.cls,r.spec || (r.key ? r.key.split('.')[1] : null)) + ' ' + esc(r.name) + '<br><small>' + esc(r.specName) + '</small></td><td>' + f0(r.avg) + '</td><td>' + f0(r.peak) + '</td><td>' + f0(r.first10) + '</td><td>' + Math.round(r.crit * 100) + '%</td>' + delta(r.key, r.avg) + '</tr>'; }).join('') + '</table></div>';
+    else if (T.mode === 'heal') body = '<div class="pscroll"><table class="ptab"><tr><th>Герой</th><th>Лечение</th><th>В ход</th><th>Перелечено</th><th>Δ</th></tr>' + rows.filter(function (r) { return r.heal > 0 || r.role === 'heal'; }).map(function (r) { return '<tr><td>' + classBadge(r.cls,r.spec || (r.key ? r.key.split('.')[1] : null)) + ' ' + esc(r.name) + '<br><small>' + esc(r.specName) + '</small></td><td>' + f0(r.heal) + '</td><td>' + f0(r.healAvg) + '</td><td>' + Math.round(r.overPct * 100) + '%</td>' + delta(r.key, r.healAvg) + '</tr>'; }).join('') + '</table></div><p class="pnote">Манекен погиб раз: <b>' + st.dummyDeaths + '</b> (после смерти воскресает).</p>';
+    else body = '<div class="pscroll"><table class="ptab"><tr><th>Герой</th><th>Принято урона</th><th>В ход</th><th>Состояние</th></tr>' + rows.map(function (r) { return '<tr><td>' + classBadge(r.cls,r.spec || (r.key ? r.key.split('.')[1] : null)) + ' ' + esc(r.name) + '<br><small>' + esc(r.specName) + '</small></td><td>' + f0(r.taken) + '</td><td>' + f0(r.taken / r.turns) + '</td><td>' + (r.dead ? 'погиб' : 'жив') + '</td></tr>'; }).join('') + '</table></div>';
+    const crow = rows.filter(function (r) { return r.total > 0; });
+    const chart = T.mode === 'dps' ? polyChart(crow) + '<div class="pleg">' + crow.map(function (r) { return '<span><i style="background: var(--c-' + r.cls + ')"></i>' + esc(r.name) + '</span>'; }).join('') + '</div>' : '';
+    $('result').innerHTML = '<h2 class="win">Полигон: итоги</h2><p class="pnote">' + esc(POLY_MODE[T.mode][1]) + ', манекен ' + T.level + ' ур.' + (T.mode === 'dps' ? (T.count === 3 ? ', три цели' : ', одна цель') : '') + (T.mode === 'heal' ? ', урон: ' + POLY_PAT[T.pattern] : '') + '. ' + end + '.</p>' + body + chart + '<div class="btns"><button class="btn" id="tagain">Ещё раз</button><button class="btn" id="tset">К настройкам</button><button class="btn" id="tback">На карту</button></div>';
+    $('result').hidden = false; $('log').classList.remove('open');
+    $('tagain').onclick = function () { beginBattle('test', null, Object.assign({}, T)); };
+    $('tset').onclick = function () { toPrep(); polyOpen(); };
+    $('tback').onclick = toPrep;
+    if (S.hero) { S.hero.tests = (S.hero.tests || []).concat([{ t: Date.now(), mode: T.mode, level: T.level, limit: T.limit, count: T.count, pattern: T.pattern, turns: st.mainTurns, rows: rows.map(function (r) { return { key: r.key, name: r.name, specName: r.specName, avg: Math.round(r.avg), peak: Math.round(r.peak), first5: Math.round(r.first5), first10: Math.round(r.first10), total: Math.round(r.total), healAvg: Math.round(r.healAvg), taken: Math.round(r.taken) }; }) }]).slice(-8); save(); }
+  }
+  function finish() {
+    clearTimeout(timer);
+    if (st.test) { finishTest(); return; }
+    const win = st.result === 'win';
+    if (run) B.endRoom(run, st);
+    const aliveN = st.heroes.filter(function (h) { return h.hp > 0; }).length;
+    const meter = function (title, key) {
+      const rows = st.heroes.slice().sort(function (a, b) { return b.stats[key] - a.stats[key]; }).filter(function (h) { return h.stats[key] > 0; });
+      if (!rows.length) return '';
+      const top = rows[0].stats[key];
+      return '<div class="meter"><h3>' + title + '</h3>' + rows.map(function (h) {
+        return '<div class="mrow" data-bd="' + h.id + '" data-k="' + key + '" role="button" tabindex="0" aria-expanded="false" style="--cc: var(--c-' + h.cls + ')"><div class="mfill" style="width: ' + (h.stats[key] / top * 100) + '%"></div><div class="mtxt"><span>' + unitBadge(h) + ' ' + esc(h.name) + '</span><span>' + Math.round(h.stats[key]) + '</span></div></div><div class="bd" hidden>' + bdHtml(h.id, key) + '</div>';
+      }).join('') + '</div>';
+    };
+    const roles = { tank: 0, heal: 0 };
+    st.heroes.forEach(function (h) { if (roles[h.role] !== undefined) roles[h.role]++; });
+    const oomAny = st.heroes.some(function (h) { return h.maxMana && h.mana < h.maxMana * 0.1; });
+    let tip = '';
+    if (!win && st.enrageStacks > 0) tip = 'Бой затянулся, и враги вошли в ярость: не хватило урона' + (oomAny ? ', а у лекарей кончилась мана' : '') + '. Попробуй взять ещё одного бойца вместо второго лекаря или танка.';
+    else if (!win && !roles.tank) tip = 'Без танка враги бьют самых опасных героев. Поставь кого-то танком: воина, паладина или друида.';
+    else if (!win && !roles.heal) tip = 'Без лекаря отряд не восполняет урон. Поставь кого-то лекарем: жреца, паладина или друида.';
+    else if (!win) tip = 'Попробуй другой состав: против сильных ударов хорошо работает «Аура благочестия» паладина.';
+    const xp = B.xpFor(S.level, B.ENCOUNTERS[st.encounter]);
+    const qDone = win && !S.amb && (!run || run.state === 'cleared') && qState(S.enc) === 1 && recordQuestVictory(S.enc,st);
+    if (qDone) setQ(S.enc, 2);
+    let dropTxt = '';
+    QUESTS.forEach(function (dq) { if (qDone && dq.drop === S.enc && qState(dq.k) === 0) { setQ(dq.k, 2); dropTxt = 'С гнолла выпал график сбора золота: квест «' + encOf(dq.k).name + '» взят, его сдают в Златоземье.'; } });
+    let ambTxt = '';
+    if (S.amb && win) { const ae = B.ENCOUNTERS.ambush, acu = Math.round(20 * (1 + 0.05 * (ae.level - 1)) * (ae.cnt || 2) / 2), ar = giveXp(ae); S.money += acu; syncLevel(); save(); ambTxt = 'Засада отбита: +' + ar.main + ' опыта, +' + moneyTxt(acu) + '. Путь свободен.'; }
+    else if (S.amb) ambTxt = 'Засада не отбита: ничего не потеряно, попробуй ещё раз.';
+    $('now').className = 'banner';
+    $('now').innerHTML = '<span class="ic" aria-hidden="true">' + (win ? '🏆' : '💀') + '</span><span><b>' + (win ? 'Победа' : 'Поражение') + '</b><br><span class="l2">Итоги на экране</span></span>';
+    $('skillbar').innerHTML = '';
+    $('result').innerHTML = '<h2 class="' + (win ? 'win' : 'lose') + '">' + (win ? 'Победа' : 'Поражение') + '</h2>' +
+      '<div>Ходов: ' + st.actions + '. В живых: ' + aliveN + ' из ' + st.heroes.length + '.' + (win && !S.amb ? ' <b>' + (xp ? 'Опыт: ' + xp : 'Опыта нет: задание серое') + '</b>' : '') + '</div>' +
+      (ambTxt ? '<p class="hint">' + esc(ambTxt) + '</p>' : '') + (tip && !S.amb ? '<p class="hint">' + esc(tip) + '</p>' : '') + (qDone ? '<p class="hint">Задание выполнено: сдай его в журнале на карте.</p>' : '') + (dropTxt ? '<p class="hint">' + esc(dropTxt) + '</p>' : '') +
+      '<div class="cols2"><div>' + meter('Урон', 'dmg') + '</div><div>' + meter('Исцеление', 'heal') + '</div></div><p class="hint">Нажми на героя: урон и лечение по умениям.</p>' +
+      tailHtml();
+    $('result').hidden = false;
+    bindTail();
+  }
+
+  function statusLine() {
+    const x = B.runStatus(run);
+    return 'Отряд: ХП ' + Math.round(x.avgHp * 100) + '%, павших ' + x.dead + (x.minMana === null ? '' : ', мана лекаря ' + Math.round(x.minMana * 100) + '%') + '. Отдыхов осталось: ' + run.rests + '.';
+  }
+  function lootLine() { const l = run

@@ -1,0 +1,96 @@
+id) === i && id !== actor.id && toks[id]; }).forEach(function (id) { setTimeout(function () { if (st) projectile(actor.id, id, icon, hitAt); }, autoFx.length ? hitAt * 0.6 : 0); });
+    }
+    if (effects.some(function (e) { return e.tgt === actor.id; })) toks[actor.id].tc.animate([{ boxShadow: '0 0 0 3px #6dff7a, 0 0 16px 3px #6dff7a' }, { boxShadow: '0 5px 0 rgba(0,0,0,.35)' }], { duration: 500, delay: hitAt * 0.6 });
+    if (autoFx.length) { setTimeout(function () { if (st) autoFx.forEach(hitFx); }, hitAt * 0.55); setTimeout(function () { if (st) skFx.forEach(hitFx); }, hitAt * 1.6); }
+    else setTimeout(function () { if (st) effects.forEach(hitFx); }, hitAt);
+  }
+
+  function addLine(text, cls) { lines.push({ text: text, cls: cls }); if (lines.length > 14) lines.shift(); }
+  function renderLog() { $('log').innerHTML = lines.map(function (l) { return '<p class="' + l.cls + '">' + esc(l.text) + '</p>'; }).join(''); }
+
+  /* Урон и лечение героев по умениям. Считается из событий боя, сумма совпадает с итоговой статистикой. */
+  function trackBd(evs) {
+    let cur = null, skd = null;
+    evs.forEach(function (e) {
+      if (e.t === 'act') { cur = e.id; skd = null; }
+      else if (e.t === 'auto') skd = { name: e.name, icon: autoEventIcon(e,st) };
+      else if (e.t === 'skill') skd = B.SKILLS[e.skill];
+      else if ((e.t === 'dmg' || e.t === 'heal') && e.amt > 0) {
+        const src = B.byId(st, e.src); if (!src || src.side !== 'hero') return;
+        const kind = e.t, per = e.dot || e.hot;
+        const name = per ? (kind === 'dmg' ? 'Урон со временем' : 'Лечение со временем') : e.src === cur ? (skd ? skd.name : 'Обычная атака') : 'Прочее';
+        const icon = per ? (kind === 'dmg' ? '☠️' : '🌿') : e.src === cur ? (skd ? wowIcon(skd) : '⚔️') : '✨';
+        const h = bd[e.src] = bd[e.src] || { dmg: {}, heal: {} };
+        const r = h[kind][name] = h[kind][name] || { v: 0, icon: icon };
+        r.v += e.amt;
+      }
+    });
+  }
+  function bdHtml(hid, kind) {
+    const m = (bd[hid] || {})[kind] || {}, rows = Object.keys(m).map(function (n) { return { n: n, v: m[n].v, i: m[n].icon }; }).sort(function (a, b) { return b.v - a.v; });
+    const tot = rows.reduce(function (a, r) { return a + r.v; }, 0);
+    if (!tot) return '<div class="brow"><span>Нет данных</span></div>';
+    return rows.map(function (r) { return '<div class="brow"><span class="nm"><b>' + r.i + '</b><span>' + esc(r.n) + '</span></span><i>' + Math.round(r.v) + ' · ' + Math.round(r.v / tot * 100) + '%</i></div>'; }).join('');
+  }
+  function applyEvents(evs) {
+    trackBd(evs);
+    const actIdx = evs.findIndex(function (e) { return e.t === 'act'; });
+    if (actIdx !== -1) {
+      const actEv = evs[actIdx], u = B.byId(st, actEv.id), after = evs.slice(actIdx + 1);
+      if (u && u.ghost) { while (logIdx < st.log.length) { const l = st.log[logIdx++]; addLine(l.text, l.cls); } renderLog(); animateStep(evs); return; }
+      const sk = after.find(function (e) { return e.t === 'skill'; });
+      const es = after.find(function (e) { return e.t === 'eskill'; });
+      const au = after.find(function (e) { return e.t === 'auto'; }), adm = after.find(function (e) { return e.t === 'dmg' && e.auto; }), admSum = after.filter(function (e) { return e.t === 'dmg' && e.auto; }).reduce(function (a, e) { return a + e.amt + e.absorbed; }, 0);
+      const nm = sk ? B.SKILLS[sk.skill].name : (es ? es.name : (au ? au.name : 'Атака'));
+      const icon = sk ? wowIcon(B.SKILLS[sk.skill]) : (es && es.icon ? es.icon : (au ? autoEventIcon(au,st) : (u.side === 'hero' ? u.icon : '⚔️')));
+      const dm = after.filter(function (e) { return e.t === 'dmg' && e.src === u.id && !e.dot && !e.auto; });
+      const hlv = after.filter(function (e) { return e.t === 'heal' && e.src === u.id && !e.hot && e.amt > 0; });
+      const bf = after.find(function (e) { return e.t === 'buff' || e.t === 'debuff'; });
+      const side = u.side === 'hero' ? 'h' : 'e';
+      let l2 = '', logTxt = '';
+      if (dm.length === 1) {
+        const t = B.byId(st, dm[0].tgt), v = Math.round(dm[0].amt + dm[0].absorbed);
+        l2 = 'по ' + colorName(t) + ': <b>' + v + '</b>' + (dm[0].crit ? ' крит' : '') + (dm[0].absorbed ? (dm[0].amt ? ' (щит забрал ' + Math.round(dm[0].absorbed) + ')' : ', всё забрал щит') : '');
+        logTxt = u.name + ': «' + nm + '» по ' + t.name + ', ' + v + (dm[0].crit ? ', крит' : '');
+        if (dm[0].crit && u.side === 'hero' && Math.random() < 0.35) setTimeout(function () { say(u, 'crit'); renderLog(); }, 0);
+      } else if (dm.length > 1) {
+        const sum = Math.round(dm.reduce(function (a, e) { return a + e.amt + e.absorbed; }, 0));
+        l2 = 'по ' + dm.length + ' целям: <b>' + sum + '</b>';
+        logTxt = u.name + ': «' + nm + '» по ' + dm.length + ' целям, ' + sum;
+      }
+      if (hlv.length) {
+        const sum = Math.round(hlv.reduce(function (a, e) { return a + e.amt; }, 0));
+        l2 = (l2 ? l2 + ', ' : '') + (hlv.length === 1 ? 'лечит ' + colorName(B.byId(st, hlv[0].tgt)) + ': <b>+' + sum + '</b>' : 'лечит группу: <b>+' + sum + '</b>');
+        if (!logTxt) logTxt = u.name + ': «' + nm + '»' + (hlv.length === 1 ? ' на ' + B.byId(st, hlv[0].tgt).name : ' на группу') + ', +' + sum;
+      }
+      if (!l2 && bf) { l2 = 'на ' + colorName(B.byId(st, bf.tgt)); logTxt = u.name + ': «' + nm + '» на ' + B.byId(st, bf.tgt).name; }
+      if (!l2 && sk) l2 = esc(B.SKILLS[sk.skill].text);
+      if (au && adm) { const av = Math.round(admSum), at = B.byId(st, adm.tgt); l2 = l2 && sk ? '<span class="m">' + autoEventIcon(au,st) + ' ' + av + '</span> · ' + l2 : 'по ' + colorName(at) + ': <b>' + av + '</b>' + (adm.crit ? ' крит' : ''); if (!l2.length) l2 = ''; }
+      $('now').className = 'banner' + (u.side === 'enemy' ? ' foe' : '');
+      $('now').innerHTML = '<span class="ic" aria-hidden="true">' + icon + '</span><span><b>' + colorName(u) + ': «' + esc(nm) + '»</b><br><span class="l2">' + l2 + '</span></span>';
+      if (au && adm) addLine(u.name + ': «' + au.name + '» по ' + B.byId(st, adm.tgt).name + ', ' + Math.round(admSum) + (adm.crit ? ', крит' : ''), side);
+      if (logTxt) addLine(logTxt, hlv.length && !dm.length ? 'heal' : side);
+    }
+    while (logIdx < st.log.length) { const l = st.log[logIdx++]; addLine(l.text, l.cls); }
+    evs.forEach(function (e) { if (e.t === 'oom') say(B.byId(st, e.id), 'oom'); });
+    renderLog();
+    animateStep(evs);
+    const used = evs.find(function (e) { return e.t === 'skill' || e.t === 'eskill'; });
+    renderSkillBar();
+    const autoUsed = evs.find(function (e) { return e.t === 'auto'; });
+    if (autoUsed) { const ab = $('skillbar').querySelector('[data-sk="auto"]'); if (ab) { ab.classList.add('used'); setTimeout(function () { ab.classList.remove('used'); }, 320); } }
+    if (used) { const bar = $('skillbar').querySelector('[data-sk="' + (used.skill || used.id) + '"]'); if (bar) { if (autoUsed) setTimeout(function () { bar.classList.add('used'); }, 340); else bar.classList.add('used'); } }
+  }
+
+  function delay() { return 600 / speed; }
+  function schedule(ms) { clearTimeout(timer); if (paused || playing || !st || st.over) return; timer = setTimeout(tick, ms === undefined ? delay() : ms); }
+  /* Ход показывается по частям: сначала мигает квадратик того, что сейчас будет (и подсвечивается цель),
+     короткая пауза, потом анимация и удар. У героя сначала автоатака, потом умение; у врага его действие. */
+  function playTurn(evs, done) {
+    const mySt = st, actIdx = evs.findIndex(function (e) { return e.t === 'act'; });
+    const actor = actIdx === -1 ? null : B.byId(st, evs[actIdx].id);
+    if (!actor || actor.ghost) { applyEvents(evs); done(); return; }
+    const pre = evs.slice(0, actIdx + 1), rest = evs.slice(actIdx + 1), parts = [];
+    if (rest.some(function (e) { return e.t === 'eskill' && (e.id === 'stun' || e.id === 'root'); })) { applyEvents(evs); done(); return; }
+    const autoI = rest.findIndex(function (e) { return e.t === 'auto'; });
+    if (actor.side === 'h

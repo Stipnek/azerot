@@ -1,0 +1,32 @@
+
+/* v23: short landscape viewport; no changes to desktop or portrait rules. */
+@media (orientation:landscape) and (max-height:599px){
+ body.navon #world>.wrap,body.navon #prep>.wrap{box-sizing:border-box;width:100%;max-width:1400px;padding:6px max(12px,env(safe-area-inset-right)) calc(51px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));gap:5px;overflow:hidden}
+ body.navon #world:not([hidden]){min-height:0;overflow:hidden}
+ body.navon .w-head{flex:0 0 auto;gap:2px 9px;font-size:11px;line-height:1.2;margin:0;padding-right:38px;max-height:42px;overflow:hidden}
+ body.navon .w-head b{font-size:18px;line-height:1.1}
+ body.navon .w-head .xpbar{height:11px;margin:0;min-height:0}
+ body.navon .w-head .xpbar span{font-size:9px;line-height:10px}
+ body.navon #w-map:not([hidden]){flex:1 1 0;min-height:0;display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.65fr);grid-template-rows:minmax(0,1fr);gap:10px;align-content:stretch;align-items:stretch;overflow:hidden;height:auto;max-height:none}
+ body.navon #w-map .map{grid-column:1;grid-row:1;position:relative;align-self:center;justify-self:center;flex:none;width:min(100%,calc((100dvh - 95px)*.8));height:auto;max-height:100%;max-width:100%;aspect-ratio:4/5;margin:0;box-sizing:border-box;border-radius:6px}
+ body.navon #w-map .journal{grid-column:2;grid-row:1;position:static;top:auto;align-self:stretch;min-height:0;height:100%;max-height:100%;box-sizing:border-box;padding:6px 8px;gap:4px;overflow:hidden}
+ body.navon #w-map .jl{display:grid;align-content:start;flex:1 1 0;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;gap:5px}
+ body.navon #w-map .jq{min-height:36px;font-size:12px;padding:6px 8px;box-sizing:border-box}
+ body.navon #map .town,body.navon #map[data-zone="elwynn"] .town{font-size:9px;line-height:1.1;padding:1px 3px}
+ body.navon #map .qn{width:28px;font-size:10px;padding:1px}
+ body.navon #map .qn .mk{width:24px;height:24px;font-size:15px;line-height:1}
+ body.navon #map .wmb{font-size:10px;padding:4px 6px;top:4px;right:4px}
+ body.navon #map .zgo{position:absolute;left:50%;bottom:5px;font-size:10px;max-width:95%;white-space:normal;padding:5px;z-index:8}
+ body.navon .bnav{top:auto;bottom:0;height:calc(46px + env(safe-area-inset-bottom));box-sizing:border-box;padding:4px 54px max(4px,env(safe-area-inset-bottom));gap:6px;align-items:stretch}
+ body.navon .bnav button,body.navon .bnav .big{min-width:74px;max-width:155px;flex:1 1 0;flex-direction:row;justify-content:center;align-items:center;gap:7px;font-size:12px;padding:4px 10px}
+ body.navon .bnav .i,body.navon .bnav .big .i{font-size:18px;line-height:1}
+ body.navon #fsb{bottom:calc(6px + env(safe-area-inset-bottom));top:auto;right:9px;width:32px;height:32px}
+ body.navon #w-more:not([hidden]),body.navon #w-hero:not([hidden]){min-height:0;overflow-y:auto;overscroll-behavior:contain}
+ body.navon #w-more:not([hidden]){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start;align-content:start}
+ body.navon #w-more>.box:first-child,body.navon #w-more>.disc{grid-column:1 / -1}
+ #qsheet .qs-in{max-height:calc(100dvh - 12px);padding:12px 16px;overflow-y:auto;overscroll-behavior:contain}
+ #qsheet .qclose{top:6px;right:8px}
+ #qsheet .jd h3{padding-right:35px}
+ #wmsheet .qs-in{max-height:calc(100dvh - 12px)}
+ .az-desktop-guide{display:none!important}
+}

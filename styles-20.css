@@ -1,0 +1,28 @@
+
+:root{--az54-nav:70px}
+#pt-an{display:none!important}
+body.navon #prep:not([hidden]){display:flex!important;flex-direction:column!important;min-height:0!important;padding-bottom:var(--az54-nav)!important;box-sizing:border-box!important}
+body.navon #prep .pt{display:flex!important;flex-direction:column!important;flex:1 1 0!important;min-height:0!important;box-sizing:border-box!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;gap:8px!important;padding:8px max(10px,env(safe-area-inset-left)) 12px max(10px,env(safe-area-inset-right))!important}
+body.navon #prep .pt>*{flex:0 0 auto!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+#prep .slots{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-auto-rows:minmax(70px,auto)!important;gap:6px!important}
+#prep .slot{min-height:70px!important;padding:5px 3px!important;box-sizing:border-box!important;min-width:0!important}
+#prep .slot .si{display:grid!important;place-items:center;width:30px!important;height:30px!important;margin:0!important;overflow:hidden!important}
+#prep .slot .si .az-badge{--az-size:28px}
+#prep .slot .sn,#prep .slot .sl{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+#prep .pt-card{grid-template-columns:78px minmax(0,1fr)!important}
+#prep .pt-model{height:100px!important;overflow:hidden!important}#prep .pt-model>.az-badge{--az-size:52px}
+#prep .pt-flt{display:flex!important;flex-wrap:wrap!important;gap:5px!important}
+#prep .pt-flt button,#prep .pt-flt select{min-height:32px!important}
+body.navon #prep #roster{display:flex!important;flex-flow:row nowrap!important;align-items:stretch!important;gap:9px!important;min-height:134px!important;max-height:134px!important;overflow-x:auto!important;overflow-y:hidden!important;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:3px 3px 10px!important;box-sizing:border-box!important;-webkit-overflow-scrolling:touch}
+#prep #roster .rt{flex:0 0 112px!important;min-width:112px!important;max-width:112px!important;min-height:118px!important;max-height:118px!important;box-sizing:border-box!important;display:grid!important;grid-template-rows:38px 19px 17px 17px!important;align-content:center!important;justify-items:center!important;row-gap:1px!important;padding:7px 4px!important;overflow:hidden!important;scroll-snap-align:start}
+#prep .rt .ri{display:grid!important;place-items:center;width:38px!important;height:38px!important;margin:0!important;overflow:hidden!important}#prep .rt .ri .az-badge{--az-size:34px}
+#prep .rt .rn,#prep .rt .rl{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}#prep .rt .rn{font-size:12px!important;line-height:19px!important}#prep .rt .rl{font-size:10px!important;line-height:17px!important}#prep .rt .rs{display:block!important;height:17px!important;line-height:17px!important;font-size:12px!important;letter-spacing:0!important;white-space:nowrap}
+#prep #ros-pager{display:none!important}#prep #comp,#prep #msg{margin:0!important}
+#cr-name{font-size:16px!important}
+#create.az54-typing .cr-fig{display:none!important}#create.az54-typing .cr48-shell>.cr{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important}
+html.az54-keyboard #create:not([hidden]){position:fixed!important;top:var(--az54-vtop,0px)!important;left:0!important;right:0!important;height:var(--az54-vh,100dvh)!important;max-height:var(--az54-vh,100dvh)!important}
+.tav-ready-card{touch-action:pan-y;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;cursor:pointer;outline-offset:4px}
+.tav-ready-card.az54-shake .tv-card{animation:az54shake .12s linear infinite!important}
+@keyframes az54shake{0%,100%{transform:rotate(-1deg) translateX(-1px)}50%{transform:rotate(1deg) translateX(1px)}}
+@media(prefers-reduced-motion:reduce){.tav-ready-card.az54-shake .tv-card{animation:none!important;filter:brightness(1.12)}}
+.az54-notice{margin:8px 0 0;padding:8px 10px;border:1px solid #c58b6a;border-radius:8px;background:#4a2a24;color:#ffe2cf;font-size:13px;text-align:center}

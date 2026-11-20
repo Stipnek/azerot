@@ -1,0 +1,66 @@
+ type="button" class="btn" data-cat-close>Закрыть</button></header><p>'+esc(B.CLASSES[x.cls].name)+' · '+esc(B.specOf(x.cls,x.sp).name)+' · '+RAR[x.br].n+'</p><p>Пока не получен. Шанс линии при обычном призыве: '+v571Chance(x.chance)+'. Неполученного героя нельзя добавить в отряд.</p>'+skillsHtml(x.cls,B.specOf(x.cls,x.sp),B.CLASSES[x.cls],false);azDetail.querySelector('[data-cat-close]').onclick=()=>azDetail.close();azDetail.showModal();}
+  (function(){const roster=$('roster');let tm=0,fired=false,sx=0,sy=0;const stop=()=>{clearTimeout(tm);tm=0;};roster.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-catalog]');if(!b)return;fired=false;sx=e.clientX;sy=e.clientY;stop();tm=setTimeout(()=>{fired=true;v571Inspect(b.dataset.catalog);},800);});roster.addEventListener('pointermove',e=>{if(Math.hypot(e.clientX-sx,e.clientY-sy)>12)stop();});for(const type of ['pointerup','pointercancel','pointerleave'])roster.addEventListener(type,stop);roster.addEventListener('click',e=>{const b=e.target.closest('[data-catalog]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();stop();if(fired){fired=false;return;}v571Inspect(b.dataset.catalog);},true);})();
+
+  function heroZone() { return S.hero && S.hero.zone && ZONES[S.hero.zone] ? S.hero.zone : 'elwynn'; }
+  function viewZone() { return S.view && ZONES[S.view] ? S.view : heroZone(); }
+  function qZone(q) { const p = PLACES[qPlace(q)]; return p ? p.z : 'elwynn'; }
+  function zoneHas(z) { return QUESTS.some(function (q, i) { return (qVisible(i) || qCool(i)) && qZone(q) === z; }); }
+  function zoneSync() {
+    let Z = viewZone();
+    if (!S.view && !zoneHas(Z)) { const o = Object.keys(ZONES).find(zoneHas); if (o) Z = o; }
+    S.mapZ = Z;
+    const m = $('map'); m.dataset.zone = Z; m.setAttribute('aria-label', 'Карта: ' + ZONES[Z].name);
+    return Z;
+  }
+  function polyBtn() {
+    const places=S.mapZ==='elwynn'?'<button class="qn pol" data-tav="1" style="left:20.4%;top:18.1%" aria-label="Таверна: призыв героев"><span class="mk">🍺</span></button><button class="qn pol" data-poly="1" style="left:14.5%;top:27.2%" aria-label="Полигон: тест DPS, лечения и танка"><span class="mk">🎯</span></button>':'';
+    const go=S.mapZ&&S.mapZ!==heroZone()?'<button type="button" class="zgo" data-zgo="'+S.mapZ+'">Отправиться: '+esc(ZONES[S.mapZ].name)+'</button>':'';
+    return places+go+'<button type="button" class="wmb" data-wm="1">Карта мира</button>';
+  }
+  function emptyZoneHtml(Z) {
+    const other = Object.keys(ZONES).filter(function (z) { return z !== Z && zoneHas(z); });
+    return '<h3>' + (Z === 'elwynn' ? 'Все квесты сданы' : 'Здесь пока тихо') + '</h3><p>' + (Z === 'elwynn' ? 'Сюжет Элвиннского леса пройден: сданные квесты с карты исчезают.' : 'В этой зоне нет доступных заданий. Они откроются по сюжету.') + (other.length ? ' Новые задания ждут: ' + other.map(function (z) { return esc(ZONES[z].name); }).join(', ') + ' (кнопка «Карта мира» на карте).' : '') + '</p>';
+  }
+  function pnz(pl) { const p = PLACES[pl], z = S.mapZ || viewZone(); return p.name + (p.z !== z ? ' (' + ZONES[p.z].name + ')' : ''); }
+  /* Переход в другую зону: короткая подпись, герой оказывается на входе зоны */
+  /* Предыстория зоны: показывается один раз при первом входе. */
+  const ZONE_INTRO = {
+    elwynn: ['🌲', 'Армия короля ушла на войну, и лес у стен Штормграда остался почти без защиты. Гноллы грабят фермы, кобольды заняли шахты, а в тенях орудует банда Дефиас. Стража Златоземья просит помощи.'],
+    westfall: ['🌾', 'Житницу Штормграда бросили без защиты. Фермы захватило Братство Справедливости — Дефиас, по полям бродят их механические жнецы. Народное ополчение на Сторожевом холме едва держится. Узнай, кто стоит за Дефиас.'],
+    redridge: ['⛰️', 'Горный край к востоку от Элвинна. Орки Чёрной горы и гноллы Красной Гривы теснят Озёрную Луку, мост через озеро так и не достроен. Стража городка ждёт подмоги.']
+  };
+  ZONE_INTRO.duskwood=['🌫️','Над Сумеречным лесом не рассеивается мрак. Ночной Дозор охраняет дороги, на Вороньем Холме поднимаются мертвецы, а в южной лощине собираются воргены. Алтея Чернодрев ждёт помощи в Темнолесье.'];
+  ZONE_INTRO.stormwind=['🏰','Учебный двор и городские поручения. На экране используется схема узлов, не финальная художественная карта города.'];
+  ZONE_INTRO.wetlands_route=['⚓','Три узла маршрута за светосталью. Это не полная Болотина и не её окончательная карта.'];
+  function zoneIntro(z) {
+    const c = S.hero, t = ZONE_INTRO[z]; if (!c || !t) return;
+    c.intro = c.intro || {}; if (c.intro[z]) return;
+    c.intro[z] = 1; save();
+    $('pop-c').innerHTML = '<p class="sect">' + t[0] + ' ' + esc(ZONES[z].name) + ' <small>' + ZONES[z].lv + ' ур.</small></p><p>' + esc(t[1]) + '</p><div class="row"><button class="go" type="button" onclick="document.getElementById(\'pop\').hidden=true">В путь</button></div>';
+    $('pop').hidden = false;
+  }
+  function crossZone(z, next) {
+    const c = S.hero, Z = ZONES[z], map = $('map'); let fired = false, tm = null;
+    const fin = function () {
+      if (fired) return; fired = true; clearTimeout(tm);
+      c.zone = z; window.AzerothAudio.world(z); c.at = Z.entry; c.pos = spot(Z.entry); S.view = z; S.walk = null; map.classList.remove('walking'); save(); renderMap(); next(); zoneIntro(z);
+    };
+    S.qopen = false; S.hub = null; renderMap();
+    map.classList.add('walking');
+    map.insertAdjacentHTML('beforeend', '<div class="wcap" role="status">В путь: ' + esc(Z.name) + '</div>');
+    S.walk = { skip: fin }; tm = setTimeout(fin, 1100);
+  }
+  /* Цепочка «Рыбья опасность» как в Классике: разговоры и поиск, без боёв. Бои с мурлоками ушли в дейлик «Запеканка из мурлоков». */
+  const TALK = { scene: 'forest', type: 'talk', size: 1, tip: 'Просто поговори: боя не будет.', enemies: [] };
+  Object.assign(B.ENCOUNTERS.fishy, TALK, { enrage: null, level: 7, text: 'Реми Повторюха шепчет, что мурлоки лезут вверх по ручьям восточного Элвинна. Поговори об этом с маршалом Дугханом' });
+  Object.assign(B.ENCOUNTERS.lost_guards, TALK, { enrage: null, level: 7, tip: '', verb: 'Искать', text: 'Страж Томас потерял двух стражей, Рольфа и Малакая. Иди вдоль реки на север и найди их' });
+  Object.assign(B.ENCOUNTERS.rolf, TALK, { enrage: null, level: 7, tip: '', verb: 'Искать', text: 'У воды нашли следы Рольфа. Загляни в деревню мурлоков и узнай, что с ним' });
+  B.ENCOUNTERS.further_concerns = Object.assign({ name: 'Новые опасения', place: 'Восточная вырубка', level: 7, verb: 'Поехать к Томасу', text: 'Маршал Дугхан не уверен, что мурлоки опасны. Съезди к стражу Томасу на восточный мост и спроси сам' }, TALK);
+  B.ENCOUNTERS.thomas_report = Object.assign({ name: 'Донесение Томаса', place: 'Златоземье', level: 8, text: 'Расскажи маршалу Дугхану о гибели Рольфа и Малакая: мурлоков на востоке не сдержать' }, TALK);
+  const MC = [['mc1', 'Слой 1: мелкая рыбёшка', 'Мрглрглрг! Первая стайка мурлоков вылезла из воды'], ['mc2', 'Слой 2: серединка', 'Мурлоки лезут слоем потолще'], ['mc3', 'Слой 3: подрумяненная корочка', 'Последний слой: мурлоки уже кипят от злости']];
+  MC.forEach(function (m) { B.ENCOUNTERS[m[0]] = { room: true, enrage: { after: 200, every: 10, step: 0.15 }, name: m[1], place: 'Озеро Стоун-Кэрн', scene: 'forest', type: 'dungeon', size: 1, level: 5, xpMult: 0.5, text: m[2], tip: 'Между слоями герой немного восстанавливается.', enemies: ['murloc', 'murloc', 'murloc'] }; });
+  B.DUNGEONS.murlocs = { name: 'Запеканка из мурлоков', place: 'Озеро Стоун-Кэрн', type: 'dungeon', size: 1, level: 5, elite: false, daily: true, scene: 'forest', rests: 0, rooms: ['mc1', 'mc2', 'mc3'],
+    text: 'Три слоя по три мурлока, соло: их тут всегда много. ХП переносятся между слоями', tip: 'Подрумянь каждый слой, но береги ХП: отдыха между слоями нет.' };
+  QUESTS.forEach(function (q) { const e = B.ENCOUNTERS[q.k]; if (e) e.place = PLACES[q.d].name; });
+  if (B.ENCOUNTERS.garrison) B.ENCOUNTERS.garrison.text = 'Маршал Дугхан просит помочь гарнизону';
+  /* «Сборщик» как в Классике: график сбор

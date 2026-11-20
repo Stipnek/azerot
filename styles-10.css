@@ -1,0 +1,24 @@
+
+/* Badge images must not inherit left:50%/bottom:8px from old hero model styles. */
+.az-badge .az-class-face > img.az-icon-img,
+.az-badge .az-spec-face > img.az-icon-img {
+  position:absolute!important; inset:0!important;
+  width:100%!important; height:100%!important;
+  min-width:0!important; min-height:0!important;
+  margin:0!important; padding:0!important; border:0!important;
+  object-fit:cover; transform:none!important; transform-origin:center!important;
+}
+#sel-stage:has(.az-badge), #cr-stage:has(.az-badge) { container-type:size; }
+#sel-stage:has(.az-badge) > .ph {
+  width:min(110px,calc(100cqh - 18px),calc(100cqw - 18px))!important;
+  height:min(110px,calc(100cqh - 18px),calc(100cqw - 18px))!important;
+  min-width:0; min-height:0; aspect-ratio:1;
+  left:50%; top:50%; transform:translate(-50%,-50%);
+}
+#cr-stage:has(.az-badge) > .ph {
+  width:min(92px,calc(100cqh - 18px),calc(100cqw - 18px))!important;
+  height:min(92px,calc(100cqh - 18px),calc(100cqw - 18px))!important;
+  min-width:0; min-height:0; aspect-ratio:1;
+}
+#sel-chars, #sel-all-list { box-sizing:border-box; padding:5px 5px 4px; }
+#select .ch, #sel-all-list .ch { min-width:0; }
