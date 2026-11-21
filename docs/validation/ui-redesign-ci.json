@@ -1,6 +1,6 @@
 {
-  "checked_commit": "ae7a1ac7e88723e6f05b5710bba10a4a4baa43df",
-  "run_url": "https://github.com/Stipnek/azerot/actions/runs/44805094467",
+  "checked_commit": "bebce413191102080bbbc84fa603dd722fddd647",
+  "run_url": "https://github.com/Stipnek/azerot/actions/runs/44842637791",
   "steps": {
     "tools": "success",
     "source": "success",
@@ -12,7 +12,7 @@
     "ui": "success"
   },
   "all_passed": true,
-  "build_sha256": "593eb6f60c90d5185456702b877921707cf526f2c8171056945710a0753c01fa",
+  "build_sha256": "1ab1e00b7aa131c09525bc97a75f437ba1b51bf39a9365e2e9818c35f2f7bb27",
   "screenshots": [
     "results/ui-review/city-desktop.png",
     "results/ui-review/city-landscape.png",

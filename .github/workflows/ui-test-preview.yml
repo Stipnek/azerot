@@ -2,7 +2,7 @@ name: Publish isolated UI test preview
 on:
   push:
     branches: ['work/ui-redesign-clean']
-    paths: ['.github/workflows/ui-test-preview.yml']
+    paths: ['.github/workflows/ui-test-preview.yml', 'docs/validation/ui-redesign-ci.json']
 permissions:
   contents: write
 concurrency:
