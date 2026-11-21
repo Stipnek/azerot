@@ -19,6 +19,7 @@ for manifest in sorted(source.parent.glob(source.stem + '*.edits.json')):
 engine = data.decode('utf-8')
 ui = (root / 'scripts' / 'arms_proto_ui.js').read_text(encoding='utf-8')
 skin = (root / 'scripts' / 'arms_proto_skin.js').read_text(encoding='utf-8')
+panels = (root / 'scripts' / 'arms_proto_panels.js').read_text(encoding='utf-8')
 classic = (root / 'scripts' / 'arms_proto_classic.css').read_text(encoding='utf-8')
 if '</style' in classic.lower():
     raise SystemExit('Unsafe style terminator')
@@ -63,13 +64,13 @@ new MutationObserver(records=>{if(records.some(r=>Array.from(r.addedNodes).some(
 addEventListener('resize',()=>requestAnimationFrame(repair));
 requestAnimationFrame(repair);
 })();'''.replace('CLASSIC_CSS', json.dumps(classic, ensure_ascii=False))
-for part in (engine, ui, skin, controls):
+for part in (engine, ui, skin, controls, panels):
     if '</script' in part.lower():
         raise SystemExit('Unsafe script terminator')
 css = 'body{margin:0;padding:12px;font:15px/1.4 system-ui,sans-serif}h1{font-size:21px}.warn{border:1px solid #655139;padding:8px}.ctl{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}label{display:flex;gap:4px;align-items:center}input[type=number]{width:4.5em}button{min-width:36px;min-height:32px}pre{white-space:pre-wrap;font-size:12px}table{border-collapse:collapse}td,th{border:1px solid #655139;padding:3px 6px}.lock{opacity:.55}#err,#note{color:#ef9b79}'
-markup = '''<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Оружие — тест дерева</title>
-<h1>Оружие · тест дерева талантов</h1>
-<p class="warn">Изолированный прототип, не live. Часть эффектов не реализована; экспериментальный баланс не согласован. Фон Classic и иконки загружаются с wow.zamimg.com. Оформление ещё сверяется с оригинальным клиентом. Звуки ещё не подключены. Обычное сохранение не изменяется.</p>
+markup = '''<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Таланты воина — тест</title>
+<h1>Воин · тест трёх деревьев талантов</h1>
+<p class="warn">Изолированный прототип, не live. Работают только подготовленные таланты Оружия. Неистовство и Защита — только просмотр. Часть эффектов не реализована; экспериментальный баланс не согласован. Фоны Classic и иконки загружаются с wow.zamimg.com. Оформление ещё сверяется с оригинальным клиентом. Звуки ещё не подключены. Обычное сохранение не изменяется.</p>
 <div class="ctl"><label>Уровень мейна <input id="ml" type="number" min="1" max="30"></label><label>Уровень компаньона <input id="cl" type="number" min="1" max="30"></label><button id="presetA">Билд A (= линия)</button><button id="presetB">Билд B</button><button id="reset">Сбросить очки</button></div>
 <p id="spec"></p><p id="pts" aria-live="polite"></p><p id="err" role="alert"></p><p id="note" aria-live="polite"></p><div id="tree" aria-label="Дерево талантов Оружие"></div>
 <h2>Умения мейна</h2><ul id="kit"></ul>
@@ -77,7 +78,7 @@ markup = '''<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="vie
 <h2>Контроль питомцев (вне фрагмента Оружия)</h2><button id="petrun">Сравнить режимы а/б/в</button><div id="pets"></div>
 <h2>Обычное сохранение</h2><button id="normal">Проверить (только чтение)</button><p id="normalout"></p>
 '''
-html = markup + '<style>' + css + '</style>' + ''.join('<script>' + part + '</script>' for part in (engine, ui, skin, controls)) + '</html>'
+html = markup + '<style>' + css + '</style>' + ''.join('<script>' + part + '</script>' for part in (engine, ui, skin, controls, panels)) + '</html>'
 out = root / 'preview' / 'arms-proto.html'
 out.parent.mkdir(parents=True, exist_ok=True)
 out.write_text(html, encoding='utf-8')
