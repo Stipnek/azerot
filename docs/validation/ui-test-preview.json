@@ -1,7 +1,7 @@
 {
-  "preview_commit": "32f8b8027fed802dfe7b91ea043aa6b8e708ead1",
-  "build_sha256": "f9a991ffddc5f937329b067ece90730f48e5ad761170a722f691bb485b552f0e",
-  "url": "https://raw.githack.com/Stipnek/azerot/32f8b8027fed802dfe7b91ea043aa6b8e708ead1/preview/index.html",
+  "preview_commit": "50531b4fc46686427a0c99a111538f26781d210b",
+  "build_sha256": "1ab1e00b7aa131c09525bc97a75f437ba1b51bf39a9365e2e9818c35f2f7bb27",
+  "url": "https://raw.githack.com/Stipnek/azerot/50531b4fc46686427a0c99a111538f26781d210b/preview/index.html",
   "hosting": "Third-party raw.githack.com proxy of public repository; main and GitHub Pages unchanged",
   "browser_verified": false
 }
