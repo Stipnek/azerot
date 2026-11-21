@@ -1,9 +1,22 @@
-"""Build the isolated Arms prototype harness: preview/arms-proto.html (test only, not published).
-Embeds src/scripts/script-05.txt (combat engine) and scripts/arms_proto_ui.js."""
+"""Build the isolated Arms prototype with the same source manifests as build_game.py."""
 from pathlib import Path
 import hashlib
+import json
 root = Path(__file__).resolve().parents[1]
-engine = (root / 'src' / 'scripts' / 'script-05.txt').read_text(encoding='utf-8')
+source = root / 'src' / 'scripts' / 'script-05.txt'
+data = source.read_bytes()
+sha256 = hashlib.sha256(data).hexdigest()
+blob = hashlib.sha1(b'blob ' + str(len(data)).encode('ascii') + b'\0' + data).hexdigest()
+for manifest in sorted(source.parent.glob(source.stem + '*.edits.json')):
+    spec = json.loads(manifest.read_text(encoding='utf-8'))
+    if spec.get('sourceSha256') != sha256 and spec.get('sourceBlobSha1') != blob:
+        raise SystemExit(f'Source changed: inspect {manifest.name}')
+    for edit in spec['edits']:
+        old, new = edit['old'].encode('utf-8'), edit['new'].encode('utf-8')
+        if not old or data.count(old) != 1:
+            raise SystemExit(f'Non-unique source edit: {manifest.name}: {edit["name"]}')
+        data = data.replace(old, new, 1)
+engine = data.decode('utf-8')
 ui = (root / 'scripts' / 'arms_proto_ui.js').read_text(encoding='utf-8')
 for part in (engine, ui):
     if '</script' in part.lower():
@@ -30,5 +43,6 @@ html = f"""<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="view
 <h2>Обычное сохранение</h2><button id="normal">Проверить (только чтение)</button><p id="normalout"></p>
 <script>{engine}</script><script>{ui}</script></html>"""
 out = root / 'preview' / 'arms-proto.html'
+out.parent.mkdir(parents=True, exist_ok=True)
 out.write_text(html, encoding='utf-8')
 print('Built', out, len(html.encode()), 'bytes; sha256', hashlib.sha256(html.encode()).hexdigest())
