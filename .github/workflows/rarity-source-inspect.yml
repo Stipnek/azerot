@@ -1,0 +1,50 @@
+name: Inspect collection rarity source
+on:
+  push:
+    branches: ['work/ui-redesign-clean']
+    paths: ['.github/workflows/rarity-source-inspect.yml']
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - name: Extract focused effective source
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          root = Path('src/scripts')
+          source = (root / 'script-06.txt').read_bytes()
+          digest = hashlib.sha256(source).hexdigest()
+          for path in sorted(root.glob('script-06*.edits.json')):
+              spec = json.loads(path.read_text(encoding='utf-8'))
+              assert spec['sourceSha256'] == digest, path.name
+              for edit in spec['edits']:
+                  old, new = edit['old'].encode(), edit['new'].encode()
+                  assert old and source.count(old) == 1, (path.name, edit['name'])
+                  source = source.replace(old, new, 1)
+          text = source.decode('utf-8')
+          excerpts = {}
+          for name, marker, length in [('collection','function renderPrep(',16000),('owned','function v571Owned(',3000),('bonus','function tavBonus(',3000),('stats','function hStats(',4000),('power','function kPower(',3000),('battle','function partyArg(',5000),('upgrade','function tavApply(',5000)]:
+              pos = text.find(marker)
+              excerpts[name] = {'found': pos >= 0, 'text': text[pos:pos+length] if pos >= 0 else ''}
+          excerpts['rarity_references'] = [line[:1800] for line in text.splitlines() if any(term in line for term in ['F.rar','F.rarity','x.br','tavBonus(', 'rarityBonus:', 'rb:'])][:70]
+          out = Path('docs/validation/rarity-source.json')
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text(json.dumps({'source_commit':os.environ['GITHUB_SHA'],'excerpts':excerpts,'scope':'Source inspection only; no gameplay execution or fix.'},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+          PY
+      - name: Save diagnostic report to review branch only
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- docs/validation/rarity-source.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: record effective rarity source for diagnosis'
+            git push origin HEAD:refs/heads/work/ui-redesign-clean
+          fi
