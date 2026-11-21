@@ -60,6 +60,25 @@ if a.check_original:
     if data != original:
         raise SystemExit('Rebuilt HTML differs from original')
     print('OK: byte-for-byte original match')
+else:
+    import subprocess
+    def git_value(*args):
+        return subprocess.check_output(['git', '-C', str(root), *args], text=True).strip()
+    try:
+        commit = git_value('rev-parse', 'HEAD')
+        source_date = git_value('show', '-s', '--format=%cI', 'HEAD')
+    except (OSError, subprocess.CalledProcessError):
+        commit, source_date = 'unknown', 'unknown'
+    metadata = {'version': 'build-' + commit[:7] if commit != 'unknown' else 'local-preview', 'sourceCommit': commit, 'sourceDate': source_date}
+    payload = json.dumps(metadata, ensure_ascii=True).replace('<', '\u003c').encode('ascii')
+    ui = (src / 'build-info.js').read_bytes()
+    if b'</script' in ui.lower():
+        raise SystemExit('Unsafe build-info script terminator')
+    addition = b'<script type="application/json" id="az-build-metadata">' + payload + b'</script><script>' + ui + b'</script>'
+    position = data.lower().rfind(b'</body>')
+    if position < 0:
+        raise SystemExit('Missing body close for build information')
+    data = data[:position] + addition + data[position:]
 output = root / 'preview' / 'index.html'
 output.parent.mkdir(parents=True, exist_ok=True)
 output.write_bytes(data)
