@@ -1,8 +1,10 @@
 (()=>{'use strict';
 function mount(){
  const root=document.getElementById('w-more'),meta=document.getElementById('az-build-metadata');
- if(!root||!meta||document.getElementById('az-build-info'))return;
- const info=JSON.parse(meta.textContent),box=document.createElement('section');box.id='az-build-info';box.className='box';
+ if(!meta)return;
+ const info=JSON.parse(meta.textContent);document.title='Азерот · '+info.version;
+ if(!root||document.getElementById('az-build-info'))return;
+ const box=document.createElement('section');box.id='az-build-info';box.className='box';
  const heading=document.createElement('h3');heading.textContent='Версия игры';box.append(heading);
  for(const text of ['Открытая сборка: '+info.version,'Коммит: '+info.sourceCommit,'Дата исходников: '+info.sourceDate]){const p=document.createElement('p');p.textContent=text;p.style.overflowWrap='anywhere';box.append(p);}
  const button=document.createElement('button');button.type='button';button.className='btn';button.textContent='Проверить обновление';button.style.minHeight='44px';
