@@ -19,13 +19,57 @@ for manifest in sorted(source.parent.glob(source.stem + '*.edits.json')):
 engine = data.decode('utf-8')
 ui = (root / 'scripts' / 'arms_proto_ui.js').read_text(encoding='utf-8')
 skin = (root / 'scripts' / 'arms_proto_skin.js').read_text(encoding='utf-8')
-for part in (engine, ui, skin):
+classic = (root / 'scripts' / 'arms_proto_classic.css').read_text(encoding='utf-8')
+if '</style' in classic.lower():
+    raise SystemExit('Unsafe style terminator')
+controls = r'''(function(){
+'use strict';
+const tree=document.getElementById('tree');
+const style=document.createElement('style');
+style.textContent=CLASSIC_CSS;
+document.head.appendChild(style);
+function buttonFor(ev, delta){
+  if(!ev.target.matches('img.talent-icon'))return null;
+  return ev.target.closest('.node').querySelector('[data-d="'+delta+'"]');
+}
+tree.addEventListener('click',function(ev){const b=buttonFor(ev,1);if(b&&!b.disabled)b.click();});
+tree.addEventListener('contextmenu',function(ev){const b=buttonFor(ev,-1);if(b){ev.preventDefault();if(!b.disabled)b.click();}});
+function repair(){
+  for(const node of tree.querySelectorAll('.node')){
+    const image=node.querySelector('.talent-icon');
+    if(!image)continue;
+    if(image.src.includes('inv_weapon_halbard_01'))node.style.gridColumn='1';
+    if(image.src.includes('ability_shockwave'))node.style.gridColumn='3';
+  }
+  const svg=tree.querySelector('svg');
+  if(!svg)return;
+  const rect=tree.getBoundingClientRect();
+  const P=window.Battle.armsProto;
+  svg.replaceChildren();
+  for(const n of P.TREE.filter(n=>n.req)){
+    const a=tree.querySelector('[data-talent="'+n.req+'"]'),b=tree.querySelector('[data-talent="'+n.id+'"]');
+    if(!a||!b)continue;
+    const ai=a.querySelector('img'),bi=b.querySelector('img');
+    if(!ai||!bi)continue;
+    const ra=ai.getBoundingClientRect(),rb=bi.getBoundingClientRect();
+    const x=ra.left-rect.left-tree.clientLeft+ra.width/2,y=ra.bottom-rect.top-tree.clientTop;
+    const tx=rb.left-rect.left-tree.clientLeft+rb.width/2,ty=rb.top-rect.top-tree.clientTop-2;
+    const path=document.createElementNS(svg.namespaceURI,'path');
+    path.setAttribute('d','M'+x+' '+y+' V'+((y+ty)/2)+' H'+tx+' V'+ty+' m-4 -5 l4 5 4 -5');
+    path.setAttribute('fill','none');path.setAttribute('stroke',a.classList.contains('maxed')?'#e4bd52':'#716343');path.setAttribute('stroke-width','2');svg.appendChild(path);
+  }
+}
+new MutationObserver(records=>{if(records.some(r=>Array.from(r.addedNodes).some(n=>n.nodeType===1&&(n.classList.contains('row')||n.localName==='svg'))))requestAnimationFrame(repair);}).observe(tree,{childList:true});
+addEventListener('resize',()=>requestAnimationFrame(repair));
+requestAnimationFrame(repair);
+})();'''.replace('CLASSIC_CSS', json.dumps(classic, ensure_ascii=False))
+for part in (engine, ui, skin, controls):
     if '</script' in part.lower():
         raise SystemExit('Unsafe script terminator')
 css = 'body{margin:0;padding:12px;font:15px/1.4 system-ui,sans-serif}h1{font-size:21px}.warn{border:1px solid #655139;padding:8px}.ctl{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}label{display:flex;gap:4px;align-items:center}input[type=number]{width:4.5em}button{min-width:36px;min-height:32px}pre{white-space:pre-wrap;font-size:12px}table{border-collapse:collapse}td,th{border:1px solid #655139;padding:3px 6px}.lock{opacity:.55}#err,#note{color:#ef9b79}'
 markup = '''<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Оружие — тест дерева</title>
 <h1>Оружие · тест дерева талантов</h1>
-<p class="warn">Изолированный прототип, не live. Часть эффектов не реализована; экспериментальный баланс не согласован. Первый графический проход: фон пока не оригинальный, иконки загружаются с wow.zamimg.com. Звуки ещё не подключены. Обычное сохранение не изменяется.</p>
+<p class="warn">Изолированный прототип, не live. Часть эффектов не реализована; экспериментальный баланс не согласован. Фон Classic и иконки загружаются с wow.zamimg.com. Оформление ещё сверяется с оригинальным клиентом. Звуки ещё не подключены. Обычное сохранение не изменяется.</p>
 <div class="ctl"><label>Уровень мейна <input id="ml" type="number" min="1" max="30"></label><label>Уровень компаньона <input id="cl" type="number" min="1" max="30"></label><button id="presetA">Билд A (= линия)</button><button id="presetB">Билд B</button><button id="reset">Сбросить очки</button></div>
 <p id="spec"></p><p id="pts" aria-live="polite"></p><p id="err" role="alert"></p><p id="note" aria-live="polite"></p><div id="tree" aria-label="Дерево талантов Оружие"></div>
 <h2>Умения мейна</h2><ul id="kit"></ul>
@@ -33,7 +77,7 @@ markup = '''<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="vie
 <h2>Контроль питомцев (вне фрагмента Оружия)</h2><button id="petrun">Сравнить режимы а/б/в</button><div id="pets"></div>
 <h2>Обычное сохранение</h2><button id="normal">Проверить (только чтение)</button><p id="normalout"></p>
 '''
-html = markup + '<style>' + css + '</style>' + ''.join('<script>' + part + '</script>' for part in (engine, ui, skin)) + '</html>'
+html = markup + '<style>' + css + '</style>' + ''.join('<script>' + part + '</script>' for part in (engine, ui, skin, controls)) + '</html>'
 out = root / 'preview' / 'arms-proto.html'
 out.parent.mkdir(parents=True, exist_ok=True)
 out.write_text(html, encoding='utf-8')

@@ -1,0 +1,22 @@
+/* Reference: wowsims/classic @7779ebbf79dc7f1341e6ab939b28a3402c9a730a,
+   ui/core/talents/trees/warrior.json, Arms. Art is remotely hosted, not vendored.
+   This is a visual pass, not a claim of complete original-client fidelity. */
+#tree {
+  width: 300px;
+  padding: 20px 14px;
+  border: 3px ridge #988665;
+  background: #171610 url('https://wow.zamimg.com/images/wow/talents/backgrounds/classic/161.jpg') center / 100% 100% no-repeat;
+  box-shadow: 0 8px 24px #0009, inset 0 0 12px #0008;
+}
+#tree .row { height: 64px; }
+#tree .node { width: 40px; height: 48px; }
+#tree .talent-icon { width: 36px; height: 36px; border-width: 2px; }
+#tree .node > span { top: 25px; right: 0; font-size: 11px; line-height: 14px; }
+#tree .node:has(img[src*='inv_weapon_halbard_01']) { grid-column: 1 !important; }
+#tree .node:has(img[src*='ability_shockwave']) { grid-column: 3 !important; }
+#tree .node button { top: 43px; min-width: 20px; min-height: 18px; width: 20px; height: 18px; line-height: 16px; opacity: 0; }
+#tree .node button[data-d='1'] { left: 21px; }
+#tree .node:hover button, #tree .node:focus-within button { opacity: 1; }
+#tree .node img { cursor: pointer; }
+#tree .node.un img { cursor: not-allowed; }
+@media (pointer: coarse) { #tree .node button { opacity: 1; } }
