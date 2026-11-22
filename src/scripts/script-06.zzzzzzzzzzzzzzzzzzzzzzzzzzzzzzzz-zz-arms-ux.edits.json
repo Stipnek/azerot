@@ -1,0 +1,56 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Opt-in Arms editor UX only. Preserve native dialog, scroll, focus and descriptions; no combat or save-schema changes.",
+  "edits": [
+    {
+      "name": "Describe existing effects without changing combat rules",
+      "old": "  function armsHeroPanel() {",
+      "new": "  function armsHeroEffect(id) {\n    const C = B.armsIntegrated.CONFIG;\n    const effects = {\n      ihs: 'Смертельный удар требует на ' + C.ihs.join('/') + ' ярости меньше.',\n      deflection: 'Вероятность парирования увеличивается на ' + Math.round(C.deflectionPerRank * 100) + '% за ранг.',\n      imprend: 'Урон Кровопускания увеличивается на ' + C.impRend.map(x => Math.round(x * 100)).join('/') + '%.',\n      impthunder: 'Удар грома требует на ' + C.impThunder.join('/') + ' ярости меньше.',\n      deepwounds: 'Урон базовых Глубоких ран увеличивается на ' + C.deepWounds.totalOfAtk.map(x => Math.round(x * 100)).join('/') + '%. Второе кровотечение не добавляется.',\n      twohand: 'Урон оружейных автоатак и способностей увеличивается на ' + Math.round(C.twoHandPerRank * 100) + '% за ранг. Не усиливает кровотечения и Удар грома.',\n      impale: 'Критическая прибавка к урону способностей увеличивается на ' + Math.round(C.impalePerRank * 100) + '/' + Math.round(C.impalePerRank * 200) + '%. Не усиливает автоатаки и периодический урон.',\n      sweeping: 'Оружейные удары дополнительно поражают вторую цель: до ' + C.sweeping.charges + ' ударов за ' + C.sweeping.turns + ' своих хода. Стоимость: ' + C.sweeping.rage + ' ярости; перезарядка: ' + C.sweeping.cd + ' ходов.'\n    };\n    return Object.prototype.hasOwnProperty.call(effects, id) ? effects[id] : 'Этот талант пока недоступен для изучения.';\n  }\n  function armsHeroPanel() {"
+    },
+    {
+      "name": "Use player-facing node labels",
+      "old": "const label = P.describe(n.id) + ' · ' + n.ru",
+      "new": "const label = n.ru"
+    },
+    {
+      "name": "Use player-facing unavailable label",
+      "old": "' — недоступно в прототипе'",
+      "new": "' — пока недоступно'"
+    },
+    {
+      "name": "Add visible names and touch-readable effect descriptions",
+      "old": "+'>−</button></div>';",
+      "new": "+'>−</button><details data-arms-help=\"'+n.id+'\"><summary>'+esc(n.ru)+'</summary><p>'+esc(armsHeroEffect(n.id))+'</p></details></div>';"
+    },
+    {
+      "name": "Make refund refusals explainable",
+      "old": "esc('Убрать ранг: '+n.ru)+'\"'+(minus?'':' disabled')",
+      "new": "esc('Убрать ранг: '+n.ru)+'\" aria-disabled=\"'+!minus+'\"'"
+    },
+    {
+      "name": "Add scoped touch targets and status area",
+      "old": "+'\"><h3>Таланты · Оружие</h3><p>Тестовая интеграция. Уровень '",
+      "new": "+'\"><style>#w-hero [data-arms-panel]{overflow-anchor:none}#w-hero [data-arms-panel] button,#w-hero [data-arms-panel] summary{box-sizing:border-box;min-width:44px;min-height:44px;touch-action:manipulation}#w-hero [data-arms-panel] [data-arms-node]{display:block;width:100%;margin:3px 0}#w-hero [data-arms-panel] details{font-size:12px;line-height:1.4;overflow-wrap:anywhere}#w-hero [data-arms-panel] summary{cursor:pointer;padding:5px 0}#w-hero [data-arms-panel] [data-arms-status]{min-height:1.4em}</style><h3>Таланты · Оружие</h3><p class=\"hint\">Предварительная версия · баланс может измениться.</p><p data-arms-status role=\"status\" aria-live=\"polite\"></p><p>Уровень '"
+    },
+    {
+      "name": "Explain touch and keyboard interaction without debug text",
+      "old": "Левый клик — добавить ранг, правый клик или «−» — убрать. Зависимости проверяются общим валидатором. Баланс прототипа не согласован.",
+      "new": "Нажмите значок, чтобы добавить ранг, или «−», чтобы снять. Название под значком открывает описание эффекта."
+    },
+    {
+      "name": "Explain validator refusals without changing validation",
+      "old": "    if (!result.ok) return;\n    S.hero.armsTalents",
+      "new": "    if (!result.ok) {\n      const panel = typeof button.closest === 'function' && button.closest('[data-arms-panel]');\n      const note = panel && panel.querySelector('[data-arms-status]');\n      if (note) note.textContent = (result.errors || ['Изменение недоступно.']).join(' ');\n      return;\n    }\n    S.hero.armsTalents"
+    },
+    {
+      "name": "Refresh only the talent panel and preserve its native dialog",
+      "old": "    showWorld('hero');\n  }\n  document.addEventListener('click', armsHeroAction, true);",
+      "new": "    const panel = typeof button.closest === 'function' && button.closest('[data-arms-panel]');\n    const dialog = panel && panel.closest('dialog');\n    if (dialog) {\n      const top = dialog.scrollTop;\n      const opened = Array.from(panel.querySelectorAll('details[open]')).map(x => x.dataset.armsHelp);\n      const selector = button.dataset.armsReset ? '[data-arms-reset]' : '[data-arms-node=\"' + button.dataset.armsNode + '\"]' + (button.dataset.armsDelta ? '[data-arms-delta=\"-1\"]' : ':not([data-arms-delta])');\n      panel.outerHTML = armsHeroPanel();\n      const fresh = dialog.querySelector('[data-arms-panel]');\n      fresh.querySelectorAll('details').forEach(x => { x.open = opened.includes(x.dataset.armsHelp); });\n      fresh.querySelector('[data-arms-status]').textContent = 'Очки сохранены.';\n      fresh.querySelector(selector)?.focus({preventScroll:true});\n      dialog.scrollTop = top;\n    } else showWorld('hero');\n  }\n  document.addEventListener('click', armsHeroAction, true);"
+    },
+    {
+      "name": "Hide only the obsolete Arms placeholder in opt-in mode",
+      "old": "      '<div class=\"box\"><p class=\"sect\">Таланты</p><p class=\"hint\">' + (lv < SPEC_LEVEL ? 'Откроются на ' + SPEC_LEVEL + ' уровне.' : 'Ветка талантов появится позже.') + '</p></div>'",
+      "new": "      ((ARMS_HERO_MODE && S.main === 'warrior' && specKey('me') === 'arms') ? '' : '<div class=\"box\"><p class=\"sect\">Таланты</p><p class=\"hint\">' + (lv < SPEC_LEVEL ? 'Откроются на ' + SPEC_LEVEL + ' уровне.' : 'Ветка талантов появится позже.') + '</p></div>')"
+    }
+  ]
+}
