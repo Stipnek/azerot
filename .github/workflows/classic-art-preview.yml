@@ -1,0 +1,86 @@
+name: Classic original artwork preview
+on:
+  push:
+    branches: ['test/arms-talent-prototype']
+    paths: ['scripts/**', 'src/**', '.github/workflows/classic-art-preview.yml']
+permissions:
+  contents: read
+jobs:
+  original-art:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install Pillow==11.3.0 playwright==1.56.0
+      - run: python -m playwright install --with-deps chromium
+      - name: Build with pinned original artwork
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p test-results
+          git rev-parse HEAD > test-results/source-commit.txt
+          python scripts/build_classic_art_preview.py 2>&1 | tee test-results/art-build.log
+      - name: Verify panels and portrait navigation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY' 2>&1 | tee test-results/art-browser.log
+          from pathlib import Path
+          import functools, http.server, json, threading
+          from playwright.sync_api import sync_playwright, expect
+          server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(http.server.SimpleHTTPRequestHandler,directory='preview'))
+          threading.Thread(target=server.serve_forever,daemon=True).start()
+          errors=[]
+          with sync_playwright() as p:
+              browser=p.chromium.launch()
+              context=browser.new_context(viewport={'width':1280,'height':800},reduced_motion='reduce')
+              context.tracing.start(screenshots=True,snapshots=True,sources=True)
+              page=context.new_page()
+              page.on('pageerror',lambda e:errors.append(str(e)))
+              try:
+                  page.goto(f'http://127.0.0.1:{server.server_port}/arms-proto.html',wait_until='networkidle')
+                  expect(page.locator('.classic-original-window')).to_have_count(3)
+                  expect(page.locator('#talent-panel-fury .locked-node')).to_have_count(17)
+                  expect(page.locator('#talent-panel-protection .locked-node')).to_have_count(17)
+                  assert page.evaluate('Array.from(document.querySelectorAll(".classic-original-window")).every(e=>getComputedStyle(e).backgroundImage.includes("data:image/png;base64,"))')
+                  page.locator('#ml').fill('30');page.locator('#ml').dispatch_event('change')
+                  page.locator('#reset').click()
+                  page.locator('#tree [data-n="ihs"][data-d="1"]').click()
+                  expect(page.locator('#pts')).to_contain_text('1 / 21')
+                  before=page.evaluate('localStorage.getItem(Battle.armsProto.CONFIG.saveKey)')
+                  page.locator('#talent-panels').screenshot(path='test-results/original-desktop.png')
+                  page.set_viewport_size({'width':390,'height':844})
+                  page.get_by_role('button',name='Защита',exact=True).click()
+                  page.wait_for_function('Math.abs(document.getElementById("talent-panel-protection").getBoundingClientRect().left-document.getElementById("talent-panels").getBoundingClientRect().left)<3')
+                  expect(page.get_by_role('button',name='Защита',exact=True)).to_have_attribute('aria-pressed','true')
+                  node=page.locator('#talent-panel-protection .locked-node').first
+                  expect(node).to_have_attribute('aria-disabled','true')
+                  node.evaluate('(e)=>e.click()')
+                  assert page.evaluate('localStorage.getItem(Battle.armsProto.CONFIG.saveKey)')==before
+                  page.locator('#talent-panels').screenshot(path='test-results/original-portrait-protection.png')
+                  page.get_by_role('button',name='Оружие',exact=True).click()
+                  page.wait_for_function('document.getElementById("talent-panels").scrollLeft<3')
+                  page.locator('#talent-panels').screenshot(path='test-results/original-portrait-arms.png')
+                  assert not errors,errors
+                  print('PASS: original frame embedded, three trees, Arms purchase, portrait buttons and read-only save isolation')
+              finally:
+                  Path('test-results/art-errors.json').write_text(json.dumps(errors,ensure_ascii=False),encoding='utf-8')
+                  page.screenshot(path='test-results/original-final.png',full_page=True)
+                  context.tracing.stop(path='test-results/original-trace.zip')
+                  browser.close()
+                  server.shutdown()
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: classic-original-art-${{ github.sha }}
+          retention-days: 7
+          path: |
+            test-results/
+            preview/arms-proto.html
+            preview/classic-art/
