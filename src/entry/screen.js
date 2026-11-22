@@ -33,9 +33,16 @@ function mount(){
   }check();
  });}
  const artwork=Promise.race([$('pa-art').decode(),delay(5000).then(()=>{throw new Error('Artwork timeout');})]).catch(()=>root.classList.add('pa-no-art'));
- Promise.all([delay(1000),gameReady(),artwork]).then(()=>{
+ Promise.all([delay(1000),gameReady(),artwork]).then(async()=>{
+  const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  root.dataset.state='transition';$('pa-loading').classList.add('pa-leave');
+  if(!reduced)await delay(160);
+  $('pa-loading').hidden=true;$('pa-actions').hidden=false;
+  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+  $('pa-actions').classList.add('pa-arrive');
+  if(!reduced)await delay(220);
   root.dataset.readyAt=String(performance.now());root.dataset.state='ready';document.documentElement.dataset.paEntry='ready';
-  $('pa-loading').hidden=true;$('pa-actions').hidden=false;enter.disabled=false;open.disabled=false;enter.focus({preventScroll:true});
+  enter.disabled=false;open.disabled=false;
  }).catch(()=>{root.dataset.state='error';$('pa-loading').hidden=true;$('pa-failure').hidden=false;$('pa-retry').focus({preventScroll:true});});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();

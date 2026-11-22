@@ -30,6 +30,8 @@ def run(browser, label, options):
     try:
         page.goto(url, wait_until='domcontentloaded', timeout=90000)
         expect(root).to_have_attribute('data-state', 'ready')
+        expect(page.locator('#pa-actions')).to_have_css('opacity', '1')
+        expect(page.locator('#pa-enter')).not_to_be_focused()
         elapsed = root.evaluate('(e) => Number(e.dataset.readyAt)-Number(e.dataset.startedAt)')
         assert elapsed >= 999, elapsed
         assert page.locator('main').evaluate('(e) => e.inert')
@@ -37,6 +39,11 @@ def run(browser, label, options):
         page.wait_for_function('(width) => document.getElementById("pa-art").naturalWidth===width', arg=expected_width)
         assert page.locator('#pa-art').evaluate('(e) => e.decode().then(()=>true)')
         page.screenshot(path=str(out / 'entry.png'), full_page=True)
+        page.keyboard.press('Tab')
+        expect(page.locator('#pa-enter')).to_be_focused()
+        expect(page.locator('#pa-enter')).to_have_css('outline-style', 'solid')
+        page.screenshot(path=str(out / 'keyboard-focus.png'), full_page=True)
+        page.mouse.click(5, 5)
         page.set_viewport_size({'width':900, 'height':430})
         page.wait_for_function('document.getElementById("pa-art").naturalWidth===384')
         for name in ['#pa-enter', '#pa-settings-open']:
@@ -48,6 +55,9 @@ def run(browser, label, options):
         ordinary = page.evaluate("localStorage.getItem('azeroth-ab-setup-v5')")
         page.locator('#pa-settings-open').click()
         expect(page.locator('#pa-settings')).to_be_visible()
+        expect(page.locator('#pa-settings #az-master-value')).to_have_css('color', 'rgb(244, 231, 202)')
+        expect(page.locator('#pa-settings #az-status')).to_be_hidden()
+        expect(page.locator('#pa-settings #az-time-status')).to_be_hidden()
         master = page.locator('#pa-settings #az-master')
         master.focus()
         master.press('Home')
@@ -55,9 +65,16 @@ def run(browser, label, options):
         expect(page.locator('#az-master-value')).to_have_text('1%')
         assert page.evaluate("JSON.parse(localStorage.getItem('azeroth-ab-audio-v2')).master") == 0.01
         assert page.evaluate("localStorage.getItem('azeroth-ab-setup-v5')") == ordinary
+        page.set_viewport_size({'width':750, 'height':342})
+        page.locator('#pa-settings').evaluate('(e) => {e.scrollTop=e.scrollHeight;}')
+        close = page.locator('#pa-settings-close')
+        expect(close).to_be_in_viewport(ratio=1)
+        assert close.evaluate('(e) => {const r=e.getBoundingClientRect();return e.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));}'), 'Sticky close button is obscured'
+        page.screenshot(path=str(out / 'settings-scrolled.png'), full_page=True)
         page.keyboard.press('Escape')
         expect(page.locator('#pa-settings')).not_to_be_visible()
         expect(page.locator('#w-more #az-settings')).to_have_count(1)
+        page.set_viewport_size(options['viewport'])
         page.reload(wait_until='domcontentloaded')
         expect(root).to_have_attribute('data-state', 'ready')
         page.locator('#pa-settings-open').click()
@@ -93,6 +110,7 @@ try:
         try:
             run(browser, 'desktop', {'viewport':{'width':1280,'height':900}})
             run(browser, 'mobile', dict(p.devices['iPhone 13']))
+            run(browser, 'tall-reduced', {'viewport':{'width':342,'height':750},'reduced_motion':'reduce'})
         finally:
             browser.close()
 finally:
