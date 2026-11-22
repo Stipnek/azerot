@@ -4,7 +4,7 @@ on:
     branches: ['work/pocket-entry-screen']
   pull_request:
     branches: ['main']
-    paths: ['src/entry/**', 'src/assets/entry/**', 'scripts/*entry_preview.py', 'scripts/build_game.py', 'src/build-info.js', 'scripts/coin_assets.py', '.github/workflows/pocket-entry-screen.yml']
+    paths: ['src/entry/**', 'src/assets/entry/**', 'scripts/*entry_preview.py', 'scripts/build_game.py', 'src/build-info.js', 'scripts/coin_assets.py', 'scripts/audit_release_abilities.cjs', 'scripts/lib_engine_load.cjs', 'src/scripts/**', '.github/workflows/pocket-entry-screen.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -23,6 +23,8 @@ jobs:
         with:
           node-version: '22'
       - run: python3 scripts/check_source_edits.py
+      - name: Inventory ability unlocks (diagnostic, not release acceptance)
+        run: node scripts/audit_release_abilities.cjs
       - run: python3 scripts/build_entry_preview.py
       - run: python -m pip install playwright==1.56.0
       - run: python -m playwright install --with-deps chromium
