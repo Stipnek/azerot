@@ -1,0 +1,61 @@
+name: Talent visual readback
+on:
+  push:
+    branches: ['test/arms-talent-prototype']
+    paths: ['.github/workflows/talent-visual-readback.yml']
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: talent-visual-readback
+  cancel-in-progress: false
+jobs:
+  readback:
+    if: github.ref == 'refs/heads/test/arms-talent-prototype'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: classic-original-art-9002a2be381c9b0de7b5b8cc1c8e5760eecc2480
+          run-id: 44964923880
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/classic-art-readback
+      - name: Copy exact existing screenshots and provenance
+        env:
+          READBACK_INPUT: ${{ runner.temp }}/classic-art-readback
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os
+          source=Path(os.environ['READBACK_INPUT'])/'test-results'
+          out=Path('dev-readback/talent-visuals/9002a2be381c9b0de7b5b8cc1c8e5760eecc2480')
+          if out.exists():
+              raise SystemExit('Refusing to overwrite existing visual evidence')
+          expected='9002a2be381c9b0de7b5b8cc1c8e5760eecc2480'
+          if (source/'source-commit.txt').read_text().strip()!=expected:
+              raise SystemExit('Artifact source commit mismatch')
+          names=['original-desktop.png','original-portrait-arms.png','original-portrait-protection.png']
+          files={name:(source/name).read_bytes() for name in names}
+          for name,raw in files.items():
+              if not raw.startswith(b'\x89PNG\r\n\x1a\n') or len(raw)>4000000:
+                  raise SystemExit('Invalid/oversized screenshot: '+name)
+          out.mkdir(parents=True)
+          manifest={'sourceCommit':expected,'workflowRun':44964923880,'images':[]}
+          for name,raw in files.items():
+              (out/name).write_bytes(raw)
+              manifest['images'].append({'file':name,'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()})
+          (out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          PY
+      - name: Commit only visual evidence to the same test branch
+        run: |
+          set -euo pipefail
+          test "$(git ls-remote origin refs/heads/test/arms-talent-prototype | cut -f1)" = "${{ github.sha }}"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- dev-readback/talent-visuals/9002a2be381c9b0de7b5b8cc1c8e5760eecc2480/
+          git commit -m 'chore: retain original Classic preview screenshots for visual review'
+          git push origin HEAD:refs/heads/test/arms-talent-prototype

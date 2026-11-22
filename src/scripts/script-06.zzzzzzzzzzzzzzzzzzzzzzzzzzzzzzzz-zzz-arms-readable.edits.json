@@ -1,0 +1,41 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Follow-up opt-in Arms UX: fix legacy auto-open, full-width sticky inspector, readable visible refusal messages. No combat or save changes.",
+  "edits": [
+    {
+      "name": "Only auto-open the legacy skill list, never a talent description",
+      "old": "(armsHeroPanel() || skillsHtml(S.main, sp, cl, true, lv)).replace('<details', '<details open')",
+      "new": "(armsHeroPanel() || skillsHtml(S.main, sp, cl, true, lv).replace('<details', '<details open'))"
+    },
+    {
+      "name": "Keep description data out of narrow grid cells",
+      "old": "<p>'+esc(armsHeroEffect(n.id))+'</p></details>",
+      "new": "<p hidden>'+esc(armsHeroEffect(n.id))+'</p></details>"
+    },
+    {
+      "name": "Provide one full-width inspector for descriptions and notices",
+      "old": "<p data-arms-status role=\"status\" aria-live=\"polite\"></p>",
+      "new": "<aside data-arms-inspector hidden aria-label=\"Описание таланта и результат действия\"><button type=\"button\" class=\"btn\" data-arms-inspector-close>Скрыть описание</button><h4 data-arms-heading></h4><p data-arms-status role=\"status\" aria-live=\"polite\"></p><p data-arms-effect></p></aside>"
+    },
+    {
+      "name": "Keep the wide inspector visible while the tree scrolls",
+      "old": "[data-arms-status]{min-height:1.4em}</style>",
+      "new": "[data-arms-status]{min-height:1.4em}#w-hero [data-arms-inspector]{position:sticky;top:0;z-index:5;box-sizing:border-box;width:100%;max-height:32dvh;overflow:auto;padding:8px;background:var(--panel,#222a2d);color:var(--ink,#fff2dc);border:1px solid var(--line,#827151);box-shadow:0 3px 10px #0004}#w-hero [data-arms-inspector][hidden]{display:none}#w-hero [data-arms-inspector-close]{float:right;margin:0 0 4px 8px}#w-hero [data-arms-heading]{font-size:15px;line-height:1.4;margin:0 0 6px}#w-hero [data-arms-effect],#w-hero [data-arms-status]{font-size:14px;line-height:1.45;white-space:normal;word-break:normal;overflow-wrap:normal;margin:4px 0}#w-hero [data-arms-panel] summary{word-break:normal;overflow-wrap:normal;hyphens:auto;overflow:hidden}</style>"
+    },
+    {
+      "name": "Coordinate native disclosures and player-facing refusal text",
+      "old": "  function armsHeroAction(ev) {",
+      "new": "  function armsHeroPresent(panel, id) {\n    const box = panel.querySelector('[data-arms-inspector]');\n    const detail = panel.querySelector('details[data-arms-help][open]');\n    const key = id || (detail && detail.dataset.armsHelp);\n    const node = B.armsIntegrated.TREE.find(n => n.id === key);\n    const note = panel.querySelector('[data-arms-status]');\n    box.hidden = !node && !note.textContent;\n    panel.querySelector('[data-arms-heading]').textContent = node ? node.ru : 'Очки талантов';\n    panel.querySelector('[data-arms-effect]').textContent = node ? armsHeroEffect(node.id) : '';\n  }\n  function armsHeroRefusal(button, result) {\n    const P = B.armsIntegrated, level = hLevel('me'), alloc = armsHeroData(S.hero, level);\n    const node = P.TREE.find(n => n.id === button.dataset.armsNode);\n    const removing = button.dataset.armsDelta === '-1' || result.removing;\n    if (!node) return 'Сейчас это изменение недоступно.';\n    const rank = alloc[node.id] || 0;\n    if (P.CONFIG.unavailable.includes(node.id)) return 'Этот талант пока недоступен для изучения.';\n    if (removing && !rank) return 'Нечего снимать: в этот талант ещё не вложены очки.';\n    if (!removing && rank >= node.max) return 'Уже максимальный ранг.';\n    if (!removing && P.validate(alloc, level).spent >= P.points(level)) return 'Все очки распределены. Снимите другой ранг, чтобы изменить выбор.';\n    if (removing) return 'Этот ранг нужен талантам следующих рядов. Сначала снимите зависимые ранги.';\n    const row = (result.errors || []).map(x => x.match(/Ряд (\\d+) требует (\\d+)/)).find(Boolean);\n    if (row) return 'Ряд ' + row[1] + ': сначала вложите не менее ' + row[2] + ' очков в предыдущие ряды.';\n    return 'Сначала полностью изучите требуемый талант.';\n  }\n  document.addEventListener('toggle', function (ev) {\n    const detail = ev.target;\n    if (!detail.isConnected || !detail.matches || !detail.matches('details[data-arms-help]')) return;\n    const panel = detail.closest('[data-arms-panel]');\n    if (detail.open) panel.querySelectorAll('details[data-arms-help][open]').forEach(x => { if (x !== detail) x.open = false; });\n    armsHeroPresent(panel);\n  }, true);\n  document.addEventListener('click', function (ev) {\n    const button = ev.target.closest('[data-arms-inspector-close]');\n    if (!button) return;\n    ev.preventDefault();\n    const panel = button.closest('[data-arms-panel]');\n    const summary = panel.querySelector('details[open] summary');\n    panel.querySelectorAll('details[open]').forEach(x => { x.open = false; });\n    panel.querySelector('[data-arms-status]').textContent = '';\n    armsHeroPresent(panel);\n    summary?.focus({preventScroll:true});\n  }, true);\n  function armsHeroAction(ev) {"
+    },
+    {
+      "name": "Show readable refusals in the visible inspector",
+      "old": "      if (note) note.textContent = (result.errors || ['Изменение недоступно.']).join(' ');",
+      "new": "      if (note) {\n        note.textContent = armsHeroRefusal(button, Object.assign({}, result, {removing: ev.type === 'contextmenu'}));\n        armsHeroPresent(panel, button.dataset.armsNode);\n      }"
+    },
+    {
+      "name": "Restore the inspector before restoring focus and scroll",
+      "old": "      fresh.querySelector('[data-arms-status]').textContent = 'Очки сохранены.';",
+      "new": "      fresh.querySelector('[data-arms-status]').textContent = 'Очки сохранены.';\n      armsHeroPresent(fresh);"
+    }
+  ]
+}

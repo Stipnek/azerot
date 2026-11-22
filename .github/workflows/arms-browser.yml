@@ -1,0 +1,123 @@
+name: Arms browser checks
+on:
+  push:
+    branches: ['test/arms-talent-prototype']
+    paths: ['src/**', 'scripts/**', '.github/workflows/arms-browser.yml']
+permissions:
+  contents: read
+jobs:
+  chromium:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 scripts/build_arms_proto.py
+      - run: python -m pip install playwright==1.56.0
+      - run: python -m playwright install --with-deps chromium
+      - name: Exercise real browser and capture evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p test-results
+          git rev-parse HEAD > test-results/source-commit.txt
+          python3 - <<'PY' 2>&1 | tee test-results/browser.log
+          import functools
+          import http.server
+          import json
+          import threading
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright, expect
+          out = Path('test-results')
+          handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory='preview')
+          server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), handler)
+          threading.Thread(target=server.serve_forever, daemon=True).start()
+          url = f'http://127.0.0.1:{server.server_port}/arms-proto.html'
+          errors = []
+          checks = []
+          def passed(name):
+              checks.append(name)
+              print('PASS:', name, flush=True)
+          with sync_playwright() as p:
+              browser = p.chromium.launch()
+              context = browser.new_context(viewport={'width': 1280, 'height': 800})
+              context.tracing.start(screenshots=True, snapshots=True, sources=True)
+              page = context.new_page()
+              page.on('pageerror', lambda error: errors.append(str(error)))
+              page.on('console', lambda message: errors.append(message.text) if message.type == 'error' and 'favicon.ico' not in message.text and '404' not in message.text else None)
+              page.route('**/favicon.ico', lambda route: route.fulfill(status=204, body=''))
+              normal = '{"chars":[{"name":"KEEP_NORMAL_SAVE"}]}'
+              try:
+                  page.goto(url, wait_until='networkidle')
+                  expect(page.locator('#tree .row')).to_have_count(7)
+                  page.evaluate('(v) => { localStorage.setItem("azeroth-ab-setup-v5", v); localStorage.removeItem(Battle.armsProto.CONFIG.saveKey); }', normal)
+                  page.reload(wait_until='networkidle')
+                  for level, budget in [(9, 0), (10, 0), (14, 0), (15, 6), (30, 21)]:
+                      page.locator('#ml').fill(str(level))
+                      page.locator('#ml').dispatch_event('change')
+                      expect(page.locator('#pts')).to_contain_text(f'/ {budget}')
+                  passed('Existing level gates and budgets; no balance changes')
+                  page.locator('#reset').click()
+                  page.locator('[data-n="ihs"][data-d="1"]').click()
+                  expect(page.locator('#pts')).to_contain_text('1 / 21')
+                  page.reload(wait_until='networkidle')
+                  expect(page.locator('#pts')).to_contain_text('1 / 21')
+                  assert page.evaluate('Battle.armsProto.load(localStorage).state.main.talents.ihs') == 1
+                  page.locator('[data-n="ihs"][data-d="-1"]').click()
+                  expect(page.locator('#pts')).to_contain_text('0 / 21')
+                  passed('Purchase, reload persistence and rank removal through UI')
+                  page.locator('#presetA').click()
+                  expect(page.locator('#pts')).to_contain_text('21 / 21')
+                  assert page.locator('.node.un').count() > 0
+                  for button in page.locator('.node.un button').all():
+                      expect(button).to_be_disabled()
+                  passed('Preset A and unavailable nodes')
+                  for width, height, label in [(1280, 800, 'desktop'), (844, 390, 'landscape'), (390, 844, 'mobile')]:
+                      page.set_viewport_size({'width': width, 'height': height})
+                      page.screenshot(path=str(out / f'arms-{label}.png'), full_page=True)
+                  page.set_viewport_size({'width': 1280, 'height': 800})
+                  page.locator('#reset').click()
+                  expect(page.locator('#pts')).to_contain_text('0 / 21')
+                  for raw in [
+                      {'schema': 1},
+                      {'schema': 1, 'main': {'level': 15}},
+                      {'schema': 1, 'main': {'level': 15, 'talents': None}},
+                      {'schema': 1, 'main': {'level': 15, 'talents': 'ihs'}}
+                  ]:
+                      page.evaluate('(raw) => localStorage.setItem(Battle.armsProto.CONFIG.saveKey, JSON.stringify(raw))', raw)
+                      page.reload(wait_until='networkidle')
+                      expect(page.locator('#tree .row')).to_have_count(7)
+                      assert page.evaluate('Object.keys(Battle.armsProto.load(localStorage).state.main.talents).length') == 0
+                      assert page.evaluate('localStorage.getItem("azeroth-ab-setup-v5")') == normal
+                  passed('Reset, incomplete/malformed saves and normal-save isolation')
+                  page.locator('#ml').fill('30')
+                  page.locator('#ml').dispatch_event('change')
+                  page.locator('#presetB').click()
+                  page.locator('#seeds').fill('1')
+                  page.locator('#seeds').dispatch_event('change')
+                  page.locator('#run').click()
+                  expect(page.locator('#out')).to_contain_text('победы')
+                  expect(page.locator('#err')).to_be_empty()
+                  assert page.evaluate('localStorage.getItem("azeroth-ab-setup-v5")') == normal
+                  assert not errors, errors
+                  passed('Battle runs from UI; no JavaScript errors; ordinary save unchanged')
+              finally:
+                  (out / 'browser-result.json').write_text(json.dumps({'passed': checks, 'errors': errors}, ensure_ascii=False, indent=2), encoding='utf-8')
+                  page.screenshot(path=str(out / 'arms-final.png'), full_page=True)
+                  context.tracing.stop(path=str(out / 'trace.zip'))
+                  browser.close()
+                  server.shutdown()
+          PY
+      - name: Save logs, screenshots, trace and tested build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arms-browser-${{ github.sha }}
+          retention-days: 7
+          path: |
+            test-results/
+            preview/arms-proto.html

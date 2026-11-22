@@ -1,0 +1,66 @@
+name: Arms prototype tests
+on:
+  push:
+    branches: ['test/arms-talent-prototype']
+    paths: ['src/**', 'scripts/**', '.github/workflows/arms-prototype-tests.yml']
+permissions:
+  contents: read
+concurrency:
+  group: arms-prototype-tests-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  regressions:
+    if: github.ref == 'refs/heads/test/arms-talent-prototype'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Record tested source
+        run: |
+          mkdir -p test-results
+          git rev-parse HEAD | tee test-results/source-commit.txt
+          test "$(git rev-parse HEAD)" = "${{ github.sha }}"
+      - name: Validate source manifests
+        run: |
+          set -euo pipefail
+          python3 scripts/check_source_edits.py 2>&1 | tee test-results/manifests.log
+      - name: Run all Node module regressions
+        run: |
+          set -euo pipefail
+          for test in scripts/test_*.cjs; do
+            echo "=== $test ==="
+            node "$test"
+          done 2>&1 | tee test-results/node-regressions.log
+      - name: Run Python coin asset tests
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s scripts -p test_coin_assets.py 2>&1 | tee test-results/python-tests.log
+      - name: Build ordinary game and isolated prototype
+        run: |
+          set -euo pipefail
+          python3 scripts/build_game.py 2>&1 | tee test-results/build-game.log
+          python3 scripts/build_arms_proto.py 2>&1 | tee test-results/build-prototype.log
+          sha256sum preview/index.html preview/arms-proto.html | tee test-results/build-hashes.txt
+      - name: Upload logs and test builds
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arms-prototype-${{ github.sha }}
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            test-results/
+            preview/index.html
+            preview/arms-proto.html

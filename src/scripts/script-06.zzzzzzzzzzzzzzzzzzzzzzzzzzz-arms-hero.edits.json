@@ -1,0 +1,35 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "edits": [
+    {
+      "name": "Isolate integrated hero saves from normal saves",
+      "old": "  const KEY = 'azeroth-ab-setup-v5';\n  try{if(!localStorage.getItem('azeroth-ab-backup-before-v57')&&localStorage.getItem(KEY))localStorage.setItem('azeroth-ab-backup-before-v57',localStorage.getItem(KEY));}catch(e){}",
+      "new": "  const ARMS_HERO_MODE = window.__AZEROT_ARMS_HERO__ === true;\n  const KEY = ARMS_HERO_MODE ? 'azeroth-arms-hero-v1' : 'azeroth-ab-setup-v5';\n  if (ARMS_HERO_MODE) {\n    // Copy once into an isolated test namespace; never write normal saves.\n    try { if (localStorage.getItem(KEY) === null) { const raw = localStorage.getItem('azeroth-ab-setup-v5'); if (raw !== null) localStorage.setItem(KEY, raw); } } catch (e) {}\n  } else {\n    try{if(!localStorage.getItem('azeroth-ab-backup-before-v57')&&localStorage.getItem(KEY))localStorage.setItem('azeroth-ab-backup-before-v57',localStorage.getItem(KEY));}catch(e){}\n  }"
+    },
+    {
+      "name": "Add validated hero talent adapter and editor",
+      "old": "  function cleanChar(h) {",
+      "new": "  /* ARMS_HERO_BEGIN */\n  function armsHeroData(hero, level) {\n    if (!Number.isInteger(level) || level < 1 || level > B.XPC.cap) throw new RangeError('Own hero level required');\n    const raw = hero && hero.armsTalents;\n    if (raw === undefined || raw === null) return {};\n    if (typeof raw !== 'object' || Array.isArray(raw) || !B.armsProto.validate(raw, level).ok) return {};\n    return Object.fromEntries(Object.entries(raw));\n  }\n  function armsLoadout(k) {\n    if (!ARMS_HERO_MODE || !S.hero || clsOf(k) !== 'warrior' || specKey(k) !== 'arms') return {};\n    return k === 'me' ? { proto: 'arms', talents: armsHeroData(S.hero, hLevel(k)) } : { proto: 'arms' };\n  }\n  function armsHeroPanel() {\n    if (!ARMS_HERO_MODE || !S.hero || S.main !== 'warrior' || specKey('me') !== 'arms') return '';\n    const P = B.armsProto, level = hLevel('me'), alloc = armsHeroData(S.hero, level), v = P.validate(alloc, level);\n    const icons = [[/heroic/i,1,'ability_rogue_ambush'],[/deflection/i,2,'ability_parry'],[/rend/i,3,'ability_gouge'],[/charge/i,1,'ability_warrior_charge'],[/tactical/i,2,'spell_nature_enchantarmor'],[/thunder/i,4,'ability_thunderclap'],[/overpower/i,1,'inv_sword_05'],[/anger/i,2,'spell_holy_blessingofstamina'],[/deep/i,3,'ability_backstab'],[/two.hand/i,2,'inv_axe_09'],[/impale/i,3,'ability_searingarrow'],[/axe/i,1,'inv_axe_06'],[/sweeping/i,2,'ability_rogue_slicedice'],[/mace/i,3,'inv_mace_01'],[/sword/i,4,'inv_sword_27'],[/hamstring/i,3,'ability_shockwave'],[/polearm/i,1,'inv_weapon_halbard_01'],[/mortal/i,2,'ability_warrior_savageblow']];\n    const nodes = P.TREE.map(function(n) {\n      const rank = alloc[n.id] || 0, icon = icons.find(x => x[0].test(n.en));\n      const plus = P.change(alloc, n.id, 1, level).ok, minus = P.change(alloc, n.id, -1, level).ok;\n      const label = n.ru + ': ' + rank + '/' + n.max + (P.CONFIG.unavailable.includes(n.id) ? ' — недоступно в прототипе' : '') + (n.req ? '; требуется ' + P.TREE.find(x => x.id === n.req).ru : '');\n      return '<div style=\"grid-row:'+n.tier+';grid-column:'+(icon ? icon[1] : 1)+'\" title=\"'+esc(label)+'\"><button type=\"button\" class=\"btn\" data-arms-node=\"'+n.id+'\" data-arms-hero=\"'+esc(S.hero.id)+'\" aria-label=\"'+esc('Добавить ранг: '+label)+'\" aria-disabled=\"'+!plus+'\" style=\"padding:2px;border-color:'+(rank===n.max?'#e4bd52':plus?'#56ac48':'#777')+'\">'+(icon?'<img width=\"36\" height=\"36\" alt=\"'+esc(n.ru)+'\" src=\"https://wow.zamimg.com/images/wow/icons/large/'+icon[2]+'.jpg\" style=\"'+(plus||rank?'':'filter:grayscale(1);opacity:.5')+'\">':esc(n.ru))+'<br>'+rank+'/'+n.max+'</button><button type=\"button\" class=\"btn\" data-arms-node=\"'+n.id+'\" data-arms-delta=\"-1\" data-arms-hero=\"'+esc(S.hero.id)+'\" aria-label=\"'+esc('Убрать ранг: '+n.ru)+'\"'+(minus?'':' disabled')+'>−</button></div>';\n    }).join('');\n    const kit = P.kit(level, alloc).map(id => '<li>'+esc(B.SKILLS[id].name)+'</li>').join('');\n    return '<section class=\"box\" data-arms-panel=\"'+esc(S.hero.id)+'\"><h3>Таланты · Оружие</h3><p>Тестовая интеграция. Уровень '+level+'. Очки: '+v.spent+' / '+v.budget+'. '+(level<15?'Таланты и аура Оружия откроются на 15 уровне.':'')+'</p><p class=\"hint\">Левый клик — добавить ранг, правый клик или «−» — убрать. Зависимости проверяются общим валидатором. Баланс прототипа не согласован.</p><div style=\"display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 4px;max-width:360px\">'+nodes+'</div><p><button type=\"button\" class=\"btn\" data-arms-reset=\"1\" data-arms-hero=\"'+esc(S.hero.id)+'\">Сбросить очки</button></p><h4>Умения в бою</h4><ul>'+kit+'</ul></section>';\n  }\n  function armsHeroAction(ev) {\n    const button = ev.target.closest('[data-arms-node],[data-arms-reset]');\n    if (!button) return;\n    ev.preventDefault(); ev.stopPropagation();\n    if (!ARMS_HERO_MODE || !S.hero || S.hero.id !== button.dataset.armsHero || S.main !== 'warrior' || specKey('me') !== 'arms' || (st && !st.over)) return;\n    const old = S.hero.armsTalents, had = Object.prototype.hasOwnProperty.call(S.hero, 'armsTalents');\n    const alloc = armsHeroData(S.hero, hLevel('me'));\n    const result = button.dataset.armsReset ? (ev.type === 'contextmenu' ? {ok:false} : {ok:true,alloc:{}}) : B.armsProto.change(alloc, button.dataset.armsNode, ev.type === 'contextmenu' || button.dataset.armsDelta === '-1' ? -1 : 1, hLevel('me'));\n    if (!result.ok) return;\n    S.hero.armsTalents = Object.fromEntries(Object.entries(result.alloc));\n    if (!save()) {\n      if (had) S.hero.armsTalents = old; else delete S.hero.armsTalents;\n      window.alert('Не удалось сохранить таланты. Изменение отменено.');\n      return;\n    }\n    showWorld('hero');\n  }\n  document.addEventListener('click', armsHeroAction, true);\n  document.addEventListener('contextmenu', armsHeroAction, true);\n  /* ARMS_HERO_END */\n\n  function cleanChar(h) {"
+    },
+    {
+      "name": "Keep validated character ranks across reloads",
+      "old": "return migrateTav({ lastEntered:",
+      "new": "return migrateTav({ ...(ARMS_HERO_MODE ? { armsTalents: armsHeroData(h, B.levelOf(cleanHxp(h).me)) } : {}), lastEntered:"
+    },
+    {
+      "name": "Apply the same loadout in stat previews",
+      "old": "      cls: clsOf(key), spec: specKey(key), level: hLevel(key), main:",
+      "new": "      ...armsLoadout(key), cls: clsOf(key), spec: specKey(key), level: hLevel(key), main:"
+    },
+    {
+      "name": "Apply own-level talents in ordinary, dungeon and training battle parties",
+      "old": "return { key: k, cls: clsOf(k), spec: specKey(k), level: hLevel(k),",
+      "new": "return { ...armsLoadout(k), key: k, cls: clsOf(k), spec: specKey(k), level: hLevel(k),"
+    },
+    {
+      "name": "Add editable talent tree to the hero screen",
+      "old": "skillsHtml(S.main, sp, cl, true, lv)",
+      "new": "(armsHeroPanel() || skillsHtml(S.main, sp, cl, true, lv))"
+    }
+  ]
+}
