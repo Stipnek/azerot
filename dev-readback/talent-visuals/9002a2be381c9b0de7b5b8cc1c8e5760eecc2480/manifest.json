@@ -1,0 +1,21 @@
+{
+  "sourceCommit": "9002a2be381c9b0de7b5b8cc1c8e5760eecc2480",
+  "workflowRun": 44964923880,
+  "images": [
+    {
+      "file": "original-desktop.png",
+      "bytes": 384290,
+      "sha256": "d224aab343d2246da18d689367cb656a4efaa3354b65f5065125ea3921643f05"
+    },
+    {
+      "file": "original-portrait-arms.png",
+      "bytes": 179908,
+      "sha256": "006c0f32a07f70ed04a9df926d2305ab3eae900416b201f45d3501572257ceb3"
+    },
+    {
+      "file": "original-portrait-protection.png",
+      "bytes": 179756,
+      "sha256": "d676a09ea530e4f860c4de3e272d20a75aadb1b4540ccbf9c3824e861277bc31"
+    }
+  ]
+}

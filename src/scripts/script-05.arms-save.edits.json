@@ -1,0 +1,10 @@
+{
+  "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+  "edits": [
+    {
+      "name": "Normalize missing talent allocations and reject non-object allocations during prototype save migration",
+      "old": "    const t = raw.main && raw.main.talents, v = armsValidate(t, s.main.level);\n    if (v.ok) Object.keys(t).forEach(function (k) { if (t[k] > 0) s.main.talents[k] = t[k]; });",
+      "new": "    const t = raw.main && raw.main.talents;\n    const shapeOk = t == null || (typeof t === 'object' && !Array.isArray(t));\n    const alloc = shapeOk && t != null ? t : {};\n    const v = armsValidate(alloc, s.main.level);\n    if (!shapeOk) { v.ok = false; v.errors.push('Некорректный формат талантов в сохранении'); }\n    if (v.ok) Object.keys(alloc).forEach(function (k) { if (alloc[k] > 0) s.main.talents[k] = alloc[k]; });"
+    }
+  ]
+}

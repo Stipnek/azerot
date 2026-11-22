@@ -1,0 +1,75 @@
+name: Pinned Arms integration diagnostics
+on:
+  push:
+    branches: ['test/arms-talent-prototype']
+    paths: ['.github/workflows/arms-integration-diagnostics.yml']
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: pinned-arms-de045d3-diagnostics
+  cancel-in-progress: false
+jobs:
+  recover:
+    if: github.ref == 'refs/heads/test/arms-talent-prototype'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: de045d320efddd597e1ea08e5b7b80810db66d45
+      - uses: actions/download-artifact@v4
+        with:
+          name: arms-prototype-de045d320efddd597e1ea08e5b7b80810db66d45
+          run-id: 44969285567
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/arms-failure
+      - name: Preserve bounded logs and exact source excerpts
+        env:
+          DIAGNOSTIC_INPUT: ${{ runner.temp }}/arms-failure
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          expected = 'de045d320efddd597e1ea08e5b7b80810db66d45'
+          source = Path(os.environ['DIAGNOSTIC_INPUT']) / 'test-results'
+          if (source / 'source-commit.txt').read_text().strip() != expected:
+              raise SystemExit('Artifact commit mismatch')
+          out = Path('dev-readback/arms-integration') / expected
+          if out.exists():
+              raise SystemExit('Refusing to overwrite evidence')
+          out.mkdir(parents=True)
+          records = []
+          for name in ['source-commit.txt', 'manifests.log', 'node-regressions.log']:
+              path = source / name
+              if not path.is_file():
+                  continue
+              raw = path.read_bytes()
+              if len(raw) > 2000000:
+                  raise SystemExit('Oversized diagnostic log: ' + name)
+              (out / name).write_bytes(raw)
+              records.append({'file': name, 'sha256': hashlib.sha256(raw).hexdigest()})
+          if not any(x['file'] in ['manifests.log', 'node-regressions.log'] for x in records):
+              raise SystemExit('No regression evidence found')
+          for filename in ['script-05.txt', 'script-06.txt']:
+              raw = (Path('src/scripts') / filename).read_bytes()
+              text = raw.decode('utf-8')
+              parts = []
+              for start in range(0, len(text), 8000):
+                  name = filename + '.part-' + str(len(parts) + 1).zfill(3) + '.txt'
+                  (out / name).write_text(text[start:start+8000], encoding='utf-8')
+                  parts.append(name)
+              records.append({'source': 'src/scripts/' + filename, 'sha256': hashlib.sha256(raw).hexdigest(), 'parts': parts})
+          (out / 'manifest.json').write_text(json.dumps({'sourceCommit': expected, 'workflowRun': 44969285567, 'records': records}, indent=2) + '\n')
+          PY
+      - name: Store evidence only on a dedicated diagnostic branch
+        run: |
+          set -euo pipefail
+          target=refs/heads/diagnostics/arms-de045d3
+          test -z "$(git ls-remote --heads origin "$target")"
+          test "$(git rev-parse HEAD)" = de045d320efddd597e1ea08e5b7b80810db66d45
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- dev-readback/arms-integration/de045d320efddd597e1ea08e5b7b80810db66d45/
+          git commit -m 'chore: preserve pinned Arms integration failure and source evidence'
+          git push origin "HEAD:$target"
