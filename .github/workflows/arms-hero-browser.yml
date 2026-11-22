@@ -59,13 +59,20 @@ jobs:
               page.on('pageerror', lambda error: errors.append(str(error)))
               page.route('https://**/*', lambda route: route.abort())
               page.route('**/favicon.ico', lambda route: route.fulfill(status=204, body=''))
+              def open_features():
+                  dialog = page.locator('#w-hero dialog[aria-label="Умения и особенности"]')
+                  expect(dialog).to_have_count(1)
+                  if not dialog.is_visible():
+                      page.locator('#w-hero').get_by_role('button', name='Умения и особенности', exact=True).click()
+                  expect(dialog).to_be_visible()
+                  expect(dialog.locator('[data-arms-panel="arms-browser-fixture"]')).to_be_visible()
               def open_hero():
                   expect(page.locator('#sel-enter')).to_be_enabled()
                   page.locator('#sel-enter').click()
                   tab = page.locator('#bnav [data-tab="hero"]')
                   expect(tab).to_be_visible()
                   tab.click()
-                  expect(page.locator('#w-hero [data-arms-panel="arms-browser-fixture"]')).to_be_visible()
+                  open_features()
               try:
                   page.goto(url, wait_until='domcontentloaded')
                   page.wait_for_function('!!(window.Battle && Battle.armsIntegrated)')
@@ -81,17 +88,21 @@ jobs:
                   }''', normal)
                   page.reload(wait_until='domcontentloaded')
                   open_hero()
-                  checks.append('Opened integrated hero screen through character selection and navigation')
+                  checks.append('Opened integrated hero and native features dialog through real navigation clicks')
                   plus = page.locator('#w-hero [data-arms-node="ihs"]:not([data-arms-delta])')
                   expect(plus).to_have_count(1)
+                  expect(plus).to_be_visible()
                   expect(plus).to_contain_text('0/3')
                   plus.click()
+                  open_features()
+                  expect(plus).to_be_visible()
                   expect(plus).to_contain_text('1/3')
                   read_rank = "JSON.parse(localStorage.getItem('azeroth-arms-hero-v1')).chars.find(h=>h.id==='arms-browser-fixture').armsTalents.ihs"
                   assert page.evaluate(read_rank) == 1
-                  checks.append('Purchased one rank with a real UI click and verified isolated storage')
+                  checks.append('Purchased one rank; reopened native features dialog after rerender when needed; verified isolated storage')
                   page.reload(wait_until='domcontentloaded')
                   open_hero()
+                  expect(plus).to_be_visible()
                   expect(plus).to_contain_text('1/3')
                   assert page.evaluate(read_rank) == 1
                   checks.append('Rank survived page reload and re-entry through the actual UI')
@@ -103,7 +114,7 @@ jobs:
                   (out / 'failure.txt').write_text(traceback.format_exc(), encoding='utf-8')
                   raise
               finally:
-                  (out / 'arms-hero-browser.json').write_text(json.dumps({'status':status,'sourceCommit':os.environ['SOURCE_COMMIT'],'page':'arms-hero.html','checks':checks,'pageErrors':errors,'scope':'One desktop purchase/reload scenario. Remote artwork, audio, mobile, combat and dungeon acceptance are not tested.'},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+                  (out / 'arms-hero-browser.json').write_text(json.dumps({'status':status,'sourceCommit':os.environ['SOURCE_COMMIT'],'page':'arms-hero.html','checks':checks,'pageErrors':errors,'scope':'One desktop purchase/reload scenario. Opens the native features dialog and may reopen it after rerender. Does not assert the dialog stays open after purchase. Remote artwork, audio, mobile, combat and dungeon acceptance are not tested.'},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
                   try:
                       page.screenshot(path=str(out / 'arms-hero-final.png'), full_page=True)
                   finally:
