@@ -78,10 +78,25 @@ def run(browser, label, options):
         assert abs(dialog.evaluate('(d) => d.scrollTop') - top) <= 2, 'Dialog scroll jumped'
         expect(dialog.locator('[data-arms-help="ihs"]')).to_have_attribute('open', '')
 
+    def positions(index):
+        return panel(index).locator('[data-arms-node]').evaluate_all("""nodes => nodes.map(n => {
+            const r = n.getBoundingClientRect();
+            return {key:n.dataset.armsNode + ':' + (n.dataset.armsDelta || '1'), rect:[r.x,r.y,r.width,r.height]};
+        })""")
+
+    def assert_stable(index, before):
+        page.evaluate('() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))')
+        after = positions(index)
+        assert [x['key'] for x in before] == [x['key'] for x in after]
+        shifted = [{'key':a['key'], 'before':a['rect'], 'after':b['rect']} for a,b in zip(before,after)
+                   if max(abs(x-y) for x,y in zip(a['rect'],b['rect'])) > 1]
+        assert not shifted, json.dumps({'gridShift':shifted}, ensure_ascii=False)
+
     def explain_refusal(index, name, message, minus=False):
         button = node(index, name, minus)
         expect(button).to_have_attribute('aria-disabled', 'true')
         button.scroll_into_view_if_needed()
+        before = positions(index)
         box = button.bounding_box()
         x, y = box['x'] + box['width']/2, box['y'] + box['height']/2
         if options.get('has_touch'):
@@ -92,9 +107,12 @@ def run(browser, label, options):
         expect(notice).to_contain_text(message)
         expect(notice).to_be_in_viewport(ratio=1)
         expect(panel(index).locator('[data-arms-inspector]')).to_be_visible()
+        assert_stable(index, before)
 
     def open_help(index):
         help_box = panel(index).locator('[data-arms-help="ihs"]')
+        help_box.locator('summary').scroll_into_view_if_needed()
+        before = positions(index)
         help_box.locator('summary').click()
         expect(help_box).to_have_attribute('open', '')
         expect(help_box.locator('p')).to_be_hidden()
@@ -108,6 +126,8 @@ def run(browser, label, options):
         assert card.bounding_box()['width'] >= content_width - 2
         assert effect.bounding_box()['width'] >= 240
         assert effect.evaluate('(e) => parseFloat(getComputedStyle(e).fontSize)') >= 14
+        assert_stable(index, before)
+        assert dialog.evaluate('(d) => parseFloat(getComputedStyle(d).scrollPaddingTop)') >= card.bounding_box()['height']
 
     try:
         page.goto(url, wait_until='domcontentloaded')
@@ -135,6 +155,7 @@ def run(browser, label, options):
         panel(0).locator('[data-arms-inspector-close]').click()
         expect(panel(0).locator('[data-arms-inspector]')).to_be_hidden()
         expect(panel(0).locator('details[data-arms-help][open]')).to_have_count(0)
+        explain_refusal(0, 'sweeping', 'Ряд 5')
         open_help(0)
         verify(0, 0)
         change(0, 'ihs', 1, 3)
@@ -184,6 +205,7 @@ def run(browser, label, options):
         checks.append('Purchases/refunds/reset preserve original native dialog and open effect description; rank changes preserve scroll')
         checks.append('Visible names, touch-readable effects, 44px targets, obsolete/debug-text removal and refusal explanations verified')
         checks.append('Descriptions start closed; wide readable inspector and on-screen player-facing refusals verified')
+        checks.append('First description opening and first refusal do not shift any rank button; dialog scroll padding covers the inspector')
         assert not errors, errors
         status = 'passed'
     except Exception:

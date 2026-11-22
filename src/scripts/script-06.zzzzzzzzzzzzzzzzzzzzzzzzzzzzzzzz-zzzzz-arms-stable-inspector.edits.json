@@ -1,0 +1,16 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Reserve identical inspector space in open and closed states to avoid first-tap grid shifts. Add scroll padding for the sticky card. Presentation only.",
+  "edits": [
+    {
+      "name": "Keep inspector block height constant",
+      "old": "width:100%;max-height:32dvh;overflow:auto;padding:8px;background:var(--panel,#222a2d)",
+      "new": "width:100%;height:32dvh;max-height:32dvh;overflow:auto;padding:8px;background:var(--panel,#222a2d)"
+    },
+    {
+      "name": "Reserve layout space while hiding inspector content and controls",
+      "old": "#w-hero [data-arms-inspector][hidden]{display:none}",
+      "new": "#w-hero [data-arms-inspector][hidden]{display:block!important;visibility:hidden;pointer-events:none}#w-hero dialog:has([data-arms-inspector]){scroll-padding-top:calc(32dvh + 16px)}"
+    }
+  ]
+}
