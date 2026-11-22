@@ -4,6 +4,9 @@ const vm = require('node:vm');
 const load = require('./lib_engine_load.cjs');
 const B = load(), source = load.source('src/scripts/script-06.txt');
 const plain = x => JSON.parse(JSON.stringify(x));
+const limitMatch = source.match(/^  const LIMIT = (\d+);$/m);
+assert.ok(limitMatch, 'load actual party limit from assembled source');
+const LIMIT = Number(limitMatch[1]);
 function fn(name) {
   const start = source.indexOf('  function ' + name + '(');
   assert.ok(start >= 0, 'function ' + name);
@@ -22,7 +25,7 @@ const names = ['hLevel','selectedSpec','canSpecialize','runtimeLeaderAura','star
 const code = names.map(fn).join('\n');
 const S = {main:'warrior',specs:{me:'fury'},level:14,party:['me','g_low'],allSpecs:false,chars:[],cur:'hero'};
 const values = new Map();
-const sandbox = {B,S,ARMS_HERO_MODE:true,SPEC_LEVEL:15,PET_SELECTION_LEVEL:10,KEY:'isolated-test',
+const sandbox = {B,S,LIMIT,ARMS_HERO_MODE:true,SPEC_LEVEL:15,PET_SELECTION_LEVEL:10,KEY:'isolated-test',
   HERO_NAMES:{},ZONE_KEYS:['elwynn'],RACES:{human:{classes:['warrior','paladin','rogue','priest','mage','warlock']},dwarf:{classes:['warrior','paladin','hunter','rogue','priest']},nelf:{classes:['warrior','hunter','rogue','priest','druid']}},
   gearItems:[{id:57001,slot:'chest',armorFlat:1}],
   az54HeroName:()=>null,raceOk:()=>true,pickRace:()=> 'human',newId:()=> 'generated',
