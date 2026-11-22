@@ -32,6 +32,7 @@ def run(browser, label, viewport):
     def verify(rank):
         saved = page.evaluate('(key) => JSON.parse(localStorage.getItem(key))', KEY)
         hero = next(h for h in saved['chars'] if h['id'] == 'combined-test')
+        assert hero['name'] == 'Общий тест'
         assert hero.get('armsTalents', {}).get('ihs', 0) == rank
         assert hero['items'] == {'910001': 1, '910002': 1}
         assert hero['level'] == 15
@@ -50,7 +51,7 @@ def run(browser, label, viewport):
         expect(root).to_be_hidden()
         page.locator('#sel-enter').click()
         page.locator('#bnav [data-tab="hero"]').click()
-        expect(page.locator('#w-hero .hname')).to_have_text('Общая проверка')
+        expect(page.locator('#w-hero .hname')).to_have_text('Общий тест')
 
     dialog = page.locator('#w-hero dialog[aria-label="Умения и особенности"]')
     rank_button = dialog.locator('[data-arms-panel="combined-test"] [data-arms-node="ihs"]:not([data-arms-delta])')
@@ -59,7 +60,7 @@ def run(browser, label, viewport):
         page.wait_for_function('!!(window.Battle && Battle.armsIntegrated)')
         assert page.evaluate('window.__AZEROT_ARMS_HERO__ === true')
         page.evaluate("""({key, normal}) => {
-            const hero={id:'combined-test',name:'Общая проверка',race:'human',cls:'warrior',level:15,
+            const hero={id:'combined-test',name:'Общий тест',race:'human',cls:'warrior',level:15,
                 hxp:{me:Battle.xpAt(15)},party:['me'],specs:{me:'arms',warrior:'arms'},armsTalents:{},
                 items:{910001:1,910002:1},gear:{},money:0,q:{},zone:'elwynn',at:'goldshire',
                 intro:{elwynn:1},v57migrated:true,v57onboarding:false,tav:{st:0,coll:{}}};
