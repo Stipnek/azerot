@@ -1,11 +1,11 @@
 {
   "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
-  "description": "Constrain opt-in talent grid intrinsic sizes and wrap long labels without clipping the panel. Existing overflow, touch-target and inspector tests remain unchanged.",
+  "description": "Constrain opt-in talent layout without clipping the panel. Computer reproduced overflow from broken inline images and verified inline-block preserves their 36px boxes. Existing tests and blocked-network coverage remain unchanged.",
   "edits": [
     {
       "name": "Allow grid cells and disclosures to shrink within the mobile panel",
       "old": "#w-hero [data-arms-panel] summary{word-break:normal;overflow-wrap:normal;hyphens:auto;overflow:hidden}",
-      "new": "#w-hero [data-arms-panel]{min-width:0;max-width:100%;box-sizing:border-box}#w-hero [data-arms-panel]>div{min-width:0;width:100%;max-width:100%;box-sizing:border-box}#w-hero [data-arms-panel]>div>div{min-width:0;max-width:100%;box-sizing:border-box}#w-hero [data-arms-panel] details{min-width:0;width:100%;max-width:100%;box-sizing:border-box}#w-hero [data-arms-panel] summary{width:100%;max-width:100%;box-sizing:border-box;white-space:normal;word-break:normal;overflow-wrap:anywhere;hyphens:auto;overflow:visible;list-style-position:inside}"
+      "new": "#w-hero [data-arms-panel]{min-width:0;max-width:100%;box-sizing:border-box}#w-hero [data-arms-panel]>div{min-width:0;width:100%;max-width:100%;box-sizing:border-box}#w-hero [data-arms-panel]>div>div{min-width:0;max-width:100%;box-sizing:border-box}#w-hero [data-arms-panel] details{min-width:0;width:100%;max-width:100%;box-sizing:border-box}#w-hero [data-arms-panel] summary{width:100%;max-width:100%;box-sizing:border-box;white-space:normal;word-break:normal;overflow-wrap:anywhere;hyphens:auto;overflow:visible;list-style-position:inside}#w-hero [data-arms-panel] [data-arms-node] img{display:inline-block}"
     }
   ]
 }
