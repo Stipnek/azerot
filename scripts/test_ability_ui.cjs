@@ -8,12 +8,14 @@ const source = load.source('src/scripts/script-06.txt');
 const start = source.indexOf('  function skillsHtml(');
 const end = source.indexOf('  function pagerHtml(', start);
 assert.ok(start >= 0 && end > start, 'locate the real assembled renderer');
+const passiveHelper = source.match(/  function passivesOf\(sp\) \{[^\n]*\}/);
+assert.ok(passiveHelper, 'load the real passive helper used by skillsHtml');
 assert.equal((source.match(/\bskillsHtml\s*\(/g) || []).length, 3, 'audit every caller when adding another skills view');
 assert.ok(source.includes('skillsHtml(S.main, sp, cl, true, lv)'));
 assert.ok(source.includes("skillsHtml(ck, sp, c, k === 'me', hLevel(k))"));
 const esc = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function renderer(progression) {
-  return vm.runInNewContext('(' + source.slice(start, end).trim() + ')', {
+  return vm.runInNewContext(passiveHelper[0] + '\n(' + source.slice(start, end).trim() + ')', {
     B: { ...B, abilityProgression: progression }, openSk: {}, esc,
     wowIcon() { return '<i class="test-icon"></i>'; }
   });
@@ -51,6 +53,9 @@ for (const [cls, clsDef] of Object.entries(B.CLASSES)) {
     for (const id of specDef.skills) assert.match(row(html, id), /data-available="true"/);
     assert.doesNotMatch(html, /Откроется на/);
     assert.ok(html.includes('автоатака'));
+    for (const passive of specDef.passives || (specDef.passive ? [specDef.passive] : [])) {
+      assert.ok(html.includes(esc(passive.name)), 'passive rendered: ' + cls + ':' + spec);
+    }
   }
 }
 const hostile = renderer({ slots(...args) {
@@ -60,4 +65,4 @@ const safe = hostile('warrior', sp, c, false, 1);
 assert.ok(safe.includes('&lt;unsafe-name&gt;') && safe.includes('&lt;unsafe-description&gt;'));
 assert.ok(!safe.includes('<unsafe-name>') && !safe.includes('<unsafe-description>'));
 assert.throws(() => render('warrior', sp, c, false));
-console.log('Shared skill UI passed: own-level boundaries, legacy profiles, caller coverage and escaping;', profiles, 'profiles');
+console.log('Shared skill UI passed: own-level boundaries, legacy profiles, caller coverage, real passive helper and escaping;', profiles, 'profiles');
