@@ -25,6 +25,16 @@
       "name": "Pass the inspected unit's own level in companion and main details",
       "old": "skillsHtml(ck, sp, c, k === 'me')",
       "new": "skillsHtml(ck, sp, c, k === 'me', hLevel(k))"
+    },
+    {
+      "name": "Pass an owned catalog hero's own level",
+      "old": "insertAdjacentHTML('beforeend',skillsHtml(x.cls,B.specOf(x.cls,x.sp),B.CLASSES[x.cls],false)+",
+      "new": "insertAdjacentHTML('beforeend',skillsHtml(x.cls,B.specOf(x.cls,x.sp),B.CLASSES[x.cls],false,hLevel(id))+"
+    },
+    {
+      "name": "Preview an unrecruited catalog hero from level 1",
+      "old": "+skillsHtml(x.cls,B.specOf(x.cls,x.sp),B.CLASSES[x.cls],false);azDetail",
+      "new": "+skillsHtml(x.cls,B.specOf(x.cls,x.sp),B.CLASSES[x.cls],false,1);azDetail"
     }
   ]
 }

@@ -10,9 +10,15 @@ const end = source.indexOf('  function pagerHtml(', start);
 assert.ok(start >= 0 && end > start, 'locate the real assembled renderer');
 const passiveHelper = source.match(/  function passivesOf\(sp\) \{[^\n]*\}/);
 assert.ok(passiveHelper, 'load the real passive helper used by skillsHtml');
-assert.equal((source.match(/\bskillsHtml\s*\(/g) || []).length, 3, 'audit every caller when adding another skills view');
-assert.ok(source.includes('skillsHtml(S.main, sp, cl, true, lv)'));
-assert.ok(source.includes("skillsHtml(ck, sp, c, k === 'me', hLevel(k))"));
+// Every skills view must pass the displayed character's own level; a new view must be added here explicitly.
+const callers = [
+  'skillsHtml(S.main, sp, cl, true, lv)',
+  "skillsHtml(ck, sp, c, k === 'me', hLevel(k))",
+  'skillsHtml(x.cls,B.specOf(x.cls,x.sp),B.CLASSES[x.cls],false,hLevel(id))',
+  'skillsHtml(x.cls,B.specOf(x.cls,x.sp),B.CLASSES[x.cls],false,1)'
+];
+for (const call of callers) assert.equal(source.split(call).length - 1, 1, 'caller wired once: ' + call);
+assert.equal((source.match(/\bskillsHtml\s*\(/g) || []).length, callers.length + 1, 'audit every caller when adding another skills view');
 const esc = value => String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function renderer(progression) {
   return vm.runInNewContext(passiveHelper[0] + '\n(' + source.slice(start, end).trim() + ')', {
