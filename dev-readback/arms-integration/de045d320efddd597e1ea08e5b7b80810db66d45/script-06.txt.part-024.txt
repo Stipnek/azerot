@@ -1,0 +1,92 @@
+D && lk && !lk.disabled) {
+      const L = LOOK.find(function (x) { return x.key === lk.dataset.look; }), n = L.opts.length;
+      CR.look[L.key] = ((CR.look[L.key] || 0) + Number(lk.dataset.dir) + n) % n;
+    }
+    renderCreate();
+  });
+  $('cr48-races').addEventListener('click', function(ev) {
+    const button=ev.target.closest('[data-race]');if(!button||!RACES[button.dataset.race])return;
+    CR.race=button.dataset.race;
+    if(!crAllowed(CR.cls))CR.cls=RACES[CR.race].classes[0];
+    $('cr-msg').textContent='';renderCreate();
+  });
+  $('cr-name').addEventListener('input', function () { CR.name = $('cr-name').value; $('cr-msg').textContent = ''; });
+  $('cr-name').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') $('cr-go').click(); });
+  $('cr-back').addEventListener('click', function () {
+    $('cr-msg').textContent = '';
+    if (CR.step > 0) { CR.step--; renderCreate(); } else showSelect();
+  });
+  $('cr-go').addEventListener('click', function () {
+    $('cr-msg').textContent = '';
+    if (S.chars.length >= 10) { $('cr-msg').textContent = 'Достигнут лимит: 10/10 персонажей.'; return; }
+    if (CR.step < 2) { CR.step++; renderCreate(); return; }
+    const raw = $('cr-name').value.trim();
+    if (!/^[A-Za-zА-Яа-яЁё]{2,12}$/.test(raw)) { $('cr-msg').textContent = raw ? 'Имя: от 2 до 12 букв, без пробелов, цифр и знаков.' : 'Введи имя героя.'; $('cr-name').focus(); return; }
+    const name = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+    if (S.chars.some(function (c) { return c.name.toLowerCase() === name.toLowerCase(); })) { $('cr-msg').textContent = 'Имя «' + name + '» уже занято другим персонажем.'; $('cr-name').focus(); return; }
+    const c = { intro:{elwynn:1}, v57onboarding:true, v57migrated:true,zone:'elwynn',at:'goldshire',pos:spot('goldshire'), id: newId(), name: name, race: CR.race, cls: CR.cls, look: Object.assign({}, CR.look), level: 1, party: startParty(CR.cls), specs: cleanSpecs(null), q: {}, hxp: cleanHxp({ level: 1, hxp: {} }), names: cleanNames(null), dly: {}, res: 0, money: 0, tav: cleanTav(null) };
+    const from = curChar();
+    if (from) { c.money = from.money || 0; c.res = from.res || 0; from.money = 0; from.res = 0; }
+    S.chars.push(c); S.cur = c.id;
+    save(); showSelect();
+  });
+
+  /* ---------- world: map, journal, nav ---------- */
+  const PLACES = {
+    /* Artwork-space anchors, percentages of the uncropped 4:5 map.
+       These are illustration coordinates, not numeric coordinates in the WoW client. */
+    echo: { x: 55.8, y: 12.4, name: 'Эхо-хребет', lx: 0, ly: -4.4 },
+    valley: { x: 42.3, y: 25.6, name: 'Северная долина', label: 'Сев. долина', lx: -10.3, ly: 4.0 },
+    abbey: { x: 52.5, y: 23.2, name: 'Североземье', lx: 1, ly: -5.2 },
+    nvine: { x: 62.3, y: 28.3, name: 'Виноградники Североземья', label: 'Виноградники', lx: 0, ly: 4.6 },
+    jasper: { x: 81.5, y: 30.8, name: 'Яшмовый рудник', lx: -1, ly: -4.8 },
+    goldshire: { x: 44.7, y: 45.8, name: 'Златоземье', lx: 0, ly: -5.3 },
+    westbrook: { x: 19.3, y: 56.4, name: 'Вестбрук', lx: 0, ly: -5.5 },
+    fargo: { x: 39.2, y: 63.7, name: 'Шахта Фарго', lx: 0, ly: -4.7 },
+    stonefield: { x: 30.1, y: 70.2, name: 'Ферма Стоунфилд', label: 'Стоунфилд', lx: -5.5, ly: 5.1 },
+    maclure: { x: 53.4, y: 73.9, name: 'Виноградники Маклюр', label: 'Маклюр', lx: 0, ly: 5.0 },
+    fedge: { x: 20.0, y: 81.3, name: 'Лесная окраина', lx: 0, ly: 5.0 },
+    westfall: { x: 18.6, y: 91.2, name: 'Западный край', lx: 2, ly: 4.0 },
+    thomas: { x: 70.5, y: 55.9, name: 'Пост стража Томаса', label: 'Страж Томас', lx: 6, ly: 4.0 },
+    lake: { x: 79.0, y: 46.8, name: 'Озеро Стоун-Кэрн', label: 'Стоун-Кэрн', lx: 15.5, ly: -3.2, edge: 'right' },
+    village: { x: 92.3, y: 37.6, name: 'Деревня мурлоков', label: 'Мурлоки', lx: 3, ly: -4.0, edge: 'right' },
+    bpatch: { x: 65.8, y: 65.8, name: 'Тыквенная грядка Браквелл', label: 'Грядка Браквелл', lx: 5, ly: 4.8 },
+    poly: { x: 14.5, y: 27.2, name: 'Штормград: полигон', label: 'Полигон', lx: -2, ly: 4.3 },
+    tavern: { x: 20.4, y: 18.1, name: 'Таверна Златоземья', label: 'Таверна', lx: -5, ly: -5.4 },
+    azora: { x: 65.8, y: 50.3, name: 'Башня Азоры', label: 'Башня Азоры', lx: -9.5, ly: 4.4 },
+    mirror: { x: 24.5, y: 41.0, name: 'Сад Зеркального озера', label: 'Зеркальное оз.', lx: -3, ly: -6.3 },
+    crystal: { x: 64.2, y: 39.6, name: 'Озеро Хрустальное', label: 'Хрустальное оз.', lx: 0, ly: -3.3 },
+    eastvale: { x: 87.0, y: 52.1, name: 'Восточная лесопилка', label: 'Лесопилка', lx: 8, ly: 2, edge: 'right' },
+  };
+  const ROADS = [['abbey', 'echo'], ['abbey', 'valley'], ['valley', 'echo'], ['abbey', 'nvine'], ['abbey', 'goldshire'], ['nvine', 'jasper'], ['jasper', 'goldshire'], ['jasper', 'lake'],
+    ['goldshire', 'westbrook'], ['goldshire', 'fargo'], ['goldshire', 'thomas'], ['fargo', 'stonefield'], ['fargo', 'maclure'], ['stonefield', 'maclure'], ['stonefield', 'fedge'], ['goldshire', 'azora'], ['goldshire', 'mirror'],
+    ['westbrook', 'fedge'], ['westbrook', 'westfall'], ['fedge', 'westfall'], ['thomas', 'lake'], ['lake', 'village'], ['thomas', 'bpatch'], ['maclure', 'bpatch'],
+    ['thomas', 'eastvale'], ['eastvale', 'village'], ['goldshire', 'crystal'], ['mirror', 'poly'], ['poly', 'tavern']];
+  /* t: где квест берут («!»), d: где его выполняют, e: где сдают («?»), по умолчанию там же, где взяли. Источник: Classic WoW. */
+  const QUESTS = [
+    { k: 'threat', t: 'abbey', d: 'abbey', npc: 'помощник шерифа Виллем', need: [] },
+    { k: 'kobold_camp', t: 'abbey', d: 'valley', npc: 'маршал Макбрайд', need: ['threat'] },
+    { k: 'wolves', t: 'abbey', d: 'valley', npc: 'Иган Шкуродер', need: ['threat'] },
+    { k: 'thieves', t: 'abbey', d: 'nvine', npc: 'помощник шерифа Виллем', need: ['threat'] },
+    { k: 'echo_scout', t: 'abbey', d: 'echo', npc: 'маршал Макбрайд', need: ['kobold_camp'] },
+    { k: 'echo_raid', t: 'abbey', d: 'echo', npc: 'маршал Макбрайд', need: ['echo_scout'] },
+    { k: 'garrick', t: 'abbey', d: 'nvine', npc: 'помощник шерифа Виллем', need: ['thieves'] },
+    { k: 'report_goldshire', t: 'abbey', d: 'goldshire', npc: 'маршал Макбрайд', need: ['echo_raid'] },
+    { k: 'necklace', t: 'stonefield', d: 'maclure', e: 'maclure', npc: 'тётушка Бернис', need: ['report_goldshire'] },
+    { k: 'pie', t: 'maclure', d: 'stonefield', e: 'stonefield', npc: 'Билли Маклюр', need: ['necklace'] },
+    { k: 'back_billy', t: 'stonefield', d: 'maclure', npc: 'тётушка Бернис', need: ['pie'] },
+    { k: 'goldtooth', t: 'maclure', d: 'fargo', e: 'stonefield', npc: 'Билли Маклюр', need: ['back_billy'] },
+    { k: 'fargo', t: 'goldshire', d: 'fargo', npc: 'маршал Дугхан', need: ['report_goldshire'] },
+    { k: 'gold_dust', t: 'goldshire', d: 'fargo', npc: 'Реми Повторюха', need: ['fargo'] },
+    { k: 'jasper', t: 'goldshire', d: 'jasper', npc: 'маршал Дугхан', need: ['fargo'] },
+    { k: 'princess', t: 'stonefield', d: 'bpatch', npc: 'Ма Стоунфилд', need: ['report_goldshire'] },
+    { k: 'garrison', t: 'goldshire', d: 'westbrook', npc: 'маршал Дугхан', need: ['report_goldshire'] },
+    { k: 'gnolls', t: 'westbrook', d: 'fedge', npc: 'заместитель Рейнер', need: ['garrison'] },
+    { k: 'collector', t: 'fedge', d: 'goldshire', e: 'goldshire', npc: 'маршал Дугхан', drop: 'gnolls', need: ['garrison'] },
+    { k: 'manhunt', t: 'goldshire', d: 'bpatch', e: 'goldshire', npc: 'маршал Дугхан', need: ['collector'] },
+    { k: 'fishy', t: 'goldshire', d: 'goldshire', npc: 'Реми Повторюха', need: ['report_goldshire'] },
+    { k: 'further_concerns', t: 'goldshire', d: 'thomas', npc: 'маршал Дугхан', need: ['fishy'] },
+    { k: 'lost_guards', t: 'thomas', d: 'lake', e: 'lake', npc: 'страж Томас', need: ['further_concerns'] },
+    { k: 'rolf', t: 'lake', d: 'village', e: 'village', npc: 'объеденное тело стража', need: ['lost_guards'] },
+    { k: 'report_thomas', t: 'village', d: 'thomas', npc: 'тело Рольфа', need: ['rolf'] },
+    { k: 'thomas_report', t: 'thomas', d: 'goldshire', npc: 'страж Томас', need: ['r

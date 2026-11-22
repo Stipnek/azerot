@@ -1,0 +1,66 @@
+na; }).sort(function (a, b) { return a.mana / a.maxMana - b.mana / b.maxMana; })[0];
+          if (mt && mt.mana / mt.maxMana < (mt === h ? 0.4 : 0.5)) { use(st, h, 'innervate'); mt.mana = Math.min(mt.maxMana, mt.mana + mt.maxMana * (mt === h ? 0.2 : 0.5)); emit(st, { t: 'buff', tgt: mt.id }); return; }
+        }
+        if (sk('regrowth') && low && pct(low) < 0.8) { use(st, h, 'regrowth'); heal(st, h, low, h.healPow * 0.85); hot(st, h, low, 'regrowth', h.healPow * 0.25, 2); return; }
+        if (sk('rejuv')) {
+          const tank = mostTargeted(st);
+          const tg = [low, tank].find(function (x) { return x && pct(x) < 0.9 && !hasEff(x, 'hot', h.id); });
+          if (tg) { use(st, h, 'rejuv'); hot(st, h, tg, 'rejuv', h.healPow * 0.5, 3); emit(st, { t: 'buff', tgt: tg.id }); return; }
+        }
+        if (sk('entangle') && stunD && (!low || pct(low) >= 0.5)) { use(st, h, 'entangle'); addEffect(stunD, { kind: 'dot', mult: 0.7, turns: 3, src: h.id, name: 'Опутывающие корни', icon: '🌿' }); addEffect(stunD, { kind: 'stun', turns: 2, src: h.id, name: 'Корни', icon: '🌿' }); emit(st, { t: 'debuff', tgt: stunD.id }); return; }
+        return;
+      }
+      case 'druid_balance':
+        if (sk('moonfire') && !hasEff(t, 'dot', h.id)) { use(st, h, 'moonfire'); damage(st, h, t, 0.35); if (t.hp > 0) dot(st, h, t, 'moonfire', 0.4); return; }
+        if (sk('hurricane') && multi) { use(st, h, 'hurricane'); aoe(st, h, 0.65); return; }
+        if (sk('starfire')) { use(st, h, 'starfire'); damage(st, h, t, 1.8); return; }
+        if (sk('wrath')) { use(st, h, 'wrath'); damage(st, h, t, 1.0); return; }
+        return;
+      case 'priest_holy': {
+        const hurt85 = alive(st.heroes).filter(function (x) { return pct(x) < 0.85; }).length;
+        if (sk('prayer') && hurt85 >= 2) { use(st, h, 'prayer'); alive(st.heroes).forEach(function (x) { heal(st, h, x, h.healPow * 0.65); }); return; }
+        if (sk('holynova') && (hurt85 >= 2 || (multi && hurt85 >= 1))) { use(st, h, 'holynova'); alive(st.heroes).forEach(function (x) { heal(st, h, x, h.healPow * 0.4); }); alive(st.enemies).forEach(function (e) { damage(st, h, e, 0.5, { type: 'magic' }); }); return; }
+        if (sk('renew') && low && pct(low) < 0.85 && !hasEff(low, 'hot', h.id)) { use(st, h, 'renew'); hot(st, h, low, 'renew', h.healPow * 0.45, 3); heal(st, h, low, h.healPow * 0.45, { hot: true }); return; }
+        if (sk('holyfire') && (!low || pct(low) >= 0.7) && !t.effects.some(function (f) { return f.kind === 'dot' && f.name === 'Священный огонь'; })) { use(st, h, 'holyfire'); damage(st, h, t, 2.0, { type: 'magic' }); if (t.hp > 0) addEffect(t, { kind: 'dot', mult: 0.8, turns: 3, src: h.id, name: 'Священный огонь', icon: '🔥' }); return; }
+        return;
+      }
+      case 'priest_disc': {
+        const tank = mostTargeted(st) || low;
+        const fearN = foes.filter(function (e) { return !e.boss && !e.effects.some(function (f) { return f.kind === 'stun'; }); });
+        if (sk('pscream') && fearN.length && low && pct(low) < 0.6) { use(st, h, 'pscream'); fearN.forEach(function (e) { addEffect(e, { kind: 'stun', turns: 2, src: h.id, name: 'Ментальный крик', icon: '😱' }); }); emit(st, { t: 'debuff', tgt: fearN[0].id }); return; }
+        if (sk('pws') && tank && !hasEff(tank, 'shield') && !hasEff(tank, 'weakened')) { use(st, h, 'pws'); addEffect(tank, { kind: 'shield', amt: Math.round(h.healPow * 1.9 * (h.impwps ? 1.15 : 1)), turns: 3, src: h.id, name: 'Щит', icon: '🔵' }); addEffect(tank, { kind: 'weakened', turns: 3, src: h.id, name: 'Ослабленная душа', icon: '💤' }); emit(st, { t: 'buff', tgt: tank.id }); return; }
+        if (sk('powerinf')) { const al = alive(st.heroes).filter(function (x) { return x !== h && x.role === 'dd'; }).sort(function (a, b) { return b.atk - a.atk; })[0] || alive(st.heroes).filter(function (x) { return x !== h; })[0]; if (al && !hasEff(al, 'pi')) { use(st, h, 'powerinf'); addEffect(al, { kind: 'pi', turns: 3, src: h.id, name: 'Придание сил', icon: '🌠' }); emit(st, { t: 'buff', tgt: al.id }); return; } }
+        if (sk('smiteh')) { use(st, h, 'smiteh'); damage(st, h, t, 1.2); return; }
+        return;
+      }
+      case 'priest_shadow':
+        if (sk('swp') && !t.effects.some(function (f) { return f.kind === 'dot' && f.src === h.id && f.name === 'Слово Тьмы: Боль'; })) { use(st, h, 'swp'); dot(st, h, t, 'swp', 0.5); emit(st, { t: 'debuff', tgt: t.id }); return; }
+        if (sk('vampembrace') && !hasEff(h, 'vemb')) { use(st, h, 'vampembrace'); addEffect(h, { kind: 'vemb', turns: 4, src: h.id, name: 'Объятия вампира', icon: '🧛' }); emit(st, { t: 'buff', tgt: h.id }); return; }
+        if (sk('mindblast')) { use(st, h, 'mindblast'); damage(st, h, t, 1.7); return; }
+        if (sk('mindflay')) { use(st, h, 'mindflay'); for (let i = 0; i < 3; i++) if (t.hp > 0) damage(st, h, t, 0.4); return; }
+        return;
+      case 'mage_fire': {
+        const vf = t.effects.find(function (f) { return f.kind === 'vuln'; });
+        if (sk('combustion') && !hasEff(h, 'combust') && pct(t) > 0.3) { use(st, h, 'combustion'); addEffect(h, { kind: 'combust', turns: 3, src: h.id, name: 'Возгорание', icon: '🌋' }); emit(st, { t: 'buff', tgt: h.id }); return; }
+        if (sk('fireblast')) { use(st, h, 'fireblast'); damage(st, h, t, 1.6, { type: 'magic' }); return; }
+        if (sk('scorch') && (!vf || vf.stacks < 3 || vf.turns <= 1)) { use(st, h, 'scorch'); damage(st, h, t, 0.8, { type: 'magic' }); if (t.hp > 0) { const v = t.effects.find(function (f) { return f.kind === 'vuln'; }); if (v) { v.stacks = Math.min(5, v.stacks + 1); v.turns = 4; } else addEffect(t, { kind: 'vuln', amt: 0.05, stacks: 1, turns: 4, src: h.id, name: 'Уязвимость к магии', icon: '☄️' }); } return; }
+        if (sk('fireball')) { use(st, h, 'fireball'); damage(st, h, t, 1.3, { type: 'magic' }); if (t.hp > 0) addEffect(t, { kind: 'dot', mult: 0.3, turns: 3, src: h.id, name: 'Горение', icon: '🔥' }); return; }
+        return;
+      }
+      case 'mage_arcane': {
+        if (sk('arcpower') && !hasEff(h, 'arcpow') && pct(t) > 0.3) { use(st, h, 'arcpower'); addEffect(h, { kind: 'arcpow', turns: 3, src: h.id, name: 'Чародейская мощь', icon: '⚡' }); emit(st, { t: 'buff', tgt: h.id }); return; }
+        if (sk('pom') && !h.effects.some(function (f) { return f.kind === 'pom'; }) && (sk('missiles') || (sk('arcexplosion') && multi))) { use(st, h, 'pom'); addEffect(h, { kind: 'pom', turns: 4, src: h.id, name: 'Присутствие разума', icon: '🧠' }); emit(st, { t: 'buff', tgt: h.id }); return; }
+        if (sk('arcexplosion') && multi) { use(st, h, 'arcexplosion'); aoe(st, h, 0.9, { type: 'magic' }); return; }
+        if (sk('missiles')) { use(st, h, 'missiles'); for (let i = 0; i < 5; i++) if (t.hp > 0) damage(st, h, t, 0.4, { type: 'magic' }); return; }
+        if (sk('arcexplosion')) { use(st, h, 'arcexplosion'); aoe(st, h, 0.9, { type: 'magic' }); return; }
+        return;
+      }
+      case 'mage_frost': {
+        if (sk('icebarrier') && pct(h) < 0.9 && !hasEff(h, 'shield')) { use(st, h, 'icebarrier'); addEffect(h, { kind: 'shield', amt: Math.round(h.maxHp * 0.35), turns: 3, src: h.id, name: 'Ледяная преграда', icon: '🛡️' }); emit(st, { t: 'buff', tgt: h.id }); return; }
+        if (sk('frostnova') && multi) { use(st, h, 'frostnova'); alive(st.enemies).forEach(function (e) { damage(st, h, e, 0.3, { type: 'magic' }); e.tm = Math.max(0, e.tm - 400); }); log(st, h.name + ': «Кольцо льда» задерживает ход врагов', 'skill'); return; }
+        if (sk('cone') && multi) { use(st, h, 'cone'); aoe(st, h, 0.6, { type: 'magic' }); alive(st.enemies).forEach(function (e) { addEffect(e, { kind: 'slow', amt: 0.3, turns: 3, src: h.id, name: 'Конус холода', icon: '❄️' }); }); return; }
+        if (sk('frostbolt')) { use(st, h, 'frostbolt'); damage(st, h, t, 1.2, { type: 'magic' }); if (t.hp > 0) addEffect(t, { kind: 'slow', amt: 0.2, turns: 3, src: h.id, name: 'Ледяная стрела', icon: '🧊' }); return; }
+        return;
+      }
+      case 'hunter_mm': {
+        if 

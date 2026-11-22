@@ -1,0 +1,92 @@
+кончается!'] },
+    priest: { crit: ['Свет карает!'], low: ['Молюсь о защите...'], oom: ['Мана на исходе!', 'Мне нечем лечить!'] },
+    mage: { crit: ['Горите!', 'Идеально!'], low: ['Прикройте меня!'], oom: [] },
+    hunter: { crit: ['Точно в цель!'], low: ['Меня ранили!'], oom: [] },
+    warlock: { crit: ['Тьма голодна!'], low: ['Не сейчас...'], oom: [] },
+    rogue: { crit: ['Сзади не ждал?', 'Чисто сработано!'], low: ['Пора уходить в тень...'], oom: [] },
+  };
+
+  /* Ближний боец: не лекарь и автоатака не дальняя (жезл, лук). Такие подбегают к цели, дальние стоят на месте. */
+  function isMeleeHero(u) { return u.role !== 'heal' && !B.autoOf(u.cls, u.spec).ranged; }
+  function isMelee(u) { return u.side === 'enemy' ? u.ai !== 'mystic' : (u.role === 'tank' || isMeleeHero(u)); }
+  function heroRank(h) { return h.role === 'tank' ? 0 : (isMeleeHero(h) ? 1 : (h.role === 'dd' ? 2 : 3)); }
+  function stageRect() { return $('stage').getBoundingClientRect(); }
+  function center(el) { const f = stageRect(), r = el.getBoundingClientRect(); return { x: r.left - f.left + r.width / 2, y: r.top - f.top + r.height / 2 }; }
+  function topPoint(el) { const f = stageRect(), r = el.getBoundingClientRect(); return { x: r.left - f.left + r.width / 2, y: r.top - f.top - 3 }; }
+  function colorName(u) { return '<span style="color: ' + (u.side === 'hero' ? 'var(--c-' + u.cls + ')' : '#ff8b7a') + '">' + esc(u.name) + '</span>'; }
+  function say(u, kind) {
+    if (!u || u.side !== 'hero') return;
+    const a = (SAY[u.cls] || {})[kind]; if (!a || !a.length) return;
+    addLine(u.name + ': «' + a[Math.floor(Math.random() * a.length)] + '»', 'say');
+  }
+
+const SPR = {};
+  function sprHtml(cls) { const d = SPR[cls]; return Object.keys(d).map(function (k) { return '<img class="spi ' + k + '" src="' + d[k] + '" alt="" draggable="false">'; }).join(''); }
+  function setPose(id, pose, ms) {
+    const t = toks[id]; if (!t || !t.tc.classList.contains('spr')) return;
+    clearTimeout(t.poseT);
+    const u = B.byId(st, id);
+    if (u && u.hp <= 0) pose = 'dead';
+    t.tc.dataset.pose = pose;
+    if (ms && pose !== 'idle' && pose !== 'dead') t.poseT = setTimeout(function () { if (!st) return; const w = B.byId(st, id); t.tc.dataset.pose = (w && w.hp <= 0) ? 'dead' : 'idle'; }, ms);
+  }
+  function tokHtml(u, p) {
+    const foe = u.side === 'enemy';
+    const spr = false;
+    return '<div class="tok' + (foe ? ' foe' : ' hero') + (u.pet ? ' pet' : '') + (spr ? ' hasspr' : '') + (u.boss ? ' boss' : '') + '" id="t-' + u.id + '" data-id="' + u.id + '" style="left: ' + p[0] + '%; top: ' + p[1] + '%;' + (foe ? '' : ' --tc: var(--c-' + (u.pet ? u.ownerCls : u.cls) + ');') + '">' +
+      '<div class="bfs"></div><div class="bars"><div class="hp"><i></i><b></b></div>' + (u.maxMana ? '<div class="mp"><i></i></div>' : '') + (u.maxRage ? '<div class="mp rage" role="meter" aria-label="Ярость" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" title="Ярость 0 / 100 — накапливается от ударов, расходуется умениями"><i></i></div>' : '') + (u.maxEnergy ? '<div class="mp energy" role="meter" aria-label="Энергия" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" title="Энергия 100 / 100 — тратится на умения"><i></i></div>' : '') + (u.maxCp ? '<div class="cpp"></div>' : '') + '</div>' +
+      '<div class="tc' + (spr ? ' spr' : '') + '"' + (spr ? ' data-pose="idle"' : '') + (spr && u.race && RACES[u.race] ? ' style="--rx: ' + RACES[u.race].rx + '; --ry: ' + RACES[u.race].ry + '"' : '') + ' role="button" aria-label="' + esc(u.name) + '">' + (spr ? sprHtml(u.cls) : unitBadge(u)) + (u.isMain ? '<span class="crown" aria-hidden="true">★</span>' : '') + '<span class="warnb" aria-hidden="true">!</span></div><div class="shadow"></div></div>';
+  }
+  function bindTok(u) {
+    if (u.ghost) return;
+    const el = $('t-' + u.id);
+    toks[u.id] = { el: el, tc: el.querySelector('.tc'), hp: el.querySelector('.hp i'), sh: el.querySelector('.hp b'), mp: el.querySelector('.mp:not(.rage):not(.energy) i'), ep: el.querySelector('.energy i'), rp: el.querySelector('.rage i'), cp: el.querySelector('.cpp'), bf: el.querySelector('.bfs') };
+  }
+  function foeSlots() { return st.enemies.some(function (e) { return e.boss; }) ? FOE_X_BOSS : FOE_X; }
+  function petPos(hs, p) { const i = Math.max(0, hs.findIndex(function (h) { return h.id === p.owner; })), q = heroPos(i); return PORTRAIT_MQ.matches ? [q[0] + (q[0] < 50 ? -12 : 12), q[1] - 1] : [q[0], q[1] + 9]; }
+  function buildTokens() {
+    toks = {};
+    const hs = st.heroes.slice().sort(function (a, b) { return heroRank(a) - heroRank(b); });
+    $('tokens').innerHTML = hs.map(function (h, i) { return tokHtml(h, heroPos(i)); }).join('') + st.pets.map(function (p) { return tokHtml(p, petPos(hs, p)); }).join('') + st.enemies.map(function (e, i) { return e.ghost ? '<div id="t-' + e.id + '" hidden><i class="tc"></i></div>' : tokHtml(e, foePos(i)); }).join('');
+    st.heroes.concat(st.pets, st.enemies).forEach(bindTok);
+    setTimeout(function () { if (st) relayout(); }, 80);
+    $('scene').innerHTML = sceneSvg(B.ENCOUNTERS[st.encounter].scene || 'forest');
+    shownFoes = st.enemies.length;
+  }
+  function relayout() {
+    if (!st || $('battle').hidden) return;
+    const hs = st.heroes.slice().sort(function (a, b) { return heroRank(a) - heroRank(b); });
+    hs.forEach(function (h, i) { const t = toks[h.id]; if (t) { const p = heroPos(i); t.el.style.left = p[0] + '%'; t.el.style.top = p[1] + '%'; } });
+    st.pets.forEach(function (pt) { const t = toks[pt.id]; if (t) { const p = petPos(hs, pt); t.el.style.left = p[0] + '%'; t.el.style.top = p[1] + '%'; } });
+    st.enemies.forEach(function (e, i) { const t = toks[e.id]; if (t) { const p = foePos(i); t.el.style.left = p[0] + '%'; t.el.style.top = p[1] + '%'; } });
+    drawAggro();
+  }
+  if (PORTRAIT_MQ.addEventListener) PORTRAIT_MQ.addEventListener('change', relayout);
+  function syncFoes() {
+    if (st.enemies.length <= shownFoes) return;
+    st.enemies.slice(shownFoes).forEach(function (e, j) {
+      const idx = Math.min(4, shownFoes + j);
+      $('tokens').insertAdjacentHTML('beforeend', tokHtml(e, foePos(idx)));
+      bindTok(e);
+      if (!reduced) toks[e.id].el.animate([{ opacity: 0, transform: 'translate(-50%, -100%) scale(.4)' }, { opacity: 1, transform: 'translate(-50%, -100%) scale(1)' }], { duration: 450, easing: 'ease-out' });
+    });
+    shownFoes = st.enemies.length;
+  }
+
+  function updateTokens() {
+    syncFoes();
+    st.heroes.concat(st.pets, st.enemies).forEach(function (u) {
+      const t = toks[u.id]; if (!t) return;
+      const p = Math.max(0, u.hp / u.maxHp * 100);
+      t.hp.style.width = p + '%';
+      const sh = u.effects.find(function (f) { return f.kind === 'shield'; });
+      t.sh.style.left = p + '%'; t.sh.style.width = (sh ? Math.min(100 - p, sh.amt / u.maxHp * 100) : 0) + '%';
+      if (t.mp) t.mp.style.width = Math.max(0, u.mana / u.maxMana * 100) + '%';
+      if (t.rp) { const value = Math.max(0, Math.min(u.maxRage, Number.isFinite(u.rage) ? u.rage : 0)); t.rp.style.width = (value / u.maxRage * 100) + '%'; t.rp.parentElement.setAttribute('aria-valuenow', Number(value.toFixed(2))); t.rp.parentElement.title = 'Ярость ' + Math.floor(value) + ' / ' + u.maxRage + ' — накапливается от ударов, расходуется умениями'; }
+      if (t.ep) { const value = Math.max(0, Math.min(u.maxEnergy, Number.isFinite(u.energy) ? u.energy : 0)); t.ep.style.width = (value / u.maxEnergy * 100) + '%'; t.ep.parentElement.setAttribute('aria-valuenow', Number(value.toFixed(2))); t.ep.parentElement.title = 'Энергия ' + Math.floor(value) + ' / ' + u.maxEnergy + ' — тратится на умения'; }
+      if (t.cp) t.cp.textContent = '●'.repeat(u.cp) + '○'.repeat(u.maxCp - u.cp);
+      t.el.classList.toggle('dead', u.hp <= 0);
+      if (u.hp <= 0 && t.tc.dataset.pose && t.tc.dataset.pose !== 'dead') setPose(u.id, 'dead');
+      t.el.classList.toggle('act', st.current === u.id && !st.over && u.hp > 0);
+      const efs = u.hp > 0 ? u.effects : [];
+   

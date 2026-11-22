@@ -1,0 +1,102 @@
+{
+  "sourceCommit": "de045d320efddd597e1ea08e5b7b80810db66d45",
+  "workflowRun": 44969285567,
+  "records": [
+    {
+      "file": "source-commit.txt",
+      "sha256": "495d9db8a755919f699427665822f94a0c0d63221815040cd8c9c1e71996dce7"
+    },
+    {
+      "file": "manifests.log",
+      "sha256": "00940aa8acdda6ef88622bd9edf6539fdeaddd8dbee972fed11e76b5e34fca99"
+    },
+    {
+      "file": "node-regressions.log",
+      "sha256": "a37fd118e5221c062b715d3f24944931a98a1e594cf0bb837a925dc907710471"
+    },
+    {
+      "source": "src/scripts/script-05.txt",
+      "sha256": "1cb486c38b2cbb8481158a36ac830013209a0f1f7718b6d1e8ac18b156164637",
+      "parts": [
+        "script-05.txt.part-001.txt",
+        "script-05.txt.part-002.txt",
+        "script-05.txt.part-003.txt",
+        "script-05.txt.part-004.txt",
+        "script-05.txt.part-005.txt",
+        "script-05.txt.part-006.txt",
+        "script-05.txt.part-007.txt",
+        "script-05.txt.part-008.txt",
+        "script-05.txt.part-009.txt",
+        "script-05.txt.part-010.txt",
+        "script-05.txt.part-011.txt",
+        "script-05.txt.part-012.txt",
+        "script-05.txt.part-013.txt",
+        "script-05.txt.part-014.txt",
+        "script-05.txt.part-015.txt",
+        "script-05.txt.part-016.txt",
+        "script-05.txt.part-017.txt",
+        "script-05.txt.part-018.txt",
+        "script-05.txt.part-019.txt",
+        "script-05.txt.part-020.txt",
+        "script-05.txt.part-021.txt",
+        "script-05.txt.part-022.txt",
+        "script-05.txt.part-023.txt",
+        "script-05.txt.part-024.txt",
+        "script-05.txt.part-025.txt",
+        "script-05.txt.part-026.txt",
+        "script-05.txt.part-027.txt",
+        "script-05.txt.part-028.txt",
+        "script-05.txt.part-029.txt",
+        "script-05.txt.part-030.txt"
+      ]
+    },
+    {
+      "source": "src/scripts/script-06.txt",
+      "sha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+      "parts": [
+        "script-06.txt.part-001.txt",
+        "script-06.txt.part-002.txt",
+        "script-06.txt.part-003.txt",
+        "script-06.txt.part-004.txt",
+        "script-06.txt.part-005.txt",
+        "script-06.txt.part-006.txt",
+        "script-06.txt.part-007.txt",
+        "script-06.txt.part-008.txt",
+        "script-06.txt.part-009.txt",
+        "script-06.txt.part-010.txt",
+        "script-06.txt.part-011.txt",
+        "script-06.txt.part-012.txt",
+        "script-06.txt.part-013.txt",
+        "script-06.txt.part-014.txt",
+        "script-06.txt.part-015.txt",
+        "script-06.txt.part-016.txt",
+        "script-06.txt.part-017.txt",
+        "script-06.txt.part-018.txt",
+        "script-06.txt.part-019.txt",
+        "script-06.txt.part-020.txt",
+        "script-06.txt.part-021.txt",
+        "script-06.txt.part-022.txt",
+        "script-06.txt.part-023.txt",
+        "script-06.txt.part-024.txt",
+        "script-06.txt.part-025.txt",
+        "script-06.txt.part-026.txt",
+        "script-06.txt.part-027.txt",
+        "script-06.txt.part-028.txt",
+        "script-06.txt.part-029.txt",
+        "script-06.txt.part-030.txt",
+        "script-06.txt.part-031.txt",
+        "script-06.txt.part-032.txt",
+        "script-06.txt.part-033.txt",
+        "script-06.txt.part-034.txt",
+        "script-06.txt.part-035.txt",
+        "script-06.txt.part-036.txt",
+        "script-06.txt.part-037.txt",
+        "script-06.txt.part-038.txt",
+        "script-06.txt.part-039.txt",
+        "script-06.txt.part-040.txt",
+        "script-06.txt.part-041.txt",
+        "script-06.txt.part-042.txt"
+      ]
+    }
+  ]
+}

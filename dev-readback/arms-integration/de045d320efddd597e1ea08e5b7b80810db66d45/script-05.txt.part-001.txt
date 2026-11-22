@@ -1,0 +1,69 @@
+(function (root) {
+  'use strict';
+
+  function makeRng(seed) {
+    let a = seed >>> 0;
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  const ROLE_NAMES = { tank: 'Танк', heal: 'Лекарь', dd: 'Боец' };
+
+  const CLASSES = {
+    warrior: { name: 'Воин', icon: '⚔️', def: 'prot',
+      specs: {
+        prot: { name: 'Защита', role: 'tank', hp: 1456, atk: 62, armor: 0.35, res: 0.05, spd: 100, crit: 0.08, threat: 3, type: 'phys', passives: [{ id: 'deflect', name: 'Парирование', icon: '🤺', text: '5% шанс парировать прямой физический удар; парирование открывает Реванш' }, { id: 'protblock', name: 'Блок щитом', icon: '🛡️', text: '5% шанс заблокировать прямой физический удар: −30% урона этого удара и доступ к Реваншу. Адаптация автобоя.' }], skills: ['shieldslam', 'heroicstrike', 'revenge', 'thunder', 'taunt', 'wall'] },
+        arms: { name: 'Оружие', role: 'dd', hp: 1150, atk: 116, armor: 0.30, res: 0.05, spd: 105, crit: 0.12, threat: 1, type: 'phys', passives: [{ id: 'deepwounds', name: 'Глубокие раны', icon: '🩸', text: 'критический удар вешает на врага кровотечение на 3 хода' }], skills: ['mortal', 'slam', 'rend', 'cleave', 'execute'] },
+        fury: { name: 'Неистовство', role: 'dd', hp: 1080, atk: 168, armor: 0.24, res: 0.05, spd: 100, crit: 0.14, threat: 1, type: 'phys', fury: true,
+          auto: { name: 'Удар двумя мечами', icon: '⚔️', type: 'phys', hits: 2 },
+          passives: [{ id: 'furyladder', name: 'Неистовство', icon: '😡', text: 'скорость растёт ступенями с потерянным ХП, до +60%' }, { id: 'flurry', name: 'Шквал', icon: '🌪️', text: 'после критического удара +30% к скорости на 2 хода' }], skills: ['bloodthirst', 'slam', 'whirlwind', 'deathwish', 'execute'] },
+      } },
+    paladin: { name: 'Паладин', icon: '🔨', def: 'holy',
+      specs: {
+        holy: { name: 'Свет', role: 'heal', hp: 1050, atk: 45, armor: 0.25, res: 0.10, spd: 100, crit: 0.08, threat: 1, type: 'magic', heal: 138, passives: [{ id: 'illum', name: 'Просветление', icon: '💡', text: 'критическое лечение возвращает 5 маны' }], skills: ['hshock', 'holylight', 'divinefavor', 'hoj'] },
+        prot: { name: 'Защита', role: 'tank', hp: 1450, atk: 58, armor: 0.36, res: 0.12, spd: 98, crit: 0.08, threat: 3, type: 'magic', passives: [{ id: 'reckon', name: 'Расплата', icon: '⚔️', text: 'после полученного критического удара следующая автоатака бьёт дважды' }], skills: ['holyshield', 'pconsecrate', 'pjudgement', 'hoj'] },
+        ret: { name: 'Воздаяние', role: 'dd', hp: 1150, atk: 163, armor: 0.30, res: 0.10, spd: 102, crit: 0.12, threat: 1, type: 'phys', passives: [{ id: 'vengeance', name: 'Месть', icon: '😠', text: 'после критического удара +5% урона за стак, до 3 стаков на 3 хода' }], skills: ['seal', 'judgement', 'crusader', 'hoj', 'hammer'] },
+      } },
+    druid: { name: 'Друид', icon: '🐻', def: 'bear',
+      specs: {
+        bear: { name: 'Медведь', role: 'tank', hp: 1650, atk: 70, armor: 0.33, res: 0.10, spd: 95, crit: 0.08, threat: 3, type: 'phys', passives: [{ id: 'thickhide', name: 'Толстая шкура', icon: '🐻', text: '+10% к броне' }], skills: ['maul', 'swipe', 'roar', 'regen'] },
+        resto: { name: 'Исцеление', role: 'heal', hp: 900, atk: 40, armor: 0.15, res: 0.10, spd: 103, crit: 0.08, threat: 1, type: 'magic', heal: 156, passives: [{ id: 'giftnature', name: 'Дар природы', icon: '🌿', text: '+10% к лечению' }], skills: ['rejuv', 'regrowth', 'entangle', 'innervate'] },
+        cat: { name: 'Сила зверя', role: 'dd', hp: 1000, atk: 105, armor: 0.22, res: 0.08, spd: 108, crit: 0.12, threat: 1, type: 'phys', combo: 5,
+          auto: { name: 'Удар лапой', icon: '🐾', type: 'phys' },
+          passives: [{ id: 'primalfury', name: 'Первобытная ярость', icon: '🐾', text: 'критический удар даёт лишнее очко комбо' }], skills: ['shred', 'rake', 'rip', 'bite'] },
+        balance: { name: 'Баланс', role: 'dd', hp: 880, atk: 124, armor: 0.15, res: 0.10, spd: 104, crit: 0.11, threat: 1, type: 'magic', auto: { name: 'Удар посохом', icon: '🪵', type: 'phys', ranged: true }, passives: [{ id: 'natgrace', name: 'Благодать природы', icon: '🍃', text: 'после критического удара +30% к скорости на 1 ход' }], skills: ['wrath', 'moonfire', 'starfire', 'hurricane'] },
+      } },
+    priest: { name: 'Жрец', icon: '✨', def: 'holy',
+      specs: {
+        holy: { name: 'Свет', role: 'heal', hp: 820, atk: 38, armor: 0.08, res: 0.10, spd: 105, crit: 0.08, threat: 1, type: 'magic', heal: 156, passives: [{ id: 'inspir', name: 'Вдохновение', icon: '✨', text: 'критическое лечение даёт цели +20% к броне на 2 хода' }], skills: ['renew', 'prayer', 'holynova', 'holyfire'] },
+        disc: { name: 'Послушание', role: 'heal', hp: 800, atk: 40, armor: 0.08, res: 0.10, spd: 104, crit: 0.08, threat: 1, type: 'magic', heal: 196, passives: [{ id: 'impwps', name: 'Усиленный щит', icon: '🔵', text: '«Слово силы: Щит» поглощает на 15% больше' }], skills: ['pws', 'smiteh', 'powerinf', 'pscream'] },
+        shadow: { name: 'Тьма', role: 'dd', hp: 860, atk: 149, armor: 0.08, res: 0.12, spd: 103, crit: 0.10, threat: 1, type: 'magic', shadowform: true,
+          passive: { name: 'Облик Тьмы', text: '+15% наносимого урона и −15% получаемого, пассивно' },
+          skills: ['mindblast', 'swp', 'mindflay', 'vampembrace'] },
+      } },
+    mage: { name: 'Маг', icon: '🔥', def: 'fire',
+      specs: {
+        fire: { name: 'Огонь', role: 'dd', hp: 760, atk: 104, armor: 0.05, res: 0.10, spd: 108, crit: 0.12, threat: 1, type: 'magic', passives: [{ id: 'ignite', name: 'Воспламенение', icon: '🔥', text: 'критический урон магии поджигает цель на 3 хода' }], skills: ['fireball', 'scorch', 'fireblast', 'combustion'] },
+        arcane: { name: 'Тайная магия', role: 'dd', hp: 760, atk: 92, armor: 0.05, res: 0.10, spd: 108, crit: 0.12, threat: 1, type: 'magic', passives: [{ id: 'arcconc', name: 'Чародейская концентрация', icon: '🔮', text: 'при применении умения с шансом 10% сбрасывается перезарядка случайного другого умения' }, { id: 'arcinst', name: 'Нестабильность чар', icon: '🌀', text: '+3% урона и +3% шанса крита' }],
+          skills: ['missiles', 'arcexplosion', 'arcpower', 'pom'] },
+        frost: { name: 'Лёд', role: 'dd', hp: 800, atk: 115, armor: 0.06, res: 0.12, spd: 106, crit: 0.12, threat: 1, type: 'magic', passives: [{ id: 'shatter', name: 'Раскол', icon: '🧊', text: '+40% к шансу крита по замедленным и оглушённым врагам' }], skills: ['frostbolt', 'frostnova', 'icebarrier', 'cone'] },
+      } },
+    hunter: { name: 'Охотник', icon: '🏹', def: 'mm',
+      specs: {
+        mm: { name: 'Стрельба', role: 'dd', hp: 920, atk: 95, armor: 0.15, res: 0.05, spd: 115, crit: 0.12, threat: 1, type: 'phys',
+          passives: [{ id: 'mortal', name: 'Смертоносные выстрелы', icon: '🎯', text: 'критические удары наносят на 15% больше урона' }],
+          skills: ['arcshot', 'aimed', 'steady', 'multishot', 'rapidfire'] },
+        bm: { name: 'Повелитель зверей', role: 'dd', hp: 940, atk: 118, armor: 0.15, res: 0.05, spd: 112, crit: 0.12, threat: 1, type: 'phys',
+          passives: [{ id: 'frenzy', name: 'Неистовство', icon: '🐺', text: 'после критического удара питомец ходит быстрее на 30% 2 хода' }],
+          skills: ['arcshot', 'steady', 'scorpid', 'intimidation', 'bwrath'] },
+        surv: { name: 'Выживание', role: 'dd', hp: 980, atk: 95, armor: 0.18, res: 0.05, spd: 110, crit: 0.12, threat: 1, type: 'phys', auto: { name: 'Удар', icon: '🗡️', type: 'phys' },
+          passives: [{ id: 'deflect', name: 'Парирование', icon: '🤺', text: '+5% к уклонению от ударов врагов' }], skills: ['raptor', 'steady', 'wingclip', 'immotrap', 'serpent'] },
+      } },
+    rogue: { name: 'Разбойник', icon: '🗡️', def: 'combat',
+      specs: {
+        combat: { name: 'Бой', role: 'dd', hp: 950, atk: 147, armor: 0.18, res: 0.05, spd: 110, crit: 0.15, threat: 1, type: 'phys', combo: 5,
+         

@@ -1,0 +1,85 @@
+ keys.length - 1)
+        crGalleryTimer = setTimeout(function () { show((current + 1) % keys.length, 0); }, 10000);
+    }
+    function show(index, attempts) {
+      if (!valid() || busy || !keys.length) return;
+      if (attempts >= keys.length) { status.textContent = 'Иллюстрации недоступны. Выбор расы работает.'; host.classList.add('cr46-art-error'); return; }
+      const asset = AZ_ASSET_REGISTRY.assets[keys[index]];
+      if (!asset || asset.race !== race || (cls && asset.characterClass !== cls)) { diagnostics.events.push({status:'blocked_identity_mismatch',key:keys[index]}); failed.add(index); show((index + 1) % keys.length, attempts + 1); return; }
+      busy = true;
+      const preload = new Image(); preload.referrerPolicy = 'no-referrer';
+      const urls = [asset.url].concat(asset.fallbackUrls || []); let candidate = 0;
+      let settled = false;
+      let timeout = setTimeout(failure, 12000);
+      function failure() {
+        if (settled) return; settled = true; clearTimeout(timeout); busy = false;
+        if (!valid()) return;
+        if (candidate + 1 < urls.length) {
+          diagnostics.events.push({status:'candidate_failed',url:urls[candidate]});
+          settled = false; busy = true; timeout = setTimeout(failure,12000); preload.src = urls[++candidate]; return;
+        }
+        diagnostics.events.push({status:'load_error',key:keys[index]});
+        failed.add(index);
+        if (current >= 0) { status.textContent = 'Часть иллюстраций недоступна'; schedule(); }
+        else show((index + 1) % keys.length, attempts + 1);
+      }
+      preload.onerror = failure;
+      preload.onload = function () {
+        const decoded = preload.decode ? preload.decode() : Promise.resolve();
+        decoded.then(function () {
+          if (settled) return; settled = true; clearTimeout(timeout); busy = false;
+          if (!valid()) return;
+          failed.delete(index);
+          const target = current < 0 ? active : 1 - active;
+          layers[target].src = urls[candidate]; layers[target].alt = asset.name + (cls ? ' — иллюстрация класса' : ' — иллюстрация расы');
+          diagnostics.current = {key:keys[index],url:urls[candidate],width:preload.naturalWidth,height:preload.naturalHeight};
+          layers[target].classList.add('visible');
+          if (current >= 0) layers[active].classList.remove('visible');
+          active = target; current = index;
+          host.classList.add('cr46-has-art'); host.classList.remove('cr46-art-error');
+          status.textContent = asset.name + ' · Hearthstone / Blizzard';
+          counter.textContent = (index + 1) + ' / ' + keys.length;
+          source.href = asset.source; source.hidden = false;
+          schedule();
+        }).catch(failure);
+      };
+      preload.src = urls[candidate];
+    }
+    function pauseLabel() {
+      pause.textContent = crGalleryPaused || reduced ? 'Продолжить' : 'Пауза';
+      pause.setAttribute('aria-pressed', String(crGalleryPaused || reduced));
+      next.disabled = keys.length < 2;
+      if (keys.length < 2) {pause.textContent = 'Иллюстрация';pause.disabled = true;}
+      if (reduced) { pause.textContent = 'Без анимации'; pause.disabled = true; }
+    }
+    pause.addEventListener('click', function () { crGalleryPaused = !crGalleryPaused; pauseLabel(); if (crGalleryPaused) clearTimeout(crGalleryTimer); else schedule(); });
+    next.addEventListener('click', function () { clearTimeout(crGalleryTimer); show((current + 1) % keys.length, 0); });
+    pauseLabel(); show(0, 0);
+  }
+  function cr47StageHtml(race, cls) {
+    const rc=RACES[race], cl=cls && B.CLASSES[cls];
+    return '<div class="cr46-art-backdrop">'+(cl ? classBadge(cls,startSpec(cls)) : creationRaceIcon(race,rc.name))+'</div><img class="cr46-art" alt=""><img class="cr46-art" alt=""><div class="cr46-art-shade"></div><div class="cr46-art-heading"><span>'+(cl?'ПУТИ АЗЕРОТА':'НАРОДЫ АЗЕРОТА')+'</span><h2>'+esc(cl ? rc.name+' · '+cl.name : rc.name)+'</h2><p>'+esc(cl ? (AZ_ASSET_REGISTRY.raceClassGallery[race+':'+cls] ? 'Иллюстрация выбранной расы и класса' : 'Значок класса · подходящий арт ещё не добавлен') : CR_RACE_LORE[race].subtitle)+'</p></div><div class="cr46-art-controls"><span class="cr46-art-count">—</span><button type="button" data-cr46-pause>Пауза</button><button type="button" data-cr46-next aria-label="Следующая иллюстрация">Следующая</button></div><div class="cr46-art-footer"><span class="cr46-art-status" role="status">Загрузка иллюстрации…</span><a class="cr46-source" hidden target="_blank" rel="noopener noreferrer">Источник изображений</a></div>';
+  }
+
+  
+window.__az53Describe=function(race,cls,level){const c=B.CLASSES[cls],r=B.RACES[race];return {race:race,cls:cls,level:Number(level)||1,name:c?c.name:'',initial:c?startSpec(cls):'',initialName:c?B.specOf(cls,startSpec(cls)).name:'',specLevel:SPEC_LEVEL,abilities:r?[{type:'Пассивная',name:r.passive.name,text:r.passive.text,cd:0,iconHtml:wowIcon(r.passive)},{type:'Активная',name:B.SKILLS[r.active].name,text:B.SKILLS[r.active].text,cd:B.SKILLS[r.active].cd,iconHtml:wowIcon(B.SKILLS[r.active])}]:[],specs:c?Object.keys(c.specs).map(function(k){const q=c.specs[k];return {key:k,name:q.name,role:q.role,skills:q.skills.map(function(id){const d=B.SKILLS[id];return {name:d.name,text:d.text};})};}):[]};};
+function az53AbilityRow(race,er){const arr=[{type:'Пассивная',data:er.passive,cd:0},{type:'Активная',data:B.SKILLS[er.active],cd:B.SKILLS[er.active].cd}];return '<div class="az53-abilities" role="group" aria-label="Расовые способности">'+arr.map(function(a,i){return '<button type="button" class="az53-ability" data-az53-kind="ability" data-az53-race="'+race+'" data-az53-index="'+i+'"><span aria-hidden="true">'+wowIcon(a.data)+'</span><span>'+esc(a.data.name)+'<small>'+a.type+(a.cd?' · '+a.cd+' ходов':'')+'</small></span></button>';}).join('')+'</div><p class="az53-hint">Наведи, выбери клавиатурой или нажми на способность для пояснения её эффекта в автобатлере.</p>';}
+
+function renderCreate() {
+/*AZ50_CONTEXT*/Promise.resolve().then(function(){try{const c={race:CR.race,cls:CR.cls,step:CR.step};window.__az50InitialContext=c;window.dispatchEvent(new CustomEvent('az50-context',{detail:c}));}catch(e){console.warn('az50 context',e);}});
+
+    stopCrGallery();
+    const st=CR.step, rc=RACES[CR.race], c=B.CLASSES[CR.cls], lore=CR_RACE_LORE[CR.race], er=B.RACES[CR.race];
+    $('create').style.setProperty('--cr46-accent',lore.tone);$('create').dataset.step=st;
+    $('cr-steps').innerHTML=CR_STEPS.map(function(t,i){return '<span class="stp'+(i===st?' on':'')+'"'+(i===st?' aria-current="step"':'')+'><span class="cr46-stepnum">'+(i+1)+'</span>'+esc(t)+'</span>';}).join('');
+    $('cr48-races').innerHTML=Object.keys(RACES).map(function(key){return '<button type="button" class="cr48-race" data-race="'+key+'" aria-pressed="'+(CR.race===key)+'"><span class="cr48-mini">'+creationRaceIcon(key,RACES[key].name)+'</span><span>'+esc(RACES[key].name)+'</span></button>';}).join('');
+    $('cr-stage').innerHTML=cr47StageHtml(CR.race,st===0?null:CR.cls);
+    $('cr-cap').textContent=st===0?lore.home:rc.name+' · '+c.name;
+    $('cr-namebox').hidden=st!==2;
+    $('cr-go').textContent=st<2?'Далее':'Создать героя';
+    $('cr-back').textContent=st>0?'Назад':'Мои герои';
+    let page='';
+    if(st===0){
+      page='<h2 class="cr48-title">'+esc(rc.name)+'</h2><div class="az53-actions"><button type="button" class="az53-action" data-az53-kind="race" data-az53-race="'+CR.race+'">История народа</button></div>'+az53AbilityRow(CR.race,er);
+    }else if(st===1){
+      page='<h2 class="cr48-title">Выберите класс</h2><div class="cr48-classes" role="group" aria-label="Класс героя">'+CR_CLASSES.map(function(key){const cl=B.CLASSES[key],ok=crAllowed(key);return '<button type="button" class="cr48-class" data-crcls="'+key+'" aria-pressed="'+(CR.cls===key)+'" aria-disabled="'+!ok+'"><span>'+classBadge(key,startSpec(key))+'</span><span>'+esc(cl.name)+(ok?'':'<small>недоступен</small>')+'</span></button>';}).join('')+'</

@@ -1,0 +1,92 @@
+g: 0.08, spd: 0.04 }, r: [
+      { n: 'Звериная ярость', w: 'у кого-то из спутников питомец', k: 'pet', x: '+5% к урону отряда', e: { allDmg: 0.05 } },
+      { n: 'Стая', w: 'в отряде двое бойцов и больше', k: 'dd2', x: '+4% к скорости', e: { spd: 0.04 } }] },
+    'hunter:surv': { n: 'Шипы', t: '+10% к физическому урону и −4% к получаемому урону', b: { physDmg: 0.10, dmgTaken: 0.04 }, r: [
+      { n: 'Капкан', w: 'в отряде есть танк', k: 'tank', x: '−4% к получаемому урону', e: { dmgTaken: 0.04 } },
+      { n: 'Охотничий азарт', w: 'в отряде двое бойцов ближнего боя и больше', k: 'phys2', x: '+5% к физическому урону', e: { physDmg: 0.05 } }] },
+    'rogue:combat': { n: 'Аура мастера клинка', t: '+12% к физическому урону и +3% к скорости отряда', b: { physDmg: 0.12, spd: 0.03 }, r: [
+      { n: 'Серия ударов', w: 'в отряде двое бойцов ближнего боя и больше', k: 'phys2', x: '+5% к шансу крита', e: { crit: 0.05 } },
+      { n: 'Тень', w: 'в отряде есть лекарь', k: 'heal', x: '+5% к скорости отряда', e: { spd: 0.05 } }] },
+    'rogue:assn': { n: 'Аура отравы', t: '+10% к физическому урону и +4% к шансу крита', b: { physDmg: 0.10, crit: 0.04 }, r: [
+      { n: 'Отравленное лезвие', w: 'в отряде есть спутник твоего класса', k: 'same', x: '+5% к физическому урону', e: { physDmg: 0.05 } },
+      { n: 'Смертельный яд', w: 'в отряде двое бойцов и больше', k: 'dd2', x: '+4% к шансу крита', e: { crit: 0.04 } }] },
+    'rogue:subt': { n: 'Аура тени', t: '+8% к шансу крита и +5% к скорости отряда', b: { crit: 0.08, spd: 0.05 }, r: [
+      { n: 'Незаметность', w: 'в отряде есть боец', k: 'dd1', x: '+4% к урону отряда', e: { allDmg: 0.04 } },
+      { n: 'Теневой шаг', w: 'в отряде минимум два спутника', k: 'two', x: '+4% к скорости отряда', e: { spd: 0.04 } }] },
+    'warlock:aff': { n: 'Кровавый союз', t: 'урон отряда растёт по мере потери ХП (до +45%)', b: { lowHp: 1 }, r: [
+      { n: 'Порча души', w: 'в отряде двое магов-бойцов и больше', k: 'magic2', x: '+5% к магическому урону', e: { magicDmg: 0.05 } },
+      { n: 'Жатва жизни', w: 'в отряде есть лекарь', k: 'heal', x: '+6% ХП отряда', e: { hp: 0.06 } }] },
+    'warlock:demo': { n: 'Демонический пакт', t: '+10% к магическому урону и +6% ХП отряда', b: { magicDmg: 0.10, hp: 0.06 }, r: [
+      { n: 'Призыв', w: 'у кого-то из спутников питомец', k: 'pet', x: '+5% к магическому урону', e: { magicDmg: 0.05 } },
+      { n: 'Мстительность', w: 'в отряде двое бойцов и больше', k: 'dd2', x: '+4% к урону отряда', e: { allDmg: 0.04 } }] },
+    'warlock:destro': { n: 'Пламя Скверны', t: '+12% к магическому урону и +3% к шансу крита', b: { magicDmg: 0.12, crit: 0.03 }, r: [
+      { n: 'Испепеление', w: 'в отряде двое магов-бойцов и больше', k: 'magic2', x: '+5% к магическому урону', e: { magicDmg: 0.05 } },
+      { n: 'Печь Легиона', w: 'в отряде двое бойцов и больше', k: 'dd2', x: '+4% к урону отряда', e: { allDmg: 0.04 } }] }
+  };
+  function leaderAura(party) {
+    const a = { res: [] };
+    const ps = (party || []).filter(function (p) { return p && CLASSES[p.cls]; });
+    const lead = ps.find(function (p) { return p.main; }) || ps[0];
+    if (!lead) return a;
+    if (lead.proto === 'arms' && (Number(lead.level) || 0) < ARMS_PROTO.specLevel) return a;
+    const c = CLASSES[lead.cls], specKey = c.specs[lead.spec] ? lead.spec : c.def;
+    const A = AURAS[lead.cls + ':' + specKey];
+    if (A) {
+      ['physDmg', 'magicDmg', 'allDmg', 'hp', 'dmgTaken', 'crit', 'heal', 'spd'].forEach(function (f) { if (A.b[f]) a[f] = A.b[f]; });
+      if (A.b.lowHp) a.lowHp = 1;
+      a.name = A.n; a.text = A.t;
+    }
+    const comps = ps.filter(function (p) { return p !== lead; });
+    let tank = 0, heal = 0, dd = 0, phys = 0, magic = 0, same = 0, pet = 0;
+    comps.forEach(function (p) {
+      const c2 = CLASSES[p.cls], s2 = c2.specs[c2.specs[p.spec] ? p.spec : c2.def];
+      if (s2.role === 'tank') tank++; else if (s2.role === 'heal') heal++; else { dd++; if (s2.type === 'magic') magic++; else phys++; }
+      if (p.cls === lead.cls) same++;
+      if (p.pet) pet++;
+    });
+    const OK = { tank: tank > 0, heal: heal > 0, dd1: dd > 0, dd2: dd > 1, phys2: phys > 1, magic2: magic > 1, same: same > 0, pet: pet > 0, two: comps.length > 1 };
+    if (A) A.r.forEach(function (r) {
+      if (!OK[r.k]) return;
+      a.res.push(r.n);
+      Object.keys(r.e || {}).forEach(function (f) {
+        if (f === 'lowHp') { a.lowHp = (a.lowHp || 0) + 1; return; }
+        a[f] = (a[f] || 0) + r.e[f];
+      });
+    });
+    return a;
+  }
+  const GROUP_SCALE = { 3: 1.10, 5: 1.18 };
+  function groupScale(st) { const z = ENCOUNTERS[st.encounter].size; return z >= 5 ? GROUP_SCALE[5] : z >= 3 ? GROUP_SCALE[3] : 1; }
+  /* ===== Питомцы (чернокнижник и охотник): отдельное тело в бою, слот отряда не занимает ===== */
+  const PETS = {
+    imp: { name: 'Бес', icon: '👿', hp: 0.45, atk: 0.9, armor: 0.05, res: 0.25, spd: 104, crit: 0.08, type: 'magic', skills: ['pfireball', 'pfireshield'], auto: { name: 'Огненный залп', icon: '🔥' } },
+    voidwalker: { name: 'Демон Бездны', icon: '👹', hp: 1.2, atk: 0.45, armor: 0.30, res: 0.10, spd: 100, crit: 0.05, type: 'phys', skills: ['ptorment', 'pconsume'], auto: { name: 'Удар', icon: '🖐️' } },
+    felhunter: { name: 'Охотник Скверны', icon: '🐕', hp: 0.8, atk: 0.75, armor: 0.10, res: 0.30, spd: 106, crit: 0.08, type: 'phys', skills: ['pspelllock', 'pfelbite'], auto: { name: 'Укус', icon: '🦷' } },
+    succubus: { name: 'Суккуб', icon: '😈', hp: 0.75, atk: 0.85, armor: 0.08, res: 0.10, spd: 107, crit: 0.10, type: 'magic', skills: ['pseduction', 'plash'], auto: { name: 'Хлыст', icon: '〰️' } },
+    wolf: { name: 'Волк', icon: '🐺', hp: 0.9, atk: 0.8, armor: 0.12, res: 0.05, spd: 108, crit: 0.10, type: 'phys', skills: ['pbite', 'phowl'], auto: { name: 'Укус', icon: '🦷' } },
+  };
+  const PET_AUTO = 0.3, PET_REVIVE = { turns: 3, hp: 0.5 };
+  Object.assign(SKILLS, {
+    pfireball: { name: 'Огненный шар', icon: '🔥', cd: 2, text: '130% урона цели' },
+    pfireshield: { name: 'Огненный щит', icon: '🛡️', cd: 5, text: 'хозяин отражает огнём 30% своей атаки по каждому ударившему, 3 хода' },
+    ptorment: { name: 'Мучение', icon: '😡', cd: 2, text: '100% урона и много угрозы' },
+    pconsume: { name: 'Пожирание теней', icon: '🌑', cd: 5, text: 'лечит питомца на 30% ХП' },
+    pspelllock: { name: 'Блокировка заклинаний', icon: '🚫', cd: 5, text: 'обычный враг не использует умения 2 хода' },
+    pfelbite: { name: 'Укус', icon: '🦷', cd: 2, text: '130% урона цели' },
+    pseduction: { name: 'Соблазнение', icon: '💋', cd: 6, text: 'обычный враг пропускает 2 хода' },
+    plash: { name: 'Бич боли', icon: '〰️', cd: 2, text: '140% урона цели' },
+    pbite: { name: 'Укус', icon: '🦷', cd: 2, text: '130% урона цели' },
+    phowl: { name: 'Яростный вой', icon: '📢', cd: 6, text: '+8% урона всей группе на 3 хода' },
+  });
+  /* ===== Расовые способности: у мейна, одна пассивка и (у трёх рас) одна активная с перезарядкой ===== */
+  const RACES = {
+    human: { name: 'Человек', passive: { name: 'Человеческий дух', icon: '🙏', text: '+3% к наносимому урону и лечению' }, active: 'r_emfh' },
+    dwarf: { name: 'Дварф', passive: { name: 'Сопротивление магии', icon: '⛰️', text: '+2% сопротивления магии' }, active: 'r_stoneform' },
+    gnome: { name: 'Гном', passive: { name: 'Пытливый ум', icon: '🧠', text: '+2% к главной характеристике класса' }, active: 'r_escape' },
+    nelf: { name: 'Ночной эльф', passive: { name: 'Проворство', icon: '🍃', text: '+2% к скорости' }, active: 'r_meld' },
+  };
+  Object.assign(SKILLS, {
+    r_emfh: { name: 'Каждый за себя', icon: '🛡️', cd: 10, text: 'Снимает все эффекты замедления движения и все эффекты, вызывающие потерю контроля над персонажем.' },
+    r_stoneform: { name: 'Каменная форма', icon: '🗿', cd: 8, text: 'снимает кровотечения и яды, +10% к броне на 3 хода' },
+    r_escape: { name: 'Мастер побега', icon: '🪢', cd: 6, text: 'снимает замедление и обездвиживание' },
+    r_meld: { name: 'Слияние с тенью', icon: '👤', cd: 10, text: '+35% к уклонен

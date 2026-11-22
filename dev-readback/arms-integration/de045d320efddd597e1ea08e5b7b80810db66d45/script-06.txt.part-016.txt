@@ -1,0 +1,87 @@
+>';
+    $('polybody').innerHTML = h;
+  }
+  /* Автобаланс: пакетные прогоны боевого движка без анимации и таймеров UI. */
+  function polyAutoBalance() {
+    const host = $('poly-auto-result');
+    host.innerHTML = '<p class="hint">Идут пакетные симуляции. Не закрывайте окно…</p>';
+    const reps = 3, level = 20, limit = 60;
+    const groups = { dd: [], tank: [], heal: [] };
+    Object.keys(B.CLASSES).forEach(function (cls) {
+      const c = B.CLASSES[cls];
+      Object.keys(c.specs).forEach(function (spec) {
+        const sp = c.specs[spec], role = sp.role;
+        if (!groups[role]) return;
+        const vals = [], survival = [], hpLeft = [];
+        for (let n = 0; n < reps; n++) {
+          const mode = role === 'dd' ? 'dps' : role === 'tank' ? 'tank' : 'heal';
+          const test = { mode: mode, level: level, count: 1, pattern: 'steady', limit: limit };
+          const st = B.createBattle({ party: [{ cls: cls, spec: spec, level: level, main: true, race: 'human', pet: cls === 'hunter' ? 'wolf' : cls === 'warlock' ? 'imp' : undefined }], main: cls, encounter: 'test', level: level, test: test, seed: 73129 + n * 997 });
+          let guard = 0;
+          while (!st.over && guard++ < 12000) B.step(st);
+          const h = st.heroes[0], turns = Math.max(1, h.stats.turns || st.mainTurns || 1);
+          if (role === 'dd') vals.push(((h.stats.dmg || 0) + (st.pets || []).filter(function (p) { return p.owner === h.id; }).reduce(function (a, p) { return a + ((p.stats && p.stats.dmg) || 0); }, 0)) / turns);
+          else if (role === 'heal') vals.push((h.stats.heal || 0) / turns);
+          else { vals.push((h.stats.taken || 0) / turns); survival.push(st.mainTurns || turns); hpLeft.push(Math.max(0, h.hp) / h.maxHp); }
+        }
+        const avg = vals.reduce(function(a,b){return a+b;},0) / vals.length;
+        groups[role].push({ cls: cls, spec: spec, name: c.name, specName: sp.name, role: role, value: avg,
+          survival: survival.length ? survival.reduce(function(a,b){return a+b;},0)/survival.length : 0,
+          hp: hpLeft.length ? hpLeft.reduce(function(a,b){return a+b;},0)/hpLeft.length : 0 });
+      });
+    });
+    const med = function(a){ const x=a.slice().sort(function(p,q){return p-q;}); return x.length ? x[Math.floor(x.length/2)] : 0; };
+    const fmt = function(v){return Math.round(v).toLocaleString('ru-RU');};
+    let html = '<h3>Автоматический баланс — уровень 20</h3><p class="hint">Каждая спека прогнана 3 раза по 60 ходов на одинаковых условиях. Это измерения текущей боевой модели, не теоретическая оценка.</p>';
+    [['dd','DPS'],['heal','Лечение'],['tank','Танки: входящий урон']].forEach(function(pair){
+      const arr=groups[pair[0]]; if(!arr.length)return;
+      const base=med(arr.map(function(x){return x.value;}));
+      html += '<p class="sect">'+pair[1]+'</p><div class="pscroll"><table class="ptab"><tr><th>Специализация</th><th>Среднее</th><th>К медиане</th><th>Реком. множитель</th>'+(pair[0]==='tank'?'<th>ХП осталось</th>':'')+'</tr>';
+      arr.sort(function(a,b){return (pair[0]==='tank'?a.value-b.value:b.value-a.value);}).forEach(function(x){
+        const ratio=base>0?x.value/base:1;
+        const raw=pair[0]==='tank' ? (ratio>0?1/ratio:1.15) : (ratio>0?1/ratio:1.15);
+        const factor=Math.max(0.85,Math.min(1.15,raw));
+        html+='<tr><td>'+esc(x.name)+' — '+esc(x.specName)+'</td><td>'+fmt(x.value)+(pair[0]==='tank'?'/ход':'/ход')+'</td><td>'+Math.round(ratio*100)+'%</td><td>'+(factor>=1?'+':'')+Math.round((factor-1)*100)+'%</td>'+(pair[0]==='tank'?'<td>'+Math.round(x.hp*100)+'%</td>':'')+'</tr>';
+      });
+      html+='</table></div>';
+    });
+    html += '<p class="pnote">Множитель — рекомендация относительно медианы своей роли, ограниченная диапазоном ±15%. Для танков это предварительная оценка: меньше входящий урон — лучше; перед применением коэффициент нужно сверить с фактической выживаемостью. Ничего в баланс автоматически не записывается.</p>';
+    host.innerHTML=html;
+  }
+  $('polysheet').addEventListener('click', function (ev) {
+    const c = S.polyCfg;
+    if (ev.target.id === 'polysheet' || ev.target.closest('#polyclose')) { polyClose(); return; }
+    const m = ev.target.closest('[data-pmode]'); if (m) { c.mode = m.dataset.pmode; polyRender(); return; }
+    const l = ev.target.closest('[data-plevel]'); if (l) { c.level = Number(l.dataset.plevel); polyRender(); return; }
+    const n = ev.target.closest('[data-pcount]'); if (n) { c.count = Number(n.dataset.pcount); polyRender(); return; }
+    const p = ev.target.closest('[data-ppat]'); if (p) { c.pattern = p.dataset.ppat; polyRender(); return; }
+    const t = ev.target.closest('[data-plimit]'); if (t) { c.limit = Number(t.dataset.plimit); polyRender(); return; }
+    if (ev.target.closest('#poly-auto')) { polyAutoBalance(); return; }
+    if (ev.target.closest('#poly-go') && c.mode === 'heal' && !S.party.some(isHealerKey)) { tvToast('В отряде нет лекаря'); return; }
+    if (ev.target.closest('#poly-go')) { const cfg = Object.assign({}, c); polyClose(); lines = []; run = null; S.amb = null; beginBattle('test', null, cfg); }
+  });
+  function polyMetrics() {
+    return st.heroes.filter(function (h) { return !h.dummy; }).map(function (h) {
+      const turns = Math.max(1, h.stats.turns || 0), per = new Array(turns).fill(0), mine = st.series.filter(function (x) { return x[1] === h.id; });
+      let crit = 0; mine.forEach(function (x) { const i = Math.min(turns, Math.max(1, x[0])) - 1; per[i] += x[2]; crit += x[3]; });
+      const total = per.reduce(function (a, b) { return a + b; }, 0), W = Math.min(5, turns);
+      let peak = 0; for (let i = 0; i + W <= turns; i++) { let sm = 0; for (let j = 0; j < W; j++) sm += per[i + j]; peak = Math.max(peak, sm / W); }
+      const f5 = per.slice(0, W).reduce(function (a, b) { return a + b; }, 0) / W;
+      const W10 = Math.min(10, turns), f10 = per.slice(0, W10).reduce(function (a, b) { return a + b; }, 0) / W10;
+      const hl = st.hlog.filter(function (x) { return x[1] === h.id; }), heal = hl.reduce(function (a, x) { return a + x[2]; }, 0), over = hl.reduce(function (a, x) { return a + x[3]; }, 0);
+      return { id: h.id, key: h.cls + '.' + h.spec, cls: h.cls, name: h.name, specName: h.specName || '', icon: h.icon, role: h.role, turns: turns, total: total, avg: total / turns, peak: peak, first5: f5, first10: f10, crit: mine.length ? crit / mine.length : 0, heal: heal, healAvg: heal / turns, overPct: heal + over ? over / (heal + over) : 0, taken: h.stats.taken, dead: h.hp <= 0, per: per };
+    });
+  }
+  function polyChart(rows) {
+    const sm = rows.map(function (r) { return r.per.map(function (v, i, a) { const w = a.slice(Math.max(0, i - 2), i + 1); return w.reduce(function (x, y) { return x + y; }, 0) / w.length; }); });
+    const N = Math.max.apply(null, rows.map(function (r) { return r.per.length; })), mx = Math.max(1, Math.max.apply(null, sm.map(function (a) { return Math.max.apply(null, a.concat([0])); })));
+    if (N < 2) return '';
+    const lines = rows.map(function (r, k) { return '<polyline fill="none" stroke-width="2" stroke="var(--c-' + r.cls + ')" points="' + sm[k].map(function (v, i) { return (8 + i / (N - 1) * 284).toFixed(1) + ',' + (96 - v / mx * 84).toFixed(1); }).join(' ') + '"/>'; }).join('');
+    return '<svg class="pchart" viewBox="0 0 300 104" role="img" aria-label="График урона по ходам"><line x1="8" y1="96" x2="292" y2="96" stroke="#8a7a5a" stroke-width="1"/><text x="8" y="10" font-size="9" fill="#bfae86">урон за ход, пик ' + Math.round(mx) + '</text>' + lines + '</svg>';
+  }
+  function finishTest() {
+    clearTimeout(timer);
+    const T = st.test, rows = polyMetrics(), hist = (S.hero && S.hero.tests) || [];
+    const same = function (r) { return r.mode === T.mode && r.level === T.level && r.limit === T.limit && r.count === T.count && r.pattern === T.pattern; };
+    const prev = hist.slice().reverse().find(same);
+    const delta = function (key, val) { if (!prev) return '<td>—</td>'; const o = prev.row

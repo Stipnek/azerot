@@ -1,0 +1,31 @@
+; const o = alive(st.enemies).find(function (e) { return e !== t; }); if (o) damage(st, h, o, 0.8, { weapon: true, skill: 'cleave' }); return; }
+    if (sk('thunder') && multi) { if (!use(st, h, 'thunder')) return; aoe(st, h, 0.55, { skill: 'thunder' }); alive(st.enemies).forEach(function (e) { addEffect(e, { kind: 'slow', amt: 0.10, turns: 3, src: h.id, name: 'Удар грома', icon: '⚡' }); }); return; }
+    const rendOn = t.effects.some(function (f) { return f.bleed && f.name === 'Кровопускание'; });
+    if (sk('rend') && !rendOn && pct(t) > 0.3) { if (!use(st, h, 'rend')) return; const ir = protoRank(h, 'imprend'); addEffect(t, { kind: 'dot', bleed: true, mult: 0.12 * (1 + (ir ? ARMS_PROTO.impRend[ir - 1] : 0)), turns: 6, src: h.id, name: 'Кровопускание', icon: '🩸' }); emit(st, { t: 'debuff', tgt: t.id }); return; }
+    if (sk('slam') && h.rage >= protoRageNeed(h, 'slam') + 30) { if (!use(st, h, 'slam')) return; damage(st, h, t, 1.0, { weapon: true, skill: 'slam' }); return; }
+    if (sk('heroicstrike') && h.rage >= protoRageNeed(h, 'heroicstrike') + 15) { if (!use(st, h, 'heroicstrike')) return; damage(st, h, t, PROT_CFG.heroicMultiplier, { weapon: true, skill: 'heroicstrike' }); return; }
+  }
+  function armsMigrateSave(raw) {
+    const d = { schema: ARMS_PROTO.schema, main: { level: 15, talents: {} }, comp: { level: 15 }, enc: 'daily_wf_coast', seeds: 50, exp: { acc: false, scale: 'B', tier: 2 } };
+    if (!raw || typeof raw !== 'object' || raw.schema !== ARMS_PROTO.schema) return { state: d, reset: !!raw };
+    const lv = function (x) { x = Math.floor(Number(x)); return x >= 1 && x <= XPC.cap ? x : 15; };
+    const s = { schema: ARMS_PROTO.schema, main: { level: lv(raw.main && raw.main.level), talents: {} }, comp: { level: lv(raw.comp && raw.comp.level) },
+      enc: ENCOUNTERS[raw.enc] ? raw.enc : d.enc, seeds: Math.max(1, Math.min(500, Math.floor(Number(raw.seeds)) || 50)),
+      exp: { acc: !!(raw.exp && raw.exp.acc), scale: raw.exp && raw.exp.scale === 'A' ? 'A' : 'B', tier: Math.max(0, Math.min(5, Math.floor(Number(raw.exp && raw.exp.tier)) || 0)) } };
+    const t = raw.main && raw.main.talents, v = armsValidate(t, s.main.level);
+    if (v.ok) Object.keys(t).forEach(function (k) { if (t[k] > 0) s.main.talents[k] = t[k]; });
+    return { state: s, reset: !v.ok, errors: v.ok ? [] : v.errors };
+  }
+  function armsLoad(storage) { let raw = null; try { raw = JSON.parse(storage.getItem(ARMS_PROTO.saveKey)); } catch (e) { raw = null; } return armsMigrateSave(raw); }
+  function armsSave(storage, s) {
+    const clean = armsMigrateSave(s).state;
+    storage.setItem(ARMS_PROTO.saveKey, JSON.stringify(clean));
+    return clean;
+  }
+  const ACC_SCALES = Object.freeze({ A: Object.freeze([0.05, 0.10, 0.15, 0.20, 0.25, 0.30]), B: Object.freeze([0.025, 0.05, 0.075, 0.10, 0.125, 0.15]) });
+  const ACC_TIERS = Object.freeze(['серый', 'белый', 'зелёный', 'синий', 'фиолетовый', 'оранжевый']);
+
+  const api = { armsProto: { CONFIG: ARMS_PROTO, TREE: ARMS_TREE, LINE: ARMS_LINE, BUILD_B: ARMS_BUILD_B, ACC_SCALES: ACC_SCALES, ACC_TIERS: ACC_TIERS, points: armsPoints, validate: armsValidate, change: armsChange, line: armsLine, buildAt: armsFromOrder, kit: armsKit, critMul: protoCritMul, migrateSave: armsMigrateSave, load: armsLoad, save: armsSave }, PROT_CFG, ENERGY_COST, canPayEnergy, ENERGY_CFG, RAGE_COST, rageCostText, canPayRage, rageCost, RAGE_CFG, rageConversion, gainRage, PRIMARY_NAMES, primaryKey, primaryStats, resourceType, HEALAUTO, AUTO, AUTO_MULT, AUTO_DEFAULT, autoOf, auraOf, effSpd, FURY, RESTAT, RECOVERY, DUNGEONS, LOOT, dungeonXp, newRun, roomKey, startRoom, endRoom, runStatus, restRun, autoDecide, simulateRun, MANA_CFG, MANA_COST, enrageIn, LVL, lvlFactor, heroStats, levelColor, xpFor, xpShares, xpNeed, xpAt, levelOf, levelProgress, XPC, TYPE_NAMES, ROLE_NAMES, CLASSES, SKILLS, PETS, RACES, ENEMIES, ENCOUNTERS, specOf, createBattle, step, turnOrder, byId, pct, alive, lowHpBonus, leaderAura, AURAS };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.Battle = api;
+})(this);

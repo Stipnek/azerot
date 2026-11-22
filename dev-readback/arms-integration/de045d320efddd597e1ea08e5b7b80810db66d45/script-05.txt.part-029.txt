@@ -1,0 +1,110 @@
+tier: 5, max: 5, en: 'Sword Specialization', ru: 'Специализация на мечах', wdb: 12815 },
+    { id: 'polearm', tier: 6, max: 5, en: 'Polearm Specialization', ru: 'Специализация на древковом оружии', wdb: 12833 },
+    { id: 'imphamstring', tier: 6, max: 3, en: 'Improved Hamstring', ru: 'Улучшенное подрезание сухожилий', wdb: 23695 },
+    { id: 'mortal', tier: 7, max: 1, en: 'Mortal Strike', ru: 'Смертельный удар', wdb: 12294, req: 'sweeping', active: true }
+  ]);
+  const ARMS_NODE = {}; ARMS_TREE.forEach(function (n) { ARMS_NODE[n.id] = n; });
+  /* Порядок покупки: линия спутника (= билд A) и билд B. Билд на уровне L — первые points(L) шагов. */
+  const ARMS_LINE = Object.freeze(['imprend', 'imprend', 'imprend', 'deflection', 'deflection', 'impthunder', 'impthunder', 'impthunder', 'deflection', 'deflection',
+    'deepwounds', 'deepwounds', 'deepwounds', 'deflection', 'ihs', 'impale', 'impale', 'twohand', 'twohand', 'twohand', 'sweeping']);
+  const ARMS_BUILD_B = Object.freeze(['ihs', 'ihs', 'ihs', 'imprend', 'imprend', 'imprend', 'impthunder', 'impthunder', 'impthunder', 'deflection',
+    'deepwounds', 'deepwounds', 'deepwounds', 'deflection', 'deflection', 'impale', 'impale', 'twohand', 'twohand', 'twohand', 'sweeping']);
+  function armsPoints(level) { const l = Math.floor(Number(level) || 0); return l < ARMS_PROTO.specLevel ? 0 : l - ARMS_PROTO.pointsOffset; }
+  function armsFromOrder(order, level) { const a = {}; order.slice(0, armsPoints(level)).forEach(function (id) { a[id] = (a[id] || 0) + 1; }); return a; }
+  function armsLine(level) { return armsFromOrder(ARMS_LINE, level); }
+  function armsValidate(alloc, level, opt) {
+    opt = opt || {};
+    const errors = [], a = alloc && typeof alloc === 'object' ? alloc : {}, perTier = [0, 0, 0, 0, 0, 0, 0, 0];
+    let total = 0;
+    Object.keys(a).forEach(function (id) {
+      const r = a[id], n = ARMS_NODE[id];
+      if (!n) { errors.push('Неизвестный узел: ' + id); return; }
+      if (!Number.isInteger(r) || r < 0 || r > n.max) { errors.push(n.ru + ': недопустимый ранг ' + r); return; }
+      if (r > 0 && !opt.ignoreAvailability && ARMS_PROTO.unavailable.indexOf(id) !== -1) errors.push(n.ru + ': недоступно в прототипе');
+      total += r; perTier[n.tier] += r;
+    });
+    const budget = armsPoints(level);
+    if (total > budget) errors.push('Вложено ' + total + ' при бюджете ' + budget);
+    for (let t = 2; t <= 7; t++) {
+      if (!perTier[t]) continue;
+      let below = 0; for (let k = 1; k < t; k++) below += perTier[k];
+      if (below < 5 * (t - 1)) errors.push('Ряд ' + t + ' требует ' + 5 * (t - 1) + ' очков в нижних рядах, есть ' + below);
+    }
+    ARMS_TREE.forEach(function (n) { if (n.req && (a[n.id] || 0) > 0 && (a[n.req] || 0) < ARMS_NODE[n.req].max) errors.push(n.ru + ' требует полного узла «' + ARMS_NODE[n.req].ru + '»'); });
+    return { ok: errors.length === 0, errors: errors, spent: total, budget: budget };
+  }
+  function armsChange(alloc, id, delta, level) {
+    const next = Object.assign({}, alloc || {}); next[id] = (next[id] || 0) + delta; if (!next[id]) delete next[id];
+    const v = armsValidate(next, level);
+    return v.ok ? { ok: true, alloc: next, errors: [] } : { ok: false, alloc: Object.assign({}, alloc || {}), errors: v.errors };
+  }
+  function armsKit(level, alloc) {
+    const k = [], a = alloc || {};
+    ARMS_PROTO.trainingKit.forEach(function (x) { if (level >= x[1]) k.push(x[0]); });
+    if (level >= ARMS_PROTO.specLevel) ARMS_PROTO.specKit.forEach(function (x) { if (level >= x[1]) k.push(x[0]); });
+    if ((a.sweeping || 0) > 0) k.push('sweeping');
+    if ((a.mortal || 0) > 0) k.push('mortal');
+    return k;
+  }
+  function protoRank(h, id) { return h && h.tal ? (h.tal[id] || 0) : 0; }
+  function protoRageNeed(h, skill) {
+    const base = RAGE_COST[skill];
+    if (!h || !h.proto || !Number.isFinite(base)) return base;
+    if (skill === 'heroicstrike' && protoRank(h, 'ihs')) return Math.max(0, base - ARMS_PROTO.ihs[protoRank(h, 'ihs') - 1]);
+    if (skill === 'thunder' && protoRank(h, 'impthunder')) return Math.max(0, base - ARMS_PROTO.impThunder[protoRank(h, 'impthunder') - 1]);
+    return base;
+  }
+  function protoCritMul(src, opt) {
+    const base = src.critMul || 1.5;
+    if (!src.proto || opt.auto || opt.autoDerived || opt.dot || opt.refl) return base;
+    const r = protoRank(src, 'impale');
+    return r ? 1 + (base - 1) * (1 + ARMS_PROTO.impalePerRank * r) : base;
+  }
+  function protoWeaponMul(src, opt) { return src.proto && (opt.auto || opt.weapon) && !opt.dot ? 1 + ARMS_PROTO.twoHandPerRank * protoRank(src, 'twohand') : 1; }
+  function protoAfterHit(st, src, tgt, mult, opt, crit, dealt) {
+    if (opt.dot || opt.refl || opt.sweep || opt.noProc || !(opt.auto || opt.weapon)) return;
+    const dw = protoRank(src, 'deepwounds');
+    if (crit && dw && tgt.hp > 0) {
+      addEffect(tgt, { kind: 'dot', bleed: true, mult: ARMS_PROTO.deepWounds.totalOfAtk[dw - 1] / ARMS_PROTO.deepWounds.ticks, turns: ARMS_PROTO.deepWounds.ticks, src: src.id, name: 'Глубокие раны', icon: '🩸' });
+      emit(st, { t: 'proc', src: src.id, tgt: tgt.id, proc: 'deepwounds', via: opt.auto ? 'auto' : (opt.skill || 'weapon') });
+    }
+    if (src.sweepCharges > 0 && dealt > 0) {
+      const other = alive(st.enemies).find(function (e) { return e !== tgt; });
+      if (!other) { if (ARMS_PROTO.sweeping.consumeWithoutSecondTarget) src.sweepCharges--; return; }
+      src.sweepCharges--;
+      emit(st, { t: 'proc', src: src.id, tgt: other.id, proc: 'sweeping', left: src.sweepCharges });
+      damage(st, src, other, mult, { type: 'phys', weapon: true, autoDerived: !!opt.auto, sweep: true, noProc: true });
+    }
+  }
+  function protoAcc(opts, p) { return opts && opts.experiment && opts.experiment.acc && Number(p.acc) > 0 ? Number(p.acc) : 0; }
+  function protoSetup(st, h, p) {
+    const lvl = h.level;
+    let alloc = p.main ? (p.talents || {}) : armsLine(lvl);
+    const v = armsValidate(alloc, lvl);
+    if (!v.ok) { st.protoErrors = (st.protoErrors || []).concat(v.errors); alloc = {}; }
+    h.proto = 'arms'; h.tal = Object.assign({}, alloc); h.ai = 'warrior_armsproto'; h.pids = []; h.skills = armsKit(lvl, alloc);
+    h.parryBase = ARMS_PROTO.deflectionPerRank * (alloc.deflection || 0); h.sweepCharges = 0; h.sweepTurns = 0;
+    h.specName = lvl < ARMS_PROTO.specLevel ? 'Учебный набор (прототип)' : 'Оружие (прототип)';
+  }
+  function protoSetupAll(st, opts) {
+    const exp = opts.experiment || null;
+    st.exp = exp;
+    opts.party.forEach(function (p, i) {
+      const h = st.heroes[i]; if (!h) return;
+      if (exp) { h.rbv = Number(p.rb) || 0; h.accv = protoAcc(opts, p); }
+      if (p.proto === 'arms' && p.cls === 'warrior') protoSetup(st, h, p);
+    });
+  }
+  function protoPetBonus(st, owner) {
+    if (!st.exp || !owner) return 0;
+    return (st.exp.petRb ? owner.rbv || 0 : 0) + (st.exp.acc ? owner.accv || 0 : 0);
+  }
+  function armsProtoAct(st, h, t, foes, multi, sk) {
+    if (sk('execute') && pct(t) < 0.2) { if (!use(st, h, 'execute')) return; damage(st, h, t, 3 * (1 + Math.max(0, h.lastRageSpent - 15) / 85), { weapon: true, skill: 'execute' }); return; }
+    const S = ARMS_PROTO.sweeping;
+    if (h.skills.indexOf('sweeping') !== -1 && multi && !h.sweepCharges && !h.cd.sweeping && h.rage >= S.rage) {
+      h.rage -= S.rage; h.lastRageSpent = S.rage; h.totalRageSpent = (h.totalRageSpent || 0) + S.rage; h.cd.sweeping = S.cd; h.sweepCharges = S.charges; h.sweepTurns = S.turns;
+      emit(st, { t: 'skill', src: h.id, skill: 'sweeping', name: 'Размашистые удары', icon: '🌀' }); return;
+    }
+    if (sk('mortal')) { if (!use(st, h, 'mortal')) return; damage(st, h, t, 1.8, { weapon: true, skill: 'mortal' }); if (t.hp > 0) addEffect(t, { kind: 'healred', amt: 0.25, stacks: 1, turns: 3, src: h.id, name: 'Смертельный удар', icon: '💀' }); return; }
+    if (sk('cleave') && multi && h.rage >= protoRageNeed(h, 'cleave') + 10) { if (!use(st, h, 'cleave')) return; damage(st, h, t, 0.8, { weapon: true, skill: 'cleave' })

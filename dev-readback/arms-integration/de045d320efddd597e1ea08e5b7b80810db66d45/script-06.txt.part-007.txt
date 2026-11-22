@@ -1,0 +1,87 @@
+авить спутника') +'</strong><button type="button" class="btn" data-close>Закрыть</button></header><div class="az-buttons">'+PT_ROLES.map(r=>'<button type="button" class="btn" data-role="'+r[0]+'" aria-pressed="'+(azRole===r[0])+'">'+r[1]+'</button>').join('')+'</div><div class="az-candidates"></div>'+(old?'<button type="button" class="btn" data-remove>Убрать из отряда</button>':'');
+    const list=azPick.querySelector('.az-candidates');
+    const keys=Object.keys(S.hero.tav?.coll||{}).filter(k=>clsOf(k)&&!S.party.includes(k)&&rosterKeys().includes(k)).filter(k=>azRole==='all'||B.specOf(clsOf(k),specKey(k)).role===azRole).sort((a,b)=>hLevel(b)-hLevel(a));
+    for(const k of keys){const b=document.createElement('button');b.type='button';b.className='btn';b.dataset.candidate=k;const cls=B.CLASSES[clsOf(k)],sp=B.specOf(clsOf(k),specKey(k));b.classList.add('az573-comp');b.innerHTML='<span class="az573-portrait">'+classBadge(clsOf(k),specKey(k))+'</span><b class="az573-level" aria-label="Уровень '+hLevel(k)+'">'+hLevel(k)+'</b><strong>'+esc(heroName(k))+'</strong><small>'+esc(cls.name+' · '+sp.name)+'</small><span class="az573-stars">'+esc(starsTxt(tavRec(k).k))+'</span>';list.append(b);}
+    if(!keys.length)list.textContent=azRole==='all'?'Нет свободных полученных спутников.':'Нет свободных спутников этой роли.';
+  }
+  function azOpen(i,trigger){if(i<1)return;azSlot=i;azRole='all';azReturn=trigger;azCandidates();azPick.showModal();}
+  azPick.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-close'))return azPick.close();if(b.dataset.role){azRole=b.dataset.role;azCandidates();azPick.querySelector('[aria-pressed=true]')?.focus();return;}
+    const k=b.dataset.candidate,old=S.party[azSlot];if(b.hasAttribute('data-remove')&&old&&old!=='me'){S.party.splice(azSlot,1);S.ptSel='me';}else if(k&&azSlot<maxSize()&&azSlot<=S.party.length&&tavRec(k)&&rosterKeys().includes(k)&&!S.party.includes(k)){if(old)S.party.splice(azSlot,1,k);else S.party.push(k);S.ptSel=k;}else return;completeV57Party();save();azPick.close();renderPrep();$('slots').children[Math.min(azSlot,$('slots').children.length-1)]?.focus();});
+  azPick.addEventListener('close',()=>{if(azReturn?.isConnected)azReturn.focus();});
+  const azDetail=document.createElement('dialog');azDetail.className='az-sheet';azDetail.setAttribute('aria-label','Герой коллекции');document.body.append(azDetail);
+  function azInspect(k){const box=document.createElement('div');box.className='pt-card';box.innerHTML=heroCard(k);box.querySelectorAll('[data-hero],[data-gohero],[data-spec]').forEach(n=>n.remove());azDetail.replaceChildren();const b=document.createElement('button');b.className='btn';b.textContent='Закрыть';b.onclick=()=>azDetail.close();azDetail.append(b,box);azDetail.showModal();}
+  $('prep').addEventListener('click', function (ev) {
+    const empty=ev.target.closest('[data-empty-slot]'),slot=ev.target.closest('#slots button[data-sel]'),tile=ev.target.closest('#roster .rt');
+    if(empty){azOpen(Number(empty.dataset.emptySlot),empty);return;}
+    if(slot&&slot.dataset.sel!=='me'){azOpen(S.party.indexOf(slot.dataset.sel),slot);return;}
+    if(tile){azInspect(tile.dataset.sel);return;}
+    const hero = ev.target.closest('[data-hero]');
+    const spB = ev.target.closest('[data-spec]');
+    const sel = ev.target.closest('[data-sel]');
+    const flt = ev.target.closest('[data-flt]');
+    if (ev.target.closest('#pt-an')) { openAnalytics(); return; }
+    if (ev.target.closest('[data-gohero]')) { showWorld('hero'); return; }
+    if (flt) { S.ptF.role = flt.dataset.flt; S.rosPage = 0; renderPrep(); return; }
+    if (sel) { S.ptSel = sel.dataset.sel; $('msg').textContent = ''; renderPrep(); return; }
+    if (!hero && !spB) return;
+    $('msg').textContent = '';
+    if (spB) { if(tavRec(spB.dataset.cls))return; S.specs[spB.dataset.cls] = spB.dataset.spec; }
+    else if (hero) {
+      const k = hero.dataset.hero, i = S.party.indexOf(k);
+      if (i !== -1) {
+        if (k === 'me') { $('msg').textContent = 'Ваш герой всегда в отряде.'; return; }
+        S.party.splice(i, 1);
+      } else if (S.party.length >= maxSize()) {
+        $('msg').textContent = maxSize() === 1 ? 'На это задание идёт один герой.' : 'Отряд полон (' + maxSize() + '). Сначала убери кого-нибудь.';
+        return;
+      } else S.party.push(k);
+    }
+    save();
+    renderPrep();
+  });
+  function setAllLevels(l) { if (!S.hero) return; l = Math.max(1, Math.min(B.XPC.cap, l)); Object.keys(B.CLASSES).concat(Object.keys((S.hero.tav && S.hero.tav.coll) || {})).forEach(function (k) { S.hero.hxp[k] = B.xpAt(l); }); S.hero.hxp.me = B.xpAt(l); syncLevel(); save(); }
+  $('lv-minus').addEventListener('click', function () { setAllLevels(S.level - 1); renderMore(); });
+  $('lv-plus').addEventListener('click', function () { setAllLevels(S.level + 1); renderMore(); });
+  $('chk-auto').addEventListener('change', function () { S.auto = $('chk-auto').checked; save(); });
+  $('chk-test').addEventListener('change', function () { S.testClear = $('chk-test').checked; save(); updateRunOpts(); });
+  $('skipbtn').addEventListener('click', function () {
+    if (battleParty().length > encOf(S.enc).size) { $('jmsg').textContent = 'В Мёртвые копи идёт до 5 героев.'; return; }
+    skipRun();
+  });
+  function questFight() {
+    const e = encOf(S.enc), bp = battleParty();
+    if (!bp.length) { $('jmsg').textContent = 'Отряд пуст. Добавь героев во вкладке «Отряд».'; return; }
+    if (e.type === 'talk') return;
+    if (bp.length > e.size) { $('jmsg').textContent = 'На это задание идёт до ' + e.size + ' героев, а в отряде ' + bp.length + '. Нажми «Сменить состав».'; return; }
+    goDo(S.enc);
+  }
+
+  /* ---------- battle ---------- */
+  let bd = {};
+  let playing = false, cdHide = null, barUid = null;
+  let st = null, timer = null, speed = 1, paused = false, cardPause = null, toks = {}, lines = [], logIdx = 0, shownFoes = 0, saidLow = {};
+  const GROUND = 72;
+  const PORTRAIT_MQ = window.matchMedia ? window.matchMedia('(orientation: portrait)') : { matches: false };
+  const HERO_P = [[50, 78], [22, 78], [78, 78], [36, 68], [64, 68]];
+  const FOE_P = [[50, 50], [24, 50], [76, 50], [37, 38], [63, 38]];
+  const FOE_P_BOSS = [[50, 50], [18, 50], [82, 50], [30, 38], [70, 38]];
+  function portraitGround() {
+    const tk = $('tokens'), lg = $('log'), nw = $('now'), sb = $('skillbar'); if (!tk) return 72;
+    const fr = tk.getBoundingClientRect(); if (!fr.height) return 72;
+    let ref;
+    if (lg && lg.offsetParent !== null && lg.getBoundingClientRect().height) ref = lg.getBoundingClientRect().top - Math.max(48, nw && nw.offsetParent !== null ? nw.offsetHeight : 0) - 42;
+    else if (sb && sb.offsetParent !== null && sb.getBoundingClientRect().height) ref = sb.getBoundingClientRect().top - 18;
+    else return 72;
+    return Math.max(52, Math.min(74, (ref - fr.top) / fr.height * 100));
+  }
+  function heroPos(i) { if (!PORTRAIT_MQ.matches) return [HERO_X[Math.min(4, i)], GROUND]; const g = portraitGround(), p = HERO_P[Math.min(4, i)]; return [p[0], p[1] === 78 ? g : g - 10]; }
+  function foePos(i) { if (!PORTRAIT_MQ.matches) return [foeSlots()[Math.min(4, i)], GROUND]; const g = portraitGround(), fy = Math.max(34, Math.min(50, g - 26)), p = (st.enemies.some(function (e) { return e.boss; }) ? FOE_P_BOSS : FOE_P)[Math.min(4, i)]; return [p[0], p[1] === 50 ? fy : fy - 10]; }
+  const HERO_X = [44, 36.5, 29, 21.5, 14];
+  const FOE_X = [56, 63.5, 71, 78.5, 86];
+  const FOE_X_BOSS = [58, 67.5, 77, 86, 95];
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const EFF_ICON = { hot: '🌿', shield: '🔵', wall: '🛡️', taunt: '📢', enrage: '😡', dot: '☠️' };
+  const SAY = {
+    warrior: { crit: ['Получай!', 'Вот это удар!'], low: ['Ещё стою!'], oom: [] },
+    paladin: { crit: ['Свет со мной!'], low: ['Держись, Свет!'], oom: ['Силы на исходе...'] },
+    druid: { crit: ['Сила леса!'], low: ['Природа, помоги!'], oom: ['Мана 

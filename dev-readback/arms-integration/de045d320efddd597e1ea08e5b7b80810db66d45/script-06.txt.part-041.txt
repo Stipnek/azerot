@@ -1,0 +1,93 @@
+tListener('fullscreenchange', function () { if (!isFs()) unlock(); label(); });
+    document.addEventListener('webkitfullscreenchange', function () { if (!isFs()) unlock(); label(); });
+    label();
+  })();
+
+  const V56_ITEM={id:2954,name:'Штаны Ночного Дозора',englishName:'Night Watch Pantaloons',slot:'legs',armor:39,stamina:9,intellect:8,source:'https://classicdb.ch/?item=2954'};
+  function renderV56Gear(root,selected=null){
+    const h=S.hero;if(!h)return;
+    const stats=equipmentStats('me'),stat=$('v572-armor');if(stat){stat.textContent=(stats.armorFlat||0)?'+'+stats.armorFlat+' к броне':'0 к броне';stat.className=stats.armorFlat?'az573-up':'';}
+    const worn=i=>h.gear?.[i.slot]===i.id&&h.items?.[i.id];
+    const icons={57001:'M9 4 4 8l3 8 4-2v13h10V14l4 2 3-8-5-4-4 4h-6z',2954:'M7 5h18v22h-7l-2-13-2 13H7z'};
+    root.innerHTML='<div class="az573-inv"><section><h3>Экипировка</h3><div class="az573-equip"></div></section><section><h3>Сумка <small class="az573-count"></small></h3><div class="az573-bag"></div></section><div class="az573-inspect" aria-live="polite"></div></div>';
+    const equip=root.querySelector('.az573-equip'),bag=root.querySelector('.az573-bag'),detail=root.querySelector('.az573-inspect');
+    const inventory=gearItems.filter(i=>h.items?.[i.id]&&!worn(i));root.querySelector('.az573-count').textContent=inventory.length+' / 12';
+    function tile(parent,i,label){const cell=document.createElement('div');const button=gearButton('',()=>renderV56Gear(root,i));button.className='az573-cell';button.disabled=!i;button.setAttribute('aria-label',i?label+': '+i.name:label+' — пусто');if(i){button.style.setProperty('--item',i.color);button.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="'+icons[i.id]+'" fill="currentColor" stroke="#c9ab79"/></svg>' ;button.setAttribute('aria-pressed',String(selected===i));}else button.textContent='·';cell.append(button);if(parent===equip){const cap=document.createElement('small');cap.textContent=label;cell.append(cap);}parent.append(cell);}
+    for(const label of ['Голова','Грудь','Ноги','Ступни','Правая рука','Левая рука'])tile(equip,gearItems.find(i=>i.label===label&&worn(i)),label);
+    for(let n=0;n<12;n++)tile(bag,inventory[n],'Ячейка '+(n+1));
+    if(!selected){detail.textContent='Выбери предмет, чтобы сравнить характеристики.';return;}
+    const on=worn(selected),other=gearItems.find(i=>i.slot===selected.slot&&worn(i));const name=document.createElement('strong');name.textContent=selected.name;name.style.color=selected.color;detail.append(name,' · '+selected.label,document.createElement('br'));
+    for(const [key,label] of [['armorFlat','Броня'],['stamina','Выносливость'],['intellect','Интеллект']]){const value=selected[key]||0,delta=on?-value:value-(other?.[key]||0);if(!value&&!delta)continue;const line=document.createElement('span');line.className=delta>0?'az573-up':delta<0?'az573-down':'';line.textContent=label+' '+value+' ('+(delta>0?'+':'')+delta+')';detail.append(line,' ');}
+    detail.append(document.createElement('br'),gearButton(on?'Снять':'Надеть',()=>{if(!h.items?.[selected.id])return;if(on)delete h.gear[selected.slot];else(h.gear||={})[selected.slot]=selected.id;save();renderHero();}));
+  }
+  function gearButton(text,fn){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=text;b.onclick=fn;return b;}
+  let vendorDialog;
+  function vendorOpen(){
+    if(!S.hero)return;
+    if(!vendorDialog){vendorDialog=document.createElement('dialog');vendorDialog.className='az-sheet';vendorDialog.setAttribute('aria-label','Торговец Златоземья');document.body.append(vendorDialog);}
+    vendorRender('');if(!vendorDialog.open)vendorDialog.showModal();
+  }
+  function vendorRender(message){
+    const h=S.hero;vendorDialog.innerHTML='<header><strong>Торговец Златоземья</strong></header><p role="status"></p><div class="az-candidates"></div>';
+    vendorDialog.querySelector('header').append(gearButton('Закрыть',()=>vendorDialog.close()));
+    vendorDialog.querySelector('[role=status]').textContent=(message?message+' · ':'')+'Кошелёк: '+moneyTxt(S.money);
+    const list=vendorDialog.querySelector('.az-candidates');const items=gearItems.filter(i=>i.price>0&&h.items?.[i.id]);if(!items.length)list.textContent='Нет вещей для продажи.';
+    for(const i of items){const on=h.gear?.[i.slot]===i.id;const b=gearButton(i.name+' · '+(on?'Сначала сними предмет':'Продать за '+moneyTxt(i.price)),()=>{if(S.hero!==h||!h.items?.[i.id]||h.gear?.[i.slot]===i.id)return;delete h.items[i.id];S.money+=i.price;save();renderHead();vendorRender('Продано: '+i.name);});b.disabled=on;list.append(b);}
+  }
+  window.AzerotGearV56={render:renderV56Gear};
+
+
+  for(const q of QUESTS)if(!q.v57intro&&encOf(q.k)?.type==='talk')V57_REMOVED.add(q.k);
+  for(let i=QUESTS.length-1;i>=0;i--)if(V57_REMOVED.has(QUESTS[i].k))QUESTS.splice(i,1);
+  for(const q of QUESTS){const old=V57_OLD_QUESTS.get(q.k);if(old)q.minLevel=Math.max(q.minLevel||0,...(old.need||[]).map(k=>v57Min(k)));q.need=[...new Set((q.need||[]).flatMap(k=>v57Expand(k)))];}
+  v571Services();
+  S.chars.forEach(migrateV57);if(S.enc&&!QUESTS.some(q=>q.k===S.enc))S.enc='kobold_camp';
+  // AZ_SOFT_UPDATE_BEGIN
+  (function () {
+    const current = window.__AZEROT_RUNNING_BUILD__;
+    if (!/^[a-f0-9]{64}$/.test(current || '')) return;
+    let available = null, checking = false, saving = false, message = '';
+    const panel = document.createElement('aside');
+    panel.id = 'az-update-notice';
+    panel.hidden = true;
+    panel.setAttribute('aria-label', 'Обновление игры');
+    panel.style.cssText = 'position:fixed;right:10px;top:calc(10px + env(safe-area-inset-top,0px));z-index:90;max-width:min(340px,calc(100vw - 20px));padding:10px;background:var(--panel);color:var(--ink);border:1px solid var(--gold);border-radius:6px;box-shadow:0 3px 12px #0005';
+    const label = document.createElement('p'), button = document.createElement('button');
+    label.setAttribute('role', 'status');
+    label.style.cssText = 'margin:0 0 6px;font-size:13px';
+    button.type = 'button'; button.className = 'btn'; button.textContent = 'Обновить';
+    panel.append(label, button); document.body.append(panel);
+    function safe() {
+      return !!S.hero && !S.walk && !S.amb && !S.pick && !tavBusy && !run && !playing
+        && $('battle').hidden && $('create').hidden && $('select').hidden && !$('world').hidden
+        && !document.querySelector('dialog[open], .qsheet:not([hidden]), #pop:not([hidden])');
+    }
+    function render() {
+      panel.hidden = !available;
+      button.disabled = saving || checking || !safe();
+      const text = message || (safe() ? 'Доступно обновление. Прогресс будет сохранён.' : 'Доступно обновление. Завершите текущее действие.');
+      if (label.textContent !== text) label.textContent = text;
+    }
+    async function check() {
+      if (checking || document.hidden) return false;
+      checking = true; render();
+      const abort = new AbortController(), timeout = setTimeout(() => abort.abort(), 8000);
+      try {
+        const response = await fetch(new URL('version.json', location.href).href, {cache:'no-store', credentials:'same-origin', signal:abort.signal});
+        if (!response.ok) return false;
+        const version = await response.json();
+        if (!/^[a-f0-9]{64}$/.test(version.build || '')) return false;
+        available = version.build === current ? null : version.build;
+        return true;
+      } catch (_) { return false; }
+      finally { clearTimeout(timeout); checking = false; render(); }
+    }
+    async function apply() {
+      if (saving || checking || !available || !safe()) { render(); return false; }
+      message = '';
+      if (!await check()) { message = 'Не удалось проверить версию. Попробуйте позже.'; render(); return false; }
+      if (!available || !safe()) { render(); return false; }
+      saving = true; render();
+      try {
+        if (save() !== true) throw new Error('Save failed');
+        if (!safe()) { saving = fals

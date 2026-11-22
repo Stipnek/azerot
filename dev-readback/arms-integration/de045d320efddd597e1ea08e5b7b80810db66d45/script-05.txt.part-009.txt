@@ -1,0 +1,95 @@
+ию от ударов врагов на 3 хода' },
+  });
+  function racialAct(st, h) {
+    const r = h.racial; if (!r || h.cd[r]) return;
+    const foes = alive(st.enemies); if (!foes.length) return;
+    const fromFoe = function (f) { const o = byId(st, f.src); return o && o.side === 'enemy'; };
+    const go = function () { h.cd[r] = SKILLS[r].cd; emit(st, { t: 'skill', src: h.id, skill: r }); };
+    if (r === 'r_emfh') {
+      // WotLK exception: remove existing movement/control effects, never grant immunity.
+      const isRacialControl = function (f) { return ['stun', 'root', 'slow', 'silence'].indexOf(f.kind) !== -1; };
+      if (h.effects.some(isRacialControl)) { go(); h.effects = h.effects.filter(function (f) { return !isRacialControl(f); }); emit(st, { t: 'buff', tgt: h.id }); }
+    } else if (r === 'r_stoneform') {
+      if (h.effects.some(function (f) { return f.kind === 'dot' && fromFoe(f); }) || pct(h) < 0.55) { go(); h.effects = h.effects.filter(function (f) { return !(f.kind === 'dot' && fromFoe(f)); }); addEffect(h, { kind: 'armorup', amt: 0.10, turns: 3, src: h.id, name: 'Каменная форма', icon: '🗿' }); emit(st, { t: 'buff', tgt: h.id }); }
+    } else if (r === 'r_escape') {
+      if (h.effects.some(function (f) { return (f.kind === 'slow' || f.kind === 'root') && fromFoe(f); })) { go(); h.effects = h.effects.filter(function (f) { return !((f.kind === 'slow' || f.kind === 'root') && fromFoe(f)); }); emit(st, { t: 'buff', tgt: h.id }); }
+    } else if (r === 'r_meld') {
+      if (pct(h) < 0.7) { go(); addEffect(h, { kind: 'dodge', amt: 0.35, turns: 3, src: h.id, name: 'Слияние с тенью', icon: '👤' }); emit(st, { t: 'buff', tgt: h.id }); }
+    }
+  }
+  /* Пассивки, срабатывающие от критического удара героя */
+  function onCrit(st, src, tgt, type) {
+    const has = function (id) { return src.pids.indexOf(id) !== -1; };
+    if (has('deepwounds') && tgt.hp > 0) addEffect(tgt, { kind: 'dot', mult: 0.35, turns: 3, src: src.id, bleed: true, name: 'Глубокие раны', icon: '🩸' });
+    if (has('flurry')) addEffect(src, { kind: 'haste', amt: 0.30, turns: 2, src: src.id, name: 'Шквал', icon: '🌪️' });
+    if (has('natgrace')) addEffect(src, { kind: 'haste', amt: 0.30, turns: 1, src: src.id, name: 'Благодать природы', icon: '🍃' });
+    if (has('vengeance')) { const v = src.effects.find(function (f) { return f.kind === 'veng'; }); if (v) { v.stacks = Math.min(3, v.stacks + 1); v.turns = 3; } else addEffect(src, { kind: 'veng', stacks: 1, turns: 3, src: src.id, name: 'Месть', icon: '😠' }); }
+    if (has('primalfury') && src.maxCp) src.cp = Math.min(src.maxCp, src.cp + 1);
+    if (has('ignite') && type === 'magic' && tgt.hp > 0) addEffect(tgt, { kind: 'dot', mult: 0.2, turns: 3, src: src.id, name: 'Воспламенение', icon: '🔥' });
+  }
+  function targetsOf(st) { let hs = alive(st.heroes); const vis = hs.filter(function (h) { return !h.effects.some(function (f) { return f.kind === 'hidden'; }); }); if (vis.length) hs = vis; return hs.concat(st.petTargets ? alive(st.pets || []) : []); }
+  function createPet(st, owner, key, spec, f, aura) {
+    const d = PETS[key]; if (!d) return null;
+    const pb = protoPetBonus(st, owner);
+    const maxHp = Math.round(spec.hp * d.hp * f * (1 + (aura.hp || 0)) * (1 + pb));
+    const p = { id: 'p' + (st.uid++), side: 'hero', pet: true, owner: owner.id, ownerCls: owner.cls, level: owner.level, cls: 'pet', spec: key, ai: 'pet_' + key, name: d.name, specName: 'питомец', icon: d.icon, role: 'dd',
+      maxHp, hp: maxHp, atk: spec.atk * d.atk * f * ATKMUL * (1 + pb), armor: d.armor, res: d.res, spd: d.spd * (1 + (aura.spd || 0)), crit: d.crit + (aura.crit || 0), threatMult: 1, type: d.type, healPow: 0,
+      skills: d.skills.slice(), cd: {}, effects: [], tm: st.rnd() * 150, isMain: false, maxMana: 0, mana: 0, oom: false, oomHit: false, maxCp: 0, cp: 0, stats: { dmg: 0, heal: 0, taken: 0 }, dead: false, reviveIn: 0 };
+    st.pets.push(p);
+    return p;
+  }
+  function petsTick(st, owner) {
+    (st.pets || []).forEach(function (p) {
+      if (p.owner !== owner.id || p.gone) return;
+      if (p.hp > 0) { p.dead = false; return; }
+      if (!p.dead) { p.dead = true; p.reviveIn = PET_REVIVE.turns; log(st, p.name + ' погиб и вернётся через ' + PET_REVIVE.turns + ' хода', 'info'); return; }
+      p.reviveIn--;
+      if (p.reviveIn <= 0) {
+        p.hp = Math.round(p.maxHp * PET_REVIVE.hp); p.dead = false; p.effects = []; p.cd = {};
+        emit(st, { t: 'revive', id: p.id }); log(st, p.name + ' возвращается в бой', 'good');
+      }
+    });
+  }
+  function petAct(st, p) {
+    const foes = alive(st.enemies); if (!foes.length) return;
+    const owner = byId(st, p.owner), t = focusEnemy(st);
+    const sk = function (s) { return p.skills.indexOf(s) !== -1 && !p.cd[s]; };
+    const usep = function (s) { p.cd[s] = SKILLS[s].cd; emit(st, { t: 'skill', src: p.id, skill: s }); };
+    const weakest = foes.filter(function (e) { return !e.boss && !e.effects.some(function (f) { return f.kind === 'stun' || f.kind === 'silence'; }); }).sort(function (a, b) { return b.atk - a.atk; })[0];
+    const d = PETS[p.spec];
+    emit(st, { t: 'auto', src: p.id, name: d.auto.name, icon: d.auto.icon });
+    damage(st, p, t, PET_AUTO, { type: d.type, auto: true, threatBonus: p.spec === 'voidwalker' ? 2 : 1 });
+    if (!alive(st.enemies).length) return;
+    const tt = focusEnemy(st);
+    switch (p.spec) {
+      case 'imp':
+        if (sk('pfireshield') && owner && owner.hp > 0 && pct(owner) < 0.85 && !owner.effects.some(function (f) { return f.kind === 'reflect'; })) { usep('pfireshield'); addEffect(owner, { kind: 'reflect', amt: 0.3, turns: 3, src: p.id, name: 'Огненный щит', icon: '🔥' }); emit(st, { t: 'buff', tgt: owner.id }); return; }
+        if (sk('pfireball')) { usep('pfireball'); damage(st, p, tt, 1.3, { type: 'magic' }); }
+        return;
+      case 'voidwalker':
+        if (sk('pconsume') && pct(p) < 0.5) { usep('pconsume'); heal(st, p, p, p.maxHp * 0.3, { noCrit: true }); return; }
+        if (sk('ptorment')) { usep('ptorment'); damage(st, p, tt, 1.0, { threatBonus: 3 }); }
+        return;
+      case 'felhunter':
+        if (sk('pspelllock') && weakest) { usep('pspelllock'); addEffect(weakest, { kind: 'silence', turns: 2, src: p.id, name: 'Блокировка заклинаний', icon: '🚫' }); emit(st, { t: 'debuff', tgt: weakest.id }); return; }
+        if (sk('pfelbite')) { usep('pfelbite'); damage(st, p, tt, 1.3); }
+        return;
+      case 'succubus':
+        if (sk('pseduction') && weakest) { usep('pseduction'); addEffect(weakest, { kind: 'stun', turns: 2, src: p.id, name: 'Соблазнение', icon: '💋' }); emit(st, { t: 'debuff', tgt: weakest.id }); return; }
+        if (sk('plash')) { usep('plash'); damage(st, p, tt, 1.4, { type: 'magic' }); }
+        return;
+      case 'wolf':
+        if (sk('phowl') && owner && owner.hp > 0 && !owner.effects.some(function (f) { return f.kind === 'howl'; })) { usep('phowl'); alive(st.heroes).forEach(function (h) { addEffect(h, { kind: 'howl', turns: 3, src: p.id, name: 'Яростный вой', icon: '📢' }); }); return; }
+        if (sk('pbite')) { usep('pbite'); damage(st, p, tt, 1.3); }
+        return;
+    }
+  }
+
+  function createBattle(opts) {
+    if (opts.test) { ENCOUNTERS.test.level = opts.test.level; ENCOUNTERS.test.size = opts.test.mode === 'dps' && opts.test.count >= 3 ? 3 : 1; }
+    const rnd = makeRng(opts.seed || ((Date.now() ^ (Math.random() * 1e9)) >>> 0));
+    const mainCls = opts.main && CLASSES[opts.main] ? opts.main : null;
+    const aura = leaderAura(opts.party);
+    const lvl = opts.level || ENCOUNTERS[opts.encounter].level;
+    const en = ENCOUNTERS[opts.encounter].enrage || null;
+    const st = { morbentsBane: opts.party.some(function(p){return !!p.morbentsBane;}), rnd, aura, mainCls, enrage: en, enrageStacks: 0, level: lvl, lvlDiff: ENCOUNTERS[opts.encounter].level - lvl, encLevel: ENCOUNTERS[opts.encounter].level, actions: 0, over: false, result: null, log: [], events: [], heroes: [], enemies: [], uid: 0, encounter: opts.encounter, pets: [], pe

@@ -1,0 +1,112 @@
+ st.heroes.concat(st.pets || [], st.enemies); }
+  function byId(st, id) { return all(st).find(function (u) { return u.id === id; }); }
+  function hasEff(u, kind, src) { return u.effects.some(function (f) { return f.kind === kind && (!src || f.src === src); }); }
+  function emit(st, ev) { st.events.push(ev); }
+  function log(st, text, cls) { st.log.push({ text, cls: cls || '' }); if (st.log.length > 80) st.log.shift(); }
+
+  function refreshAggro(st, e) {
+    const taunt = e.effects.find(function (f) { return f.kind === 'taunt'; });
+    if (taunt) { const t = byId(st, taunt.target); if (t && t.hp > 0) { e.aggro = t.id; return; } }
+    let best = null, bestV = 0;
+    targetsOf(st).forEach(function (h) { const v = e.threat[h.id] || 0; if (v > bestV) { bestV = v; best = h; } });
+    e.aggro = best ? best.id : null;
+  }
+
+  function addThreat(e, h, amt) {
+    if (!e || e.side !== 'enemy' || !h || h.side !== 'hero') return;
+    e.threat[h.id] = (e.threat[h.id] || 0) + amt;
+  }
+
+  function lowHpBonus(p) { if (p > 0.9) return 0; return Math.min(9, Math.floor((0.9 - p) / 0.1) + 1) * 0.05; }
+  function armorMod(u) { const f = u.effects.find(function (x) { return x.kind === 'armorbreak'; }); return f ? 1 - 0.14 * f.stacks : 1; }
+  function breakArmor(src, tgt) {
+    const f = tgt.effects.find(function (x) { return x.kind === 'armorbreak'; });
+    if (f) { f.stacks = Math.min(5, f.stacks + 1); f.turns = 4; f.name = 'Снятая броня ×' + f.stacks; }
+    else tgt.effects.push({ kind: 'armorbreak', stacks: 1, turns: 4, src: src.id, name: 'Снятая броня ×1', icon: '🔻' });
+  }
+  function dmgMult(st, src) {
+    if (src.side !== 'hero') {
+      let pm = 1;
+      src.effects.forEach(function (f) { if (f.kind === 'power') pm *= f.mult; });
+      return (hasEff(src, 'enrage') ? 1.5 : 1) * pm * (1 + (st.enrage ? st.enrageStacks * st.enrage.step : 0));
+    }
+    const a = st.aura;
+    let m = 1 + (a.allDmg || 0);
+    if (a.lowHp) m += lowHpBonus(src.hp / src.maxHp) * a.lowHp;
+    if (src.type === 'phys') m += a.physDmg || 0;
+    if (src.type === 'magic') m += a.magicDmg || 0;
+    return m;
+  }
+
+  // v30: faster damage-based rage; bear gains extra rage only when taking damage.
+  // v31: provisional turn-based energy; costs are deliberately not active yet.
+  const ENERGY_CFG = Object.freeze({ max: 100, start: 100, regen: 35 });
+  const RAGE_CFG = Object.freeze({ max: 100, start: 0, autoFactor: 15, takenFactor: 5, bearAutoFactor: 7.5, takenPerTurn: 25 });
+  function rageConversion(level) {
+    const l = Math.max(1, Math.min(60, Number.isFinite(level) ? level : 1));
+    return 0.0091107836 * l * l + 3.225598133 * l + 4.2652911;
+  }
+  function gainRage(u, amount, source) {
+    if (!u || u.resource !== 'rage' || !u.maxRage || u.hp <= 0 || !Number.isFinite(amount) || amount <= 0) return 0;
+    const before = Number.isFinite(u.rage) ? Math.max(0, Math.min(u.maxRage, u.rage)) : 0;
+    let grant = amount;
+    if (source === 'taken') grant = Math.min(grant, Math.max(0, RAGE_CFG.takenPerTurn - (u.rageTakenThisTurn || 0)));
+    grant = Math.max(0, Math.min(grant, u.maxRage - before));
+    u.rage = before + grant;
+    if (source === 'taken') u.rageTakenThisTurn = (u.rageTakenThisTurn || 0) + grant;
+    return grant;
+  }
+
+  function damage(st, src, tgt, mult, opt) {
+    opt = opt || {};
+    if (tgt.hp <= 0) return 0;
+    const type = opt.type || src.type || 'phys';
+    let blocked = false;
+    if (tgt.ghost) return 0;
+    if (!st.test && !opt.refl && src.side !== tgt.side) {
+      const ld = src.side === 'hero' ? st.encLevel - src.level : tgt.level - st.encLevel;
+      if (ld > 0 && st.rnd() < lvlMiss(ld)) {
+        emit(st, { t: 'dmg', src: src.id, tgt: tgt.id, amt: 0, absorbed: 0, crit: false, dot: !!opt.dot, auto: !!opt.auto, miss: true });
+        return 0;
+      }
+    }
+    if (tgt.side === 'hero' && src.side === 'enemy' && !opt.dot && !opt.refl && type !== 'magic') {
+      const ms = src.effects.reduce(function (a, f) { return a + (f.kind === 'miss' ? f.amt : 0); }, 0);
+      if (ms > 0 && st.rnd() < ms) { emit(st, { t: 'dmg', src: src.id, tgt: tgt.id, amt: 0, absorbed: 0, crit: false, dot: false, auto: !!opt.auto, miss: true }); log(st, src.name + ' промахивается', 'good'); return 0; }
+      const dg = tgt.effects.reduce(function (a, f) { return a + (f.kind === 'dodge' ? f.amt : 0); }, 0) + (tgt.dodgeBase || 0);
+      if (dg > 0 && st.rnd() < dg) { emit(st, { t: 'dmg', src: src.id, tgt: tgt.id, amt: 0, absorbed: 0, crit: false, dot: false, auto: !!opt.auto, dodge: true }); log(st, tgt.name + ' уклоняется от удара', 'good'); if (tgt.skills && tgt.skills.indexOf('revenge') !== -1) tgt.revengeReady = PROT_CFG.revengeTurns; return 0; }
+      if (tgt.parryBase > 0 && st.rnd() < tgt.parryBase) {
+        if (tgt.skills && tgt.skills.indexOf('revenge') !== -1) tgt.revengeReady = PROT_CFG.revengeTurns;
+        emit(st, {t:'dmg',src:src.id,tgt:tgt.id,amt:0,absorbed:0,crit:false,dot:false,auto:!!opt.auto,parry:true}); log(st,tgt.name+' парирует удар','good'); return 0;
+      }
+      if (tgt.ai === 'warrior_prot' && st.rnd() < PROT_CFG.blockChance) {
+        blocked = true; tgt.revengeReady = PROT_CFG.revengeTurns;
+        emit(st,{t:'block',src:src.id,tgt:tgt.id}); log(st,tgt.name+' блокирует удар щитом','good');
+      }
+    }
+    let amt = src.atk * mult * dmgMult(st, src) * (0.9 + st.rnd() * 0.2);
+    const cbEff = (!opt.dot && !opt.refl && !opt.auto && src.effects) ? src.effects.find(function (f) { return f.kind === 'coldblood'; }) : null;
+    if (cbEff) src.effects = src.effects.filter(function (f) { return f !== cbEff; });
+    if (src.side === 'hero' && !opt.dot && !opt.refl && src.effects && src.effects.some(function (f) { return f.kind === 'hidden'; })) src.effects = src.effects.filter(function (f) { return f.kind !== 'hidden'; });
+    const crit = !!cbEff || !opt.noCrit && st.rnd() < (src.crit || 0) + (src.effects && src.effects.some(function (f) { return f.kind === 'combust'; }) ? 0.4 : 0) + (opt.critBonus || 0) + (src.shatter && tgt.effects.some(function (f) { return f.kind === 'slow' || f.kind === 'stun'; }) ? 0.4 : 0);
+    if (crit) amt *= (src.proto ? protoCritMul(src, opt) : (src.critMul || 1.5));
+    if (src.proto) amt *= protoWeaponMul(src, opt);
+    if (crit && src.pet && src.frenzy) addEffect(src, { kind: 'haste', amt: 0.30, turns: 2, src: src.id, name: 'Неистовство', icon: '🐺' });
+    if (src.effects && src.effects.some(function (f) { return f.kind === 'bwrath'; })) amt *= 1.5;
+    if (src.effects && src.effects.some(function (f) { return f.kind === 'deathwish'; })) amt *= DEATHWISH.dealt;
+    if (src.effects && src.effects.some(function (f) { return f.kind === 'arcpow'; })) amt *= 1.3;
+    if (src.pomNow && !opt.auto && !opt.dot) amt *= 2;
+    if (src.effects && src.effects.some(function (f) { return f.kind === 'pi'; })) amt *= 1.2;
+    if (src.side === 'enemy' && src.effects.some(function (f) { return f.kind === 'weak'; })) amt *= 0.85;
+    if (type === 'magic') { const vl = tgt.effects.find(function (f) { return f.kind === 'vuln'; }); if (vl) amt *= 1 + vl.amt * vl.stacks; }
+    if (tgt.effects.some(function (f) { return f.kind === 'deathwish'; })) amt *= DEATHWISH.taken;
+    if (src.effects && src.effects.some(function (f) { return f.kind === 'howl'; })) amt *= 1.08;
+    if (src.shadowform) amt *= 1.15;
+    if (src.mdMagic && type === 'magic') amt *= 1 + src.mdMagic;
+    if (src.raceAll) amt *= 1 + src.raceAll;
+    if (src.mdAll) amt *= 1 + src.mdAll;
+    const vgn = src.effects && src.effects.find(function (f) { return f.kind === 'veng'; }); if (vgn) amt *= 1 + 0.05 * vgn.stacks;
+    if (tgt.mdTaken) amt *= 1 - tgt.mdTaken;
+    if (src.effects && src.effects.some(function (f) { return f.kind === 'feldom'; })) amt *= 1.25;
+    if (tgt.shadowform) amt *= 0.85;
+    if (!opt.pure) amt *= 1 - (type === 'magic' ? tgt.res : (tgt.armor + (tgt.effects.some(function (f) { return f.kind === 'hot' && f.name === 'Демонический доспех'; }) ? 0.15 : 0) + tgt.effects.reduce(function (a, f)

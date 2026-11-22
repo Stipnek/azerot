@@ -1,0 +1,65 @@
+; });
+    return ok[Math.floor(Math.random() * ok.length)];
+  }
+  const LEG_NAMES = {
+    warrior: ['Магни Бронзобород'], paladin: ['Утер Светоносный'], druid: ['Фандрал Олений Шлем'],
+    priest: ['Тиранда Шелест Ветра'], mage: ['Джайна Праудмур'], hunter: ['Хеминг Эрнестуэй'],
+    rogue: ['Матиас Шоу'], warlock: ["Гул'дан"]
+  };
+  /* Запись героя таверны: cls, sp (спек выпадения), br (редкость выпадения), r (текущая редкость), k (звёзды 1–5), n, race.
+     Линия = класс + спек + редкость выпадения. Дубль линии: +1 ★; 5 ★ заполнены, шестой дубль повышает редкость на ступень, звёзды снова 1 (решение 16 ноября). */
+  function cleanTav(tv) {
+    const o = tv && typeof tv === 'object' ? tv : {};
+    const coll = {}, moved = {};
+    if (o.coll && typeof o.coll === 'object') Object.keys(o.coll).forEach(function (k) {
+      const c = o.coll[k];
+      if (!c || typeof c.n !== 'string' || !c.n.trim()) return;
+      const cls = B.CLASSES[k] ? k : (isGid(k) && B.CLASSES[c.cls] ? c.cls : null);
+      if (!cls) return;
+      const id = B.CLASSES[k] ? 'g_' + k : k;
+      if (B.CLASSES[k]) moved[k] = id;
+      let r = Math.min(4, Math.max(0, Math.round(+c.r || 0))), st = Math.min(5, Math.max(1, Math.round(+c.k || 1)));
+      const nm = c.n.trim().slice(0, 24);
+      coll[id] = { cls: cls, n: nm, sp: B.CLASSES[cls].specs[c.sp] ? c.sp : B.CLASSES[cls].def, br: c.br !== undefined ? Math.min(4, Math.max(0, Math.round(+c.br))) : r, r: r, k: st, race: raceOk(c.race, cls) ? c.race : pickRace(cls, nm), t: +c.t || 0 };
+    });
+    Object.keys(coll).forEach(function(id){const g=coll[id],n=az54HeroName(g.cls,g.sp,g.br);if(n)g.n=n;});
+    return { st: o.st === undefined || o.st === null || !isFinite(+o.st) ? 0 : Math.max(0, Math.round(+o.st)), coll: coll, moved: moved };
+  }
+  /* Старые сохранения: герои таверны лежали по ключу класса. Переносим их ключи в отряде, опыте, спеках и питомцах. */
+  function migrateTav(ch) {
+    const mv = ch.tav.moved || {}; delete ch.tav.moved;
+    Object.keys(mv).forEach(function (k) {
+      const id = mv[k];
+      ch.party = ch.party.map(function (x) { return x === k ? id : x; });
+      if (ch.hxp[id] === undefined) ch.hxp[id] = ch.hxp[k] || 0;
+      if (ch.specs[id] === undefined) ch.specs[id] = ch.tav.coll[id].sp;
+      if (ch.pets && ch.pets[k] !== undefined && ch.pets[id] === undefined) ch.pets[id] = ch.pets[k];
+    });
+    Object.keys(ch.tav.coll).forEach(function (id) { if (ch.hxp[id] === undefined) ch.hxp[id] = 0; if (ch.specs[id] === undefined) ch.specs[id] = ch.tav.coll[id].sp; });
+    return ch;
+  }
+  function cleanNames(o) {
+    const r = {};
+    Object.keys(B.CLASSES).forEach(function (k) { r[k] = o && typeof o[k] === 'string' && o[k].trim() ? o[k].trim().slice(0, 12) : (HERO_NAMES[k] || B.CLASSES[k].name); });
+    return r;
+  }
+  function heroName(k) { if (k === 'me') return S.hero ? S.hero.name : ''; const g = tavRec(k); if (g) return g.n; return S.hero && S.hero.names && S.hero.names[k] ? S.hero.names[k] : ''; }
+
+  function cleanQuestProgress(o){const r={};if(o&&typeof o==='object')Object.keys(o).forEach(function(k){if(k==='__proto__'||k==='constructor'||k==='prototype')return;if(Array.isArray(o[k]))r[k]=o[k].slice(0,20).map(function(n){return Number.isFinite(+n)?Math.max(0,Math.min(100000,Math.floor(+n))):0;});});return r;}
+  const gearItems=[{id:57001,slot:'chest',label:'Грудь',name:'Потёртый жилет',armorFlat:1,price:5,color:'#aaa'},{id:2954,slot:'legs',label:'Ноги',name:'Штаны Ночного Дозора',armorFlat:39,stamina:9,intellect:8,price:0,color:'#1eff00'}];
+  function cleanGear(h){return Object.fromEntries(gearItems.filter(i=>h.items?.[i.id]&&h.gear?.[i.slot]===i.id).map(i=>[i.slot,i.id]));}
+  function equipmentStats(k){const out={};if(k!=='me'||!S.hero)return out;for(const i of gearItems)if(S.hero.items?.[i.id]&&S.hero.gear?.[i.slot]===i.id)for(const key of ['armorFlat','stamina','intellect'])if(i[key])out[key]=(out[key]||0)+i[key];return out;}
+  function hasMorbentsBane(){return !!S.hero&&[1,2].includes(qState('cl_sven15'));}
+  function questProgress(q){return S.hero&&S.hero.qprog&&S.hero.qprog[q.k]||[];}
+  function questGoalsDone(q){const p=questProgress(q);return (q.goals||[]).every(function(g,i){return (p[i]||0)>=g.count;});}
+  function prepareQuestEnemies(q){if(!q||!q.goals||!q.goals.length)return;const p=questProgress(q),a=[];for(let i=0;i<q.goals.length&&a.length<3;i++){const g=q.goals[i];const remaining=Math.min(g.count-(p[i]||0),3-a.length);for(let n=0;n<remaining;n++)a.push(g.enemy);}if(a.length)B.ENCOUNTERS[q.k].enemies=a;}
+  function recordQuestVictory(k,state){const q=QUESTS[qIdx(k)];if(!q||!q.goals||!q.goals.length)return true;if(state.v56Counted)return questGoalsDone(q);state.v56Counted=true;const h=S.hero;h.qprog=h.qprog||{};const p=questProgress(q).slice();q.goals.forEach(function(g,i){const killed=state.enemies.filter(function(e){return e.key===g.enemy&&e.hp<=0;}).length;p[i]=Math.min(g.count,(p[i]||0)+killed);});const gained=p.reduce(function(n,x,i){return n+x-(questProgress(q)[i]||0);},0);h.qprog[k]=p;if(gained>0){giveXp(Object.assign({},B.ENCOUNTERS[k],{xpMult:.12*gained}));syncLevel();}save();return questGoalsDone(q);}
+  function questGoalsHtml(q){if(!q.v56)return q.daily?'<p class="hint">Авторское ежедневное задание автобатлера, не оригинальный повторяемый квест Classic.</p>':'';const a=q.goals||[],p=questProgress(q);return (a.length?'<div class="box"><b>Цели</b>'+a.map(function(g,i){return '<div>'+esc(g.label)+': '+(p[i]||0)+' / '+g.count+'</div>';}).join('')+'</div>':'')+'<details class="hint"><summary>Источник и адаптация</summary><p>'+esc(q.origin==='custom'?'Авторское обучение':q.origin==='service'?'Служебный этап исходного задания':q.englishName||'Classic')+'</p><p>'+esc(q.adaptation||'')+'</p>'+(q.source&&q.source.startsWith('https://')?'<a href="'+esc(q.source)+'" target="_blank" rel="noopener noreferrer">Источник</a>':'')+'</details>';}
+
+  function cleanChar(h) {
+    if (!h || typeof h.name !== 'string' || !RACES[h.race] || RACES[h.race].classes.indexOf(h.cls) === -1) return null;
+    return migrateTav({ lastEntered: Number.isFinite(h.lastEntered) ? Math.max(0, h.lastEntered) : 0, id: typeof h.id === 'string' ? h.id : newId(), name: h.name.slice(0, 12), v57migrated:!!h.v57migrated, v57onboarding:!!h.v57onboarding, v57recruit:typeof h.v57recruit==='string'?h.v57recruit:null, qprog:cleanQuestProgress(h.qprog), items:Object.fromEntries(gearItems.filter(i=>h.items?.[i.id]).map(i=>[i.id,1])), gear:cleanGear(h), race: h.race, cls: h.cls, look: h.look || {}, level: h.level >= 1 && h.level <= B.XPC.cap ? Math.round(h.level) : 1, party: Array.isArray(h.party) && h.party.length ? cleanParty(h.party, h.cls) : startParty(h.cls), specs: (function () { const sp = cleanSpecs(h.specs); if (!sp.me || !B.CLASSES[h.cls].specs[sp.me]) sp.me = sp[h.cls]; return sp; })(), q: h.q && typeof h.q === 'object' ? h.q : {}, rep: (function(){const r={};if(h.rep && typeof h.rep==='object') Object.keys(h.rep).forEach(function(k){if(Number.isFinite(+h.rep[k]) && +h.rep[k]>0) r[k]=Math.floor(+h.rep[k]);});return r;})(), intro: (function(){const r={};ZONE_KEYS.forEach(function(k){if(h.intro && h.intro[k]) r[k]=1;});return r;})(), hxp: cleanHxp(h), names: cleanNames(h.names), tests: Array.isArray(h.tests) ? h.tests.slice(-8) : [], tav: cleanTav(h.tav), pets: h.pets && typeof h.pets === 'object' ? h.pets : (typeof h.pet === 'string' ? { me: h.pet } : {}), dly: h.dly && typeof h.dly === 'object' ? h.dly : {}, res: Math.max(0, Math.round(+h.res || 0)), money: h.money !== undefined && isFinite(+h.money) ? Math.max(0, Math.round(+h.money)) : null, pos: h.pos && isFinite(+h.pos.x) && isFinite(+h.pos.y) ? { x: +h.pos.x, y: +h.pos.y } : null, at: typeof h.at === 'string' ? h.at : null, zone: typeof h.zone === 'string' && ZONE_KEYS.indexOf(h.zone) !== -1 ? h.zone : 'elwynn', old: Math.round((+h.silver || 0) * 100) + Math.round(+h.copper || 0) });
+  }
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (saved) 

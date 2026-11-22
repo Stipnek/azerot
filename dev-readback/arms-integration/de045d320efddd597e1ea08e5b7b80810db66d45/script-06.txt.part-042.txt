@@ -1,0 +1,20 @@
+e; render(); return false; }
+        const target = new URL(location.href);
+        target.searchParams.set('azerot-update', available);
+        location.replace(target.href);
+        return true;
+      } catch (_) {
+        saving = false; message = 'Не удалось сохранить прогресс. Обновление отменено.'; render(); return false;
+      }
+    }
+    button.onclick = apply;
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
+    window.addEventListener('focus', check);
+    setInterval(check, 60000);
+    setInterval(() => { if (available) render(); }, 1000);
+    check();
+  })();
+  // AZ_SOFT_UPDATE_END
+
+  if (S.chars.length) showSelect(); else openCreate();
+})();

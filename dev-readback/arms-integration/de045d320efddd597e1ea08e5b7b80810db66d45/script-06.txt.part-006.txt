@@ -1,0 +1,87 @@
+ 'me', sk = specKey(k), sp = B.specOf(ck, sk), x = kStats(k), on = S.party.indexOf(k) !== -1;
+    const pr = S.hero && S.hero.hxp ? B.levelProgress(S.hero.hxp[k] || 0) : null;
+    const race = me ? S.hero.race : (g && g.race);
+    const rc = g ? RAR[g.r].c : (me ? 'var(--gold)' : 'var(--line)');
+    let h = '<div class="pt-model" style="--rc:' + rc + '" aria-hidden="true">' + classBadge(ck, sk) + '<small>Класс · специализация</small></div><div class="pt-info">';
+    h += '<span class="nm" style="color:' + (g ? RAR[g.r].c : 'inherit') + '">' + esc(heroName(k) || c.name) + (me ? ' <small>(вы)</small>' : '') + '</span>';
+    h += '<span class="ln">' + esc((race ? raceName(race) + ' · ' : '') + c.name + ' · ' + RN[sp.role] + ' · ' + sp.name) + '</span>';
+    if (g) h += '<span class="ln"><span class="ts">' + starsTxt(g.k) + '</span> ' + RAR[g.r].n + ' · +' + Math.round(tavBonus(g) * 100) + '% ко всем характеристикам</span>';
+    h += '<span class="ln">Ур. ' + hLevel(k) + ' · ХП ' + x.hp + ' · ' + (sp.role === 'heal' ? 'Лечение ' + x.heal : 'Атака ' + x.atk) + ' · ' + mainStat(ck, sk) + ' ' + Math.round(x.primary.values[x.primary.key] * x.primaryMultiplier) + (x.mana ? ' · Мана ' + x.mana : '') + (x.maxEnergy ? ' · Энергия ' + x.energy + ' / ' + x.maxEnergy : '') + '</span>';
+    if (pr && pr.need) h += '<span class="xpb" title="Опыт ' + pr.cur + ' / ' + pr.need + '"><i style="width:' + Math.round(pr.cur / pr.need * 100) + '%"></i></span>';
+    h += '<div class="pt-acts">';
+    if (!me) h += '<button class="' + (on ? 'btn' : 'go') + '" data-hero="' + k + '">' + (on ? 'Убрать из отряда' : 'В отряд') + '</button>';
+    h += '<button class="btn" data-info="' + k + '">Умения</button>';
+    if (me) h += '<button class="btn" data-gohero="1">Герой</button>';
+    h += '</div>';
+    const ks = Object.keys(c.specs);
+    const canSpec = me ? ((S.level >= SPEC_LEVEL || S.allSpecs) && ks.length > 1) : (!g && S.allSpecs && ks.length > 1);
+    if (canSpec) h += '<div class="pt-acts" role="group" aria-label="Специализация">' + ks.map(function (s2) { return '<button class="sp" data-cls="' + k + '" data-spec="' + s2 + '" aria-pressed="' + (sk === s2) + '">' + classBadge(ck,s2) + esc(c.specs[s2].name) + '</button>'; }).join('') + '</div>';
+    return h + '</div>';
+  }
+  function renderPrep() {
+    $('lv-val').textContent = S.level;
+    if (!S.hero) { $('roster').innerHTML = ''; return; }
+    compFilter();
+    const cap = maxSize();
+    if (!S.ptSel || (S.ptSel !== 'me' && !clsOf(S.ptSel))) S.ptSel = 'me';
+    $('count').textContent = S.party.length + ' из ' + cap;
+    $('count').classList.toggle('over', S.party.length > cap);
+    /* слоты */
+    const n = Math.max(LIMIT, S.party.length);
+    let sh = '';
+    for (let i = 0; i < n; i++) {
+      const k = S.party[i];
+      if (k) {
+        const cc = B.CLASSES[clsOf(k)], me = k === 'me', g = tavRec(k);
+        sh += '<button class="slot' + (me ? ' mine' : '') + (S.ptSel === k ? ' sel' : '') + (i >= cap ? ' over' : '') + '" data-sel="' + k + '" style="--cc: var(--c-' + clsOf(k) + ')' + (g ? ';border-color:' + RAR[g.r].c : '') + '" aria-label="' + esc((me ? 'Вы: ' : '') + heroName(k) + ', ' + cc.name + ', ' + hLevel(k) + ' уровень') + '"><span class="si" aria-hidden="true">' + classBadge(clsOf(k), specKey(k)) + '</span><span class="sn">' + esc(heroName(k)) + '</span>' + (me ? '<span class="you">вы</span>' : '') + '<span class="sl">' + esc(cc.name) + '\u00a0' + hLevel(k) + '</span></button>';
+      } else if (i < cap) sh += '<button type="button" class="slot empty" data-empty-slot="'+i+'" aria-label="Добавить спутника"><span class="si">+</span><span class="sl">Добавить</span></button>';
+      else sh += '<div class="slot lock" aria-hidden="true"><span class="si">🔒</span><span class="sl">лимит</span></div>';
+    }
+    $('slots').innerHTML = sh;
+    /* аура лидера и резонансы */
+    const au = B.leaderAura(S.party.map(function (k) { return { cls: clsOf(k), spec: specKey(k), main: k === 'me', pet: petFor(k) }; }));
+    const MA = B.AURAS[S.main + ':' + specKey('me')];
+    $('aura').innerHTML = (au.name ? '<b>✦ Аура «' + esc(au.name) + '»</b>: ' + esc(au.text) : 'Аура появится у вашего героя') + (MA ? '<div class="rcs">' + MA.r.map(function (r) { const on = au.res.indexOf(r.n) !== -1; return '<span class="rc' + (on ? ' on' : '') + '" title="' + esc(r.w + ': ' + r.x) + '">' + (on ? '✓ ' : '') + esc(r.n) + ' · ' + esc(r.w) + '</span>'; }).join('') + '</div>' : '');
+    $('pt-card').innerHTML = heroCard(S.ptSel);
+    /* фильтры */
+    const F = S.ptF || (S.ptF = { role: 'all', cls: 'all', sort: 'rar' });
+    $('pt-flt').innerHTML = PT_ROLES.map(function (r) { return '<button data-flt="' + r[0] + '" aria-pressed="' + (F.role === r[0]) + '">' + r[1] + '</button>'; }).join('') +
+      '<select id="pt-cls" aria-label="Класс"><option value="all">Все классы</option>' + Object.keys(B.CLASSES).map(function (k) { return '<option value="' + k + '"' + (F.cls === k ? ' selected' : '') + '>' + esc(B.CLASSES[k].name) + '</option>'; }).join('') + '</select>' +
+      '<select id="pt-sort" aria-label="Сортировка">' + PT_SORT.map(function (o) { return '<option value="' + o[0] + '"' + (F.sort === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>';
+    /* сетка ростера */
+    let ks = rosterKeys().filter(function (k) { if (!clsOf(k)) return false; if (F.cls !== 'all' && clsOf(k) !== F.cls) return false; if (F.role !== 'all' && B.specOf(clsOf(k), specKey(k)).role !== F.role) return false; return true; });
+    const rr = function (k) { const g = tavRec(k); return g ? tavTier(g) : 0; };
+    const sorters = { rar: function (a, b) { return rr(b) - rr(a) || hLevel(b) - hLevel(a); }, lvl: function (a, b) { return hLevel(b) - hLevel(a) || rr(b) - rr(a); }, pow: function (a, b) { return kPower(b) - kPower(a); }, new: function (a, b) { return ((tavRec(b) || {}).t || 0) - ((tavRec(a) || {}).t || 0); } };
+    ks.sort(sorters[F.sort] || sorters.rar);
+    const per = Math.max(1,ks.length), pages = 1;
+    S.rosPage = Math.max(0, Math.min(pages - 1, S.rosPage || 0));
+    const pg = ks.slice(S.rosPage * per, S.rosPage * per + per);
+    const total = rosterKeys().length;
+    const az54Scroll=$('roster').scrollLeft,az54Fk=JSON.stringify(F);
+    $('roster').innerHTML = v571CatalogHTML(F);
+    $('roster').scrollLeft=$('roster').dataset.filter===az54Fk?az54Scroll:0;$('roster').dataset.filter=az54Fk;
+    $('ros-pager').innerHTML = '';
+    /* подсказка по составу */
+    const roles = { tank: 0, heal: 0, dd: 0 };
+    S.party.forEach(function (k) { roles[B.specOf(clsOf(k), specKey(k)).role]++; });
+    let hint = 'Танков ' + roles.tank + ', лекарей ' + roles.heal + ', бойцов ' + roles.dd + '. ';
+    if (!roles.tank) hint += 'Без танка враги бьют тех, кто наносит больше урона.';
+    else if (!roles.heal) hint += 'Без лекаря урон никто не восполнит.';
+    $('comp').textContent = hint;
+    updateRunOpts();
+    if (S.party.length > cap) $('msg').textContent = 'На это задание идёт ' + (cap === 1 ? 'только 1 герой' : 'до ' + cap + ' героев') + '. Сейчас в отряде ' + S.party.length + ': убери лишних.';
+    $('pick').hidden = !S.pick;
+    if (S.pick) $('pick-t').textContent = 'Состав для «' + encOf(S.enc).name + '»: до ' + cap + ' героев.';
+    /* v54: лента не требует расчёта страниц. */
+  }
+
+  $('prep').addEventListener('change', function (ev) {
+    const F = S.ptF || (S.ptF = { role: 'all', cls: 'all', sort: 'rar' });
+    if (ev.target.id === 'pt-cls') { F.cls = ev.target.value; S.rosPage = 0; renderPrep(); }
+    if (ev.target.id === 'pt-sort') { F.sort = ev.target.value; S.rosPage = 0; renderPrep(); }
+  });
+  let azSlot=-1, azRole='all', azReturn=null;
+  const azPick=document.createElement('dialog');azPick.className='az-sheet az573-pick';azPick.setAttribute('aria-label','Подбор спутника');document.body.append(azPick);
+  function azCandidates(){
+    const old=S.party[azSlot];
+    azPick.innerHTML='<header><strong>'+ (old?'Заменить: '+esc(heroName(old)):'Доб

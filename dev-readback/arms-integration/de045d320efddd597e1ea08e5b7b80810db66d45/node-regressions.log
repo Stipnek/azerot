@@ -1,0 +1,22 @@
+=== scripts/test_ability_progression.cjs ===
+Shared ability progression API passed; unchanged legacy profiles: 25
+=== scripts/test_ability_ui.cjs ===
+Shared skill UI passed: own-level boundaries, legacy profiles, caller coverage, real passive helper and escaping; 25 profiles
+=== scripts/test_arms_hero.cjs ===
+evalmachine.<anonymous>:23
+    const kit = P.kit(level, alloc).map(id => '<li>'+esc(B.SKILLS[id].name)+'</li>').join('');
+                                                                      ^
+
+TypeError: Cannot read properties of undefined (reading 'name')
+    at evalmachine.<anonymous>:23:71
+    at Array.map (<anonymous>)
+    at armsHeroPanel (evalmachine.<anonymous>:23:37)
+    at evalmachine.<anonymous>:1:1
+    at Script.runInContext (node:vm:149:12)
+    at Object.runInContext (node:vm:301:6)
+    at call (/home/runner/work/azerot/azerot/scripts/test_arms_hero.cjs:26:25)
+    at Object.<anonymous> (/home/runner/work/azerot/azerot/scripts/test_arms_hero.cjs:43:14)
+    at Module._compile (node:internal/modules/cjs/loader:1781:14)
+    at Object..js (node:internal/modules/cjs/loader:1913:10)
+
+Node.js v22.23.5
