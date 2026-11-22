@@ -8,6 +8,7 @@ for(const name of fs.readdirSync('src/scripts').filter(n=>n.startsWith('script-1
  for(const e of p.edits){assert.ok(e.old);assert.equal(source.split(e.old).length-1,1,name+': '+e.name);source=source.replace(e.old,e.new);}
 }
 new vm.Script(source);
+assert.ok(source.includes('.az-slot-tabs button[aria-pressed=true]{outline:2px solid #e8bd68;outline-offset:-2px;background:#493b24;border-color:#e8bd68}'));
 const start=source.indexOf('function azDecorate('),end=source.indexOf('window.AzerotEquipmentWindow=',start);assert.ok(start>=0&&end>start);
 function node(){return {dataset:{},style:{},children:[],attrs:{},classList:{add(){},remove(){}},append(...x){this.children.push(...x);},setAttribute(k,v){this.attrs[k]=String(v);},getAttribute(k){return this.attrs[k]??null;},querySelectorAll(s){assert.equal(s,'button');return this.children;}};}
 function fixture(){
@@ -23,14 +24,18 @@ function fixture(){
  return {d,root,footer,clicks,cell,bag:()=>bag,setBag:x=>{bag=x;},nav:()=>root.beforeNodes[0],reopen:()=>c.azDecorate(d,root)};
 }
 const f=fixture(),button=key=>f.nav().children.find(b=>b.dataset.slot===key);
-assert.equal(f.nav().children.length,7);assert.equal(button('all').textContent,'Все предметы');assert.equal(button('all').style.gridColumn,'1 / -1');
-assert.equal(button('all').getAttribute('aria-pressed'),'true');assert.deepEqual(f.bag().map(b=>b.parentElement.hidden),[false,false,false,true]);
+const noneSelected=()=>f.nav().children.every(b=>b.getAttribute('aria-pressed')==='false');
+const visibility=()=>f.bag().map(b=>b.parentElement.hidden);
+assert.equal(f.nav().children.length,6);assert.equal(button('all'),undefined);assert.ok(noneSelected());assert.deepEqual(visibility(),[false,false,false,true]);
 assert.equal(f.root.beforeNodes[1].textContent,'Сумка: все предметы');assert.equal(f.clicks.length,1);
 f.d._gearObserver.fn();assert.equal(f.clicks.length,1,'Observer must not repeatedly auto-select in all mode');
-button('head').onclick();assert.deepEqual(f.bag().map(b=>b.parentElement.hidden),[false,true,true,true]);assert.equal(button('head').getAttribute('aria-pressed'),'true');
-button('all').onclick();assert.deepEqual(f.bag().map(b=>b.parentElement.hidden),[false,false,false,true]);
+button('head').onclick();assert.deepEqual(visibility(),[false,true,true,true]);assert.equal(button('head').getAttribute('aria-pressed'),'true');
+button('head').onclick();assert.deepEqual(visibility(),[false,false,false,true]);assert.ok(noneSelected());
+button('chest').onclick();assert.deepEqual(visibility(),[true,false,true,true]);assert.equal(button('chest').getAttribute('aria-pressed'),'true');
+button('head').onclick();assert.deepEqual(visibility(),[false,true,true,true]);assert.equal(button('head').getAttribute('aria-pressed'),'true');assert.equal(button('chest').getAttribute('aria-pressed'),'false');
 button('offhand').onclick();assert.ok(f.bag().every(b=>b.parentElement.hidden));assert.equal(f.footer.textContent,'В этом слоте пока нет предметов.');
-const nav=f.nav();f.reopen();assert.equal(f.nav(),nav);assert.equal(button('all').getAttribute('aria-pressed'),'true');assert.deepEqual(f.bag().map(b=>b.parentElement.hidden),[false,false,false,true]);
-f.setBag([f.cell('feet'),f.cell('',true)]);f.d._gearObserver.fn();assert.deepEqual(f.bag().map(b=>b.parentElement.hidden),[false,true]);
+button('offhand').onclick();assert.deepEqual(visibility(),[false,false,false,true]);assert.ok(noneSelected());
+button('head').onclick();const nav=f.nav();f.reopen();assert.equal(f.nav(),nav);assert.ok(noneSelected());assert.deepEqual(visibility(),[false,false,false,true]);
+f.setBag([f.cell('feet'),f.cell('',true)]);f.d._gearObserver.fn();assert.deepEqual(visibility(),[false,true]);
 f.setBag([f.cell('',true)]);f.d._gearObserver.fn();assert.equal(f.footer.textContent,'В сумке пока нет предметов.');
-console.log('Full-bag decorator tests passed: default all, slot filtering, return, reopen, no duplicate nav, empty bag and rerender observer. Mock DOM only; real browser layout and equip/save acceptance remain required.');
+console.log('Full-bag toggle tests passed: default all, no extra button, repeat-click reset, switching slots, pressed states, highlight CSS, reopen, empty bag and rerender observer. Mock DOM/source only; browser layout and equip/save acceptance remain required.');
