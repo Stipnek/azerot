@@ -1,0 +1,50 @@
+name: Neutral training browser
+on:
+  push:
+    branches: ['work/pocket-entry-screen']
+permissions:
+  contents: read
+concurrency:
+  group: neutral-training-browser-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  neutral-training-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build exact isolated preview
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/neutral-training-browser
+          git rev-parse HEAD | tee test-results/neutral-training-browser/source-commit.txt
+          test "$(git rev-parse HEAD)" = "${{ github.sha }}"
+          python3 scripts/build_arms_hero.py 2>&1 | tee test-results/neutral-training-browser/build.log
+          sha256sum preview/arms-hero.html > test-results/neutral-training-browser/build.sha256
+      - run: python -m pip install playwright==1.56.0
+      - run: python -m playwright install --with-deps chromium
+      - name: New-main training path in desktop and mobile Chromium
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          python3 scripts/test_neutral_training_browser.py 2>&1 | tee test-results/neutral-training-browser/browser.log
+      - name: Upload reports screenshots traces and exact tested build
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: neutral-training-browser-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            test-results/neutral-training-browser/
+            preview/arms-hero.html

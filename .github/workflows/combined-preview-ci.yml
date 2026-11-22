@@ -1,0 +1,35 @@
+name: Combined entry and talents preview
+on:
+  push:
+    branches: ['work/pocket-entry-screen']
+  pull_request:
+    branches: ['main']
+    paths: ['src/**', 'scripts/**', '.github/workflows/combined-preview-ci.yml']
+permissions:
+  contents: read
+jobs:
+  combined-preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python3 scripts/check_source_edits.py
+      - run: python3 scripts/build_combined_preview.py
+      - run: python -m pip install playwright==1.56.0
+      - run: python -m playwright install --with-deps chromium
+      - run: python3 scripts/test_combined_preview.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: combined-preview-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            test-results/combined-preview/
+            preview/combined.html
+            preview/combined-build.json
+          retention-days: 14

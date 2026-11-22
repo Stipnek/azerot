@@ -9,7 +9,10 @@ from coin_assets import restore_coin
 p = argparse.ArgumentParser(description='Build Azerot without publishing')
 p.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[1])
 p.add_argument('--check-original', action='store_true')
+p.add_argument('--entry-screen', action='store_true', help='Include the entry screen in preview/index.html without publishing')
 a = p.parse_args()
+if a.entry_screen and a.check_original:
+    p.error('--entry-screen cannot be combined with --check-original')
 root = a.root.resolve()
 src = root / 'src'
 
@@ -79,6 +82,9 @@ else:
     if position < 0:
         raise SystemExit('Missing body close for build information')
     data = data[:position] + addition + data[position:]
+if a.entry_screen:
+    from build_entry_preview import assemble
+    data = assemble(root, data.decode('utf-8')).encode('utf-8')
 output = root / 'preview' / 'index.html'
 output.parent.mkdir(parents=True, exist_ok=True)
 output.write_bytes(data)

@@ -11,7 +11,7 @@ function fixture(mode='same',loading=false){
  return {c,root,document,requests,box:()=>nodes.get('az-build-info')};
 }
 (async()=>{
- for(const loading of [false,true]){const f=fixture('same',loading);assert.equal(f.document.title,'Азерот · build-aaaaaaa');assert.equal(f.root.children.length,1);vm.runInContext(code,f.c);if(!loading)assert.equal(f.root.children.length,1);assert.ok(f.box().children.some(n=>n.textContent==='Коммит: '+'a'.repeat(40)));}
+ for(const loading of [false,true]){const f=fixture('same',loading);assert.equal(f.document.title,'Pocket Azeroth · build-aaaaaaa');assert.equal(f.root.children.length,1);vm.runInContext(code,f.c);if(!loading)assert.equal(f.root.children.length,1);assert.ok(f.box().children.some(n=>n.textContent==='Коммит: '+'a'.repeat(40)));}
  for(const mode of ['same','different','offline','http','invalid']){const f=fixture(mode),children=f.box().children,button=children.find(n=>n.tag==='button'),status=children.at(-1);const pending=button.onclick();assert.equal(button.disabled,true);await pending;assert.equal(button.disabled,false);assert.equal(f.requests.length,1);assert.equal(f.requests[0].url,'https://example.test/azerot/version.json');assert.equal(f.requests[0].options.cache,'no-store');assert.ok(status.textContent.includes(mode==='same'?'актуальная':mode==='different'?'другая сборка':'Не удалось'));}
  console.log('Build info tests passed: title, embedded identity, ready states, duplicate mount, same/different published commit and offline/HTTP/invalid responses. Mocked DOM/network only; not browser acceptance.');
 })().catch(error=>{console.error(error);process.exitCode=1;});

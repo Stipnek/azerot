@@ -1,0 +1,102 @@
+name: Pocket Azeroth branding
+on:
+  push:
+    branches: ['work/pocket-azeroth']
+  pull_request:
+    branches: ['main']
+    paths: ['src/**', 'scripts/**', 'index.html', '.github/workflows/pocket-azeroth-branding.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  branding:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate branding sources and build
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          class Branding(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.in_title=False; self.title=''; self.brand=False; self.brands=[]
+              def handle_starttag(self, tag, attrs):
+                  attrs=dict(attrs)
+                  if tag=='title': self.in_title=True
+                  if tag=='p' and 'brand' in attrs.get('class','').split(): self.brand=True
+              def handle_data(self, data):
+                  if self.in_title: self.title+=data
+                  if self.brand: self.brands.append(data)
+              def handle_endtag(self, tag):
+                  if tag=='title': self.in_title=False
+                  if tag=='p': self.brand=False
+          for name in ['index.html','src/template.html']:
+              p=Branding(); p.feed(Path(name).read_text(encoding='utf-8'))
+              assert p.title=='Pocket Azeroth', (name,p.title)
+              if name.startswith('src/'):
+                  assert p.brands==['Pocket Azeroth','Pocket Azeroth'], p.brands
+                  assert 'Приключения в Азероте' in Path(name).read_text(encoding='utf-8')
+          loader=Path('index.html').read_text(encoding='utf-8')
+          assert loader.count('?v=573crest')==1
+          assert '__AZEROT_RUNNING_BUILD__' in loader
+          PY
+          python3 scripts/check_source_edits.py
+          python3 scripts/build_game.py
+      - run: python -m pip install playwright==1.56.0
+      - run: python -m playwright install --with-deps chromium
+      - name: Check loaded game name in desktop and mobile Chromium
+        run: |
+          python3 - <<'PY'
+          import functools, http.server, json, os, threading
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright, expect
+          out=Path('test-results/branding'); out.mkdir(parents=True,exist_ok=True)
+          server=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(http.server.SimpleHTTPRequestHandler,directory='preview'))
+          threading.Thread(target=server.serve_forever,daemon=True).start()
+          results=[]
+          try:
+              with sync_playwright() as p:
+                  browser=p.chromium.launch()
+                  try:
+                      for mode,options in [('desktop',{'viewport':{'width':1280,'height':900}}),('mobile',dict(p.devices['iPhone 13']))]:
+                          context=browser.new_context(**options)
+                          page=context.new_page(); errors=[]; passed=False
+                          page.on('pageerror',lambda e:errors.append(str(e)))
+                          page.route('https://**/*',lambda route:route.abort())
+                          try:
+                              page.goto(f'http://127.0.0.1:{server.server_port}/',wait_until='load',timeout=90000)
+                              page.locator('#create:visible, #select:visible').first.wait_for(timeout=30000)
+                              meta=page.locator('#az-build-metadata').text_content()
+                              version=json.loads(meta)['version']
+                              expect(page).to_have_title('Pocket Azeroth · '+version)
+                              expect(page.locator('#create .brand')).to_have_text('Pocket Azeroth')
+                              expect(page.locator('#select .brand')).to_have_text('Pocket Azeroth')
+                              for label in page.locator('.brand:visible').all():
+                                  assert label.evaluate('(e)=>e.scrollWidth<=e.clientWidth+1'), 'Brand text overflows'
+                              assert not errors, errors
+                              passed=True
+                          finally:
+                              results.append({'mode':mode,'passed':passed,'pageErrors':errors})
+                              try:
+                                  page.screenshot(path=str(out/(mode+'.png')),full_page=True)
+                              finally:
+                                  context.close()
+                  finally:
+                      browser.close()
+          finally:
+              (out/'results.json').write_text(json.dumps({'sourceCommit':os.environ.get('GITHUB_SHA'),'results':results,'scope':'Source-build startup branding in Chromium only; no live acceptance or gameplay verification.'},ensure_ascii=False,indent=2),encoding='utf-8')
+              server.shutdown(); server.server_close()
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pocket-azeroth-branding
+          path: test-results/branding/
+          retention-days: 14
