@@ -28,6 +28,11 @@ threading.Thread(target=server.serve_forever,daemon=True).start()
 BASE = f'http://127.0.0.1:{server.server_port}'
 
 
+def stage(page,text):
+    page._neutral_step=text
+    print(json.dumps({'event':'step',**page._neutral_case,'step':text},ensure_ascii=False),flush=True)
+
+
 def saved(page,key=KEY):
     return page.evaluate('(key)=>JSON.parse(localStorage.getItem(key))',key)
 
@@ -66,29 +71,38 @@ def level_fixture(page,level):
 
 
 def live_battle(page,cls,folder):
+    stage(page,'battle: open map')
     page.locator('#bnav [data-tab="map"]').click()
+    stage(page,'battle: open polygon')
     page.locator('[data-poly]').click()
+    stage(page,'battle: start polygon')
     page.locator('#poly-go').click()
+    stage(page,'battle: wait for observed native state')
     page.wait_for_function('!!window.__neutralLiveBattle')
+    stage(page,'battle: verify actor and skills')
     actor=page.evaluate("""()=>{const s=window.__neutralLiveBattle,h=s.heroes.find(h=>h.isMain);
      return {id:h.id,skills:h.skills,pids:h.pids,neutral:h.neutralTraining,role:h.role};}""")
     assert actor['neutral'] and actor['role']=='training' and actor['pids']==[],actor
     assert len(actor['skills'])==3,actor
     first=actor['skills'][0]
+    stage(page,'battle: open skill tooltip '+first)
     page.locator(f'#skillbar [data-sk="{first}"]').click()
     expect(page.locator('#card')).to_be_visible()
     expect(page.locator('#card h3')).to_have_text(page.evaluate('(id)=>Battle.SKILLS[id].name',first))
     expect(page.locator('#card')).not_to_contain_text('undefined')
     if cls=='warrior':
         expect(page.locator('#card')).to_contain_text('не резервирует')
+    stage(page,'battle: verify passive icons')
     titles=page.locator('#skillbar .pass[data-sk^="passive:"]').evaluate_all('(els)=>els.map(e=>e.title)')
     racial=page.evaluate('()=>window.__neutralLiveBattle.heroes.find(h=>h.isMain).racePassive?.name')
     assert all(title==racial for title in titles),titles
+    stage(page,'battle: close skill tooltip and open actor card')
     page.locator('#cardx').click()
     page.locator('#t-'+actor['id']).click()
     expect(page.locator('#card')).to_contain_text('Без специализации')
     for name in page.evaluate('(ids)=>ids.map(id=>Battle.SKILLS[id].name)',actor['skills']):
         expect(page.locator('#card')).to_contain_text(name)
+    stage(page,'battle: verify actions and capture screenshot')
     page.wait_for_function('window.__neutralLiveBattle.actions>0')
     page.screenshot(path=str(folder/'live-training-card.png'),full_page=True)
 
@@ -100,6 +114,7 @@ def run_case(browser,label,options,cls):
     context.add_init_script(OBSERVER)
     context.tracing.start(screenshots=True,snapshots=True,sources=False)
     page=context.new_page()
+    page._neutral_case={'viewport':label,'class':cls,'ownLevel':None}
     page.set_default_timeout(20000)
     errors,checks=[],[]
     page.on('pageerror',lambda error:errors.append(str(error)))
@@ -107,10 +122,12 @@ def run_case(browser,label,options,cls):
     page.route('**/favicon.ico',lambda route:route.fulfill(status=204,body=''))
     status='failed'
     try:
+        stage(page,'load preview and initialize test saves')
         page.goto(BASE+'/arms-hero.html',wait_until='domcontentloaded')
         page.wait_for_function('!!window.Battle?.neutralTraining')
         page.evaluate('({key,normalKey,normal})=>{localStorage.setItem(normalKey,normal);localStorage.setItem(key,JSON.stringify({chars:[],sound:false,compAll:false,allSpecs:false}));}',{'key':KEY,'normalKey':NORMAL_KEY,'normal':NORMAL})
         page.reload(wait_until='domcontentloaded')
+        stage(page,'create character through UI')
         create(page,cls)
         initial=saved(page)['chars'][0]
         assert initial['cls']==cls and initial['autoSpec15']['version']==1
@@ -118,16 +135,22 @@ def run_case(browser,label,options,cls):
         assert 0<=roll<1 and initial['autoSpec15']['chosen'] is None
         hero_id=initial['id']
         for level in [1,2,5,9,14,15,15]:
+            page._neutral_case['ownLevel']=level
+            stage(page,'set test XP and reload')
             level_fixture(page,level)
+            stage(page,'enter world and open hero screen')
             enter(page,hero_id)
+            stage(page,'verify saved identity XP money items and gear')
             hero=saved(page)['chars'][0]
             assert hero['id']==hero_id and hero['autoSpec15']['roll']==roll
             assert hero['hxp']['me']==page.evaluate('(level)=>Battle.xpAt(level)',level)
             for field in ['money','items','gear']:
                 assert hero.get(field,{ } if field!='money' else 0)==initial.get(field,{ } if field!='money' else 0),(field,hero,initial)
+            stage(page,'open skills dialog')
             page.locator('#w-hero').get_by_role('button',name='Умения и особенности',exact=True).click()
             dialog=page.locator('#w-hero dialog[aria-label="Умения и особенности"]')
             expect(dialog).to_be_visible()
+            stage(page,'verify training slots or level-15 specialization')
             training=dialog.locator('[data-neutral-training]')
             if level<15:
                 assert hero['autoSpec15']['chosen'] is None
@@ -150,25 +173,30 @@ def run_case(browser,label,options,cls):
                 assert hero['autoSpec15']['chosen']==expected and hero['specs']['me']==expected,hero
             if level in [1,14,15]:
                 page.screenshot(path=str(folder/f'level-{level}.png'),full_page=True)
+            stage(page,'close skills dialog')
             dialog.get_by_role('button',name='Закрыть',exact=True).click()
             if level==9:
                 live_battle(page,cls,folder)
+            stage(page,'verify ordinary save isolation')
             assert page.evaluate('(key)=>localStorage.getItem(key)',NORMAL_KEY)==NORMAL
             checks.append({'ownLevel':level,'chosen':hero['autoSpec15']['chosen']})
         assert not errors,errors
         status='passed'
     except Exception:
-        (folder/'failure.txt').write_text(traceback.format_exc(),encoding='utf-8')
+        detail=traceback.format_exc()
+        print(json.dumps({'event':'case_failed',**page._neutral_case,'step':getattr(page,'_neutral_step','unknown'),'pageErrors':errors},ensure_ascii=False),flush=True)
+        print(detail,flush=True)
+        (folder/'failure.txt').write_text(detail,encoding='utf-8')
         raise
     finally:
-        (folder/'result.json').write_text(json.dumps({'status':status,'sourceCommit':os.environ.get('SOURCE_COMMIT'),'viewport':label,'class':cls,'checks':checks,'pageErrors':errors,'scope':'Chromium desktop/mobile emulation. Actual creation, entry, skill dialogs, native polygon fight and tooltips. XP injected into test saves, onboarding skipped, remote assets blocked. No earned-XP grind, physical mobile/Safari, old-save migration or ordinary-mode browser acceptance.'},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        (folder/'result.json').write_text(json.dumps({'status':status,'sourceCommit':os.environ.get('SOURCE_COMMIT'),'viewport':label,'class':cls,'checks':checks,'failedStep':getattr(page,'_neutral_step',None) if status!='passed' else None,'pageErrors':errors,'scope':'Chromium desktop/mobile emulation. Actual creation, entry, skill dialogs, native polygon fight and tooltips. XP injected into test saves, onboarding skipped, remote assets blocked. No earned-XP grind, physical mobile/Safari, old-save migration or ordinary-mode browser acceptance.'},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
         try:
             if status!='passed':
                 page.screenshot(path=str(folder/'failure.png'),full_page=True)
         finally:
             context.tracing.stop(path=str(folder/'trace.zip'))
             context.close()
-    print(json.dumps({'viewport':label,'class':cls,'status':status,'checks':checks},ensure_ascii=False))
+    print(json.dumps({'viewport':label,'class':cls,'status':status,'checks':checks},ensure_ascii=False),flush=True)
 
 
 failures=[]
@@ -181,7 +209,9 @@ try:
                     try:
                         run_case(browser,label,options,cls)
                     except Exception:
-                        failures.append({'viewport':label,'class':cls,'error':traceback.format_exc()})
+                        failure={'viewport':label,'class':cls,'error':traceback.format_exc()}
+                        failures.append(failure)
+                        print(json.dumps({'event':'case_exception',**failure},ensure_ascii=False),flush=True)
         finally:
             browser.close()
 finally:
