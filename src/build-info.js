@@ -2,7 +2,7 @@
 function mount(){
  const root=document.getElementById('w-more'),meta=document.getElementById('az-build-metadata');
  if(!meta)return;
- const info=JSON.parse(meta.textContent);document.title='Азерот · '+info.version;
+ const info=JSON.parse(meta.textContent);document.title='Pocket Azeroth · '+info.version;
  if(!root||document.getElementById('az-build-info'))return;
  const box=document.createElement('section');box.id='az-build-info';box.className='box';
  const heading=document.createElement('h3');heading.textContent='Версия игры';box.append(heading);
