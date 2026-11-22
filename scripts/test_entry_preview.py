@@ -23,6 +23,24 @@ def run(browser, label, options):
     context = browser.new_context(**options)
     context.tracing.start(screenshots=True, snapshots=True, sources=True)
     page = context.new_page()
+    page.add_init_script("""() => {
+        const result=window.__paTransitionProbe={overlap:false,blank:false};
+        function sample(){
+            const root=document.getElementById('pa-entry');
+            if(root){
+                if(root.dataset.state==='transition'){
+                    const loading=document.getElementById('pa-loading'),actions=document.getElementById('pa-actions');
+                    const a=loading.hidden?0:Number(getComputedStyle(loading).opacity);
+                    const b=actions.hidden?0:Number(getComputedStyle(actions).opacity);
+                    if(a>.02&&b>.02)result.overlap=true;
+                    if(a<.02&&b<.02)result.blank=true;
+                }
+                if(['ready','error'].includes(root.dataset.state))return;
+            }
+            requestAnimationFrame(sample);
+        }
+        requestAnimationFrame(sample);
+    }""")
     errors = []
     passed = False
     page.on('pageerror', lambda error: errors.append(str(error)))
@@ -34,6 +52,10 @@ def run(browser, label, options):
         expect(root).to_have_attribute('data-state', 'ready')
         expect(page.locator('#pa-actions')).to_have_css('opacity', '1')
         expect(page.locator('#pa-enter')).not_to_be_focused()
+        transition = page.evaluate('window.__paTransitionProbe')
+        assert not transition['blank'], transition
+        if options.get('reduced_motion') != 'reduce':
+            assert transition['overlap'], transition
         elapsed = root.evaluate('(e) => Number(e.dataset.readyAt)-Number(e.dataset.startedAt)')
         assert elapsed >= 999, elapsed
         assert page.locator('main').evaluate('(e) => e.inert')
@@ -62,6 +84,11 @@ def run(browser, label, options):
         page.screenshot(path=str(out / 'landscape.png'), full_page=True)
         page.set_viewport_size({'width':750,'height':342})
         page.wait_for_function('document.getElementById("pa-art").naturalWidth===1672')
+        expect(page.locator('#pa-feedback')).to_have_css('display', 'none')
+        for name in ['#pa-enter', '#pa-settings-open']:
+            box = page.locator(name).bounding_box()
+            assert abs(box['height']-48) <= 1 and box['y'] >= 280, box
+            assert box['y']+box['height'] <= 335, box
         page.screenshot(path=str(out / 'landscape-short.png'), full_page=True)
         page.set_viewport_size(options['viewport'])
         ordinary = page.evaluate("localStorage.getItem('azeroth-ab-setup-v5')")
