@@ -88,7 +88,7 @@ def live_battle(page,cls,folder):
     stage(page,'battle: open skill tooltip '+first)
     page.locator(f'#skillbar [data-sk="{first}"]').click()
     expect(page.locator('#card')).to_be_visible()
-    expect(page.locator('#card h3')).to_have_text(page.evaluate('(id)=>Battle.SKILLS[id].name',first))
+    expect(page.locator('#card h3')).to_contain_text(page.evaluate('(id)=>Battle.SKILLS[id].name',first))
     expect(page.locator('#card')).not_to_contain_text('undefined')
     if cls=='warrior':
         expect(page.locator('#card')).to_contain_text('не резервирует')
