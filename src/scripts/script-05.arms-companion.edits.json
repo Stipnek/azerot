@@ -1,0 +1,10 @@
+{
+  "sourceSha256": "1cb486c38b2cbb8481158a36ac830013209a0f1f7718b6d1e8ac18b156164637",
+  "edits": [
+    {
+      "name": "Exclude main-only talent actives from the integrated companion allocation",
+      "old": "    let alloc = p.main ? (p.talents || {}) : armsLine(lvl);\n    const v = armsValidate(alloc, lvl);",
+      "new": "    let alloc = p.main ? (p.talents || {}) : armsLine(lvl);\n    if (!p.main && p.protoNoExtraActive === true) {\n      alloc = Object.assign({}, alloc);\n      ARMS_TREE.forEach(function (node) { if (node.active) delete alloc[node.id]; });\n    }\n    const v = armsValidate(alloc, lvl);"
+    }
+  ]
+}

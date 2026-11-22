@@ -1,0 +1,10 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "edits": [
+    {
+      "name": "Use companion-only talent policy in the shared integrated battle and preview adapter",
+      "old": "    return k === 'me' ? { proto: 'arms', talents: armsHeroData(S.hero, hLevel(k)) } : { proto: 'arms' };",
+      "new": "    return k === 'me' ? { proto: 'arms', talents: armsHeroData(S.hero, hLevel(k)) } : { proto: 'arms', protoNoExtraActive: true };"
+    }
+  ]
+}
