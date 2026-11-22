@@ -1,0 +1,30 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "edits": [
+    {
+      "name": "Require the inspected character's own level in the shared skill renderer",
+      "old": "  function skillsHtml(k, sp, c, isMain) {",
+      "new": "  function skillsHtml(k, sp, c, isMain, ownLevel) {"
+    },
+    {
+      "name": "Read skill slots from the same registry used by ordinary battles",
+      "old": "    const items = autoLi + sp.skills.map(function (s) {\n      const d = B.SKILLS[s];",
+      "new": "    const items = autoLi + B.abilityProgression.slots(k, auKey, ownLevel).map(function (slot) {\n      const s = slot.id, d = B.SKILLS[s];\n      const unlock = slot.unlockLevel === null ? '' : (slot.available ? ' · с ' + slot.unlockLevel + ' ур.' : ' · Откроется на ' + slot.unlockLevel + ' уровне');"
+    },
+    {
+      "name": "Show explicit locked states and unlock labels without inventing legacy levels",
+      "old": "      return '<li><span class=\"sic\" aria-hidden=\"true\">' + wowIcon(d) + '</span><span><b>' + esc(d.name) + '</b> <span class=\"scd\">' + cd + mana + rage + energy + '</span><br>' + esc(d.text) + '</span></li>';",
+      "new": "      return '<li class=\"az-ability-row' + (slot.available ? '' : ' az-ability-locked') + '\" data-skill=\"' + s + '\" data-available=\"' + slot.available + '\" data-own-level=\"' + ownLevel + '\"' + (slot.available ? '' : ' style=\"opacity:.55;filter:grayscale(1)\"') + '><span class=\"sic\" aria-hidden=\"true\">' + wowIcon(d) + '</span><span><b>' + esc(slot.name) + '</b> <span class=\"scd\">' + cd + mana + rage + energy + esc(unlock) + '</span><br>' + esc(slot.description) + '</span></li>';"
+    },
+    {
+      "name": "Pass the main character's own level on the hero screen",
+      "old": "skillsHtml(S.main, sp, cl, true)",
+      "new": "skillsHtml(S.main, sp, cl, true, lv)"
+    },
+    {
+      "name": "Pass the inspected unit's own level in companion and main details",
+      "old": "skillsHtml(ck, sp, c, k === 'me')",
+      "new": "skillsHtml(ck, sp, c, k === 'me', hLevel(k))"
+    }
+  ]
+}
