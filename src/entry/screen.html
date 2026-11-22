@@ -1,0 +1,11 @@
+<section id="pa-entry" role="dialog" aria-modal="true" aria-label="Pocket Azeroth" data-state="loading">
+  <picture id="pa-picture"><source media="(orientation: portrait)" srcset="__PA_PORTRAIT__"><img id="pa-art" src="__PA_LANDSCAPE__" alt="" decoding="async"></picture>
+  <h1 class="pa-logo">Pocket Azeroth</h1>
+  <div class="pa-bottom">
+    <div id="pa-loading"><p role="status">Открываем портал…</p><div class="pa-progress" role="progressbar" aria-label="Загрузка игры"><span></span></div></div>
+    <div id="pa-actions" hidden><button id="pa-enter" type="button" disabled>Войти в мир</button><button id="pa-settings-open" type="button" disabled>Настройки</button></div>
+    <div id="pa-failure" hidden><p role="alert">Не удалось подготовить игру. Попробуйте ещё раз.</p><button id="pa-retry" type="button">Повторить</button></div>
+    <p id="pa-feedback" role="status"></p>
+  </div>
+  <dialog id="pa-settings" aria-labelledby="pa-settings-title"><header><h2 id="pa-settings-title">Настройки звука</h2><button id="pa-settings-close" type="button">Закрыть</button></header><div id="pa-settings-host"></div></dialog>
+</section>
