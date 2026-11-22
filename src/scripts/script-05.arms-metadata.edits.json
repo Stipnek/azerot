@@ -1,0 +1,10 @@
+{
+  "sourceSha256": "1cb486c38b2cbb8481158a36ac830013209a0f1f7718b6d1e8ac18b156164637",
+  "edits": [
+    {
+      "name": "Expose separately handled prototype active in the shared skill catalogue",
+      "old": "  const ARMS_TREE = Object.freeze([",
+      "new": "  if (Object.prototype.hasOwnProperty.call(SKILLS, 'sweeping')) throw new Error('Inspect existing Sweeping Strikes metadata before applying prototype metadata');\n  SKILLS.sweeping = {\n    name: 'Размашистые удары', icon: '\\u{1F300}',\n    cd: ARMS_PROTO.sweeping.cd, rage: ARMS_PROTO.sweeping.rage,\n    text: 'При наличии второй цели подходящие оружейные удары дополнительно поражают её: до ' + ARMS_PROTO.sweeping.charges + ' дополнительных ударов в течение ' + ARMS_PROTO.sweeping.turns + ' своих ходов. Параметры тестового прототипа; баланс не согласован.'\n  };\n  const ARMS_TREE = Object.freeze(["
+    }
+  ]
+}
