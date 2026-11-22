@@ -1,25 +1,31 @@
 from pathlib import Path
 import base64
+import hashlib
+import struct
 import subprocess
 import sys
-import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
+ARTWORK = {
+    'portrait': {'file':'image-2.png', 'size':(852,1846), 'blob':'36a9ba0f1cf5402514e9145e3374457daf3d386c'},
+    'landscape': {'file':'image-3.png', 'size':(1672,941), 'blob':'444f76cf0ca1aa369ad848ecd989648ca6efaf44'},
+}
 
 
 def artwork(root, name):
-    tree = ET.fromstring((root / 'src/assets/entry' / (name + '-test.svg')).read_text(encoding='utf-8'))
-    images = tree.findall('{http://www.w3.org/2000/svg}image')
-    if len(images) != 1:
-        raise ValueError('Expected one embedded artwork image')
-    uri = images[0].get('href', '')
-    prefix = 'data:image/avif;base64,'
-    if not uri.startswith(prefix):
-        raise ValueError('Expected self-contained AVIF artwork')
-    raw = base64.b64decode(uri[len(prefix):], validate=True)
-    if len(raw) > 200000 or raw[4:12] != b'ftypavif':
-        raise ValueError('Invalid artwork payload')
-    return uri
+    spec = ARTWORK[name]
+    path = root / 'src/assets/entry' / spec['file']
+    raw = path.read_bytes()
+    if len(raw) < 24 or len(raw) > 8_000_000:
+        raise ValueError('Unexpected artwork size: ' + spec['file'])
+    if raw[:16] != b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR':
+        raise ValueError('Expected original PNG: ' + spec['file'])
+    if struct.unpack('>II', raw[16:24]) != spec['size']:
+        raise ValueError('Artwork dimensions changed: ' + spec['file'])
+    blob = hashlib.sha1(b'blob ' + str(len(raw)).encode('ascii') + b'\0' + raw).hexdigest()
+    if blob != spec['blob']:
+        raise ValueError('Artwork changed; review selection: ' + spec['file'])
+    return 'data:image/png;base64,' + base64.b64encode(raw).decode('ascii')
 
 
 def assemble(root, game):

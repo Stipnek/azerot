@@ -1,3 +1,5 @@
+import base64
+import hashlib
 import functools
 import http.server
 import json
@@ -35,8 +37,15 @@ def run(browser, label, options):
         elapsed = root.evaluate('(e) => Number(e.dataset.readyAt)-Number(e.dataset.startedAt)')
         assert elapsed >= 999, elapsed
         assert page.locator('main').evaluate('(e) => e.inert')
-        expected_width = 260 if options['viewport']['height'] > options['viewport']['width'] else 384
-        page.wait_for_function('(width) => document.getElementById("pa-art").naturalWidth===width', arg=expected_width)
+        portrait = options['viewport']['height'] > options['viewport']['width']
+        expected_size = [852,1846] if portrait else [1672,941]
+        expected_file = 'image-2.png' if portrait else 'image-3.png'
+        page.wait_for_function('(size) => {const e=document.getElementById("pa-art");return e.naturalWidth===size[0]&&e.naturalHeight===size[1];}', arg=expected_size)
+        current = page.locator('#pa-art').evaluate('(e) => e.currentSrc')
+        assert current.startswith('data:image/png;base64,')
+        assert hashlib.sha256(base64.b64decode(current.split(',',1)[1],validate=True)).digest() == hashlib.sha256(Path('src/assets/entry',expected_file).read_bytes()).digest()
+        expect(page.locator('#pa-art')).to_have_css('object-fit', 'cover')
+        assert root.evaluate('(e) => e.scrollWidth<=e.clientWidth&&e.scrollHeight<=e.clientHeight')
         assert page.locator('#pa-art').evaluate('(e) => e.decode().then(()=>true)')
         page.screenshot(path=str(out / 'entry.png'), full_page=True)
         page.keyboard.press('Tab')
@@ -45,12 +54,15 @@ def run(browser, label, options):
         page.screenshot(path=str(out / 'keyboard-focus.png'), full_page=True)
         page.mouse.click(5, 5)
         page.set_viewport_size({'width':900, 'height':430})
-        page.wait_for_function('document.getElementById("pa-art").naturalWidth===384')
+        page.wait_for_function('document.getElementById("pa-art").naturalWidth===1672&&document.getElementById("pa-art").naturalHeight===941')
         for name in ['#pa-enter', '#pa-settings-open']:
             box = page.locator(name).bounding_box()
             assert box['height'] >= 44 and box['x'] >= 0 and box['y'] >= 0, box
             assert box['x']+box['width'] <= 901 and box['y']+box['height'] <= 431, box
         page.screenshot(path=str(out / 'landscape.png'), full_page=True)
+        page.set_viewport_size({'width':750,'height':342})
+        page.wait_for_function('document.getElementById("pa-art").naturalWidth===1672')
+        page.screenshot(path=str(out / 'landscape-short.png'), full_page=True)
         page.set_viewport_size(options['viewport'])
         ordinary = page.evaluate("localStorage.getItem('azeroth-ab-setup-v5')")
         page.locator('#pa-settings-open').click()
