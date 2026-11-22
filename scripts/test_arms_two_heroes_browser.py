@@ -57,6 +57,8 @@ def run(browser, label, options):
         expect(page.locator('#w-hero .hname')).to_have_text(NAMES[index])
         page.locator('#w-hero').get_by_role('button', name='Умения и особенности', exact=True).click()
         expect(node(index, 'ihs')).to_contain_text(f'{rank}/3')
+        expect(panel(index).locator('details[data-arms-help][open]')).to_have_count(0)
+        expect(panel(index).locator('[data-arms-inspector]')).to_be_hidden()
         assert page.evaluate('(key) => JSON.parse(localStorage.getItem(key)).cur', KEY) == IDS[index]
 
     def leave():
@@ -86,14 +88,26 @@ def run(browser, label, options):
             page.touchscreen.tap(x, y)
         else:
             page.mouse.click(x, y)
-        expect(panel(index).locator('[data-arms-status]')).to_contain_text(message)
+        notice = panel(index).locator('[data-arms-status]')
+        expect(notice).to_contain_text(message)
+        expect(notice).to_be_in_viewport(ratio=1)
+        expect(panel(index).locator('[data-arms-inspector]')).to_be_visible()
 
     def open_help(index):
         help_box = panel(index).locator('[data-arms-help="ihs"]')
         help_box.locator('summary').click()
         expect(help_box).to_have_attribute('open', '')
-        expect(help_box.locator('p')).to_be_visible()
-        expect(help_box.locator('p')).to_contain_text('1/2/3')
+        expect(help_box.locator('p')).to_be_hidden()
+        card = panel(index).locator('[data-arms-inspector]')
+        expect(card).to_be_visible()
+        expect(card.locator('[data-arms-heading]')).to_have_text('Улучшенный смертельный удар')
+        effect = card.locator('[data-arms-effect]')
+        expect(effect).to_contain_text('1/2/3')
+        expect(effect).to_be_in_viewport(ratio=1)
+        content_width = panel(index).evaluate('(e) => e.clientWidth - parseFloat(getComputedStyle(e).paddingLeft) - parseFloat(getComputedStyle(e).paddingRight)')
+        assert card.bounding_box()['width'] >= content_width - 2
+        assert effect.bounding_box()['width'] >= 240
+        assert effect.evaluate('(e) => parseFloat(getComputedStyle(e).fontSize)') >= 14
 
     try:
         page.goto(url, wait_until='domcontentloaded')
@@ -113,10 +127,14 @@ def run(browser, label, options):
         for text in ['Ветка талантов появится позже', 'Тестовая интеграция', 'Зависимости проверяются общим валидатором', 'Баланс прототипа не согласован', 'Левый клик']:
             expect(dialog).not_to_contain_text(text)
         expect(panel(0).locator('[data-arms-node="mortal"]')).to_have_count(0)
-        for target in panel(0).locator('button, summary').all():
+        for target in panel(0).locator('button:visible, summary:visible').all():
             box = target.bounding_box()
             assert box and box['width'] >= 43.9 and box['height'] >= 43.9, box
         assert panel(0).evaluate('(e) => e.scrollWidth <= e.clientWidth')
+        open_help(0)
+        panel(0).locator('[data-arms-inspector-close]').click()
+        expect(panel(0).locator('[data-arms-inspector]')).to_be_hidden()
+        expect(panel(0).locator('details[data-arms-help][open]')).to_have_count(0)
         open_help(0)
         verify(0, 0)
         change(0, 'ihs', 1, 3)
@@ -148,11 +166,12 @@ def run(browser, label, options):
             change(0, 'ihs', rank, 3)
         explain_refusal(0, 'ihs', 'ранг')
         explain_refusal(0, 'impthunder', 'Ряд 2')
+        explain_refusal(0, 'sweeping', 'Ряд 5')
         change(0, 'deflection', 1, 5)
         change(0, 'deflection', 2, 5)
         change(0, 'impthunder', 1, 3)
-        explain_refusal(0, 'imprend', 'бюджет')
-        explain_refusal(0, 'ihs', 'Ряд 2', minus=True)
+        explain_refusal(0, 'imprend', 'Все очки распределены')
+        explain_refusal(0, 'ihs', 'Сначала снимите зависимые ранги', minus=True)
         change(0, 'impthunder', 0, 3, minus=True)
         reset = panel(0).locator('[data-arms-reset]')
         reset.scroll_into_view_if_needed()
@@ -164,6 +183,7 @@ def run(browser, label, options):
         verify(0, 2)
         checks.append('Purchases/refunds/reset preserve original native dialog and open effect description; rank changes preserve scroll')
         checks.append('Visible names, touch-readable effects, 44px targets, obsolete/debug-text removal and refusal explanations verified')
+        checks.append('Descriptions start closed; wide readable inspector and on-screen player-facing refusals verified')
         assert not errors, errors
         status = 'passed'
     except Exception:
