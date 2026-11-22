@@ -23,7 +23,7 @@ def run(browser, label, options):
     context = browser.new_context(**options)
     context.tracing.start(screenshots=True, snapshots=True, sources=True)
     page = context.new_page()
-    page.add_init_script("""() => {
+    page.add_init_script("""(() => {
         const result=window.__paTransitionProbe={overlap:false,blank:false};
         function sample(){
             const root=document.getElementById('pa-entry');
@@ -40,7 +40,7 @@ def run(browser, label, options):
             requestAnimationFrame(sample);
         }
         requestAnimationFrame(sample);
-    }""")
+    })();""")
     errors = []
     passed = False
     page.on('pageerror', lambda error: errors.append(str(error)))
@@ -53,6 +53,7 @@ def run(browser, label, options):
         expect(page.locator('#pa-actions')).to_have_css('opacity', '1')
         expect(page.locator('#pa-enter')).not_to_be_focused()
         transition = page.evaluate('window.__paTransitionProbe')
+        assert isinstance(transition, dict), 'Transition probe did not initialize before page scripts'
         assert not transition['blank'], transition
         if options.get('reduced_motion') != 'reduce':
             assert transition['overlap'], transition
