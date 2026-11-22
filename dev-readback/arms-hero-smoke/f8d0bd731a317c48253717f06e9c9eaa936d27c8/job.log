@@ -1,0 +1,597 @@
+arms-hero-smoke	Set up job	﻿2026-11-22T02:40:58.2675361Z Current runner version: '2.338.2'
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2702309Z ##[group]Runner Image Provisioner
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2703321Z Hosted Compute Agent
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2703969Z Version: 20261111.635
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2704626Z Commit: b8a594ea514ff44cadb5342986c68b1eac6e22ed
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2705457Z Build Date: 2026-11-11T01:49:01Z
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2706198Z Worker ID: {c3c4dae9-21f8-4758-a2de-a8ea3b41d3d9}
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2706920Z Region: northcentralus
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2707576Z Cloud: Azure
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2708124Z ##[endgroup]
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2709752Z ##[group]Operating System
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2710465Z Ubuntu
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2710962Z 24.04.5
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2712316Z LTS
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2712904Z ##[endgroup]
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2713546Z ##[group]Runner Image
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2714233Z Image: ubuntu-24.04
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2714806Z Version: 20261116.376.1
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2715924Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261116.376/images/ubuntu/Ubuntu2404-Readme.md
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2717900Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261116.376
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2718973Z ##[endgroup]
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2720177Z ##[group]GITHUB_TOKEN Permissions
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2722564Z Contents: read
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2723213Z Metadata: read
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2723953Z ##[endgroup]
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2726267Z Secret source: Actions
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2727318Z Cache mode: write
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.2728292Z Prepare workflow directory
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.3097420Z Prepare all required actions
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.3150110Z Getting action download info
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.5872021Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.7469474Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+arms-hero-smoke	Set up job	2026-11-22T02:40:58.8525787Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+arms-hero-smoke	Set up job	2026-11-22T02:40:59.1167309Z Complete job name: arms-hero-smoke
+arms-hero-smoke	Run actions/checkout@v4	﻿2026-11-22T02:40:59.2084574Z ##[group]Run actions/checkout@v4
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2085490Z with:
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2085979Z   ref: f8d0bd731a317c48253717f06e9c9eaa936d27c8
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2086589Z   persist-credentials: false
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2087105Z   repository: Stipnek/azerot
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2090718Z   token: ***
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2091135Z   ssh-strict: true
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2091564Z   ssh-user: git
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2092197Z   clean: true
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2092639Z   sparse-checkout-cone-mode: true
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2093158Z   fetch-depth: 1
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2093583Z   fetch-tags: false
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2094026Z   show-progress: true
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2094469Z   lfs: false
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2094872Z   submodules: false
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2095320Z   set-safe-directory: true
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2095824Z   allow-unsafe-pr-checkout: false
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.2096600Z ##[endgroup]
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.4800536Z Syncing repository: Stipnek/azerot
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.4803791Z ##[group]Getting Git version info
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.4804702Z Working directory is '/home/runner/work/azerot/azerot'
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.4805713Z [command]/usr/bin/git version
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.4906640Z git version 2.56.1
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.4930416Z ##[endgroup]
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.4948979Z Temporarily overriding HOME='/home/runner/work/_temp/818a2e82-0f83-4dab-afa6-3169e2de12c9' before making global git config changes
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.4951626Z Adding repository directory to the temporary git global config as a safe directory
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.4955483Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/azerot/azerot
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5026734Z Deleting the contents of '/home/runner/work/azerot/azerot'
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5039770Z ##[group]Initializing the repository
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5051564Z [command]/usr/bin/git init /home/runner/work/azerot/azerot
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5163816Z hint: Using 'master' as the name for the initial branch. This default branch name
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5165999Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5167630Z hint: to use in all of your new repositories, which will suppress this warning,
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5168860Z hint: call:
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5169480Z hint:
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5170265Z hint: 	git config --global init.defaultBranch <name>
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5171288Z hint:
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5172592Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5174255Z hint: 'development'. The just-created branch can be renamed via this command:
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5175466Z hint:
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5176104Z hint: 	git branch -m <name>
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5176843Z hint:
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5177869Z hint: Disable this message with "git config set advice.defaultBranchName false"
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5187185Z Initialized empty Git repository in /home/runner/work/azerot/azerot/.git/
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5202791Z [command]/usr/bin/git remote add origin https://github.com/Stipnek/azerot
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5262585Z ##[endgroup]
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5264445Z ##[group]Disabling automatic garbage collection
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5266111Z [command]/usr/bin/git config --local gc.auto 0
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5305521Z ##[endgroup]
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5306929Z ##[group]Setting up auth
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5313058Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5356866Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5809266Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.5862213Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.6116559Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.6163645Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.6416948Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.6468879Z ##[endgroup]
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.6470219Z ##[group]Fetching the repository
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:40:59.6482082Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin f8d0bd731a317c48253717f06e9c9eaa936d27c8
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.1554670Z From https://github.com/Stipnek/azerot
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.1556519Z  * branch            f8d0bd731a317c48253717f06e9c9eaa936d27c8 -> FETCH_HEAD
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.1560277Z ##[endgroup]
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.1562496Z ##[group]Determining the checkout info
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.1564201Z ##[endgroup]
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.1568246Z [command]/usr/bin/git sparse-checkout disable
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.1640182Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.1683214Z ##[group]Checking out the ref
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.1686918Z [command]/usr/bin/git checkout --progress --force f8d0bd731a317c48253717f06e9c9eaa936d27c8
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6102929Z Note: switching to 'f8d0bd731a317c48253717f06e9c9eaa936d27c8'.
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6103663Z 
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6103989Z You are in 'detached HEAD' state. You can look around, make experimental
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6104713Z changes and commit them, and you can discard any commits you make in this
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6105411Z state without impacting any branches by switching back to a branch.
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6105826Z 
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6106149Z If you want to create a new branch to retain commits you create, you may
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6106791Z do so (now or later) by using -c with the switch command. Example:
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6107523Z 
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6107704Z   git switch -c <new-branch-name>
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6107979Z 
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6108167Z Or undo this operation with:
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6108414Z 
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6108561Z   git switch -
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6108811Z 
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6109129Z Turn off this advice by setting config variable advice.detachedHead to false
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6109560Z 
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6109894Z HEAD is now at f8d0bd7 ci: test integrated Arms hero purchase and reload in Chromium
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6134178Z ##[endgroup]
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6190178Z [command]/usr/bin/git log -1 --format=%H
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6225542Z f8d0bd731a317c48253717f06e9c9eaa936d27c8
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6236642Z ##[group]Removing auth
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6241469Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6284594Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6536283Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6575115Z http.https://github.com/.extraheader
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6592846Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6629167Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6884580Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.6929781Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+arms-hero-smoke	Run actions/checkout@v4	2026-11-22T02:41:02.7182009Z ##[endgroup]
+arms-hero-smoke	Run actions/setup-python@v5	﻿2026-11-22T02:41:02.7543083Z ##[group]Run actions/setup-python@v5
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:02.7543564Z with:
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:02.7543840Z   python-version: 3.12
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:02.7544156Z   check-latest: false
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:02.7546797Z   token: ***
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:02.7547093Z   update-environment: true
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:02.7547422Z   allow-prereleases: false
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:02.7547883Z   freethreaded: false
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:02.7548178Z ##[endgroup]
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:02.9191964Z ##[group]Installed versions
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:03.0383708Z (node:2321) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:03.0384581Z (Use `node --trace-deprecation ...` to show where the warning was created)
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:03.0385671Z Successfully set up CPython (3.12.16)
+arms-hero-smoke	Run actions/setup-python@v5	2026-11-22T02:41:03.0386478Z ##[endgroup]
+arms-hero-smoke	Record source and build isolated integrated preview	﻿2026-11-22T02:41:03.0566815Z ##[group]Run mkdir -p test-results
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0567294Z ^[[36;1mmkdir -p test-results^[[0m
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0567676Z ^[[36;1mgit rev-parse HEAD > test-results/source-commit.txt^[[0m
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0568098Z ^[[36;1mpython3 scripts/build_arms_hero.py^[[0m
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0568549Z ^[[36;1msha256sum preview/arms-hero.html > test-results/arms-hero-build.sha256^[[0m
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0606997Z shell: /usr/bin/bash -e {0}
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0607341Z env:
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0607635Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0608130Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0608620Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0609045Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0609500Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0609911Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.0610325Z ##[endgroup]
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.8830089Z Built 30397700 bytes; SHA256 5ceeafbc1fa3d8827e1621aec2402e25aacbe3cbcdfd9fca786404595701873e
+arms-hero-smoke	Record source and build isolated integrated preview	2026-11-22T02:41:03.9570489Z Built isolated hero integration: arms-hero.html; 30397750 bytes
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	﻿2026-11-22T02:41:03.9954391Z ##[group]Run python -m pip install playwright==1.56.0
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:03.9954839Z ^[[36;1mpython -m pip install playwright==1.56.0^[[0m
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:03.9976431Z shell: /usr/bin/bash -e {0}
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:03.9976689Z env:
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:03.9976953Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:03.9977398Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:03.9977831Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:03.9978224Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:03.9978610Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:03.9979026Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:03.9979357Z ##[endgroup]
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:04.8056680Z Collecting playwright==1.56.0
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:04.8568123Z   Downloading playwright-1.56.0-py3-none-manylinux1_x86_64.whl.metadata (3.5 kB)
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:04.8752177Z Collecting pyee<14,>=13 (from playwright==1.56.0)
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:04.8789243Z   Downloading pyee-13.0.1-py3-none-any.whl.metadata (3.0 kB)
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:05.0488358Z Collecting greenlet<4.0.0,>=3.1.1 (from playwright==1.56.0)
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:05.0526062Z   Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:05.0727926Z Collecting typing-extensions (from pyee<14,>=13->playwright==1.56.0)
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:05.0765395Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:05.0875752Z Downloading playwright-1.56.0-py3-none-manylinux1_x86_64.whl (46.3 MB)
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:05.3383415Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46.3/46.3 MB 199.4 MB/s  0:00:00
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:05.3424321Z Downloading greenlet-3.5.6-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (621 kB)
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:05.3502458Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 621.4/621.4 kB 89.6 MB/s  0:00:00
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:05.3547936Z Downloading pyee-13.0.1-py3-none-any.whl (15 kB)
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:05.3627376Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:05.4663090Z Installing collected packages: typing-extensions, greenlet, pyee, playwright
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:06.3243706Z 
+arms-hero-smoke	Run python -m pip install playwright==1.56.0	2026-11-22T02:41:06.3257319Z Successfully installed greenlet-3.5.6 playwright-1.56.0 pyee-13.0.1 typing-extensions-4.16.0
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	﻿2026-11-22T02:41:06.3884283Z ##[group]Run python -m playwright install --with-deps chromium
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.3884792Z ^[[36;1mpython -m playwright install --with-deps chromium^[[0m
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.3905612Z shell: /usr/bin/bash -e {0}
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.3905857Z env:
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.3906121Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.3906573Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.3907001Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.3907410Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.3907797Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.3908176Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.3908494Z ##[endgroup]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.7055438Z Installing dependencies...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.7164160Z Switching to root user to install dependencies...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.8086129Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.8490659Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.8493856Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.8520886Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.8561225Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.8625640Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:06.9954674Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [762 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.0156311Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [832 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.0513502Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1475 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.0593657Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [319 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.0617528Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1716 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.0719396Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [346 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.0742871Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1922 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.0878070Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [443 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.2113395Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1198 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.2155016Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [239 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.2174861Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1231 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.2249613Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1792 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:07.2781551Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [414 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:11.0414104Z Fetched 13.1 MB in 1s (9801 kB/s)
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:12.4577930Z Reading package lists...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:12.4920025Z Reading package lists...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:12.7867536Z Building dependency tree...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:12.7875046Z Reading state information...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0005812Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0006905Z libasound2t64 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0007856Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0008884Z libatk-bridge2.0-0t64 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0009679Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0010409Z libatk1.0-0t64 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0011142Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0012233Z libatspi2.0-0t64 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0013717Z libcairo2 is already the newest version (1.18.0-3build1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0014575Z libcairo2 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0015435Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0016349Z libcups2t64 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0017090Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0017797Z libdbus-1-3 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0018415Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0018882Z libdrm2 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0019325Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.10).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0019829Z libglib2.0-0t64 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0020272Z libnspr4 is already the newest version (2:4.35-1.1build1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0020706Z libnspr4 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0021106Z libnss3 is already the newest version (2:3.98-1ubuntu0.3).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0021542Z libnss3 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0022306Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0022771Z libpango-1.0-0 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0023368Z libx11-6 is already the newest version (2:1.8.7-1ubuntu0.1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0024064Z libx11-6 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0024666Z libxcb1 is already the newest version (1.15-1ubuntu2).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0025337Z libxcb1 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0025763Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0026237Z libxcomposite1 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0026679Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0027120Z libxdamage1 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0027518Z libxext6 is already the newest version (2:1.3.4-1build2).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0027838Z libxext6 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0028183Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0028534Z libxfixes3 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0028855Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0029196Z libxkbcommon0 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0029522Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0029851Z libxrandr2 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0030164Z xvfb is already the newest version (2:21.1.12-1ubuntu1.9).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0030607Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0031094Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0031466Z libfontconfig1 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0032237Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.2).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0032619Z libfreetype6 set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0032958Z fonts-liberation is already the newest version (1:2.1.5-3).
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0033315Z fonts-liberation set to manually installed.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0033646Z The following additional packages will be installed:
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0034081Z   libgl1-mesa-dri libglx-mesa0 mesa-libgallium xfonts-encodings xfonts-utils
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0034493Z Recommended packages:
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0034734Z   fonts-ipafont-mincho fonts-tlwg-loma
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0272636Z The following NEW packages will be installed:
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0273591Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0285320Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0286117Z   xfonts-utils
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0292942Z The following packages will be upgraded:
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0300806Z   libgbm1 libgl1-mesa-dri libglx-mesa0 mesa-libgallium
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0553297Z 4 upgraded, 9 newly installed, 0 to remove and 64 not upgraded.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0554381Z Need to get 32.1 MB of archives.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0554792Z After this operation, 79.7 MB of additional disk space will be used.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.0555246Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.1925377Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.3155980Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.3997186Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.4219497Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.4749121Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.5810444Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libgl1-mesa-dri amd64 25.2.8-0ubuntu0.24.04.5 [38.0 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.6030953Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libglx-mesa0 amd64 25.2.8-0ubuntu0.24.04.5 [110 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.6257524Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libgbm1 amd64 25.2.8-0ubuntu0.24.04.5 [34.2 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.6477469Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 mesa-libgallium amd64 25.2.8-0ubuntu0.24.04.5 [10.8 MB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.8609079Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.8928043Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.9152620Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:13.9396876Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2409770Z Fetched 32.1 MB in 1s (35.6 MB/s)
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2671105Z Selecting previously unselected package fonts-ipafont-gothic.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2942103Z (Reading database ... 
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2942748Z (Reading database ... 5%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2943236Z (Reading database ... 10%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2943697Z (Reading database ... 15%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2944038Z (Reading database ... 20%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2944369Z (Reading database ... 25%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2944640Z (Reading database ... 30%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2944916Z (Reading database ... 35%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2945180Z (Reading database ... 40%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2945440Z (Reading database ... 45%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2945702Z (Reading database ... 50%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.2998560Z (Reading database ... 55%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.4291509Z (Reading database ... 60%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.6308658Z (Reading database ... 65%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.7339654Z (Reading database ... 70%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:14.9342521Z (Reading database ... 75%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:15.0337430Z (Reading database ... 80%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:15.2769403Z (Reading database ... 85%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:15.4508539Z (Reading database ... 90%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:15.6319467Z (Reading database ... 95%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:15.6319995Z (Reading database ... 100%
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:15.6320595Z (Reading database ... 217092 files and directories currently installed.)
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:15.6365750Z Preparing to unpack .../00-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:15.6475592Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:15.8958400Z Selecting previously unselected package fonts-freefont-ttf.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:15.9101014Z Preparing to unpack .../01-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:15.9109125Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.0038027Z Selecting previously unselected package fonts-tlwg-loma-otf.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.0183568Z Preparing to unpack .../02-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.0192820Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.0445028Z Selecting previously unselected package fonts-unifont.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.0592341Z Preparing to unpack .../03-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.0600522Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.1772867Z Selecting previously unselected package fonts-wqy-zenhei.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.1917787Z Preparing to unpack .../04-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.2032705Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.7101273Z Preparing to unpack .../05-libgl1-mesa-dri_25.2.8-0ubuntu0.24.04.5_amd64.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.7273934Z Unpacking libgl1-mesa-dri:amd64 (25.2.8-0ubuntu0.24.04.5) over (25.2.8-0ubuntu0.24.04.4) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.7849238Z Preparing to unpack .../06-libglx-mesa0_25.2.8-0ubuntu0.24.04.5_amd64.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.7884402Z Unpacking libglx-mesa0:amd64 (25.2.8-0ubuntu0.24.04.5) over (25.2.8-0ubuntu0.24.04.4) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.8313739Z Preparing to unpack .../07-libgbm1_25.2.8-0ubuntu0.24.04.5_amd64.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.8337744Z Unpacking libgbm1:amd64 (25.2.8-0ubuntu0.24.04.5) over (25.2.8-0ubuntu0.24.04.4) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.8782366Z Preparing to unpack .../08-mesa-libgallium_25.2.8-0ubuntu0.24.04.5_amd64.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:16.8808296Z Unpacking mesa-libgallium:amd64 (25.2.8-0ubuntu0.24.04.5) over (25.2.8-0ubuntu0.24.04.4) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.0594547Z Selecting previously unselected package xfonts-encodings.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.0741067Z Preparing to unpack .../09-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.0749472Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.1067803Z Selecting previously unselected package xfonts-utils.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.1211913Z Preparing to unpack .../10-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.1218691Z Unpacking xfonts-utils (1:7.7+6build3) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.1620488Z Selecting previously unselected package xfonts-cyrillic.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.1764640Z Preparing to unpack .../11-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.1772836Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.2138360Z Selecting previously unselected package xfonts-scalable.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.2280770Z Preparing to unpack .../12-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.2289218Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.2816597Z Setting up mesa-libgallium:amd64 (25.2.8-0ubuntu0.24.04.5) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.2851281Z Setting up libgbm1:amd64 (25.2.8-0ubuntu0.24.04.5) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.2875233Z Setting up libgl1-mesa-dri:amd64 (25.2.8-0ubuntu0.24.04.5) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.2955640Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.3083471Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.3113833Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.3135736Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.3156764Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.3229810Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.3245925Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.3265968Z Setting up libglx-mesa0:amd64 (25.2.8-0ubuntu0.24.04.5) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.3287253Z Setting up xfonts-utils (1:7.7+6build3) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.3330574Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.3652201Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.3940155Z Processing triggers for libc-bin (2.39-0ubuntu8.12) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.4248840Z Processing triggers for man-db (2.12.0-4build2) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.4272671Z Not building database; man-db/auto-update is not 'true'.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:17.4289302Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:18.1948848Z 
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:18.1949501Z Running kernel seems to be up-to-date.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:18.1949880Z 
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:18.1950055Z No services need to be restarted.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:18.1950344Z 
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:18.1950514Z No containers need to be restarted.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:18.1950813Z 
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:18.1951021Z No user sessions are running outdated binaries.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:18.1951411Z 
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:19.2922196Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:19.2923854Z Downloading Chromium 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-linux.zip
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:19.4498733Z |                                                                                |   0% of 173.9 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:19.5896889Z |■■■■■■■■                                                                        |  10% of 173.9 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:19.6920934Z |■■■■■■■■■■■■■■■■                                                                |  20% of 173.9 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:19.7636257Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 173.9 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:19.8270806Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 173.9 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:19.8955725Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 173.9 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:19.9649685Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 173.9 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:20.0312295Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 173.9 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:20.1037476Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 173.9 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:20.2346593Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 173.9 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:20.2850295Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 173.9 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.5825822Z Chromium 141.0.7390.37 (playwright build v1194) downloaded to /home/runner/.cache/ms-playwright/chromium-1194
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.5829604Z Downloading FFMPEG playwright build v1011 from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.8282526Z |                                                                                |   0% of 2.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.8338552Z |■■■■■■■■                                                                        |  10% of 2.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.8371551Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.8391170Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.8411188Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.8429456Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.8443854Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.8460824Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.8474158Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.8487581Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.8499064Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.9052167Z FFMPEG playwright build v1011 downloaded to /home/runner/.cache/ms-playwright/ffmpeg-1011
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:23.9057418Z Downloading Chromium Headless Shell 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-headless-shell-linux.zip
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:24.0459716Z |                                                                                |   0% of 104.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:24.1695857Z |■■■■■■■■                                                                        |  10% of 104.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:24.2280298Z |■■■■■■■■■■■■■■■■                                                                |  20% of 104.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:24.2753028Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 104.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:24.3383721Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 104.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:24.3772554Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 104.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:24.4161669Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 104.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:24.4525273Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 104.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:24.4844058Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 104.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:24.6560850Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 104.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:24.6920058Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 104.3 MiB
+arms-hero-smoke	Run python -m playwright install --with-deps chromium	2026-11-22T02:41:26.4042344Z Chromium Headless Shell 141.0.7390.37 (playwright build v1194) downloaded to /home/runner/.cache/ms-playwright/chromium_headless_shell-1194
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	﻿2026-11-22T02:41:26.4947369Z ##[group]Run set -euo pipefail
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4947776Z ^[[36;1mset -euo pipefail^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4948125Z ^[[36;1mpython3 - <<'PY' 2>&1 | tee test-results/arms-hero-browser.log^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4948501Z ^[[36;1mimport functools^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4948740Z ^[[36;1mimport http.server^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4948979Z ^[[36;1mimport json^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4949182Z ^[[36;1mimport os^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4949392Z ^[[36;1mimport threading^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4949621Z ^[[36;1mimport traceback^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4949864Z ^[[36;1mfrom pathlib import Path^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4950228Z ^[[36;1mfrom playwright.sync_api import sync_playwright, expect^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4950603Z ^[[36;1m^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4950806Z ^[[36;1mout = Path('test-results')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4951077Z ^[[36;1mout.mkdir(exist_ok=True)^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4952072Z ^[[36;1mserver = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(http.server.SimpleHTTPRequestHandler, directory='preview'))^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4952927Z ^[[36;1mthreading.Thread(target=server.serve_forever, daemon=True).start()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4953433Z ^[[36;1murl = f'http://127.0.0.1:{server.server_port}/arms-hero.html'^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4953904Z ^[[36;1mnormal = '{"chars":[],"sound":false,"marker":"KEEP_NORMAL_SAVE"}'^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4954277Z ^[[36;1mchecks, errors = [], []^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4954534Z ^[[36;1mstatus = 'failed'^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4954784Z ^[[36;1mwith sync_playwright() as p:^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4955083Z ^[[36;1m    browser = p.chromium.launch()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4955506Z ^[[36;1m    context = browser.new_context(viewport={'width': 1280, 'height': 900})^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4956218Z ^[[36;1m    context.tracing.start(screenshots=True, snapshots=True, sources=True)^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4956647Z ^[[36;1m    page = context.new_page()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4956941Z ^[[36;1m    page.set_default_timeout(20000)^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4957324Z ^[[36;1m    page.on('pageerror', lambda error: errors.append(str(error)))^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4957787Z ^[[36;1m    page.route('https://**/*', lambda route: route.abort())^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4958297Z ^[[36;1m    page.route('**/favicon.ico', lambda route: route.fulfill(status=204, body=''))^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4958733Z ^[[36;1m    def open_hero():^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4959052Z ^[[36;1m        expect(page.locator('#sel-enter')).to_be_enabled()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4959425Z ^[[36;1m        page.locator('#sel-enter').click()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4959777Z ^[[36;1m        tab = page.locator('#bnav [data-tab="hero"]')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4960126Z ^[[36;1m        expect(tab).to_be_visible()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4960410Z ^[[36;1m        tab.click()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4960848Z ^[[36;1m        expect(page.locator('#w-hero [data-arms-panel="arms-browser-fixture"]')).to_be_visible()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4961314Z ^[[36;1m    try:^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4961575Z ^[[36;1m        page.goto(url, wait_until='domcontentloaded')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4962276Z ^[[36;1m        page.wait_for_function('!!(window.Battle && Battle.armsIntegrated)')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4962711Z ^[[36;1m        page.evaluate('''(normal) => {^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4963031Z ^[[36;1m            const id = 'arms-browser-fixture';^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4963457Z ^[[36;1m            const hero = {id, name:'Проверка', cls:'warrior', race:'human', level:15,^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4964002Z ^[[36;1m                hxp:{me:Battle.xpAt(15)}, specs:{me:'arms',warrior:'arms'}, party:['me'],^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4964523Z ^[[36;1m                armsTalents:{}, money:0, items:{}, gear:{}, tav:{st:0,coll:{}}, q:{},^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4965027Z ^[[36;1m                v57migrated:true, v57onboarding:false, intro:{elwynn:1},^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4965468Z ^[[36;1m                zone:'elwynn', at:'goldshire', pos:{x:44.7,y:45.8}};^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4965893Z ^[[36;1m            localStorage.setItem('azeroth-ab-setup-v5',normal);^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4966629Z ^[[36;1m            localStorage.setItem('azeroth-arms-hero-v1',JSON.stringify({chars:[hero],cur:id,enc:'hogger',sound:false,compAll:false,allSpecs:false}));^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4967459Z ^[[36;1m        }''', normal)^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4967751Z ^[[36;1m        page.reload(wait_until='domcontentloaded')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4968072Z ^[[36;1m        open_hero()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4968517Z ^[[36;1m        checks.append('Opened integrated hero screen through character selection and navigation')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4969183Z ^[[36;1m        plus = page.locator('#w-hero [data-arms-node="ihs"]:not([data-arms-delta])')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4969625Z ^[[36;1m        expect(plus).to_have_count(1)^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4969948Z ^[[36;1m        expect(plus).to_contain_text('0/3')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4970243Z ^[[36;1m        plus.click()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4970507Z ^[[36;1m        expect(plus).to_contain_text('1/3')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4971135Z ^[[36;1m        read_rank = "JSON.parse(localStorage.getItem('azeroth-arms-hero-v1')).chars.find(h=>h.id==='arms-browser-fixture').armsTalents.ihs"^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4972020Z ^[[36;1m        assert page.evaluate(read_rank) == 1^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4972518Z ^[[36;1m        checks.append('Purchased one rank with a real UI click and verified isolated storage')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4973035Z ^[[36;1m        page.reload(wait_until='domcontentloaded')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4973353Z ^[[36;1m        open_hero()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4973611Z ^[[36;1m        expect(plus).to_contain_text('1/3')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4973926Z ^[[36;1m        assert page.evaluate(read_rank) == 1^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4974399Z ^[[36;1m        checks.append('Rank survived page reload and re-entry through the actual UI')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4975182Z ^[[36;1m        assert page.evaluate("localStorage.getItem('azeroth-ab-setup-v5')") == normal^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4975634Z ^[[36;1m        assert not errors, errors^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4976071Z ^[[36;1m        checks.append('Ordinary save unchanged and no uncaught JavaScript exceptions')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4976517Z ^[[36;1m        status = 'passed'^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4976778Z ^[[36;1m    except Exception:^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4977159Z ^[[36;1m        (out / 'failure.txt').write_text(traceback.format_exc(), encoding='utf-8')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4977566Z ^[[36;1m        raise^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4977792Z ^[[36;1m    finally:^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4979076Z ^[[36;1m        (out / 'arms-hero-browser.json').write_text(json.dumps({'status':status,'sourceCommit':os.environ['SOURCE_COMMIT'],'page':'arms-hero.html','checks':checks,'pageErrors':errors,'scope':'One desktop purchase/reload scenario. Remote artwork, audio, mobile, combat and dungeon acceptance are not tested.'},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4980415Z ^[[36;1m        try:^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4980765Z ^[[36;1m            page.screenshot(path=str(out / 'arms-hero-final.png'), full_page=True)^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4981180Z ^[[36;1m        finally:^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4981531Z ^[[36;1m            context.tracing.stop(path=str(out / 'arms-hero-trace.zip'))^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4982144Z ^[[36;1m            browser.close()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4982424Z ^[[36;1m            server.shutdown()^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4982812Z ^[[36;1mprint(json.dumps({'status':status,'checks':checks},ensure_ascii=False))^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.4983198Z ^[[36;1mPY^[[0m
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.5005734Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.5006100Z env:
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.5006370Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.5006833Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.5007301Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.5007702Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.5008101Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.5008736Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.5009136Z   SOURCE_COMMIT: f8d0bd731a317c48253717f06e9c9eaa936d27c8
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:26.5009449Z ##[endgroup]
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:27.2909519Z 127.0.0.1 - - [22/Nov/2026 02:41:27] "GET /arms-hero.html HTTP/1.1" 200 -
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:28.4089225Z 127.0.0.1 - - [22/Nov/2026 02:41:28] "GET /arms-hero.html HTTP/1.1" 200 -
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4315466Z Traceback (most recent call last):
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4330149Z   File "<stdin>", line 48, in <module>
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4330621Z   File "<stdin>", line 33, in open_hero
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4331335Z   File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py", line 20454, in to_be_visible
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4343916Z     self._sync(self._impl_obj.to_be_visible(visible=visible, timeout=timeout))
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4344987Z   File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_sync_base.py", line 115, in _sync
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4345854Z     return task.result()
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4346087Z            ^^^^^^^^^^^^^
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4346729Z   File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_assertions.py", line 765, in to_be_visible
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4347727Z     await self._expect_impl(
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4348723Z   File "/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_assertions.py", line 85, in _expect_impl
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4349568Z     raise AssertionError(
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4349841Z AssertionError: Locator expected to be visible
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4350507Z Actual value: hidden 
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4350716Z Call log:
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4350945Z   - Expect "to_be_visible" with timeout 5000ms
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4351405Z   - waiting for locator("#w-hero [data-arms-panel=\"arms-browser-fixture\"]")
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4352657Z     9 × locator resolved to <section class="box" data-arms-panel="arms-browser-fixture">…</section>
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4353190Z       - unexpected value "hidden"
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4353380Z 
+arms-hero-smoke	Open hero, buy one rank and verify reload persistence	2026-11-22T02:41:37.4610086Z ##[error]Process completed with exit code 1.
+arms-hero-smoke	Upload exact build and browser evidence	﻿2026-11-22T02:41:37.4710751Z ##[group]Run actions/upload-artifact@v4
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4711058Z with:
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4711349Z   name: arms-hero-browser-f8d0bd731a317c48253717f06e9c9eaa936d27c8
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4711942Z   retention-days: 7
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4712167Z   if-no-files-found: warn
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4712428Z   path: test-results/
+arms-hero-smoke	Upload exact build and browser evidence	preview/arms-hero.html
+arms-hero-smoke	Upload exact build and browser evidence	
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4712726Z   compression-level: 6
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4712937Z   overwrite: false
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4713162Z   include-hidden-files: false
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4713394Z env:
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4713657Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4714107Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib/pkgconfig
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4714556Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4714950Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4715334Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.16/x64
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4715780Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.16/x64/lib
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.4716114Z ##[endgroup]
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.6523707Z (node:3265) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.6525028Z (Use `node --trace-deprecation ...` to show where the warning was created)
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.6625185Z Multiple search paths detected. Calculating the least common ancestor of all paths
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.6628387Z The least common ancestor is /home/runner/work/azerot/azerot. This will be the root directory of the artifact
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.6630209Z With the provided path, there will be 8 files uploaded
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.6632283Z Artifact name is valid!
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.6632990Z Root directory input is valid!
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:37.9370771Z Beginning upload of artifact content to blob storage
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:38.2226016Z (node:3265) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:38.7016816Z Uploaded bytes 8388608
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:38.9026229Z Uploaded bytes 16777216
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:39.0905039Z Uploaded bytes 25165824
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:39.4107649Z Uploaded bytes 33554432
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:39.4857676Z Uploaded bytes 35894496
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:39.5208718Z Finished uploading artifact content to blob storage!
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:39.5209928Z SHA256 digest of uploaded artifact zip is 2b581d64aeeae215079288f323cb459339b2c7791d39146942a09106697d6a54
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:39.5212095Z Finalizing artifact upload
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:39.8405153Z Artifact arms-hero-browser-f8d0bd731a317c48253717f06e9c9eaa936d27c8.zip successfully finalized. Artifact ID 14735984125
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:39.8407322Z Artifact arms-hero-browser-f8d0bd731a317c48253717f06e9c9eaa936d27c8 has been successfully uploaded! Final size is 35894496 bytes. Artifact ID is 14735984125
+arms-hero-smoke	Upload exact build and browser evidence	2026-11-22T02:41:39.8412526Z Artifact download URL: https://github.com/Stipnek/azerot/actions/runs/44977209477/artifacts/14735984125
+arms-hero-smoke	Post Run actions/checkout@v4	﻿2026-11-22T02:41:39.8685107Z Post job cleanup.
+arms-hero-smoke	Post Run actions/checkout@v4	2026-11-22T02:41:39.9602831Z [command]/usr/bin/git version
+arms-hero-smoke	Post Run actions/checkout@v4	2026-11-22T02:41:39.9652839Z git version 2.56.1
+arms-hero-smoke	Post Run actions/checkout@v4	2026-11-22T02:41:39.9694345Z Temporarily overriding HOME='/home/runner/work/_temp/aa33b0db-06f0-432f-9003-012b90f6fed6' before making global git config changes
+arms-hero-smoke	Post Run actions/checkout@v4	2026-11-22T02:41:39.9695933Z Adding repository directory to the temporary git global config as a safe directory
+arms-hero-smoke	Post Run actions/checkout@v4	2026-11-22T02:41:39.9699736Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/azerot/azerot
+arms-hero-smoke	Post Run actions/checkout@v4	2026-11-22T02:41:39.9759799Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+arms-hero-smoke	Post Run actions/checkout@v4	2026-11-22T02:41:39.9802445Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+arms-hero-smoke	Post Run actions/checkout@v4	2026-11-22T02:41:40.0086862Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+arms-hero-smoke	Post Run actions/checkout@v4	2026-11-22T02:41:40.0143568Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+arms-hero-smoke	Post Run actions/checkout@v4	2026-11-22T02:41:40.0411288Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+arms-hero-smoke	Post Run actions/checkout@v4	2026-11-22T02:41:40.0468380Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+arms-hero-smoke	Complete job	﻿2026-11-22T02:41:40.0913728Z Cleaning up orphan processes
+arms-hero-smoke	Complete job	2026-11-22T02:41:40.1307088Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
