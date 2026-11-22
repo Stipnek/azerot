@@ -1,0 +1,85 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "edits": [
+    {
+      "name": "Separate specialization and existing pet thresholds",
+      "old": "  const SPEC_LEVEL = 10;",
+      "new": "  const SPEC_LEVEL = ARMS_HERO_MODE ? 15 : 10;\n  const PET_SELECTION_LEVEL = 10;\n  /* SPEC15_BEGIN */\n  function selectedSpec(k) {\n    const c = B.CLASSES[clsOf(k)], g = tavRec(k);\n    if (!c) return null;\n    const selected = g ? g.sp : S.specs[k];\n    return c.specs[selected] ? selected : c.def;\n  }\n  function canSpecialize(k) {\n    return !!B.CLASSES[clsOf(k)] && (hLevel(k) >= SPEC_LEVEL || (!ARMS_HERO_MODE && S.allSpecs));\n  }\n  function runtimeLeaderAura(party) {\n    if (ARMS_HERO_MODE && S.hero && hLevel('me') < SPEC_LEVEL) return { res: [] };\n    return B.leaderAura(party);\n  }\n  /* SPEC15_END */"
+    },
+    {
+      "name": "Use own XP for selection previews without exposing a future spec",
+      "old": "  function effectiveSpec(c) { const sp = c && c.specs && c.specs.me, cl = c && B.CLASSES[c.cls]; if (!cl) return null; if (c.level < SPEC_LEVEL && !S.allSpecs) return startSpec(c.cls); return sp && cl.specs[sp] ? sp : cl.def; }",
+      "new": "  function effectiveSpec(c) {\n    const sp = c && c.specs && c.specs.me, cl = c && B.CLASSES[c.cls];\n    if (!cl) return null;\n    const level = ARMS_HERO_MODE && c.hxp && Number.isFinite(c.hxp.me) ? B.levelOf(c.hxp.me) : c.level;\n    if (ARMS_HERO_MODE && level < SPEC_LEVEL) return null;\n    if (!ARMS_HERO_MODE && level < SPEC_LEVEL && !S.allSpecs) return startSpec(c.cls);\n    return sp && cl.specs[sp] ? sp : cl.def;\n  }"
+    },
+    {
+      "name": "Do not overwrite saved main specialization in integration mode",
+      "old": "      if (S.level < SPEC_LEVEL && !S.allSpecs) S.specs.me = startSpec(S.main);",
+      "new": "      if (!ARMS_HERO_MODE && S.level < SPEC_LEVEL && !S.allSpecs) S.specs.me = startSpec(S.main);"
+    },
+    {
+      "name": "Separate selected intent from the current runtime profile",
+      "old": "  function specKey(k) {\n    const g = tavRec(k), c = B.CLASSES[clsOf(k)]; if (!c) return null;\n    if (g) return g.sp;\n    return c.specs[S.specs[k]] ? S.specs[k] : c.def;\n  }",
+      "new": "  function specKey(k) {\n    const cls = clsOf(k), c = B.CLASSES[cls]; if (!c) return null;\n    if (ARMS_HERO_MODE && !canSpecialize(k)) return cls === 'warrior' ? 'arms' : startSpec(cls);\n    return selectedSpec(k);\n  }"
+    },
+    {
+      "name": "Use runtime profile on main hero screen",
+      "old": "const cl = B.CLASSES[S.main], sk = S.specs.me, sp = B.specOf(S.main, sk),",
+      "new": "const cl = B.CLASSES[S.main], sk = specKey('me'), sp = B.specOf(S.main, sk),"
+    },
+    {
+      "name": "Guard specialization visibility at own level",
+      "old": "    const specBox = lv < SPEC_LEVEL && !S.allSpecs",
+      "new": "    const specBox = !canSpecialize('me')"
+    },
+    {
+      "name": "Do not describe a future specialization as the training role",
+      "old": "? '<p class=\"hint\">До ' + SPEC_LEVEL + ' уровня один путь: ' + esc(RN[sp.role] + ' · ' + sp.name) + '. Выбор спека откроется на ' + SPEC_LEVEL + ' уровне.</p>'",
+      "new": "? '<p class=\"hint\">Выбор специализации откроется на ' + SPEC_LEVEL + ' уровне. Сохранённый выбор: ' + esc(B.specOf(S.main, selectedSpec('me')).name) + '.</p>'"
+    },
+    {
+      "name": "Validate main selection events rather than only hiding buttons",
+      "old": "    S.specs.me = b.dataset.hspec; save(); renderHero();",
+      "new": "    if (!canSpecialize('me') || !B.CLASSES[S.main].specs[b.dataset.hspec]) return;\n    S.specs.me = b.dataset.hspec; save(); renderHero();"
+    },
+    {
+      "name": "Validate party specialization events at the affected unit own level",
+      "old": "if (spB) { if(tavRec(spB.dataset.cls))return; S.specs[spB.dataset.cls] = spB.dataset.spec; }",
+      "new": "if (spB) { if(tavRec(spB.dataset.cls) || !canSpecialize(spB.dataset.cls))return; const cls = B.CLASSES[clsOf(spB.dataset.cls)]; if (!cls || !cls.specs[spB.dataset.spec]) return; S.specs[spB.dataset.cls] = spB.dataset.spec; }"
+    },
+    {
+      "name": "Keep the existing pet selection threshold independent of specs",
+      "old": "  function petFree(k) { return hLevel(k) >= SPEC_LEVEL || S.allSpecs; }",
+      "new": "  function petFree(k) { return hLevel(k) >= PET_SELECTION_LEVEL || S.allSpecs; }"
+    },
+    {
+      "name": "Keep pet unlock text consistent with existing pet behavior",
+      "old": "'<p class=\"hint\">До ' + SPEC_LEVEL + ' уровня ' + (cls === 'hunter' ? 'волк' : 'только бес') + '. Выбор питомца откроется на ' + SPEC_LEVEL + ' уровне.</p>'",
+      "new": "'<p class=\"hint\">До ' + PET_SELECTION_LEVEL + ' уровня ' + (cls === 'hunter' ? 'волк' : 'только бес') + '. Выбор питомца откроется на ' + PET_SELECTION_LEVEL + ' уровне.</p>'"
+    },
+    {
+      "name": "Suppress the pre-specialization aura in party preview",
+      "old": "    const au = B.leaderAura(S.party.map(",
+      "new": "    const au = runtimeLeaderAura(S.party.map("
+    },
+    {
+      "name": "Suppress the pre-specialization aura in analytics",
+      "old": "const keys = S.party.slice(), agg = B.leaderAura(keys.map(",
+      "new": "const keys = S.party.slice(), agg = runtimeLeaderAura(keys.map("
+    },
+    {
+      "name": "Suppress the pre-specialization aura in the battle introduction",
+      "old": "    const aurL = B.leaderAura(battleParty().map(",
+      "new": "    const aurL = runtimeLeaderAura(battleParty().map("
+    },
+    {
+      "name": "Hide party specialization controls below the affected unit unlock",
+      "old": "const canSpec = me ? ((S.level >= SPEC_LEVEL || S.allSpecs) && ks.length > 1) : (!g && S.allSpecs && ks.length > 1);",
+      "new": "const canSpec = me ? (canSpecialize(k) && ks.length > 1) : (!g && S.allSpecs && canSpecialize(k) && ks.length > 1);"
+    },
+    {
+      "name": "Label the effective pre-specialization profile as training",
+      "old": "'<div class=\"box\"><p class=\"sect\">Спек: ' + esc(sp.name) + ' <small>' + RN[sp.role] + '</small></p>' + specBox",
+      "new": "'<div class=\"box\"><p class=\"sect\">' + (ARMS_HERO_MODE && lv < SPEC_LEVEL ? 'Учебный набор' : 'Спек: ' + esc(sp.name) + ' <small>' + RN[sp.role] + '</small>') + '</p>' + specBox"
+    }
+  ]
+}
