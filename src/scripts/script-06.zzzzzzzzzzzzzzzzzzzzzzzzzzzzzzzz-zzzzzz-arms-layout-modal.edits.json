@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Present the Arms talent dialog as a fixed full-viewport WoW-style overlay with backdrop, persistent header/inspector and a scrollless fit-to-viewport tree area. Presentation only: allocation rules, save schema and talent IDs unchanged.",
+  "edits": [
+    {
+      "name": "Open the talent dialog as a fixed modal overlay",
+      "old": "#w-hero [data-arms-inspector-close]{float:right;margin:0 0 4px 8px}",
+      "new": "#w-hero [data-arms-inspector-close]{float:right;margin:0 0 4px 8px}#w-hero dialog:has([data-arms-panel])[open]{position:fixed;inset:0;z-index:9999;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;margin:0;padding:6px;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden;background:rgba(0,0,0,.75);border:0}#w-hero dialog:has([data-arms-panel])::backdrop{background:rgba(0,0,0,.75)}#w-hero dialog:has([data-arms-panel])>*{flex-shrink:0}#w-hero dialog:has([data-arms-panel]) [data-arms-panel]{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;background:var(--panel,#222a2d);border:2px solid var(--line,#827151);border-radius:6px;padding:6px}#w-hero [data-arms-node] img{width:clamp(40px,9vw,56px);height:auto;aspect-ratio:1;object-fit:cover;background:#333;color:#888}#w-hero [data-arms-node][aria-disabled=true] img,#w-hero [data-arms-node][disabled] img{filter:grayscale(1) brightness(.55);opacity:.7}#w-hero [data-arms-inspector]{flex-shrink:0}"
+    }
+  ]
+}
