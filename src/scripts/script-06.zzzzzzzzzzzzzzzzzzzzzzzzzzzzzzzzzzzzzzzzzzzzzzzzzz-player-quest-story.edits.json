@@ -1,0 +1,16 @@
+{
+  "sourceSha256":"d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description":"Remove remaining developer commentary from the Stalvan summary and onboarding adaptation text. Objectives, requirements, rewards and quest identifiers unchanged.",
+  "edits":[
+    {
+      "name":"Keep Stalvan story in-world",
+      "old":"Расследование мадам Евы привело к Сталвану Мистмантлу. Свидетельства собраны без отдельных почтовых поручений. Останови Сталвана и верни кольцо.",
+      "new":"Расследование мадам Евы привело к Сталвану Мистмантлу. Останови Сталвана и верни кольцо."
+    },
+    {
+      "name":"Remove developer commentary from onboarding adaptation text",
+      "old":"adaptation:'Авторское практическое обучение без курьерских переходов.'",
+      "new":"adaptation:''"
+    }
+  ]
+}
