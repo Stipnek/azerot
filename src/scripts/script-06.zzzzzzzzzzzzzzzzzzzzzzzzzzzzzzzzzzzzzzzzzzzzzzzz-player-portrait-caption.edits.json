@@ -1,0 +1,9 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Remove the literal developer caption from the hero portrait. Keep class, role and specialization in the information section; no gameplay changes.",
+  "edits": [{
+    "name": "Remove class/spec caption from portrait only",
+    "old": "<small>Класс · специализация</small>",
+    "new": ""
+  }]
+}
