@@ -1,0 +1,156 @@
+      if (st === auraDialogBattle && st && !st.over) { paused = auraDialogPause; $('pause').textContent = paused ? 'Продолжить' : 'Пауза'; if (!paused) schedule(200); }
+      auraDialogBattle = null; auraDialogPause = null;
+    };
+    dialog.showModal();
+  });
+
+  function updateBoss() {
+    const boss = st.enemies.find(function (e) { return e.boss && e.hp > 0; }) || st.enemies.find(function (e) { return e.boss; });
+    const el = $('bossbar');
+    if (!boss) { el.classList.remove('on'); return; }
+    el.classList.add('on');
+    if (!el.firstChild) el.innerHTML = '<div class="bossbar"><div class="bn"><span id="bn-n"></span><span id="bn-l"></span></div><div class="bb"><i id="bb-i"></i><span id="bb-p"></span><span class="bt" id="bb-t"></span></div></div>';
+    $('bn-n').textContent = boss.name;
+    $('bn-l').textContent = boss.level + ' ур.';
+    $('bb-i').style.width = Math.max(0, boss.hp / boss.maxHp * 100) + '%';
+    $('bb-t').textContent = boss.dummyInf ? '∞' : (boss.hp > 0 ? boss.hp + ' / ' + boss.maxHp : 'Повержен');
+    const ph = boss.phases.filter(function (p) { return !boss.flags[p.flag]; });
+    $('bb-p').innerHTML = ph.map(function (p) { return '<u style="left: ' + (p.at * 100) + '%" title="' + esc(p.name) + '"></u>'; }).join('');
+  }
+
+  function drawAggro() {
+    const svg = $('aggro'), f = stageRect();
+    svg.setAttribute('viewBox', '0 0 ' + f.width + ' ' + f.height);
+    let out = '<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1L9 5L1 9z" fill="#ff5a4a"/></marker></defs>';
+    if (!st.over) st.enemies.forEach(function (e) {
+      if (e.ghost || e.hp <= 0 || !e.aggro || !toks[e.id] || !toks[e.aggro]) return;
+      const tg = B.byId(st, e.aggro); if (!tg || tg.hp <= 0) return;
+      const a = topPoint(toks[e.id].el), b = topPoint(toks[e.aggro].el);
+      const lift = Math.max(24, f.height * 0.2 + Math.abs(a.x - b.x) * 0.08);
+      const cx = (a.x + b.x) / 2, cy = Math.min(a.y, b.y) - lift;
+      const taunted = e.effects.some(function (x) { return x.kind === 'taunt'; });
+      out += '<path d="M' + a.x + ' ' + a.y + ' Q' + cx + ' ' + cy + ' ' + b.x + ' ' + b.y + '" fill="none" stroke="#ff5a4a" stroke-width="' + (taunted ? 3 : 2) + '" stroke-dasharray="' + (taunted ? '0' : '6 5') + '" stroke-opacity=".9" marker-end="url(#ah)"/>';
+    });
+    svg.innerHTML = out;
+  }
+
+  function renderOrder() {
+    if (st.over) { $('order').innerHTML = ''; return; }
+    $('order').innerHTML = B.turnOrder(st, 9).filter(function (id) { const u = B.byId(st, id); return u && !u.ghost; }).slice(0, 8).map(function (id, i) {
+      const u = B.byId(st, id);
+      return '<span class="chip' + (u.side === 'enemy' ? ' e' : '') + (i === 0 ? ' first' : '') + '" title="' + esc(u.name) + '">' + unitBadge(u) + '</span>';
+    }).join('');
+  }
+  function turnsWord(n) {
+    const a = n % 10, b = n % 100;
+    return n + (a === 1 && b !== 11 ? ' ход' : (a >= 2 && a <= 4 && (b < 10 || b >= 20) ? ' хода' : ' ходов'));
+  }
+  function renderEnrage() {
+    const el = $('enr');
+    if (!st || !st.enrage || st.over) { el.textContent = ''; el.className = 'enr'; return; }
+    const n = B.enrageIn(st);
+    if (!st.enrageStacks) { el.className = 'enr' + (n <= 25 ? ' hot' : ''); el.textContent = 'Ярость врагов через ' + turnsWord(n); }
+    else { el.className = 'enr bad'; el.textContent = 'Враги в ярости: урон +' + Math.round(st.enrageStacks * st.enrage.step * 100) + '%, ещё рост через ' + turnsWord(n); }
+  }
+
+  function renderSkillBar() {
+    const u = st.current ? B.byId(st, st.current) : null;
+    const el = $('skillbar');
+    if (!u || st.over) { el.innerHTML = ''; return; }
+    if (u.side === 'enemy' || u.dummy) { el.classList.add('idle'); return; }
+    el.classList.remove('idle');
+    barUid = u.id;
+    let pr = '';
+    let h = '<div class="wico" title="' + esc(u.name) + '" style="--tc: var(--c-' + (u.pet ? u.ownerCls : u.cls) + ')"><span aria-hidden="true">' + unitBadge(u) + '</span>' + (u.maxCp ? '<i>' + '●'.repeat(u.cp) + '○'.repeat(u.maxCp - u.cp) + '</i>' : '') + '</div>';
+    if (u.side === 'hero') {
+      const A = presentationAuto(u);
+      h += '<div class="ab auto" data-sk="auto" title="' + esc(A.name) + '"><span aria-hidden="true">' + wowIcon(A) + '</span></div>';
+      h += u.skills.map(function (s) {
+        const d = B.SKILLS[s], left = cdHide && cdHide.id === u.id && cdHide.sk === s ? 0 : (u.cd[s] || 0), nomana = !(cdHide && cdHide.id === u.id && cdHide.sk === s) && d.mana && u.maxMana && u.mana < d.mana, norage = !(cdHide && cdHide.id === u.id && cdHide.sk === s) && d.rage !== undefined && !B.canPayRage(u, s), noenergy = !(cdHide && cdHide.id === u.id && cdHide.sk === s) && d.energy !== undefined && !B.canPayEnergy(u, s);
+        return '<div class="ab' + (nomana ? ' nomana' : '') + (norage ? ' norage' : '') + (noenergy ? ' noenergy' : '') + (s === 'revenge' && !(u.revengeReady > 0) ? ' noproc' : '') + '" data-sk="' + s + '" title="' + esc(d.name + (s === 'revenge' ? (u.revengeReady > 0 ? ': готов, осталось ' + u.revengeReady + ' х.' : ': нужен блок, уклонение или парирование') : '') + (norage ? ': недостаточно ярости' : '') + (noenergy ? ': недостаточно энергии' : '') + (d.rage !== undefined ? ', ярость ' + B.rageCostText(s) : '') + (d.energy !== undefined ? ', энергия ' + d.energy : '')) + '"><span aria-hidden="true">' + wowIcon(d) + '</span><span class="sw" style="--p: ' + (left ? left / (d.cd || 1) * 100 : 0) + '%"></span><span class="cdn">' + (left || '') + '</span></div>';
+      }).join('');
+      const pss = u.pet ? [] : passivesOf(B.specOf(u.cls, u.spec)).concat(u.racePassive ? [u.racePassive] : []);
+      if (!pss.length && !u.racial) pr = '<div class="pasrow" aria-hidden="true" style="visibility:hidden"><div class="pasbox"><div class="ab pass"><span>•</span></div></div></div>'; else pr = '<div class="pasrow"><div class="pasbox">' + pss.map(function (ps, i) { return '<div class="ab pass" data-sk="passive:' + i + '" title="' + esc(ps.name) + '"><span aria-hidden="true">' + wowIcon(ps) + '</span></div>'; }).join('') + (u.racial ? '<div class="ab pass racial' + ((u.cd[u.racial] || 0) ? ' oncd' : '') + '" data-sk="racial" title="' + esc(B.SKILLS[u.racial].name) + '"><span aria-hidden="true">' + wowIcon(B.SKILLS[u.racial]) + '</span></div>' : '') + '</div></div>';
+    } else {
+      h += '<div class="ab auto foe" data-sk="atk" title="Атака"><span aria-hidden="true">⚔️</span></div>';
+      h += u.eskills.map(function (s) {
+        const left = cdHide && cdHide.id === u.id && cdHide.sk === s.id ? 0 : (u.cd[s.id] || 0);
+        return '<div class="ab" data-sk="' + s.id + '"><span aria-hidden="true">' + s.icon + '</span><span class="sw" style="--p: ' + (left ? left / (s.cd || 1) * 100 : 0) + '%"></span><span class="cdn">' + (left || '') + '</span></div>';
+      }).join('');
+    }
+    el.innerHTML = pr + '<div class="abrow">' + h + '</div>';
+    const pe = el.querySelector('.pasrow');
+    if (el.parentElement) { const pv = (PORTRAIT_MQ.matches && pe ? pe.offsetHeight + 6 : 0) + 'px'; if (el.parentElement.style.getPropertyValue('--pad') !== pv) { el.parentElement.style.setProperty('--pad', pv); relayout(); } }
+  }
+
+  function float(id, text, cls) {
+    const t = toks[id]; if (!t) return;
+    const c = center(t.tc);
+    const s = document.createElement('span');
+    s.textContent = text; s.className = 'ffct ' + (cls || '');
+    s.style.left = (c.x + (Math.random() * 30 - 15)) + 'px'; s.style.top = (c.y - 6) + 'px';
+    $('fx').appendChild(s);
+    setTimeout(function () { s.remove(); }, 1050);
+  }
+  function glow(id, col, ms) {
+    const t = toks[id]; if (!t || reduced) return;
+    const tc = t.tc;
+    if (tc.classList.contains('spr')) {
+      const pz = tc.dataset.pose || 'idle';
+      tc.querySelectorAll(pz === 'idle' ? '.spi.idle, .spi.idle2' : '.spi.' + pz).forEach(function (im) { im.animate([{ filter: 'drop-shadow(0 0 3px ' + col + ') drop-shadow(0 0 10px ' + col + ')' }, { filter: 'drop-shadow(0 0 0 transparent)' }], { duration: ms }); });
+    } else {
+      tc.animate([{ boxShadow: '0 0 0 3px ' + col + ', 0 0 18px 4px ' + col }, { boxShadow: '0 5px 0 rgba(0,0,0,.35)' }], { duration: ms });
+    }
+  }
+  function hitFx(e) {
+    if (!st) return;
+    const tgt = B.byId(st, e.tgt); if (!tgt || !toks[e.tgt]) return;
+    if (e.t === 'dmg') {
+      const shown = e.miss ? 'Промах' : e.dodge ? 'Уклонение' : (e.amt ? ((tgt.side === 'hero' ? '−' : '') + Math.round(e.amt) + (e.absorbed ? ' (щит ' + Math.round(e.absorbed) + ')' : '')) : ('щит ' + Math.round(e.absorbed)));
+      float(e.tgt, shown, (tgt.side === 'hero' && e.amt ? 'hurt' : '') + (e.crit ? ' crit' : '') + (e.dot ? ' tick' : ''));
+      if (!e.dot && e.amt) setPose(e.tgt, 'hit', 340);
+      if (!reduced && !e.dot && !e.dodge && !e.miss) toks[e.tgt].tc.animate([{ transform: 'translateX(0)', filter: 'brightness(1)' }, { transform: 'translateX(-5px)', filter: 'brightness(2) saturate(.3)' }, { transform: 'translateX(5px)' }, { transform: 'translateX(0)', filter: 'brightness(1)' }], { duration: 260 });
+    } else if (e.t === 'heal' && e.amt > 0) {
+      float(e.tgt, '+' + Math.round(e.amt), 'heal' + (e.crit ? ' crit' : '') + (e.hot ? ' tick' : ''));
+      if (!e.hot) glow(e.tgt, '#6dff7a', 500);
+    } else if ((e.t === 'buff' || e.t === 'debuff') && !reduced) {
+      const col = e.t === 'buff' ? '#6aa6ff' : '#b46bff';
+      glow(e.tgt, col, 550);
+    }
+  }
+  function projectile(fromId, toId, icon, dur) {
+    const a = center(toks[fromId].tc), b = center(toks[toId].tc);
+    const p = document.createElement('span');
+    p.className = 'proj'; if (String(icon).indexOf('<span class="az-skill-icon"') === 0) p.innerHTML = icon; else p.textContent = icon; p.style.left = a.x + 'px'; p.style.top = a.y + 'px';
+    $('fx').appendChild(p);
+    const dx = b.x - a.x, dy = b.y - a.y;
+    p.animate([
+      { transform: 'translate(-50%, -50%) scale(.7)' },
+      { transform: 'translate(calc(-50% + ' + dx / 2 + 'px), calc(-50% + ' + (dy / 2 - 24) + 'px)) scale(1.15)' },
+      { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(.9)' }
+    ], { duration: dur, easing: 'ease-in' });
+    setTimeout(function () { p.remove(); }, dur);
+  }
+  function ring(id, color) {
+    if (!toks[id]) return;
+    const c = center(toks[id].tc), r = document.createElement('span');
+    r.className = 'ring'; r.style.left = c.x + 'px'; r.style.top = c.y + 'px'; r.style.borderColor = color;
+    $('fx').appendChild(r);
+    r.animate([{ transform: 'scale(.4)', opacity: 1 }, { transform: 'scale(2.6)', opacity: 0 }], { duration: 600, easing: 'ease-out' });
+    setTimeout(function () { r.remove(); }, 600);
+  }
+
+  function animateStep(evs) {
+    const actIdx = evs.findIndex(function (e) { return e.t === 'act'; });
+    const pre = actIdx === -1 ? evs : evs.slice(0, actIdx);
+    pre.forEach(function (e) { if (e.t === 'dmg' || e.t === 'heal') hitFx(e); });
+    if (actIdx === -1) return;
+    const after = evs.slice(actIdx + 1);
+    const actor = B.byId(st, evs[actIdx].id);
+    if (!actor || !toks[actor.id]) return;
+    if (actor.ghost) { after.forEach(function (e) { if (e.t === 'dmg' || e.t === 'heal') hitFx(e); }); return; }
+    const sk = after.find(function (e) { return e.t === 'skill'; });
+    const es = after.find(function (e) { return e.t === 'eskill'; });
+    const icon = sk ? wowIcon(B.SKILLS[sk.skill]) : (es && es.icon ? es.icon : (actor.side === 'hero' ? '✦' : '✸'));
+    const effects = after.filter(function (e) { return e.t === 'dmg' || (e.t === 'heal' && e.amt > 0) || e.t === 'buff' || e.t === 'debuff'; });
+    const D = Math.min(760, 600 / speed * 0.72);

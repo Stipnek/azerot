@@ -1,0 +1,60 @@
+ельной мини-игры.","origin":"custom"},{"k":"tutorial56_6","t":"sw_training","d":"sw_gate","e":"sw_gate","npc":"инструктор Штормграда","need":["tutorial56_5"],"goals":[],"v56":true,"englishName":"Autobattler tutorial","source":"custom:tutorial","minLevel":1,"adaptation":"Бои малыми группами; трофеи 1 за подходящего поверженного врага; награды по экономике автобатлера. Сбор и поиск — взаимодействия без отдельной мини-игры.","origin":"custom"}]);
+  QUESTS.filter(function(q){return q.v56;}).forEach(function(q){B.ENCOUNTERS[q.k].place=PLACES[q.d].name;});
+  const V56_LEVELS={"rr_gnolls":16,"rr_tools":16,"rr_assess":17,"rr_goulash":18,"rr_poach":20,"rr_menace":21,"rr_whelps":18,"rr_fangore":26,"rr_tharil":25,"rr_morganth":26};
+  Object.keys(V56_LEVELS).forEach(function(k){if(B.ENCOUNTERS[k])B.ENCOUNTERS[k].level=V56_LEVELS[k];});
+  B.ENCOUNTERS.db4.text='Сопроводи предателя к входу в Мёртвые копи. Адаптация: переход и засада вместо отдельного AI сопровождаемого.';
+
+  /* V57_GOLDSHIRE: compress courier stages; never grant rewards for removed stages. */
+  const V57_OLD_QUESTS=new Map(QUESTS.map(q=>[q.k,{...q,need:(q.need||[]).slice()}]));
+  const V57_REMOVED=new Set(QUESTS.filter(q=>q.k.startsWith('tutorial56_')||encOf(q.k)?.type==='talk'||[q.t,q.d,q.e].some(p=>p&&PLACES[p]?.z==='wetlands_route')).map(q=>q.k));
+  function v57Min(k,seen=new Set()){if(!V57_REMOVED.has(k)||seen.has(k))return 0;const q=V57_OLD_QUESTS.get(k);if(!q)return 0;const next=new Set(seen);next.add(k);return Math.max(q.minLevel||0,...(q.need||[]).map(x=>v57Min(x,next)));}
+  function v57Expand(k,seen=new Set()){if(seen.has(k))return [];if(!V57_REMOVED.has(k))return [k];const q=V57_OLD_QUESTS.get(k);if(!q)return [];const next=new Set(seen);next.add(k);return (q.need||[]).flatMap(x=>v57Expand(x,next));}
+  for(let i=QUESTS.length-1;i>=0;i--)if(V57_REMOVED.has(QUESTS[i].k))QUESTS.splice(i,1);
+  for(const q of QUESTS){q.need=[...new Set((q.need||[]).flatMap(k=>v57Expand(k)))];if(q.drop&&V57_REMOVED.has(q.drop))delete q.drop;}
+  const v57DisabledPlaces=new Set(Object.keys(PLACES).filter(k=>['stormwind','wetlands_route'].includes(PLACES[k].z)||['poly','tavern'].includes(k)));
+  delete ZONES.stormwind;delete ZONES.wetlands_route;
+  for(let i=ZONE_KEYS.length-1;i>=0;i--)if(!ZONES[ZONE_KEYS[i]])ZONE_KEYS.splice(i,1);
+  for(const k of v57DisabledPlaces)delete PLACES[k];
+  for(let i=ROADS.length-1;i>=0;i--)if(ROADS[i].some(k=>!PLACES[k]))ROADS.splice(i,1);
+  const V57_INTRO=[
+    {k:'tutorial57_train',name:'Первая тренировка',type:'solo',size:1,enemies:['v56_dummy'],need:[],text:'Проверь силы на учебном манекене в Златоземье. Герой атакует автоматически; при нехватке ресурса остаётся бесплатная автоатака.'},
+    {k:'tutorial57_hire',name:'В таверне нужен напарник',type:'talk',size:1,enemies:[],need:['tutorial57_train'],text:'Одному дальше опасно. Загляни в таверну Златоземья и бесплатно найми первого спутника. Это гарантированный наём, не случайный призыв.',verb:'Войти в таверну'},
+    {k:'tutorial57_party',name:'Собираем отряд',type:'talk',size:1,enemies:[],need:['tutorial57_hire'],text:'Открой «Отряд», нажми пустой слот и выбери нанятого спутника. Этап завершится, когда он действительно окажется в составе.',verb:'Открыть отряд'},
+    {k:'tutorial57_team',name:'Первая совместная тренировка',type:'group',size:3,enemies:['v56_dummy','v56_dummy'],need:['tutorial57_train','tutorial57_party'],text:'Проведи бой вместе с первым спутником. После тренировки доступны обычные приключения Элвинна.'}
+  ];
+  for(const q of V57_INTRO){B.ENCOUNTERS[q.k]={name:q.name,place:'Златоземье',scene:'forest',level:1,size:q.size,type:q.type,enemies:q.enemies.slice(),text:q.text,verb:q.verb,xpMult:.1};QUESTS.push({k:q.k,t:'goldshire',d:'goldshire',e:'goldshire',npc:'инструктор Златоземья',need:q.need,v57intro:true,v56:true,origin:'custom',adaptation:'Авторское практическое обучение без курьерских переходов.'});}
+  const summaries={cl_stalvan13:'Расследование мадам Евы привело к Сталвану Мистмантлу. Свидетельства собраны без отдельных почтовых поручений. Останови Сталвана и верни кольцо.',cl_grave3:'Алтея рассказала историю Моргана Ладимора. Освободи павшего рыцаря от проклятия.',cl_sven8:'Свен просит доказать, что ты сможешь противостоять нежити. Прореди её ряды у кладбища.',cl_sven15:'Свен раскрыл след Морбента Фела и подготовил Погибель Морбента. Оружие автоматически применяется в этом бою. Победи некроманта; поездки за слитками и в кузницу исключены.',cl_emb15:'Аберкромби использовал собранные припасы для тёмного ритуала. Записка расшифрована без отдельных этапов доставки. Останови Элизу и верни сердце.'};
+  for(const [k,text]of Object.entries(summaries))if(B.ENCOUNTERS[k])B.ENCOUNTERS[k].text=text;
+  function qDoneFor57(c,k){return c.q&&c.q[k]===3;}
+  function migrateV57(c){if(!c)return;const invalid=['stormwind','wetlands_route'].includes(c.zone)||v57DisabledPlaces.has(c.at);if(invalid){c.zone='elwynn';c.at='goldshire';c.pos=spot('goldshire');}if(!c.v57migrated){c.v57migrated=true;c.v57onboarding=!!c.v57onboarding;}return c;}
+  function v57Hire(){
+    if(tavBusy){tavBusy.skip();return;}if(!v571CanFree())return;
+    const c=S.hero,cls=c.cls==='warrior'?'priest':'warrior',sp=cls==='priest'?'holy':'prot',id=newGid(),tv=tavOf(),br=1,s0=tv.st;
+    const g=tv.coll[id]={cls,n:az54HeroName(cls,sp,br),sp,br,r:br,k:1,race:pickRace(cls,''),t:Date.now()};c.v57recruit=id;c.hxp[id]=0;S.specs[id]=sp;
+    if(c.v57onboarding){setQ('tutorial57_hire',3);setQ('tutorial57_party',1);S.qsel='tutorial57_party';S.qopen=false;}save();renderHead();
+    const o={free:true,rar:br,cls,sp,nm:g.n,kind:'new',msg:'Первый спутник получен бесплатно. Добавь его в отряд через пустой слот.',k0:0,r0:br,k1:1,r1:br,gain:0,id,joined:false};tavReveal(o,s0,tv);if(S.tab==='party')renderPrep();
+  }
+  function completeV57Party(){const c=S.hero;if(c?.v57onboarding&&c.v57recruit&&S.party.includes(c.v57recruit)&&qDone('tutorial57_hire')&&!qDone('tutorial57_party')){setQ('tutorial57_party',3);S.qsel='tutorial57_team';}}
+
+
+  /* V571_REGRESSION_FIX: services, animated free summon, full current hero catalogue. */
+  PLACES.tavern={x:20.4,y:18.1,name:'Таверна: призыв героев',label:'Таверна',lx:-5,ly:-5.4,z:'elwynn'};
+  PLACES.poly={x:14.5,y:27.2,name:'Полигон: тренировочные манекены',label:'Полигон',lx:-2,ly:4.3,z:'elwynn'};
+  function v571CanFree(){const c=S.hero;return !!c&&!c.v57recruit&&!qDone('tutorial57_hire')&&Object.keys(c.tav?.coll||{}).length===0;}
+  function v571OpenCatalog(){showWorld('party');[...document.querySelectorAll('#prep .az-modes button')].find(b=>b.textContent==='Каталог')?.click();}
+  function v571Services(){
+    const journal=document.querySelector('#w-map .journal');
+    if(journal&&!document.getElementById('v571-services')){const bar=document.createElement('div');bar.id='v571-services';bar.className='v571-services';for(const [text,fn]of [['Таверна',tavOpen],['Торговец',vendorOpen],['Каталог',v571OpenCatalog]]){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=text;b.onclick=fn;bar.append(b);}journal.prepend(bar);}
+    const more=document.getElementById('w-more');if(more&&!document.getElementById('v571-more-services')){const box=document.createElement('div');box.id='v571-more-services';box.className='box';box.innerHTML='<p class="sect">Таверна, манекены и герои</p>';for(const [text,fn]of [['Таверна · призыв',tavOpen],['Полигон · DPS / лечение / танк',polyOpen],['Каталог героев',v571OpenCatalog]]){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=text;b.onclick=fn;box.append(b);}more.append(box);}
+  }
+  function v571ReplayFirst(){if(tavBusy){tavBusy.skip();return;}const c=S.hero,g=c?.tav?.coll?.[c.v57recruit];if(!g)return;const o={free:true,replay:true,rar:g.r,cls:g.cls,sp:g.sp,nm:g.n,kind:'new',msg:'Это просмотр карты первого спутника. Новый герой не выдаётся, камни не списываются.',k0:g.k,r0:g.r,k1:g.k,r1:g.r,gain:0,id:c.v57recruit,joined:false};tavReveal(o,c.tav.st,c.tav);}
+  function v571TavControls(){
+    document.getElementById('v57-free-hire')?.remove();let note=document.getElementById('v571-first-note');if(!note){note=document.createElement('p');note.id='v571-first-note';note.className='hint';document.querySelector('#tavsheet .tav-top').after(note);}
+    note.textContent=v571CanFree()?'Первый призыв бесплатный. Нажми кнопку — карта откроется с обычной анимацией.':S.hero?.v57recruit?'Первый спутник уже получен. Он доступен в каталоге и в подборе через слот.':'';note.hidden=!note.textContent;
+    document.getElementById('v571-replay-first')?.remove();
+  }
+  function v571CatalogEntries(){const a=[];for(const cls of Object.keys(AZ54_POOL))for(const sp of Object.keys(AZ54_POOL[cls]))for(let br=0;br<4;br++)a.push({id:cls+':'+sp+':'+br,cls,sp,br,n:AZ54_POOL[cls][sp][br],chance:RAR[br].w/Object.keys(B.CLASSES).length/Object.keys(B.CLASSES[cls].specs).length});for(const l of AZ54_LEG)a.push({id:l.cls+':'+l.sp+':4',cls:l.cls,sp:l.sp,br:4,n:l.n,chance:RAR[4].w/AZ54_LEG.length});return a;}
+  function v571Owned(entry){const coll=S.hero?.tav?.coll||{};return Object.keys(coll).find(k=>coll[k].cls===entry.cls&&coll[k].sp===entry.sp&&coll[k].br===entry.br)||null;}
+  function v571Chance(n){return n.toLocaleString('ru-RU',{maximumFractionDigits:3})+'%';}
+  function v571CatalogHTML(F){const all=v571CatalogEntries();let rows=all.filter(x=>(F.cls==='all'||x.cls===F.cls)&&(F.role==='all'||B.specOf(x.cls,x.sp).role===F.role));rows.sort((a,b)=>{const ak=v571Owned(a),bk=v571Owned(b),ag=ak?tavRec(ak):null,bg=bk?tavRec(bk):null;if(F.sort==='lvl')return (bk?hLevel(bk):0)-(ak?hLevel(ak):0)||b.br-a.br;if(F.sort==='new')return (bg?.t||0)-(ag?.t||0)||b.br-a.br;if(F.sort==='pow')return (bk?kPower(bk):0)-(ak?kPower(ak):0)||b.br-a.br;return b.br-a.br||a.n.localeCompare(b.n,'ru');});
+    const count=document.createElement('span');count.className='v571-catalog-count';count.textContent='Каталог: '+all.length+' героев · получено '+all.filter(x=>v571Owned(x)).length+' · показано '+rows.length;$('pt-flt').append(count);

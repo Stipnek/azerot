@@ -1,0 +1,142 @@
+      if (part.sq === 'auto') { const a = part.evs.find(function (e) { return e.t === 'auto'; }); if (a) { nm = a.name; ic = autoEventIcon(a,st); } }
+      else if (part.sq !== 'atk') { const se = part.evs.find(function (e) { return e.t === 'skill' || e.t === 'eskill'; }); if (se && se.skill) { nm = B.SKILLS[se.skill].name; ic = wowIcon(B.SKILLS[se.skill]); } else if (se) { nm = se.name || nm; ic = se.icon || ic; } }
+      const names = tg.map(function (id) { return B.byId(st, id).name; });
+      $('now').className = 'banner pre' + (actor.side === 'enemy' ? ' foe' : '');
+      $('now').innerHTML = '<span class="ic" aria-hidden="true">' + ic + '</span><span><b>' + colorName(actor) + ': «' + esc(nm) + '»</b><br><span class="l2">' + (names.length ? 'Цель: ' + (names.length <= 2 ? esc(names.join(', ')) : names.length + ' цели') : 'Готовится') + '</span></span>';
+      setTimeout(function () {
+        if (el) el.classList.remove('pre');
+        tg.forEach(function (id) { if (toks[id]) toks[id].tc.classList.remove('tgt', 'ally'); });
+        cb();
+      }, P);
+    };
+    let i = 0;
+    const next = function () {
+      if (st !== mySt) return;
+      if (i >= parts.length) { done(); return; }
+      const part = parts[i++];
+      telegraph(part, function () {
+        if (st !== mySt) return;
+        applyEvents(part.evs);
+        if (i >= parts.length) { setTimeout(function () { if (st === mySt) { cdHide = null; renderSkillBar(); } }, D * 0.55); done(); } else setTimeout(next, D * 0.9);
+      });
+    };
+    playing = true; next();
+  }
+  function tick() {
+    const mySt = st, evs = B.step(st);
+    playTurn(evs, function () {
+      if (st !== mySt) return;
+      playing = false;
+      updateTokens(); renderOrder(); renderEnrage();
+      if (st.over) finish(); else schedule();
+    });
+  }
+
+  let run = null, autoTimer = null;
+  const PET_CHOICE = ['imp', 'voidwalker', 'felhunter', 'succubus'];
+  function petFree(k) { return hLevel(k) >= SPEC_LEVEL || S.allSpecs; }
+  function petFor(k) {
+    const cls = clsOf(k), ch = S.hero && S.hero.pets && S.hero.pets[k];
+    if (cls === 'hunter') return petFree(k) && ch === 'none' ? null : 'wolf';
+    if (cls !== 'warlock') return null;
+    return petFree(k) && PET_CHOICE.indexOf(ch) !== -1 ? ch : 'imp';
+  }
+  /* Блок «Питомец»: кнопки выбора у охотника и чернокнижника, как в WoW переключаются свободно с 10 уровня. */
+  function petPanel(k, wide) {
+    const cls = clsOf(k); if (cls !== 'hunter' && cls !== 'warlock') return '';
+    const pk = petFor(k), pd = pk && B.PETS[pk], opts = cls === 'hunter' ? ['wolf', 'none'] : PET_CHOICE;
+    let h = '<p class="sect">Питомец: ' + esc(pd ? pd.name : 'без питомца') + '</p>';
+    h += petFree(k)
+      ? '<div class="specs" role="group" aria-label="Питомец">' + opts.map(function (o) { return '<button class="sp" data-cpet="' + o + '" data-pk="' + k + '" aria-pressed="' + (o === 'none' ? !pk : pk === o) + '">' + (o === 'none' ? 'Без питомца' : esc(B.PETS[o].name)) + '</button>'; }).join('') + '</div>'
+      : '<p class="hint">До ' + SPEC_LEVEL + ' уровня ' + (cls === 'hunter' ? 'волк' : 'только бес') + '. Выбор питомца откроется на ' + SPEC_LEVEL + ' уровне.</p>';
+    if (pd) h += '<ul class="sklist">' + pd.skills.map(function (x) { const d = B.SKILLS[x]; return '<li>' + wowIcon(d) + ' <b>' + esc(d.name) + '</b> <small>перезарядка ' + d.cd + ' х.</small><br><span class="hint">' + esc(d.text) + '</span></li>'; }).join('') + '</ul>';
+    return wide ? '<div class="box">' + h + '</div>' : '<div class="pbox">' + h + '</div>';
+  }
+  function setPet(k, v) { if (!S.hero) return; if (!S.hero.pets) S.hero.pets = {}; S.hero.pets[k] = v; save(); }
+  $('pop-c').addEventListener('click', function (ev) {
+    const pb = ev.target.closest('[data-cpet]'); if (!pb) return;
+    ev.stopPropagation(); setPet(pb.dataset.pk, pb.dataset.cpet);
+    const inf = document.querySelector('#prep [data-info="' + pb.dataset.pk + '"]'); if (inf) inf.click();
+  });
+  function partyArg() { return battleParty().map(function (k) { const g = tavRec(k); return { key: k, cls: clsOf(k), spec: specKey(k), level: hLevel(k), main: S.hero ? k === 'me' : undefined, pet: petFor(k), race: S.hero && k === 'me' ? S.hero.race : undefined, nm: heroName(k) || undefined, statBonuses:equipmentStats(k), morbentsBane:k==='me'&&hasMorbentsBane(), rb: tavBonus(g) }; }); }
+  /* Рабочий спек героя: у героя таверны спек выпадения; галочка «Все спеки с любого уровня» в тестах открывает любой. */
+  function specKey(k) {
+    const g = tavRec(k), c = B.CLASSES[clsOf(k)]; if (!c) return null;
+    if (g) return g.sp;
+    return c.specs[S.specs[k]] ? S.specs[k] : c.def;
+  }
+  function rosterKeys() { if (!S.hero) return Object.keys(B.CLASSES); if (S.compAll || !S.hero.tav) return Object.keys(B.CLASSES).concat(Object.keys((S.hero.tav&&S.hero.tav.coll)||{})); return Object.keys(S.hero.tav.coll); }
+  function compFilter() { if (!S.hero) return; const ok = rosterKeys(); S.party = ['me'].concat(S.party.filter(function (k, i, a) { return k !== 'me' && ok.indexOf(k) !== -1 && a.indexOf(k) === i; })).slice(0, LIMIT); }
+  function renderRoom() {
+    $('room').textContent = run ? 'Комната ' + (run.idx + 1) + ' из ' + run.rooms.length + ': ' + B.ENCOUNTERS[B.roomKey(run)].name + ' · отдыхов: ' + run.rests : '';
+  }
+  function startBattle() {
+    clearTimeout(autoTimer);
+    if (S.amb) { run = null; lines = []; beginBattle('ambush', null); return; }
+    if (isDungeon(S.enc)) {
+      run = B.newRun(S.enc.slice(8), partyArg(), S.main, S.level, (Math.random() * 1e9) >>> 0);
+      lines = [];
+      beginBattle(B.roomKey(run), null);
+    } else {
+      run = null; lines = [];
+      beginBattle(S.enc, null);
+    }
+  }
+  function beginBattle(encKey, carry, test) {
+    S.polyOn = !!test;
+    const q56=QUESTS[qIdx(S.enc)];if(!S.amb&&!test&&encKey===S.enc)prepareQuestEnemies(q56);
+    const enc = B.ENCOUNTERS[encKey];
+    st = B.createBattle({ party: partyArg(), main: S.main, encounter: encKey, level: S.level, carry: carry || undefined, test: test || undefined });
+    if (S.hero) { const mh = st.heroes.find(function (h) { return h.isMain; }); if (mh) { mh.name = S.hero.name; mh.race = S.hero.race; } const bpk = battleParty(); st.heroes.forEach(function (h, i) { if (!h.isMain && !h.dummy && bpk[i]) { const nm = heroName(bpk[i]); if (nm) h.name = nm; h.key = bpk[i]; } }); }
+    logIdx = 0; paused = false; cardPause = null; saidLow = {}; bd = {}; playing = false; cdHide = null;
+    $('pause').textContent = 'Пауза'; $('quit').textContent = test ? 'Стоп' : 'Выйти';
+    $('result').hidden = true; $('card').hidden = true; $('result').innerHTML = '';
+    $('log').classList.remove('open');
+    battleShow();
+    buildTokens();
+    const aurL = B.leaderAura(battleParty().map(function (k) { return { cls: clsOf(k), spec: specKey(k), main: S.hero ? k === 'me' : k === S.main, pet: petFor(k) }; }));
+    addLine(enc.name + ', ' + enc.place + '. Ваш герой ' + S.level + ' ур. Аура лидера: «' + (aurL.name || 'нет') + '»' + (aurL.res.length ? ' + резонанс' + (aurL.res.length > 1 ? 'ы: ' : ': ') + aurL.res.map(function (n) { return '«' + n + '»'; }).join(', ') : ''), 'skill');
+    const mu = st.heroes.find(function (h) { return h.isMain; }); if (mu) addLine(mu.name + ': «В бой!»', 'say');
+    renderLog();
+    $('now').className = 'banner';
+    $('now').innerHTML = '<span class="ic" aria-hidden="true">⏳</span><span><b>Бой начинается</b><br><span class="l2">' + esc(enc.text) + '</span></span>';
+    $('skillbar').innerHTML = '';
+    renderRoom();
+    updateTokens(); renderOrder(); renderEnrage();
+    window.scrollTo(0, 0);
+    schedule(1100);
+  }
+
+
+  /* ===== Полигон Златоземья: манекены для проверки урона, лечения и выживаемости танка ===== */
+  const POLY_LV = [10, 20, 30, 40, 50, 60];
+  const POLY_MODE = { dps: ['🎯', 'Урон', 'манекен не бьёт, ХП не кончаются'], heal: ['💚', 'Лечение', 'в бою только лекари отряда и раненый манекен'], tank: ['🛡️', 'Танк', 'манекен бьёт танка, смотрим выживаемость'] };
+  const POLY_PAT = { steady: 'ровный', pulse: 'импульсы', burst: 'всплески' };
+  function polyOpen() { S.polyCfg = S.polyCfg || { mode: 'dps', level: 20, count: 1, pattern: 'steady', limit: 30 }; $('polysheet').hidden = false; document.body.classList.add('qlock'); polyRender(); }
+  /* ---------- Таверна Златоземья: гача-наём героев (построено 15 ноября) ---------- */
+  function tavOf() { if (!S.hero) return null; if (!S.hero.tav) S.hero.tav = cleanTav(null); return S.hero.tav; }
+  /* Сила героя таверны: +1,25% ко всем характеристикам (ХП, атака, лечение) за каждую ступень: звезда или редкость (4 звезды на редкость). Обычный 1★ = 0%, Легендарный 5★ = +25%. */
+  const TAV_STEP = 0.0125;
+  function tavTier(g) { return g ? g.r * 4 + g.k - 1 : 0; }
+  function tavBonus(g) { return g ? TAV_STEP * tavTier(g) : 0; }
+  function starsTxt(k) { return '★★★★★'.slice(0, k) + '☆☆☆☆☆'.slice(0, 5 - k); }
+  function tavOpen() { if (!S.hero) return; $('tavsheet').hidden = false; document.body.classList.add('qlock'); tavRender(); }
+  function tavClose() { if (tavBusy) tavBusy.skip(true); $('tavsheet').hidden = true; document.body.classList.remove('qlock'); renderHead(); }
+  function tavRender(res, hl, keep) {
+    if (tavBusy) return;
+    const t = tavOf(); if (!t) return;
+    $('tav-stones').textContent = '💎 ' + t.st;
+    $('tav-pull').disabled = !v571CanFree()&&t.st<PULL_COST;
+    $('tav-pull').textContent=v571CanFree()?'Бесплатный призыв':'Призыв героя · '+PULL_COST+' 💎';
+    v571TavControls();
+    if (!keep) $('tav-result').innerHTML = res || '<div class="tav-idle"><div class="tv-shaker tav-ready-card" aria-label="Закрытая карта призыва Альянса"><div class="tv-card"><div class="tv-face tv-back"><img class="alliance-crest" src="data:image/png;base64,__AZEROT_HTML_ASSET_fbdeb4e6c8e2dd3de8587c81a9248dfa42c6fae811dd0c3e27a9d12c057f7506__" alt="Золотой лев Альянса на синем щите" width="1149" height="1464" loading="eager" decoding="async" referrerpolicy="no-referrer" onerror="this.hidden=true;this.parentElement.classList.add(&quot;crest-unavailable&quot;)"><span class="faction-name">АЛЬЯНС</span></div></div></div><p>Нажми «Призыв героя», чтобы открыть карту. Новый герой вступит в отряд, если есть место.</p></div>';
+    $('tav-coll').textContent = 'Героев в коллекции: ' + Object.keys(t.coll).length;
+  }
+  /* ---- Анимация призыва: переворот карты, эффекты по редкости, итог, звук, уведомления ---- */
+  const TV_SUSP = [800, 1000, 1350, 1950, 2700];
+  const TV_BUZZ = [0, 0, 25, [40, 40, 70], [60, 40, 60, 40, 160]];
+  const TV_KIND = { new: 'Новый герой!', merge: 'Дубль: +1 ★', ascend: 'Новая редкость!', maxmerge: 'Предел' };
+  let tavBusy = null, tvRaf = 0, tvToastTm = 0;
+  function tavReady() { const t = tavOf(); return !!t && (v571CanFree()||t.st>=PULL_COST); }
+  function tvStars(k, nw) {
+    let h = '';
