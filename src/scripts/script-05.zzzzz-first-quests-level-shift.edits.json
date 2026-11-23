@@ -1,11 +1,11 @@
 {
   "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
-  "description": "Shift early Elwynn solo/group combat encounter levels back by one so a level-1 hero with only auto-attack meets level-1 enemies first. Abilities, training kit and talents unchanged; only encounter levels change (enemy scaling, level-difference modifiers, XP reward level).",
+  "description": "Early Elwynn balance: shift combat encounter levels back by one, and give the first five quests softer copies of their enemies (hp and atk scaled) because a level-1 hero has only auto-attack. Abilities, training kit and talents unchanged; base enemy definitions unchanged.",
   "edits": [
     {
       "name": "Shift early Elwynn combat encounter levels back by one",
       "old": "const TM = 1000;",
-      "new": "['koboldcamp', 'wolves', 'thieves', 'echoscout', 'echoraid', 'garrick', 'necklace', 'pie', 'fargo', 'golddust', 'goldtooth', 'jasper', 'princess', 'gnolls', 'collector', 'manhunt', 'fishy', 'lostguards', 'rolf', 'hogger'].forEach(function (k) { if (ENCOUNTERS[k] && ENCOUNTERS[k].level > 1) ENCOUNTERS[k].level -= 1; });\n  const TM = 1000;"
+      "new": "['koboldcamp', 'wolves', 'thieves', 'echoscout', 'echoraid', 'garrick', 'necklace', 'pie', 'fargo', 'golddust', 'goldtooth', 'jasper', 'princess', 'gnolls', 'collector', 'manhunt', 'fishy', 'lostguards', 'rolf', 'hogger'].forEach(function (k) { if (ENCOUNTERS[k] && ENCOUNTERS[k].level > 1) ENCOUNTERS[k].level -= 1; });\n  (function () {\n    const easing = {koboldcamp: 0.6, wolves: 0.6, thieves: 0.6, echoscout: 0.7, echoraid: 0.7};\n    Object.keys(easing).forEach(function (id) {\n      const enc = ENCOUNTERS[id];\n      if (!enc) return;\n      enc.enemies = enc.enemies.map(function (key) {\n        const base = ENEMIES[key];\n        if (!base) return key;\n        const soft = key + '_e' + Math.round(easing[id] * 100);\n        if (!ENEMIES[soft]) ENEMIES[soft] = Object.assign({}, base, {hp: Math.round(base.hp * easing[id]), atk: Math.round(base.atk * easing[id])});\n        return soft;\n      });\n    });\n  })();\n  const TM = 1000;"
     }
   ]
 }
