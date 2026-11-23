@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "New paid and free heroes and their reveal start at zero stars. Preserve existing ranks and duplicate/ascension rules; prevent a negative bonus at ordinary zero stars.",
+  "edits": [
+    {"name":"Paid new hero starts with zero stars","old":"br: rar, r: rar, k: 1, race: pickRace(cls, nm)","new":"br: rar, r: rar, k: 0, race: pickRace(cls, nm)"},
+    {"name":"Paid reveal starts with zero stars","old":"r0: cur ? cur.r : rar, k1: 1, r1: rar","new":"r0: cur ? cur.r : rar, k1: 0, r1: rar"},
+    {"name":"First free recruit starts with zero stars","old":"sp,br,r:br,k:1,race:pickRace(cls,'')","new":"sp,br,r:br,k:0,race:pickRace(cls,'')"},
+    {"name":"Free reveal starts with zero stars","old":"k0:0,r0:br,k1:1,r1:br","new":"k0:0,r0:br,k1:0,r1:br"},
+    {"name":"Do not penalize ordinary zero-star heroes","old":"function tavTier(g) { return g ? g.r * 4 + g.k - 1 : 0; }","new":"function tavTier(g) { return g ? Math.max(0, g.r * 4 + g.k - 1) : 0; }"}
+  ]
+}

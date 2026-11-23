@@ -1,0 +1,102 @@
+
+(function () {
+  'use strict';
+  const B = window.Battle;
+  const LIMIT = 5;
+  const KEY = 'azeroth-ab-setup-v5';
+  try{if(!localStorage.getItem('azeroth-ab-backup-before-v57')&&localStorage.getItem(KEY))localStorage.setItem('azeroth-ab-backup-before-v57',localStorage.getItem(KEY));}catch(e){}
+  /* Все зоны игры. Чтобы добавить локацию: 1) впиши её ключ сюда, 2) добавь запись в ZONES (имя, вход, уровни, пин на карте мира wm:[x,y] и значок icon), 3) добавь места в NEWP и квесты. Пин и счётчик заданий на карте мира подставятся сами. */
+  const ZONE_KEYS = ['elwynn', 'westfall', 'redridge', 'duskwood', 'stormwind', 'wetlands_route'];
+  const S = { party: ['warrior', 'priest', 'mage'], main: 'warrior', enc: 'hogger', specs: {}, level: 1, auto: false, testClear: false, hero: null, chars: [], cur: null, allQ: false, allSpecs: false, compAll: true, tab: 'map', pick: null, qsel: null, rosPage: 0, selPage: 0 };
+  /* Деньги хранятся у персонажа; S.money всегда деньги активного героя. */
+  Object.defineProperty(S, 'money', { get: function () { return S.hero ? S.hero.money || 0 : 0; }, set: function (v) { if (S.hero) S.hero.money = Math.max(0, Math.round(v)); } });
+  const RACES = {
+    human: { name: 'Человек', icon: '🧑', classes: ['warrior', 'paladin', 'rogue', 'priest', 'mage', 'warlock'], rx: 1, ry: 1 },
+    dwarf: { name: 'Дварф', icon: '🧔', classes: ['warrior', 'paladin', 'hunter', 'rogue', 'priest'], rx: 1.12, ry: 0.8 },
+    gnome: { name: 'Гном', icon: '🧒', classes: ['warrior', 'rogue', 'mage', 'warlock'], rx: 0.82, ry: 0.66 },
+    nelf: { name: 'Ночной эльф', icon: '🧝', classes: ['warrior', 'hunter', 'rogue', 'priest', 'druid'], rx: 0.94, ry: 1.1 },
+  };
+  const HORDE_PREVIEW = [{ name: 'Орк', icon: '👹' }, { name: 'Нежить', icon: '🧟' }, { name: 'Таурен', icon: '🐂' }, { name: 'Тролль', icon: '🧌' }];
+  const CR_CLASSES = ['warrior', 'paladin', 'druid', 'hunter', 'rogue', 'priest', 'mage', 'warlock'];
+  const LOOK = [
+    { key: 'hair', label: 'Причёска', opts: ['Короткие'] },
+    { key: 'beard', label: 'Борода', opts: ['Полная'] },
+    { key: 'skin', label: 'Цвет кожи', opts: ['Светлый'] },
+    { key: 'hairc', label: 'Цвет волос', opts: ['Каштановый'] },
+  ];
+  Object.keys(B.CLASSES).forEach(function (k) { S.specs[k] = B.CLASSES[k].def; });
+  function cleanSpecs(o) { const r = {}; Object.keys(B.CLASSES).forEach(function (k) { r[k] = o && B.CLASSES[k].specs[o[k]] ? o[k] : B.CLASSES[k].def; }); if (o && typeof o.me === 'string') r.me = o.me; if (o) Object.keys(o).forEach(function (k) { if (isGid(k) && typeof o[k] === 'string') r[k] = o[k]; }); return r; }
+  /* Ключи героев таверны: 'g' + id. Несколько героев одного класса живут рядом (решение 16 ноября). */
+  function isGid(k) { return typeof k === 'string' && k.charAt(0) === 'g' && k.length > 1 && !B.CLASSES[k]; }
+  function tavRec(k) { return isGid(k) && S.hero && S.hero.tav ? S.hero.tav.coll[k] || null : null; }
+  /* Ключ мейна в отряде, спеках и опыте: 'me'. Компаньоны по ключу класса, в том числе того же класса, что мейн. */
+  function clsOf(k) { if (k === 'me') return S.main; if (B.CLASSES[k]) return k; const g = tavRec(k); return g ? g.cls : null; }
+  function cleanParty(list, cls) { const L = Array.isArray(list) ? list : [], hasMe = L.indexOf('me') !== -1; return ['me'].concat(L.filter(function (k, i, a) { return (B.CLASSES[k] || isGid(k)) && (hasMe || k !== cls) && a.indexOf(k) === i; })).slice(0, LIMIT); }
+  function newId() { return 'c' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36); }
+  function startParty(cls) { return ['me']; }
+  function cleanHxp(h) {
+    const r = {}, lv = h && h.level >= 1 && h.level <= B.XPC.cap ? Math.round(h.level) : 1;
+    Object.keys(B.CLASSES).forEach(function (k) { r[k] = h && h.hxp && isFinite(+h.hxp[k]) ? Math.max(0, Math.round(+h.hxp[k])) : (h && h.hxp ? 0 : B.xpAt(lv)); });
+    if (h && h.hxp) Object.keys(h.hxp).forEach(function (k) { if (isGid(k) && isFinite(+h.hxp[k])) r[k] = Math.max(0, Math.round(+h.hxp[k])); });
+    r.me = h && h.hxp && isFinite(+h.hxp.me) ? Math.max(0, Math.round(+h.hxp.me)) : (h && h.cls && r[h.cls] !== undefined ? r[h.cls] : B.xpAt(lv));
+    return r;
+  }
+  const HERO_NAMES = { warrior: 'Торбин', paladin: 'Альрик', druid: 'Лунара', priest: 'Мирелла', mage: 'Ианта', hunter: 'Гарет', rogue: 'Зиль', warlock: 'Моргут' };
+  /* Гача (построено 15 ноября): редкости как качество предметов WoW, веса в процентах, бонус к статам. */
+  const RAR = [
+    { n: 'Обычный', c: '#9d9d9d', w: 55, b: 0 },
+    { n: 'Необычный', c: '#1eff00', w: 25, b: 0.04 },
+    { n: 'Редкий', c: '#0070dd', w: 13, b: 0.08 },
+    { n: 'Эпический', c: '#a335ee', w: 6, b: 0.12 },
+    { n: 'Легендарный', c: '#ff8000', w: 1, b: 0.18 }
+  ];
+  const TAV_NAMES = {
+    warrior: ['Торбин', 'Хальдор', 'Бран', 'Рагнар', 'Дарен', 'Корин'],
+    paladin: ['Альрик', 'Седрик', 'Ланс', 'Балдур', 'Арден', 'Люциан'],
+    druid: ['Лунара', 'Тейла', 'Ния', 'Аэлла', 'Мирра', 'Сильва'],
+    priest: ['Мирелла', 'Элен', 'Лорин', 'Дана', 'Вера', 'Ансель'],
+    mage: ['Ианта', 'Лира', 'Эсми', 'Алисия', 'Селена', 'Мирабель'],
+    hunter: ['Гарет', 'Финн', 'Ролан', 'Эйдан', 'Крис', 'Тодд'],
+    rogue: ['Зиль', 'Кай', 'Рик', 'Вейн', 'Скальд', 'Джин'],
+    warlock: ['Моргут', 'Дарий', 'Ксандр', 'Морвен', 'Люциус', 'Дракен']
+  };
+  const AZ54_POOL={"warrior": {"prot": ["Торбин", "Хальдор", "Грим", "Борик"], "arms": ["Рагнар", "Дарен", "Ульфрик", "Вальтер"], "fury": ["Корин", "Бран", "Свен", "Кельд"]}, "paladin": {"holy": ["Альрик", "Седрик", "Эдмунд", "Оливер"], "prot": ["Ланс", "Балдур", "Хьюго", "Рейнар"], "ret": ["Арден", "Люциан", "Гавейн", "Теодор"]}, "druid": {"bear": ["Мирра", "Сильва", "Брия", "Тарна"], "resto": ["Лунара", "Тейла", "Этайн", "Ильвия"], "cat": ["Ния", "Каэла", "Лирис", "Тесса"], "balance": ["Аэлла", "Селия", "Орлея", "Нимрия"]}, "priest": {"holy": ["Мирелла", "Элен", "Ориэль", "Элиана"], "disc": ["Лорин", "Дана", "Тамара", "Фрея"], "shadow": ["Вера", "Ансель", "Ксения", "Нерис"]}, "mage": {"fire": ["Ианта", "Лира", "Агния", "Эмбер"], "arcane": ["Эсми", "Алисия", "Астрид", "Аурелия"], "frost": ["Селена", "Мирабель", "Исольда", "Эйра"]}, "hunter": {"mm": ["Гарет", "Финн", "Дэмьен", "Фальк"], "bm": ["Ролан", "Эйдан", "Тайбор", "Эрвин"], "surv": ["Крис", "Тодд", "Харт", "Брам"]}, "rogue": {"combat": ["Зиль", "Кай", "Дирк", "Леон"], "assn": ["Рик", "Вейн", "Каспер", "Маркус"], "subt": ["Скальд", "Джин", "Лисса", "Терон"]}, "warlock": {"aff": ["Моргут", "Дарий", "Нокс", "Малгрим"], "demo": ["Ксандр", "Морвен", "Велара", "Саргон"], "destro": ["Люциус", "Дракен", "Игнис", "Азгар"]}};
+const AZ54_LEG=[{"cls": "warrior", "sp": "prot", "n": "Магни Бронзобород"}, {"cls": "paladin", "sp": "holy", "n": "Утер Светоносный"}, {"cls": "druid", "sp": "balance", "n": "Фандрал Олений Шлем"}, {"cls": "priest", "sp": "holy", "n": "Тиранда Шелест Ветра"}, {"cls": "mage", "sp": "frost", "n": "Джайна Праудмур"}, {"cls": "hunter", "sp": "mm", "n": "Хеминг Эрнестуэй"}, {"cls": "rogue", "sp": "subt", "n": "Матиас Шоу"}, {"cls": "warlock", "sp": "destro", "n": "Гул'дан"}];
+function az54HeroName(cls,sp,br){const pl=AZ54_POOL[cls]&&AZ54_POOL[cls][sp];if(!pl)return null;if(br<4)return pl[Math.max(0,br)];const l=AZ54_LEG.find(function(x){return x.cls===cls&&x.sp===sp;});return l?l.n:pl[3];}
+const PULL_COST = 50;
+  /* Расы призванных героев: легенды по лору, остальные случайно из рас, которым класс доступен в Классике */
+  const LEG_RACE = { warrior: 'dwarf', paladin: 'human', druid: 'nelf', priest: 'nelf', mage: 'human', hunter: 'human', rogue: 'human', warlock: 'orc' };
+  function raceOk(r, cls) { return r === 'orc' ? cls === 'warlock' : !!(RACES[r] && RACES[r].classes.indexOf(cls) !== -1); }
+  function raceName(r) { return RACES[r] ? RACES[r].name : (r === 'orc' ? 'Орк' : ''); }
+  function pickRace(cls, nm) {
+    if (LEG_NAMES[cls] && LEG_NAMES[cls].indexOf(nm) !== -1) return LEG_RACE[cls];
+    const ok = Object.keys(RACES).filter(function (r) { return RACES[r].classes.indexOf(cls) !== -1; });
+    return ok[Math.floor(Math.random() * ok.length)];
+  }
+  const LEG_NAMES = {
+    warrior: ['Магни Бронзобород'], paladin: ['Утер Светоносный'], druid: ['Фандрал Олений Шлем'],
+    priest: ['Тиранда Шелест Ветра'], mage: ['Джайна Праудмур'], hunter: ['Хеминг Эрнестуэй'],
+    rogue: ['Матиас Шоу'], warlock: ["Гул'дан"]
+  };
+  /* Запись героя таверны: cls, sp (спек выпадения), br (редкость выпадения), r (текущая редкость), k (звёзды 1–5), n, race.
+     Линия = класс + спек + редкость выпадения. Дубль линии: +1 ★; 5 ★ заполнены, шестой дубль повышает редкость на ступень, звёзды снова 1 (решение 16 ноября). */
+  function cleanTav(tv) {
+    const o = tv && typeof tv === 'object' ? tv : {};
+    const coll = {}, moved = {};
+    if (o.coll && typeof o.coll === 'object') Object.keys(o.coll).forEach(function (k) {
+      const c = o.coll[k];
+      if (!c || typeof c.n !== 'string' || !c.n.trim()) return;
+      const cls = B.CLASSES[k] ? k : (isGid(k) && B.CLASSES[c.cls] ? c.cls : null);
+      if (!cls) return;
+      const id = B.CLASSES[k] ? 'g_' + k : k;
+      if (B.CLASSES[k]) moved[k] = id;
+      let r = Math.min(4, Math.max(0, Math.round(+c.r || 0))), st = Math.min(5, Math.max(1, Math.round(+c.k || 1)));
+      const nm = c.n.trim().slice(0, 24);
+      coll[id] = { cls: cls, n: nm, sp: B.CLASSES[cls].specs[c.sp] ? c.sp : B.CLASSES[cls].def, br: c.br !== undefined ? Math.min(4, Math.max(0, Math.round(+c.br))) : r, r: r, k: st, race: raceOk(c.race, cls) ? c.race : pickRace(cls, nm), t: +c.t || 0 };
+    });
+    Object.keys(coll).forEach(function(id){const g=coll[id],n=az54HeroName(g.cls,g.sp,g.br);if(n)g.n=n;});
+    return { st: o.st === undefined || o.st === null || !isFinite(+o.st) ? 0 : Math.max(0, Math.round(+o.st)), coll: coll, moved: moved };
+  }
+  /* Старые сохранения: герои таверны лежали по ключу класса. Переносим их ключи в отряде, опыте, спеках и питомцах. */
+  function migrateTav(ch) {
+    const mv = ch.tav.moved || {}; delete ch.tav.moved;

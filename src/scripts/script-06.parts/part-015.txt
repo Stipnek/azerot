@@ -1,0 +1,75 @@
+    coast: function () {
+      return '<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="sgc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fc4ea"/><stop offset="1" stop-color="#d9efe8"/></linearGradient></defs>' +
+        '<rect width="400" height="300" fill="url(#sgc)"/><ellipse cx="90" cy="48" rx="50" ry="12" fill="#fff" opacity=".8"/><ellipse cx="150" cy="60" rx="34" ry="9" fill="#fff" opacity=".8"/>' +
+        '<rect y="128" width="400" height="80" fill="#2f86b8"/><path d="M0 146 Q50 138 100 146 T200 146 T300 146 T400 146 M0 168 Q50 160 100 168 T200 168 T300 168 T400 168 M0 190 Q50 182 100 190 T200 190 T300 190 T400 190" stroke="#aee0f2" stroke-width="3" fill="none" opacity=".7"/>' +
+        '<path d="M300 130 L318 52 H342 L360 130Z" fill="#f4f1ea"/><path d="M306 104 H354 L350 84 H310Z M312 70 L348 70 L346 58 H314Z" fill="#c9302c"/><rect x="314" y="40" width="28" height="14" fill="#3a3a3a"/><path d="M312 40 L328 26 L344 40Z" fill="#8b2a22"/>' +
+        '<path d="M0 100 L70 84 L130 112 L130 205 L0 205Z" fill="#7a6a58"/><path d="M0 100 L70 84 L130 112 L100 112 L60 100 L0 112Z" fill="#8a9a58"/>' +
+        '<path d="M0 205 Q200 190 400 206 V300 H0Z" fill="#e6cf92"/><path d="M0 232 Q200 218 400 234" stroke="#c6ad6e" stroke-width="3" fill="none"/><path d="M0 262 Q200 250 400 264" stroke="#cdb87c" stroke-width="3" fill="none"/>' +
+        '<ellipse cx="60" cy="250" rx="16" ry="8" fill="#a99870"/><ellipse cx="330" cy="272" rx="20" ry="9" fill="#a99870"/><path d="M215 220 l12 -6 l12 6 l-12 5Z" fill="#c0392b"/></svg>';
+    },
+    ruins: function () {
+      return '<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="sgr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6c5a7a"/><stop offset="1" stop-color="#e3a96b"/></linearGradient></defs>' +
+        '<rect width="400" height="300" fill="url(#sgr)"/><circle cx="320" cy="96" r="30" fill="#ffd9a0" opacity=".85"/>' +
+        '<path d="M0 150 Q100 120 200 146 T400 136 V300 H0Z" fill="#6f7a55"/>' +
+        '<g fill="#8a8478"><rect x="40" y="96" width="28" height="110"/><rect x="34" y="90" width="40" height="10"/><rect x="150" y="130" width="26" height="76"/><path d="M146 130 L150 118 L160 124 L170 116 L180 130Z"/><rect x="300" y="84" width="28" height="122"/><path d="M294 90 L300 76 L312 84 L322 72 L332 90Z"/></g>' +
+        '<path d="M68 96 Q184 40 300 84" stroke="#8a8478" stroke-width="14" fill="none"/><path d="M118 74 L128 98 L140 70" stroke="#6b665c" stroke-width="3" fill="none"/>' +
+        '<g fill="#6b665c"><rect x="44" y="130" width="6" height="40"/><rect x="304" y="120" width="6" height="50"/></g>' +
+        '<path d="M0 206 Q200 196 400 208 V300 H0Z" fill="#59623f"/><path d="M0 238 Q200 228 400 240 V300 H0Z" fill="#4a5336"/>' +
+        '<g fill="#8a8478"><rect x="210" y="214" width="34" height="14" rx="3"/><rect x="90" y="232" width="26" height="12" rx="3"/><rect x="330" y="236" width="30" height="13" rx="3"/></g>' +
+        '<g stroke="#3b4528" stroke-width="2"><path d="M20 270 l4 -12 l4 12 M180 276 l4 -12 l4 12 M360 268 l4 -12 l4 12"/></g></svg>';
+    },
+    redridge: function () {
+      return '<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="sgd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9a56c"/><stop offset="1" stop-color="#f6dcae"/></linearGradient></defs>' +
+        '<rect width="400" height="300" fill="url(#sgd)"/><circle cx="64" cy="70" r="24" fill="#fff0c4" opacity=".9"/>' +
+        '<path d="M0 138 L60 82 L110 120 L180 62 L250 118 L320 70 L400 128 V300 H0Z" fill="#8a5a46"/><path d="M180 62 L196 82 L168 82Z M320 70 L334 88 L308 88Z M60 82 L74 98 L48 98Z" fill="#f2e8e0"/>' +
+        '<path d="M0 170 Q100 140 200 164 T400 150 V300 H0Z" fill="#b5703f"/>' +
+        '<path d="M120 186 Q200 172 290 190 Q300 206 200 214 Q110 208 120 186Z" fill="#4f8fb0"/><path d="M150 192 Q200 184 250 194" stroke="#bfe4f0" stroke-width="3" fill="none" opacity=".8"/>' +
+        '<path d="M0 214 Q200 200 400 216 V300 H0Z" fill="#9c5a34"/><path d="M0 250 Q200 238 400 252 V300 H0Z" fill="#7d4528"/>' +
+        '<g fill="#3f5a32"><path d="M30 208 L50 148 L70 208Z M62 214 L78 166 L94 214Z M330 206 L350 140 L370 206Z M366 214 L380 170 L394 214Z"/></g><g fill="#5b3a22"><rect x="46" y="208" width="8" height="12"/><rect x="346" y="206" width="8" height="12"/></g>' +
+        '<g fill="#6b3d22"><ellipse cx="230" cy="268" rx="22" ry="8"/><ellipse cx="80" cy="274" rx="16" ry="6"/></g></svg>';
+    }
+  };
+  function sceneSvg(kind) {
+    if(kind==='duskwood') return '<div class="dw-battle-bg"></div>';
+    if (SCENE_IMG[kind]) return '<img alt="" aria-hidden="true" src="' + SCENE_IMG[kind] + '">';
+    if (SCENES2[kind]) return SCENES2[kind]();
+    if (kind === 'mine') return '<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#140f0b"/><stop offset="1" stop-color="#3b2a1d"/></linearGradient><radialGradient id="lg"><stop offset="0" stop-color="#ffd27a" stop-opacity=".7"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient></defs>' +
+      '<rect width="400" height="300" fill="url(#sg)"/><path d="M0 70 Q80 40 160 62 T320 55 T400 70 V0 H0Z" fill="#0d0907"/>' +
+      '<rect x="22" y="40" width="16" height="200" fill="#5b3d23"/><rect x="362" y="40" width="16" height="200" fill="#5b3d23"/><rect x="190" y="30" width="14" height="200" fill="#4a321d" opacity=".7"/><rect x="10" y="40" width="380" height="14" fill="#6a4728"/>' +
+      '<circle cx="60" cy="80" r="70" fill="url(#lg)"/><circle cx="60" cy="80" r="6" fill="#ffe7a8"/><circle cx="340" cy="80" r="70" fill="url(#lg)"/><circle cx="340" cy="80" r="6" fill="#ffe7a8"/>' +
+      '<path d="M0 230 Q200 215 400 230 V300 H0Z" fill="#4b3727"/><path d="M0 262 L400 250 M0 280 L400 268" stroke="#7d6a55" stroke-width="3"/><circle cx="300" cy="226" r="9" fill="#6e6e7a"/><circle cx="314" cy="230" r="6" fill="#5d5d68"/></svg>';
+    if (kind === 'deadmines') return '<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e1419"/><stop offset="1" stop-color="#26313b"/></linearGradient><radialGradient id="lg"><stop offset="0" stop-color="#ffcf73" stop-opacity=".6"/><stop offset="1" stop-color="#ffcf73" stop-opacity="0"/></radialGradient></defs>' +
+      '<rect width="400" height="300" fill="url(#sg)"/><path d="M0 60 Q100 20 200 50 T400 40 V0 H0Z" fill="#080c10"/>' +
+      '<rect x="0" y="175" width="400" height="30" fill="#1c3a4a"/><path d="M190 175 L400 175 L400 95 L232 110 Z" fill="#4e3322"/><rect x="300" y="20" width="9" height="90" fill="#3d2718"/><path d="M309 28 L370 48 L309 70Z" fill="#9b8d76" opacity=".7"/>' +
+      '<circle cx="260" cy="132" r="7" fill="#ffcf73" opacity=".8"/><circle cx="300" cy="128" r="7" fill="#ffcf73" opacity=".8"/><circle cx="340" cy="124" r="7" fill="#ffcf73" opacity=".8"/><circle cx="80" cy="100" r="80" fill="url(#lg)"/><circle cx="80" cy="100" r="6" fill="#ffe7a8"/>' +
+      '<path d="M0 222 L400 222 L400 300 L0 300Z" fill="#5a3c26"/><path d="M0 240 H400 M0 262 H400 M0 284 H400" stroke="#3e2818" stroke-width="2"/></svg>';
+    return '<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#78afe0"/><stop offset="1" stop-color="#dcedf7"/></linearGradient></defs>' +
+      '<rect width="400" height="300" fill="url(#sg)"/><circle cx="330" cy="45" r="20" fill="#fff6c9" opacity=".9"/>' +
+      '<path d="M0 150 Q70 112 140 138 T270 128 T400 140 V300 H0Z" fill="#9cbf84"/>' +
+      '<g fill="#5f8f50"><circle cx="20" cy="140" r="22"/><circle cx="55" cy="132" r="26"/><circle cx="95" cy="140" r="20"/><circle cx="300" cy="134" r="24"/><circle cx="340" cy="140" r="22"/><circle cx="380" cy="132" r="26"/></g>' +
+      '<g fill="#3d6e36"><path d="M8 210 L30 120 L52 210Z"/><path d="M40 215 L66 105 L92 215Z"/><path d="M330 212 L356 110 L382 212Z"/><path d="M362 215 L388 120 L414 215Z"/></g>' +
+      '<path d="M0 196 Q200 180 400 196 V300 H0Z" fill="#6f9c47"/><path d="M-10 262 Q200 226 410 262 L410 282 Q200 246 -10 282Z" fill="#c9ad74" opacity=".85"/>' +
+      '<g fill="#5a8a3a"><path d="M120 214 l4 -10 l4 10z"/><path d="M250 208 l4 -10 l4 10z"/><path d="M180 290 l4 -10 l4 10z"/><path d="M330 284 l4 -10 l4 10z"/></g></svg>';
+  }
+
+  const CR = { race: 'human', cls: 'warrior', look: {}, name: '', step: 0 };
+  // v45: appearance editor is intentionally disabled; saved look fields remain compatible.
+  const CR_APPEARANCE_ENABLED = false;
+  const CR_STEPS = ['Раса', 'Класс', 'Имя'];
+  function crAllowed(k) { return RACES[CR.race].classes.indexOf(k) !== -1; }
+  // WoW race portrait icons, not official website artwork. Network links are unverified.
+  function creationRaceIcon(key, label) {
+ const P=window.__az52UIAssets, a=P&&P.races[key];
+ if(!a)return esc(label||'');
+ if(typeof AZ_ASSET_REGISTRY!=='undefined'&&AZ_ASSET_REGISTRY.assets&&!P.registryBound){
+  Object.keys(P.races).forEach(function(k){const x=P.races[k],old=AZ_ASSET_REGISTRY.assets['raceportrait:'+k]||{};AZ_ASSET_REGISTRY.assets['raceportrait:'+k]=Object.assign({},old,{name:x.label,icon:x.icon,url:x.data,sourceUrl:x.sourceUrl,category:'creation-race-icon',embedded:true,verified:false,verificationStatus:'LOCAL_DECODE_PASSED_VISUAL_REVIEW_REQUIRED'});});
+  Object.keys(P.factions).forEach(function(k){const x=P.factions[k];AZ_ASSET_REGISTRY.assets['factioncrest:'+k]={name:x.label,icon:x.icon,url:x.data,sourceUrl:x.sourceUrl,category:'faction-crest',embedded:true,verified:false,verificationStatus:'LOCAL_DECODE_PASSED_VISUAL_REVIEW_REQUIRED'};});P.registryBound=true;
+ }
+ return '<span class="az-race-portrait ready"><img src="'+a.data+'" alt="'+esc(label||a.label)+'" width="64" height="64"></span>';
+}
+  const CR_RACE_LORE = {"human":{"subtitle":"Стойкость. Честь. Новое начало.","home":"Штормград · Восточные королевства","text":"Люди Штормграда пережили войны и утраты, но не потеряли решимости. Их сила — в умении объединяться, приспосабливаться и снова подниматься после поражений.","tone":"#d5b16c"},"dwarf":{"subtitle":"Камень помнит. Сталь защищает.","home":"Стальгорн · Хаз Модан","text":"Среди заснеженных гор живут стойкие дварфы Стальгорна — искусные мастера и бесстрашные исследователи. Их влекут древние руины и тайны собственного происхождения.","tone":"#cfa789"},"gnome":{"subtitle":"Маленький рост. Большие открытия.","home":"Гномреган · Дун Морог","text":"Изобретательные гномы славятся острым умом и смелыми идеями. Даже потеряв родной Гномреган, они сохраняют любопытство, бодрость и веру в следующее великое открытие.","tone":"#d6a6cc"},"nelf":{"subtitle":"Под сенью древних лесов.","home":"Тельдрассил · Калимдор","text":"Древние ночные эльфы веками хранили леса Калимдора. Их история связана с магией, тяжёлыми испытаниями и нерушимой привязанностью к природе.","tone":"#a8b5db"}};
+
+  let crGalleryTimer = null, crGalleryEpoch = 0, crGalleryPaused = false;
+  function stopCrGallery() {
+    clearTimeout(crGalleryTimer); crGalleryTimer = null; crGalleryEpoch++;
+  }

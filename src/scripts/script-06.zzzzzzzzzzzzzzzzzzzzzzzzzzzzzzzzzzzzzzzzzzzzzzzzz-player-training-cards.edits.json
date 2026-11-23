@@ -1,0 +1,16 @@
+{
+  "sourceSha256":"d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description":"Training ability cards: grayscale only locked icons, prominent unlock level, readable description and separate cost/cooldown. Preserve data hooks, progression and combat.",
+  "edits":[
+    {
+      "name":"Render readable training skill cards",
+      "old":"      return '<li data-neutral-skill=\"'+esc(slot.id)+'\" data-available=\"'+slot.available+'\" data-own-level=\"'+level+'\"'+(slot.available?'':' class=\"az-ability-locked\"')+'>'+wowIcon(d)+' <b>'+esc(slot.name)+'</b> · '+esc(slot.available?'с '+slot.unlockLevel+' ур.':'Откроется на '+slot.unlockLevel+' уровне')+' · '+esc(cost)+' · перезарядка '+d.cd+'<br>'+esc(neutralTrainingText(slot.id,slot.description))+'</li>';",
+      "new":"      return '<li class=\"az-training-skill'+(slot.available?'':' az-ability-locked')+'\" data-neutral-skill=\"'+esc(slot.id)+'\" data-available=\"'+slot.available+'\" data-own-level=\"'+level+'\"><span class=\"az-training-icon\" aria-hidden=\"true\">'+wowIcon(d)+'</span><div class=\"az-training-copy\"><b class=\"az-training-name\">'+esc(slot.name)+'</b><strong class=\"az-training-state\">'+esc(slot.available?'Доступно · с '+slot.unlockLevel+' уровня':'Откроется на '+slot.unlockLevel+' уровне')+'</strong><p class=\"az-training-description\">'+esc(neutralTrainingText(slot.id,slot.description))+'</p><p class=\"az-training-meta\">'+esc(cost)+' · перезарядка '+esc(d.cd)+' ход.</p></div></li>';"
+    },
+    {
+      "name":"Add scoped training card styles",
+      "old":"    return '<details class=\"sk\" open data-neutral-training=\"'",
+      "new":"    return '<style>[data-neutral-training] ul{list-style:none;padding:0;margin:12px 0;display:grid;gap:10px}[data-neutral-training] li.az-training-skill{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:start;padding:12px;margin:0;border:1px solid #697159;border-radius:8px;background:#1c2329;color:#fff2dc;opacity:1!important;filter:none!important}[data-neutral-training] .az-training-icon{display:block;width:44px;min-height:44px;overflow:hidden}[data-neutral-training] .az-training-icon img{max-width:100%;height:auto}[data-neutral-training] [data-available=false] .az-training-icon{filter:grayscale(1);opacity:.55}[data-neutral-training] .az-training-copy{min-width:0;overflow-wrap:anywhere}[data-neutral-training] .az-training-name{display:block;font-size:16px;line-height:1.35}[data-neutral-training] .az-training-state{display:block;width:fit-content;max-width:100%;box-sizing:border-box;margin:6px 0;padding:4px 8px;border:1px solid #74a66e;border-radius:5px;color:#c5edb3;font-size:13px;line-height:1.4}[data-neutral-training] [data-available=false] .az-training-state{border-color:#d2ad61;color:#ffe0a0;background:#30291e}[data-neutral-training] [data-available=false]{border-color:#666!important}[data-neutral-training] .az-training-description{margin:8px 0;color:#fff2dc;font-size:14px;line-height:1.5}[data-neutral-training] .az-training-meta{margin:6px 0 0;color:#c0c6cb;font-size:12px;line-height:1.4}</style><details class=\"sk\" open data-neutral-training=\"'"
+    }
+  ]
+}

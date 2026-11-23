@@ -1,0 +1,120 @@
+    if(k==='tutorial57_hire'||k==='tutorial57_party'){const p=[...$('jd').children].find(n=>n.tagName==='P'&&n.textContent.startsWith('Награда:'));if(p)p.textContent=k==='tutorial57_hire'?'Награда: гарантированный спутник. Наём бесплатный, один раз на персонажа.':'Результат: спутник в составе отряда. Дополнительной валюты за этот шаг нет.';}
+    $('jmsg').textContent = ''; $('jmsg').classList.remove('ok');
+    updateRunOpts();
+    if (!open || s !== 1 && s !== 3) $('runopts').hidden = true;
+  }
+  function renderMore() {
+    $('lv-val').textContent = S.level;
+    $('chk-allq').checked = S.allQ; $('chk-allspecs').checked = !!S.allSpecs; $('chk-amb').checked = !!S.ambTest; $('chk-comp').checked = S.compAll !== false; $('chk-snd').checked = S.sound !== false;
+    const c = S.hero;
+    renderHead();
+  }
+  $('bnav').addEventListener('click', function (ev) { if (S.walk || S.amb) return; const b = ev.target.closest('[data-tab]'); if (b) showWorld(b.dataset.tab); });
+  $('world').addEventListener('click', function (ev) {
+    if (S.amb) return;
+    if (S.walk) { S.walk.skip(); return; }
+    const zg = ev.target.closest('[data-zgo]');
+    if (zg) { crossZone(zg.dataset.zgo, function () { renderMap(); }); return; }
+    if (ev.target.closest('[data-wm]')) { wmOpen(); return; }
+    const qb = ev.target.closest('[data-q]');
+    if (qb) { S.qsel = qb.dataset.q; S.hub = null; S.qopen = true; renderMap(); return; }
+    if (ev.target.closest('[data-poly]')) { polyOpen(); return; }
+    if (ev.target.closest('[data-tav]')) { tavOpen(); return; }
+    const pb = ev.target.closest('[data-pl]');
+    if (pb) { S.hub = pb.dataset.pl; S.qopen = true; renderMap(); return; }
+    if (ev.target.closest('#qclose') || ev.target.id === 'qsheet') { S.qopen = false; S.hub = null; renderMap(); return; }
+    const k = S.qsel;
+    if (ev.target.closest('#q-take')) { goTake(k); return; }
+    if (ev.target.closest('#q-go')) { goDo(k); return; }
+    if (ev.target.closest('#q-turn')) { goTurn(k); return; }
+    if (ev.target.closest('#q-party')) { S.pick = { prev: S.party.slice() }; showWorld('party'); S.pick = S.pick || null; return; }
+    if (ev.target.closest('#q-fight')) { questFight(); return; }
+    if (ev.target.closest('#tosel')) { showSelect(); return; }
+  });
+  $('chk-amb').addEventListener('change', function () { S.ambTest = $('chk-amb').checked; save(); });
+  $('chk-comp').addEventListener('change', function () { S.compAll = $('chk-comp').checked; compFilter(); save(); if (S.tab === 'party') renderPrep(); });
+  $('tav-give').addEventListener('click', function () { const t = tavOf(); if (t) { t.st += 200; save(); if (!$('tavsheet').hidden) tavRender(); } });
+  $('chk-snd').addEventListener('change', function () { S.sound = $('chk-snd').checked; save(); if (S.sound) questSound(); });
+  setInterval(function () { if (S.hero && !S.walk && !S.amb && !$('world').hidden && S.tab === 'map' && QUESTS.some(function (q, i) { return qCool(i); })) renderMap(); }, 60000);
+  $('chk-allq').addEventListener('change', function () { S.allQ = $('chk-allq').checked; save(); renderMore(); });
+  $('chk-allspecs').addEventListener('change', function () { S.allSpecs = $('chk-allspecs').checked; syncLevel(); save(); renderMore(); });
+  $('pick-ok').addEventListener('click', function () {
+    if (S.party.length > encOf(S.enc).size) { $('msg').textContent = 'На это задание идёт до ' + encOf(S.enc).size + ' героев. Убери лишних.'; return; }
+    S.pick = null; save(); showWorld('map');
+  });
+  $('pick-no').addEventListener('click', function () { if (S.pick) S.party = S.pick.prev; S.pick = null; save(); showWorld('map'); });
+  document.addEventListener('click', function (ev) {
+    const pg = ev.target.closest('[data-pg]');
+    if (pg && !pg.disabled) {
+      if (pg.dataset.pg === 'ros') { S.rosPage += Number(pg.dataset.d); renderPrep(); }
+      else { S.selPage += Number(pg.dataset.d); S.selKeep = true; renderSelect(); }
+      return;
+    }
+    const inf = ev.target.closest('[data-info]');
+    if (inf) {
+      const k = inf.dataset.info, ck = clsOf(k), c = B.CLASSES[ck], sp = B.specOf(ck, specKey(k));
+      const hs = B.heroStats(ck, specKey(k), hLevel(k)), lg = document.querySelector('#prep details.legend');
+      $('pop-c').innerHTML = '<p class="sect">' + classBadge(ck,specKey(k)) + ' ' + (k === 'me' ? esc(S.hero.name) + ' · ' : '') + esc(c.name) + ' <small>' + esc(sp.name) + (k === 'me' ? ', ур.\u00a0' + hLevel(k) : '') + '</small></p><p class="hint">ХП ' + hs.hp + ', ' + (sp.role === 'heal' ? 'лечение ' + hs.heal + ', мана ' + hs.mana : 'атака ' + hs.atk) + ', броня ' + Math.round(sp.armor * 100) + '%, сопр. магии ' + Math.round(sp.res * 100) + '%, скорость ' + sp.spd + '</p>' + petPanel(k, false) + skillsHtml(ck, sp, c, k === 'me').replace('<details', '<details open') + (lg ? lg.outerHTML : '');
+      $('pop').hidden = false; $('pop-x').focus(); return;
+    }
+    if (ev.target.id === 'pop' || ev.target.closest('#pop-x')) $('pop').hidden = true;
+  });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && !$('pop').hidden) $('pop').hidden = true; if (ev.key === 'Escape' && !$('sel-delbox').hidden) closeDel(); if (ev.key === 'Escape' && !$('wmsheet').hidden) wmClose(); if (ev.key === 'Escape' && !$('tavsheet').hidden) tavClose(); });
+  $('tavclose').addEventListener('click', tavClose);
+  $('tavsheet').addEventListener('click', function (ev) { if (ev.target === $('tavsheet')) tavClose(); });
+  $('tav-pull').addEventListener('click', tavPull);
+  $('wmsheet').addEventListener('click', function (ev) {
+    if (ev.target.closest('#wmclose') || ev.target.id === 'wmsheet') { wmClose(); return; }
+    const b = ev.target.closest('[data-wmz]');
+    if (!b || b.disabled) return;
+    const z = b.dataset.wmz;
+    wmClose();
+    if (heroZone() !== z) { crossZone(z, function () { renderMap(); }); }
+    else { S.view = z; S.qopen = false; S.hub = null; S.qsel = null; renderMap(); }
+  });
+
+  (function () {
+    const root = document.documentElement, fsb = document.getElementById('fsb'), rot = document.querySelector('.rot');
+    const isFs = function () { return !!(document.fullscreenElement || document.webkitFullscreenElement); };
+    const unlock = function () { if (screen.orientation && screen.orientation.unlock) try { screen.orientation.unlock(); } catch (e) {} };
+    const label = function () { const on = isFs(); fsb.textContent = on ? '✕' : '⛶'; fsb.setAttribute('aria-label', on ? 'Выйти из полного экрана' : 'На весь экран'); fsb.title = fsb.getAttribute('aria-label'); };
+    fsb.addEventListener('click', function () {
+      if (isFs()) { Promise.resolve((document.exitFullscreen || document.webkitExitFullscreen).call(document)).catch(function () {}); return; }
+      const req = root.requestFullscreen || root.webkitRequestFullscreen;
+      if (!req) { rot.textContent = 'На iPhone браузер не даёт полный экран: «Поделиться» → «На экран «Домой»»'; rot.style.display = 'block'; return; }
+      Promise.resolve(req.call(root, { navigationUI: 'hide' })).catch(function () {});
+    });
+    document.addEventListener('fullscreenchange', function () { if (!isFs()) unlock(); label(); });
+    document.addEventListener('webkitfullscreenchange', function () { if (!isFs()) unlock(); label(); });
+    label();
+  })();
+
+  const V56_ITEM={id:2954,name:'Штаны Ночного Дозора',englishName:'Night Watch Pantaloons',slot:'legs',armor:39,stamina:9,intellect:8,source:'https://classicdb.ch/?item=2954'};
+  function renderV56Gear(root,selected=null){
+    const h=S.hero;if(!h)return;
+    const stats=equipmentStats('me'),stat=$('v572-armor');if(stat){stat.textContent=(stats.armorFlat||0)?'+'+stats.armorFlat+' к броне':'0 к броне';stat.className=stats.armorFlat?'az573-up':'';}
+    const worn=i=>h.gear?.[i.slot]===i.id&&h.items?.[i.id];
+    const icons={57001:'M9 4 4 8l3 8 4-2v13h10V14l4 2 3-8-5-4-4 4h-6z',2954:'M7 5h18v22h-7l-2-13-2 13H7z'};
+    root.innerHTML='<div class="az573-inv"><section><h3>Экипировка</h3><div class="az573-equip"></div></section><section><h3>Сумка <small class="az573-count"></small></h3><div class="az573-bag"></div></section><div class="az573-inspect" aria-live="polite"></div></div>';
+    const equip=root.querySelector('.az573-equip'),bag=root.querySelector('.az573-bag'),detail=root.querySelector('.az573-inspect');
+    const inventory=gearItems.filter(i=>h.items?.[i.id]&&!worn(i));root.querySelector('.az573-count').textContent=inventory.length+' / 12';
+    function tile(parent,i,label){const cell=document.createElement('div');const button=gearButton('',()=>renderV56Gear(root,i));button.className='az573-cell';button.disabled=!i;button.setAttribute('aria-label',i?label+': '+i.name:label+' — пусто');if(i){button.style.setProperty('--item',i.color);button.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true"><path d="'+icons[i.id]+'" fill="currentColor" stroke="#c9ab79"/></svg>' ;button.setAttribute('aria-pressed',String(selected===i));}else button.textContent='·';cell.append(button);if(parent===equip){const cap=document.createElement('small');cap.textContent=label;cell.append(cap);}parent.append(cell);}
+    for(const label of ['Голова','Грудь','Ноги','Ступни','Правая рука','Левая рука'])tile(equip,gearItems.find(i=>i.label===label&&worn(i)),label);
+    for(let n=0;n<12;n++)tile(bag,inventory[n],'Ячейка '+(n+1));
+    if(!selected){detail.textContent='Выбери предмет, чтобы сравнить характеристики.';return;}
+    const on=worn(selected),other=gearItems.find(i=>i.slot===selected.slot&&worn(i));const name=document.createElement('strong');name.textContent=selected.name;name.style.color=selected.color;detail.append(name,' · '+selected.label,document.createElement('br'));
+    for(const [key,label] of [['armorFlat','Броня'],['stamina','Выносливость'],['intellect','Интеллект']]){const value=selected[key]||0,delta=on?-value:value-(other?.[key]||0);if(!value&&!delta)continue;const line=document.createElement('span');line.className=delta>0?'az573-up':delta<0?'az573-down':'';line.textContent=label+' '+value+' ('+(delta>0?'+':'')+delta+')';detail.append(line,' ');}
+    detail.append(document.createElement('br'),gearButton(on?'Снять':'Надеть',()=>{if(!h.items?.[selected.id])return;if(on)delete h.gear[selected.slot];else(h.gear||={})[selected.slot]=selected.id;save();renderHero();}));
+  }
+  function gearButton(text,fn){const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=text;b.onclick=fn;return b;}
+  let vendorDialog;
+  function vendorOpen(){
+    if(!S.hero)return;
+    if(!vendorDialog){vendorDialog=document.createElement('dialog');vendorDialog.className='az-sheet';vendorDialog.setAttribute('aria-label','Торговец Златоземья');document.body.append(vendorDialog);}
+    vendorRender('');if(!vendorDialog.open)vendorDialog.showModal();
+  }
+  function vendorRender(message){
+    const h=S.hero;vendorDialog.innerHTML='<header><strong>Торговец Златоземья</strong></header><p role="status"></p><div class="az-candidates"></div>';
+    vendorDialog.querySelector('header').append(gearButton('Закрыть',()=>vendorDialog.close()));
+    vendorDialog.querySelector('[role=status]').textContent=(message?message+' · ':'')+'Кошелёк: '+moneyTxt(S.money);
+    const list=vendorDialog.querySelector('.az-candidates');const items=gearItems.filter(i=>i.price>0&&h.items?.[i.id]);if(!items.length)list.textContent='Нет вещей для продажи.';

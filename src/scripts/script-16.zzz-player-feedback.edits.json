@@ -1,0 +1,21 @@
+{
+  "sourceBlobSha1": "cc5e0c7a64aacb86ed98737fdc4e9fba9d7f2907",
+  "description": "Player feedback: equipment opens directly from its tab, stats remain the default hero page, and fullscreen equipment has a bottom return control. Apply after fullscreen and full-bag edits.",
+  "edits": [
+    {
+      "name": "Remove the redundant equipment launcher",
+      "old": "const openGear=document.createElement('button');openGear.type='button';openGear.className='btn';openGear.textContent='Открыть экипировку';openGear.onclick=()=>azOpenGear(openGear);gear.append(openGear);",
+      "new": "gear.hidden=true;"
+    },
+    {
+      "name": "Treat equipment as an action and always restore the stats tab",
+      "old": "i=>{page=i;overview.hidden=!!i;gear.hidden=!i;if(i)azOpenGear(openGear);}",
+      "new": "i=>{page=0;overview.hidden=false;gear.hidden=true;if(i){azOpenGear(menu.querySelector('button'));set(0);}}"
+    },
+    {
+      "name": "Provide a bottom return control outside the scrolling inventory",
+      "old": "root.before(nav,worn);function apply(force=false){",
+      "new": "root.before(nav,worn);const back=document.createElement('button');back.type='button';back.className='btn az-gear-back';back.textContent='Назад к герою';back.style.cssText='flex:none;min-height:44px;width:100%';back.onclick=()=>d.close();d.append(back);function apply(force=false){"
+    }
+  ]
+}

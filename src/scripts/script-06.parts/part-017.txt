@@ -1,0 +1,142 @@
+    navOff(); $('prep').hidden = true; $('battle').hidden = true; $('select').hidden = true; $('create').hidden = false;
+    renderCreate(); window.scrollTo(0, 0);
+  }
+  function curChar() { return S.chars.find(function (c) { return c.id === S.cur; }) || null; }
+  function recentChars() {
+    return S.chars.map(function(h,i){return {h:h,i:i};}).sort(function(a,b){return (b.h.lastEntered||0)-(a.h.lastEntered||0)||a.i-b.i;}).map(function(x){return x.h;});
+  }
+  function charCard(h) {
+    return '<button class="ch" data-char="'+esc(h.id)+'" aria-pressed="'+(h.id===S.cur)+'" style="--cc: var(--c-'+h.cls+')"><span class="por" aria-hidden="true">'+classBadge(h.cls,effectiveSpec(h))+'</span><span class="ros-txt"><span class="nm">'+esc(h.name)+'</span><span class="sub">'+h.level+' ур. · '+esc(RACES[h.race].name)+'</span></span></button>';
+  }
+  $('sel-all').addEventListener('click',function(){ $('sel-all-list').innerHTML=recentChars().map(charCard).join(''); $('sel-all-title').textContent='Все персонажи · '+S.chars.length+'/10'; $('sel-all-dialog').showModal(); });
+  $('sel-all-close').addEventListener('click',function(){ $('sel-all-dialog').close(); });
+  $('sel-all-dialog').addEventListener('click',function(ev){if(ev.target===this)this.close();});
+  $('sel-all-list').addEventListener('click',function(ev){const b=ev.target.closest('[data-char]');if(!b)return;closeDel();S.cur=b.dataset.char;save();renderSelect();$('sel-all-dialog').close();$('sel-enter').focus();});
+  function renderSelect() {
+/* AZ51 selected hero context */window.__az51GetSelected=function(){const c=curChar();return c?{id:c.id,name:c.name,race:c.race,cls:c.cls,level:c.level}:null;};Promise.resolve().then(function(){window.dispatchEvent(new Event('az51-selected'));});
+
+    const c = curChar();
+    stopCrGallery();
+    $('sel-pager').hidden = true;
+    $('sel-chars').innerHTML = recentChars().slice(0, 3).map(charCard).join('') || '<p class="hint">Персонажей пока нет: создай первого.</p>';
+    $('sel-all').textContent = 'Все персонажи · ' + S.chars.length + '/10';
+    $('sel-all').disabled = !S.chars.length;
+    $('sel-new').disabled = S.chars.length >= 10;
+    $('sel-new').textContent = S.chars.length >= 10 ? 'Достигнут лимит: 10/10' : 'Создать персонажа';
+    $('sel-enter').disabled = !c;
+    $('sel-stage').innerHTML = c ? cr47StageHtml(c.race,c.cls) : '<div class="cr47-empty"><h2>Ваша история впереди</h2><p>Создайте первого героя.</p></div>';
+    $('sel-name').textContent = c ? c.name : '';
+    $('sel-name').style.setProperty('--cc', c ? 'var(--c-' + c.cls + ')' : 'var(--ink)');
+    $('sel-info').textContent = c ? c.level + ' ур. · ' + RACES[c.race].name + ' · Альянс' : '';
+    const au = c ? B.AURAS[c.cls + ':' + effectiveSpec(c)] : null;
+    $('sel-aura').textContent = au ? 'Аура лидера: «' + au.n + '» — ' + au.t + '.' : '';
+    $('sel-del').disabled = !c;
+    if (c) startCrGallery(c.race,c.cls,'sel-stage');
+  }
+  function closeDel() { $('sel-delbox').hidden = true; $('del-in').value = ''; $('del-yes').disabled = true; }
+  function showSelect() { window.AzerothAudio.menu(); navOff(); $('create').hidden = true; $('battle').hidden = true; $('prep').hidden = true; $('select').hidden = false; closeDel(); renderSelect(); window.scrollTo(0, 0); }
+  function enterWorld() {
+    const c = curChar(); if (!c || window.AzerothAudio.isEntering()) return;
+    window.AzerothAudio.enter(c.zone || 'elwynn', function () { enterWorldReady(c); });
+  }
+  function enterWorldReady(c) {
+    migrateV57(c);if(c.v57onboarding&&!qDoneFor57(c,'tutorial57_team'))S.compAll=false;
+    c.lastEntered = Math.max(Date.now(), ...S.chars.map(function(h) { return (h.lastEntered || 0) + 1; }));
+    S.hero = c; S.main = c.cls; S.party = cleanParty(c.party, c.cls); S.specs = cleanSpecs(c.specs); S.level = c.level; syncLevel(); compFilter();
+    S.pick = null; S.qsel = null; S.view = null;
+    save(); showWorld('map');
+  }
+  $('sel-chars').addEventListener('click', function (ev) {
+    const b = ev.target.closest('[data-char]'); if (!b) return;
+    closeDel(); S.cur = b.dataset.char; save(); renderSelect();
+  });
+  $('sel-new').addEventListener('click', openCreate);
+  $('sel-del').addEventListener('click', function () {
+    const c = curChar(); if (!c) return;
+    $('del-t').textContent = 'Удалить персонажа «' + c.name + '» (' + c.level + ' ур., ' + B.CLASSES[c.cls].name + ')? Это нельзя отменить.' + (S.chars.length > 1 ? ' Золото и ресурсы перейдут персонажу «' + S.chars.filter(function (x) { return x.id !== c.id; })[0].name + '».' : ' Это ваш единственный персонаж: если удалить его, вы потеряете всё: золото, ресурсы, камни призыва и вещи.') + ' Введи УДАЛИТЬ, чтобы подтвердить.';
+    $('sel-delbox').hidden = false; $('del-in').focus();
+  });
+  $('del-in').addEventListener('input', function () { $('del-yes').disabled = $('del-in').value.trim().toLowerCase() !== 'удалить'; });
+  $('del-in').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') $('del-yes').click(); });
+  $('sel-delbox').addEventListener('click', function (ev) { if (ev.target.id === 'sel-delbox' || ev.target.closest('#del-x')) closeDel(); });
+  $('del-no').addEventListener('click', closeDel);
+  $('del-yes').addEventListener('click', function () {
+    const c = curChar(); if (!c || $('del-yes').disabled) return;
+    S.chars = S.chars.filter(function (x) { return x.id !== c.id; });
+    if (S.chars[0]) { S.chars[0].money = (S.chars[0].money || 0) + (c.money || 0); S.chars[0].res = (S.chars[0].res || 0) + (c.res || 0); }
+    if (S.hero === c) S.hero = null;
+    S.cur = S.chars[0] ? S.chars[0].id : null;
+    closeDel(); save();
+    if (S.chars.length) renderSelect(); else openCreate();
+  });
+  $('sel-enter').addEventListener('click', enterWorld);
+  $('cr-page').addEventListener('click', function (ev) {
+    const r = ev.target.closest('[data-race]'), k = ev.target.closest('[data-crcls]'), lk = ev.target.closest('[data-look]');
+    if (!r && !k && !lk) return;
+    $('cr-msg').textContent = '';
+    if (r) {
+      CR.race = r.dataset.race;
+      if (!crAllowed(CR.cls)) CR.cls = RACES[CR.race].classes[0];
+    } else if (k) {
+      if (!crAllowed(k.dataset.crcls)) { $('cr-msg').textContent = 'Класс «' + B.CLASSES[k.dataset.crcls].name + '» недоступен расе «' + RACES[CR.race].name + '», как в классическом WoW.'; return; }
+      CR.cls = k.dataset.crcls;
+    } else if (CR_APPEARANCE_ENABLED && lk && !lk.disabled) {
+      const L = LOOK.find(function (x) { return x.key === lk.dataset.look; }), n = L.opts.length;
+      CR.look[L.key] = ((CR.look[L.key] || 0) + Number(lk.dataset.dir) + n) % n;
+    }
+    renderCreate();
+  });
+  $('cr48-races').addEventListener('click', function(ev) {
+    const button=ev.target.closest('[data-race]');if(!button||!RACES[button.dataset.race])return;
+    CR.race=button.dataset.race;
+    if(!crAllowed(CR.cls))CR.cls=RACES[CR.race].classes[0];
+    $('cr-msg').textContent='';renderCreate();
+  });
+  $('cr-name').addEventListener('input', function () { CR.name = $('cr-name').value; $('cr-msg').textContent = ''; });
+  $('cr-name').addEventListener('keydown', function (ev) { if (ev.key === 'Enter') $('cr-go').click(); });
+  $('cr-back').addEventListener('click', function () {
+    $('cr-msg').textContent = '';
+    if (CR.step > 0) { CR.step--; renderCreate(); } else showSelect();
+  });
+  $('cr-go').addEventListener('click', function () {
+    $('cr-msg').textContent = '';
+    if (S.chars.length >= 10) { $('cr-msg').textContent = 'Достигнут лимит: 10/10 персонажей.'; return; }
+    if (CR.step < 2) { CR.step++; renderCreate(); return; }
+    const raw = $('cr-name').value.trim();
+    if (!/^[A-Za-zА-Яа-яЁё]{2,12}$/.test(raw)) { $('cr-msg').textContent = raw ? 'Имя: от 2 до 12 букв, без пробелов, цифр и знаков.' : 'Введи имя героя.'; $('cr-name').focus(); return; }
+    const name = raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase();
+    if (S.chars.some(function (c) { return c.name.toLowerCase() === name.toLowerCase(); })) { $('cr-msg').textContent = 'Имя «' + name + '» уже занято другим персонажем.'; $('cr-name').focus(); return; }
+    const c = { intro:{elwynn:1}, v57onboarding:true, v57migrated:true,zone:'elwynn',at:'goldshire',pos:spot('goldshire'), id: newId(), name: name, race: CR.race, cls: CR.cls, look: Object.assign({}, CR.look), level: 1, party: startParty(CR.cls), specs: cleanSpecs(null), q: {}, hxp: cleanHxp({ level: 1, hxp: {} }), names: cleanNames(null), dly: {}, res: 0, money: 0, tav: cleanTav(null) };
+    const from = curChar();
+    if (from) { c.money = from.money || 0; c.res = from.res || 0; from.money = 0; from.res = 0; }
+    S.chars.push(c); S.cur = c.id;
+    save(); showSelect();
+  });
+
+  /* ---------- world: map, journal, nav ---------- */
+  const PLACES = {
+    /* Artwork-space anchors, percentages of the uncropped 4:5 map.
+       These are illustration coordinates, not numeric coordinates in the WoW client. */
+    echo: { x: 55.8, y: 12.4, name: 'Эхо-хребет', lx: 0, ly: -4.4 },
+    valley: { x: 42.3, y: 25.6, name: 'Северная долина', label: 'Сев. долина', lx: -10.3, ly: 4.0 },
+    abbey: { x: 52.5, y: 23.2, name: 'Североземье', lx: 1, ly: -5.2 },
+    nvine: { x: 62.3, y: 28.3, name: 'Виноградники Североземья', label: 'Виноградники', lx: 0, ly: 4.6 },
+    jasper: { x: 81.5, y: 30.8, name: 'Яшмовый рудник', lx: -1, ly: -4.8 },
+    goldshire: { x: 44.7, y: 45.8, name: 'Златоземье', lx: 0, ly: -5.3 },
+    westbrook: { x: 19.3, y: 56.4, name: 'Вестбрук', lx: 0, ly: -5.5 },
+    fargo: { x: 39.2, y: 63.7, name: 'Шахта Фарго', lx: 0, ly: -4.7 },
+    stonefield: { x: 30.1, y: 70.2, name: 'Ферма Стоунфилд', label: 'Стоунфилд', lx: -5.5, ly: 5.1 },
+    maclure: { x: 53.4, y: 73.9, name: 'Виноградники Маклюр', label: 'Маклюр', lx: 0, ly: 5.0 },
+    fedge: { x: 20.0, y: 81.3, name: 'Лесная окраина', lx: 0, ly: 5.0 },
+    westfall: { x: 18.6, y: 91.2, name: 'Западный край', lx: 2, ly: 4.0 },
+    thomas: { x: 70.5, y: 55.9, name: 'Пост стража Томаса', label: 'Страж Томас', lx: 6, ly: 4.0 },
+    lake: { x: 79.0, y: 46.8, name: 'Озеро Стоун-Кэрн', label: 'Стоун-Кэрн', lx: 15.5, ly: -3.2, edge: 'right' },
+    village: { x: 92.3, y: 37.6, name: 'Деревня мурлоков', label: 'Мурлоки', lx: 3, ly: -4.0, edge: 'right' },
+    bpatch: { x: 65.8, y: 65.8, name: 'Тыквенная грядка Браквелл', label: 'Грядка Браквелл', lx: 5, ly: 4.8 },
+    poly: { x: 14.5, y: 27.2, name: 'Штормград: полигон', label: 'Полигон', lx: -2, ly: 4.3 },
+    tavern: { x: 20.4, y: 18.1, name: 'Таверна Златоземья', label: 'Таверна', lx: -5, ly: -5.4 },
+    azora: { x: 65.8, y: 50.3, name: 'Башня Азоры', label: 'Башня Азоры', lx: -9.5, ly: 4.4 },
+    mirror: { x: 24.5, y: 41.0, name: 'Сад Зеркального озера', label: 'Зеркальное оз.', lx: -3, ly: -6.3 },
+    crystal: { x: 64.2, y: 39.6, name: 'Озеро Хрустальное', label: 'Хрустальное оз.', lx: 0, ly: -3.3 },
+    eastvale: { x: 87.0, y: 52.1, name: 'Восточная лесопилка', label: 'Лесопилка', lx: 8, ly: 2, edge: 'right' },
+  };

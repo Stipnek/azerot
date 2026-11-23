@@ -1,0 +1,9 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Open existing party analytics by tapping the party header instead of a separate power button. Existing hold handler is retained.",
+  "edits": [{
+    "name": "Open analytics on party header click",
+    "old": "if (ev.target.closest('#pt-an')) { openAnalytics(); return; }",
+    "new": "if (ev.target.closest('#pt-head')) { openAnalytics(); return; }"
+  }]
+}

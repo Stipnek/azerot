@@ -1,0 +1,153 @@
+  if (B.ENCOUNTERS.goldtooth) B.ENCOUNTERS.goldtooth.scene = 'mine';
+  const AMBUSH_P = 0.05, ME_OFF = { x: -4.6, y: 3.6 };
+  function pdist(a, b) { const dx = (a.x - b.x) * 4, dy = (a.y - b.y) * 5; return Math.sqrt(dx * dx + dy * dy); }
+  function spot(pl) { const p = PLACES[pl]; return { x: p.x + ME_OFF.x, y: p.y + ME_OFF.y }; }
+  function roadPath(a, b) {
+    if (a === b) return [a];
+    const dist = {}, prev = {}, todo = Object.keys(PLACES);
+    todo.forEach(function (k) { dist[k] = Infinity; }); dist[a] = 0;
+    while (todo.length) {
+      todo.sort(function (x, y) { return dist[x] - dist[y]; });
+      const u = todo.shift(); if (u === b || dist[u] === Infinity) break;
+      ROADS.forEach(function (r) { const v = r[0] === u ? r[1] : r[1] === u ? r[0] : null; if (!v) return; const nd = dist[u] + pdist(PLACES[u], PLACES[v]); if (nd < dist[v]) { dist[v] = nd; prev[v] = u; } });
+    }
+    const out = [b]; let c = b; while (prev[c]) { c = prev[c]; out.unshift(c); }
+    return out[0] === a ? out : [a, b];
+  }
+  function roadLen(path) { let l = 0; for (let i = 1; i < path.length; i++) l += pdist(PLACES[path[i - 1]], PLACES[path[i]]); return l; }
+  const ELWYNN_ALIGNED = new WeakSet();
+  const SW561_ALIGNED=new WeakSet();
+  function mePos() {
+    const c = S.hero; if (!c) return { x: 50, y: 50 };
+    if(heroZone()==='stormwind'&&!SW561_ALIGNED.has(c)){if(!c.at||!PLACES[c.at]||PLACES[c.at].z!=='stormwind')c.at='sw_gate';c.pos=spot(c.at);SW561_ALIGNED.add(c);}
+    /* v13 saves retain logical locations; only their old artwork-space position changes. */
+    if (heroZone() === 'elwynn' && !ELWYNN_ALIGNED.has(c)) {
+      ELWYNN_ALIGNED.add(c);
+      c.pos = c.at && PLACES[c.at] && PLACES[c.at].z === 'elwynn' ? spot(c.at) : null;
+    }
+    if (!c.pos) { c.at = qState('report_goldshire') === 3 ? 'goldshire' : 'abbey'; c.pos = spot(c.at); }
+    return c.pos;
+  }
+  function meHtml() { const c = S.hero; if (!c || heroZone() !== (S.mapZ || heroZone())) return ''; const p = mePos(); return '<div class="me" id="me" style="left: ' + p.x + '%; top: ' + p.y + '%; --cc: var(--c-' + c.cls + ')" aria-hidden="true">' + classBadge(c.cls,effectiveSpec(c)) + '</div>'; }
+  function routeTo(pl) {
+    const c = S.hero, from = mePos(), pts = [{ x: from.x, y: from.y }];
+    let start = c.at && PLACES[c.at] ? c.at : null;
+    if (start === pl) return pts;
+    if (!start) {
+      let bd = Infinity;
+      Object.keys(PLACES).forEach(function (k) { if (PLACES[k].z !== PLACES[pl].z) return; const d = pdist(from, spot(k)) + roadLen(roadPath(k, pl)); if (d < bd) { bd = d; start = k; } });
+      if (start !== pl) pts.push(spot(start));
+    }
+    if (start === pl) pts.push(spot(pl)); else roadPath(start, pl).slice(1).forEach(function (k) { pts.push(spot(k)); });
+    return pts;
+  }
+  function routeLen(pl) { const pts = routeTo(pl); let l = 0; for (let i = 1; i < pts.length; i++) l += pdist(pts[i - 1], pts[i]); return l; }
+  /* Кружок мейна идёт по дорогам к месту pl. stopFrac > 0: остановиться на этой доле пути (засада). Нажатие во время ходьбы пропускает её. */
+  function walkTo(pl, done, stopFrac) {
+    const c = S.hero, pts = routeTo(pl), seg = [];
+    let total = 0;
+    for (let i = 1; i < pts.length; i++) { const d = pdist(pts[i - 1], pts[i]); seg.push(d); total += d; }
+    const end = function (p, at) { c.pos = { x: p.x, y: p.y }; c.at = at; S.walk = null; save(); };
+    if (total < 1) { end(pts[pts.length - 1], pl); done(false); return; }
+    const goal = stopFrac ? total * stopFrac : total;
+    const ms = Math.max(900, Math.min(2200, goal * 6));
+    const cut = [pts[0]];
+    let acc = 0;
+    for (let i = 0; i < seg.length; i++) {
+      if (acc + seg[i] >= goal - 0.01) { const t = seg[i] ? Math.min(1, (goal - acc) / seg[i]) : 1; cut.push({ x: pts[i].x + (pts[i + 1].x - pts[i].x) * t, y: pts[i].y + (pts[i + 1].y - pts[i].y) * t }); break; }
+      acc += seg[i]; cut.push(pts[i + 1]);
+    }
+    const last = cut[cut.length - 1];
+    S.qopen = false; S.hub = null; renderMap();
+    const map = $('map'), tp = PLACES[pl];
+    map.classList.add('walking');
+    map.insertAdjacentHTML('beforeend', '<svg class="route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts.map(function (p) { return p.x + ',' + p.y; }).join(' ') + '"/></svg><span class="dest" style="left: ' + tp.x + '%; top: ' + tp.y + '%"></span><div class="wcap" role="status">Идём: ' + esc(tp.label || tp.name) + ' · тап — пропустить</div>');
+    const me = $('me'); if (me) me.classList.add('mw');
+    window.scrollTo(0, 0);
+    let run2 = 0, an = null;
+    const kf = cut.map(function (p, i) { if (i) run2 += pdist(cut[i - 1], p); return { left: p.x + '%', top: p.y + '%', offset: Math.min(1, run2 / goal) }; });
+    kf[kf.length - 1].offset = 1;
+    const fin = function () {
+      if (!S.walk) return;
+      if (an) { an.onfinish = null; an.cancel(); }
+      if (me) { me.style.left = last.x + '%'; me.style.top = last.y + '%'; me.classList.remove('mw'); }
+      map.classList.remove('walking');
+      end(last, stopFrac ? null : pl); done(!!stopFrac);
+    };
+    S.walk = { skip: fin };
+    if (me && me.animate) { an = me.animate(kf, { duration: ms, easing: 'linear', fill: 'forwards' }); an.onfinish = fin; }
+    else setTimeout(fin, 300);
+  }
+  /* Любое перемещение героя (взять квест, выполнить, сдать, поговорить): шанс засады 5% по пути. */
+  function travel(pl, done) {
+    const tz = PLACES[pl].z;
+    if (heroZone() !== tz) { crossZone(tz, function () { travel(pl, done); }); return; }
+    S.view = tz;
+    const amb = routeLen(pl) >= 1 && (S.ambTest || Math.random() < AMBUSH_P);
+    walkTo(pl, function (stopped) {
+      if (stopped) { ambush(function () { walkTo(pl, function () { done(); }, 0); }); return; }
+      done();
+    }, amb ? 0.35 + Math.random() * 0.3 : 0);
+  }
+  function goTake(k) {
+    const q = QUESTS[qIdx(k)];
+    travel(q.t, function () { setQ(k, 1); S.qsel = k; S.qopen = true; renderMap(); });
+  }
+  function goTurn(k) {
+    const q = QUESTS[qIdx(k)];
+    travel(q.e || q.t, function () { turnIn(k); });
+  }
+  function goDo(k) {
+    if(k==='tutorial57_hire'){tavOpen();return;}if(k==='tutorial57_party'){completeV57Party();showWorld('party');return;}
+    const q = QUESTS[qIdx(k)], e = encOf(k);
+    travel(q.d, function () { if(e.type==='talk'&&q.v56){if(qState(k)===3)return;setQ(k,2);if((q.e||q.t)===q.d)turnIn(k);else renderMap();}else if(e.type==='talk')turnIn(k);else startBattle(); });
+  }
+  /* Случайная встреча по дороге к заданию: соло-бой мейна с двумя обычными врагами зоны его уровня. */
+  function ambush(resume) {
+    const p = mePos(), lv = Math.max(1, Math.min(B.XPC.cap, S.level)), hz = heroZone();
+    const pools = hz === 'duskwood' ? ['dw_wolf', 'dw_spider', 'dw_skeleton'] : hz === 'westfall' ? ['goretusk', 'vulture', 'looter'] : hz === 'redridge' ? ['gnollRunt', 'tarantula', 'murlocWarrior'] : p.y < 56 ? ['wolf', 'kobold', 'thief'] : p.x > 60 ? ['murloc', 'wolf', 'thief'] : p.x < 32 ? ['thief', 'boar', 'gnollRunt'] : ['boar', 'kobold', 'thief'];
+    const sp = pools[Math.floor(Math.random() * pools.length)], cap = { dw_wolf: 2, dw_spider: 2, dw_skeleton: 2, gnollRunt: 2, boar: 2, thief: 2, goretusk: 2, looter: 2, tarantula: 2, murlocWarrior: 2 }[sp] || 3;
+    const n = Math.min(cap, 1 + Math.floor(Math.random() * 3));
+    B.ENCOUNTERS.ambush = { room: true, enrage: { after: 100, every: 10, step: 0.15 }, name: 'Засада на дороге', place: ZONES[hz].name, scene: hz === 'duskwood' ? 'duskwood' : hz === 'westfall' ? 'fields' : hz === 'redridge' ? 'redridge' : 'forest', type: 'solo', size: 1, level: lv, xpMult: 0.25 * n, cnt: n,
+      text: 'В пути на тебя напали', tip: '', enemies: Array(n).fill(sp) };
+    S.amb = { resume: resume };
+    const wc = $('map').querySelector('.wcap'); if (wc) wc.remove();
+    $('map').insertAdjacentHTML('beforeend', '<div class="ambx" role="status">⚔ Засада!</div>');
+    setTimeout(function () { run = null; lines = []; beginBattle('ambush', null); }, 900);
+  }
+  function qPlace(q) { const s = qState(q.k); return s === 1 ? q.d : s === 2 ? (q.e || q.t) : q.t; }
+  function placeQuests(pl) { return QUESTS.filter(function (q, i) { return qVisible(i) && qPlace(q) === pl; }); }
+  function qCount(n) { const a = n % 100, b = n % 10; return n + (a > 10 && a < 15 ? ' квестов' : b === 1 ? ' квест' : b > 1 && b < 5 ? ' квеста' : ' квестов'); }
+  /* Камни призыва за квесты (решено 15 ноября): сюжетный квест даёт 5 + уровень, дейлик — 15, дейлик-данж — 20. */
+  function qStones(k) {
+    const e0 = encOf(k);
+    if (e0.daily) return e0.type === 'dungeon' ? 20 : 15;
+    if (qRepN(k)) return 0;
+    return Math.round((5 + e0.level) * (e0.size >= 3 ? 1.5 : 1));
+  }
+  function qMoney(k) {
+    const e0 = encOf(k);
+    if (e0.daily) return Math.round(40 * (1 + 0.05 * (e0.level - 1)) * (k === 'dungeon:waves' || k === 'dungeon:murlocs' ? 2.5 : k === 'daily_boss' ? 3 : 1.5));
+    if (isDungeon(k)) return 2500;
+    const e = e0;
+    return Math.round(40 * (1 + 0.05 * (e.level - 1)) * (e.type === 'talk' ? 0.6 : e.type === 'group' ? 2.5 : 1) * (e.elite ? 6 : 1));
+  }
+  function moneyParts(c) { c = Math.max(0, Math.round(c)); return [Math.floor(c / 10000), Math.floor(c % 10000 / 100), c % 100]; }
+  function moneyTxt(c) { const p = moneyParts(c), o = []; if (p[0]) o.push(p[0] + ' з'); if (p[1]) o.push(p[1] + ' с'); if (p[2] || !o.length) o.push(p[2] + ' м'); return o.join(' '); }
+  function moneyHtml(c) { const p = moneyParts(c), o = []; if (p[0]) o.push('<span class="cg">' + p[0] + ' з</span>'); if (p[1]) o.push('<span class="cs">' + p[1] + ' с</span>'); if (p[2] || !o.length) o.push('<span class="cm">' + p[2] + ' м</span>'); return o.join(' '); }
+  const Q_MARK = ['!', '⚔', '?', '✓'];
+  const Q_WORD = ['можно взять', 'взят', 'выполнен, сдай', 'сдан'];
+  function qState(k) { return (S.hero && S.hero.q && S.hero.q[k]) || 0; }
+  function setQ(k, v) { if (!S.hero) return; S.hero.q[k] = v; save(); }
+  function qIdx(k) { return QUESTS.findIndex(function (q) { return q.k === k; }); }
+  /* Повторяемые данжи (решено 16 ноября): после первой сдачи квест снова можно взять — опыт и деньги дают, камни призыва нет. */
+  function qRepN(k) { return (S.hero && S.hero.rep && S.hero.rep[k]) || 0; }
+  function qDone(k) { return qState(k) === 3 || qRepN(k) > 0; }
+  function qNeedMet(q) { if(!q)return false;if(q.v57intro&&!S.hero?.v57onboarding)return false;if(!q.v57intro&&S.hero?.v57onboarding&&!qDone('tutorial57_team'))return false;return (!q.minLevel || hLevel('me') >= q.minLevel) && (q.need || []).every(function(k){return qDone(k);}); }
+  function qOpen(i) { return S.allQ || qNeedMet(QUESTS[i]); }
+  function dlyLeft(k) { const t = S.hero && S.hero.dly && S.hero.dly[k]; return t ? Math.max(0, t - Date.now()) : 0; }
+  function leftTxt(ms) { const m = Math.max(1, Math.ceil(ms / 60000)), h = Math.floor(m / 60); return (h ? h + ' ч ' : '') + (m % 60) + ' мин'; }
+  function qCool(i) { const q = QUESTS[i]; return !!q.daily && (S.allQ || qNeedMet(q)) && dlyLeft(q.k) > 0; }
+  function qVisible(i) { const q = QUESTS[i]; if (q.drop && !S.allQ) return qState(q.k) === 1 || qState(q.k) === 2; if (q.daily) return (S.allQ || qNeedMet(q)) && dlyLeft(q.k) === 0; return S.allQ || (qNeedMet(q) && qState(q.k) !== 3); }
+  function giveXp(e) {
+    const fighters = e.size === 1 ? ['me'] : S.party, keys = ['me'].concat(rosterKeys());

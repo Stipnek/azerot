@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Show the same general enemy level curve in the encounter enemy summary as in battle (display only).",
+  "edits": [
+    {
+      "name": "Enemy summary uses the battle enemy curve",
+      "old": "' (' + Math.round(x.d.hp * f) + ' ХП, удар ~' + Math.round(x.d.atk * f) + ')'",
+      "new": "' (' + Math.round(x.d.hp * f * (B.enemyCurve ? B.enemyCurve(e.level, 'hp') : 1)) + ' ХП, удар ~' + Math.round(x.d.atk * f * (B.enemyCurve ? B.enemyCurve(e.level, 'atk') : 1)) + ')'"
+    }
+  ]
+}

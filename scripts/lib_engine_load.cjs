@@ -4,6 +4,17 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 const crypto = require('node:crypto');
+function inlineCore(text, root = path.resolve(__dirname, '..')) {
+  const marker = '__AZEROT_CORE_ABILITY_PROGRESSION__';
+  if (text.includes(marker)) {
+    if (text.split(marker).length !== 2) throw new Error('Duplicate core module marker');
+    const payload = fs.readFileSync(path.join(root, 'src/core/ability-progression.js'), 'utf8');
+    if (!payload.trim() || payload.toLowerCase().includes('</script') || payload.includes('__AZEROT_CORE_')) throw new Error('Unsafe or recursive core module source');
+    text = text.replace(marker, () => payload);
+  }
+  if (text.includes('__AZEROT_CORE_')) throw new Error('Unresolved core module marker');
+  return text;
+}
 function engineSource(sourcePath) {
   const file = path.resolve(sourcePath || 'src/scripts/script-05.txt');
   const original = fs.readFileSync(file);
@@ -23,7 +34,7 @@ function engineSource(sourcePath) {
       text = text.slice(0, at) + edit.new + text.slice(at + edit.old.length);
     }
   }
-  return text;
+  return inlineCore(text);
 }
 module.exports = function loadEngine(sourcePath) {
   const m = { exports: {} };
@@ -31,3 +42,4 @@ module.exports = function loadEngine(sourcePath) {
   return m.exports;
 };
 module.exports.source = engineSource;
+module.exports.inlineCore = inlineCore;

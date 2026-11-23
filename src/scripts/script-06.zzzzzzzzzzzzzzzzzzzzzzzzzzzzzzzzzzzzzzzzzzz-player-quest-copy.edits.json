@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Player feedback: render quest objectives and progress only; retain provenance in quest data, not in player-facing objectives. Other quest descriptions require separate review.",
+  "edits": [
+    {
+      "name": "Replace developer provenance UI with objectives only",
+      "old": "  function questGoalsHtml(q){if(!q.v56)return q.daily?'<p class=\"hint\">Авторское ежедневное задание автобатлера, не оригинальный повторяемый квест Classic.</p>':'';const a=q.goals||[],p=questProgress(q);return (a.length?'<div class=\"box\"><b>Цели</b>'+a.map(function(g,i){return '<div>'+esc(g.label)+': '+(p[i]||0)+' / '+g.count+'</div>';}).join('')+'</div>':'')+'<details class=\"hint\"><summary>Источник и адаптация</summary><p>'+esc(q.origin==='custom'?'Авторское обучение':q.origin==='service'?'Служебный этап исходного задания':q.englishName||'Classic')+'</p><p>'+esc(q.adaptation||'')+'</p>'+(q.source&&q.source.startsWith('https://')?'<a href=\"'+esc(q.source)+'\" target=\"_blank\" rel=\"noopener noreferrer\">Источник</a>':'')+'</details>';}",
+      "new": "  function questGoalsHtml(q){const a=q.goals||[],p=questProgress(q);return a.length?'<div class=\"box\"><b>Цели</b>'+a.map(function(g,i){return '<div>'+esc(g.label)+': '+(p[i]||0)+' / '+g.count+'</div>';}).join('')+'</div>':'';}"
+    }
+  ]
+}

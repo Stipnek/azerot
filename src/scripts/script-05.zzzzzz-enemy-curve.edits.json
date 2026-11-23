@@ -1,0 +1,26 @@
+{
+  "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+  "description": "General enemy strength curve by enemy (encounter) level: every non-dummy enemy gets the same HP and attack multiplier for its level, starting lower at level 1 and rising along t^pow to 1.0 at ENEMY_CURVE.full. Ratios between enemy kinds, elites and bosses are preserved; no dependence on hero class, abilities or quest name. Heroes, training kit, spec unlocks and saves are unchanged.",
+  "edits": [
+    {
+      "name": "Define the general enemy level curve",
+      "old": "const elvl = ENCOUNTERS[st.encounter].level, ef = lvlFactor(elvl), gsc = groupScale(st);",
+      "new": "const elvl = ENCOUNTERS[st.encounter].level, ef = lvlFactor(elvl), gsc = groupScale(st), dummy = /dummy/.test(d.ai || '') || d.hp >= 1e8;\n    const chp = dummy ? 1 : enemyCurve(elvl, 'hp'), catk = dummy ? 1 : enemyCurve(elvl, 'atk');"
+    },
+    {
+      "name": "Apply the curve to enemy HP and attack",
+      "old": "maxHp: Math.round(d.hp * ef * gsc * 1.08), hp: Math.round(d.hp * ef * gsc * 1.08), atk: d.atk * ef * gsc * 1.06,",
+      "new": "maxHp: Math.round(d.hp * ef * gsc * 1.08 * chp), hp: Math.round(d.hp * ef * gsc * 1.08 * chp), atk: d.atk * ef * gsc * 1.06 * catk,"
+    },
+    {
+      "name": "Curve parameters next to the level constants",
+      "old": "  function lvlFactor(l) { return Math.pow(LVL.growth, l - LVL.base); }",
+      "new": "  function lvlFactor(l) { return Math.pow(LVL.growth, l - LVL.base); }\n  /* Общая кривая силы врагов по уровню врага (23 ноября): на 1 уровне ХП и атака ниже, к уровню full плавно выходят на 1.0.\n     Одинакова для всех видов врагов, элиты и боссов; не зависит от класса героя, умений и квеста. */\n  const ENEMY_CURVE = { full: 15, hp: 0.45, atk: 0.40, pow: 2 };\n  function enemyCurve(level, kind) {\n    const c = ENEMY_CURVE, start = c[kind];\n    if (!Number.isFinite(level) || level >= c.full) return 1;\n    const t = Math.max(0, (level - 1) / (c.full - 1)), s = Math.pow(t, c.pow);\n    return start + (1 - start) * s;\n  }"
+    },
+    {
+      "name": "Expose the curve for balance reports",
+      "old": "LVL, lvlFactor, heroStats,",
+      "new": "LVL, lvlFactor, ENEMY_CURVE, enemyCurve, heroStats,"
+    }
+  ]
+}

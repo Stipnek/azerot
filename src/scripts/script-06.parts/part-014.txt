@@ -1,0 +1,103 @@
+    const skills = foe ? u.eskills.map(function (s) { return '<li><span class="ci">' + s.icon + '</span><span><b>' + esc(s.name) + '</b> <span class="m">' + (u.cd[s.id] ? 'ещё ' + u.cd[s.id] + ' х.' : 'готов') + '</span><br><span class="m">' + esc(s.text) + '</span></span></li>'; }).join('')
+      : u.skills.map(function (s) { const d = B.SKILLS[s]; return '<li><span class="ci">' + wowIcon(d) + '</span><span><b>' + esc(d.name) + '</b> <span class="m">' + (u.cd[s] ? 'ещё ' + u.cd[s] + ' х.' : 'готов') + (u.maxMana && d.mana ? ', мана ' + d.mana : '') + (u.maxRage && d.rage !== undefined ? ', ярость ' + B.rageCostText(s) + (!B.canPayRage(u, s) ? ' — недостаточно' : '') : '') + (u.maxEnergy && d.energy !== undefined ? ', энергия ' + d.energy + (!B.canPayEnergy(u, s) ? ' — недостаточно' : '') : '') + '</span><br><span class="m">' + esc(d.text) + '</span></span></li>'; }).join('');
+    // Presentation only: show both racial abilities in the battle unit card.
+    const racialDetails = foe || u.pet ? '' : '<h4>Расовые способности</h4><ul>' +
+      (u.racePassive ? '<li>' + wowIcon(u.racePassive) + ' <b>' + esc(u.racePassive.name) + '</b> <span class="m">пассивно</span><br>' + esc(u.racePassive.text) + '</li>' : '') +
+      (u.racial && B.SKILLS[u.racial] ? '<li>' + wowIcon(B.SKILLS[u.racial]) + ' <b>' + esc(B.SKILLS[u.racial].name) + '</b><br>' + esc(B.SKILLS[u.racial].text) + '</li>' : '') + '</ul>';
+    $('card').innerHTML = '<button class="cl" id="cardx" aria-label="Закрыть">×</button><h3>' + esc(u.name) + (u.isMain ? ' ★' : '') + '</h3><div class="sb">' + (foe ? (u.level + ' ур.' + (u.boss ? ', босс' : '')) : esc(u.pet ? 'Питомец' : RN[u.role] + ', ' + u.specName)) + '</div>' +
+      '<div>ХП ' + u.hp + ' / ' + u.maxHp + (u.maxMana ? ' · мана ' + Math.round(u.mana) + ' / ' + u.maxMana : '') + '</div>' +
+      (u.primary ? '<div>' + u.primary.name + ' (главная): ' + Math.round(u.primary.values[u.primary.key] * u.primaryMultiplier) + '</div>' : '') +
+      (u.maxRage ? '<div>Ярость ' + Math.floor(u.rage) + ' / ' + u.maxRage + '<br><span class="m">Ярость накапливается от автоатак и прямого входящего урона и расходуется умениями. При нехватке остаётся бесплатная автоатака.</span></div>' : '') +
+      (u.maxEnergy ? '<div>Энергия ' + Math.floor(u.energy) + ' / ' + u.maxEnergy + '<br><span class="m">Восстановление: ' + B.ENERGY_CFG.regen + ' за свой ход. Тратится на умения; при нехватке остаётся бесплатная автоатака.</span></div>' : '') +
+      (u.maxCp ? '<div>Очки комбо ' + u.cp + ' / ' + u.maxCp + '</div>' : '') +
+      (!foe && st.aura.lowHp ? '<div class="m">Бонус урона от ауры: +' + Math.round(B.lowHpBonus(u.hp / u.maxHp) * 100) + '%</div>' : '') +
+      '<div class="m">Броня ' + Math.round(u.armor * 100) + '%, сопротивление магии ' + Math.round(u.res * 100) + '%</div>' +
+      (foe && u.aggro ? '<div class="m">Бьёт: ' + esc(B.byId(st, u.aggro).name) + '</div>' : '') +
+      '<h4>Эффекты</h4><ul>' + efs + '</ul><h4>Скиллы</h4><ul>' + skills + '</ul>' + racialDetails;
+    $('card').hidden = false;
+    if (cardPause === null) { cardPause = paused; paused = true; clearTimeout(timer); $('pause').textContent = 'Продолжить'; }
+    $('cardx').addEventListener('click', closeCard);
+  }
+  /* Нажатие на умение в панели: описание и пауза боя (как у карточки героя). */
+  function openSkill(sid) {
+    if (!st || st.over) return;
+    const u = (barUid && B.byId(st, barUid)) || (st.current && B.byId(st, st.current)); if (!u || u.side !== 'hero') return;
+    if (sid === 'racial') sid = u.racial;
+    let d, left;
+    if (u.side === 'hero' && sid === 'auto') { const A = presentationAuto(u); d = { name: A.name, icon: A.icon, azIconKey: azKey(A), cd: 0, text: u.role === 'heal' ? 'Автоатака лекаря: каждый ход перед умением лечит раненого союзника (' + Math.round(B.HEALAUTO.frac * 100) + '% силы лечения, мана ' + B.HEALAUTO.mana + '), а если все здоровы или не хватает маны на лечение, бесплатно бьёт: ' + A.name.toLowerCase() + '.' : 'Автоатака: ' + Math.round(B.AUTO_MULT * 100) + '% атаки каждый ход перед умением' + (A.hits > 1 ? ', в ' + A.hits + ' удара' : '') + '.' }; left = 0; }
+    else if (u.side === 'hero' && String(sid).indexOf('passive') === 0) { const ps = passivesOf(B.specOf(u.cls, u.spec)).concat(u.racePassive ? [u.racePassive] : [])[Number(String(sid).split(':')[1]) || 0]; d = { name: ps.name, icon: ps.icon || '🌑', azIconKey: azKey(ps), cd: 0, text: ps.text }; left = 0; }
+    else if (u.side === 'hero') { d = B.SKILLS[sid]; left = u.cd[sid] || 0; }
+    else if (sid === 'atk') { d = { name: 'Атака', icon: '⚔️', cd: 0, text: 'Обычный удар по цели, которую враг выбрал.' }; left = 0; }
+    else { d = (u.eskills || []).find(function (x) { return x.id === sid; }); left = u.cd[sid] || 0; }
+    if (!d) return;
+    const cdTxt = String(sid).indexOf('passive') === 0 ? 'пассивно' : (d.cd ? 'перезарядка ' + d.cd + ' х.' + (left ? ', ещё ' + left + ' х.' : ', готово') : 'без перезарядки');
+    $('card').innerHTML = '<button class="cl" id="cardx" aria-label="Закрыть">×</button><h3>' + wowIcon(d) + ' ' + esc(d.name) + '</h3><div class="sb">' + esc(u.name) + (u.side === 'hero' ? ', ' + esc(u.specName) : '') + '</div>' +
+      '<p class="skd">' + esc(d.text) + '</p><div class="m">' + cdTxt + (d.mana ? ', мана ' + d.mana + (u.maxMana ? ' (сейчас ' + Math.round(u.mana) + ')' : '') : '') + (u.maxRage && d.rage !== undefined ? ', ярость ' + B.rageCostText(sid) + ' (сейчас ' + Math.floor(u.rage) + ')' + (!B.canPayRage(u, sid) ? ' — недостаточно ярости' : '') : '') + (u.maxEnergy && d.energy !== undefined ? ', энергия ' + d.energy + ' (сейчас ' + Math.floor(u.energy) + ')' + (!B.canPayEnergy(u, sid) ? ' — недостаточно энергии' : '') : '') + '</div>' + (u.maxEnergy ? '<p class="m">Энергия: ' + Math.floor(u.energy) + ' / ' + u.maxEnergy + '. Восстанавливается ' + B.ENERGY_CFG.regen + ' за свой ход.</p>' : '');
+    $('card').hidden = false;
+    if (cardPause === null) { cardPause = paused; paused = true; clearTimeout(timer); $('pause').textContent = 'Продолжить'; }
+    $('cardx').addEventListener('click', closeCard);
+  }
+  $('skillbar').addEventListener('click', function (ev) {
+    const a = ev.target.closest('.ab[data-sk]'); if (a) openSkill(a.dataset.sk);
+  });
+  function closeCard() {
+    $('card').hidden = true;
+    if (cardPause === null) return;
+    paused = cardPause; cardPause = null;
+    $('pause').textContent = paused ? 'Продолжить' : 'Пауза';
+    if (!paused && st && !st.over) schedule(200);
+  }
+  $('tokens').addEventListener('click', function (ev) {
+    const t = ev.target.closest('.tok'); if (!t || !st) return;
+    openCard(t.dataset.id);
+  });
+  $('log').addEventListener('click', function () { $('log').classList.toggle('open'); });
+
+  $('pause').addEventListener('click', function () {
+    if (!st || st.over) return;
+    if (cardPause !== null) { closeCard(); return; }
+    paused = !paused;
+    $('pause').textContent = paused ? 'Продолжить' : 'Пауза';
+    if (!paused) schedule(200); else clearTimeout(timer);
+  });
+  document.querySelectorAll('[data-speed]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      speed = Number(b.dataset.speed);
+      document.querySelectorAll('[data-speed]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      if (st && !st.over && !paused) schedule();
+    });
+  });
+  function toggleBd(row) {
+    const box = row.nextElementSibling; if (!box || !box.classList.contains('bd')) return;
+    const open = box.hidden; box.hidden = !open; row.setAttribute('aria-expanded', String(open));
+  }
+  $('result').addEventListener('click', function (ev) { const r = ev.target.closest('.mrow[data-bd]'); if (r) toggleBd(r); });
+  $('result').addEventListener('keydown', function (ev) { if (ev.key !== 'Enter' && ev.key !== ' ') return; const r = ev.target.closest('.mrow[data-bd]'); if (r) { ev.preventDefault(); toggleBd(r); } });
+  $('quit').addEventListener('click', function () { if (st && st.test && !st.over) { st.over = true; st.result = 'test'; log0Stop(); finish(); } else toPrep(); });
+  function log0Stop() { try { addLine('Проба остановлена', 'good'); } catch (e) {} }
+  window.addEventListener('resize', function () { if (st) drawAggro(); });
+
+  /* Рисованные задники боёв (сгенерированы 14 ноября), векторные сцены — фолбэк */
+  const SCENE_IMG = {
+    forest: 'data:image/webp;base64,__AZEROT_HTML_ASSET_934aacf7c04a6f800fe295d0c055223f4ed95096fb2646e1bb8a083ae6125e64__',
+    fields: 'data:image/webp;base64,__AZEROT_HTML_ASSET_2814c71c9ddc56097f80448420d2f93626b81ad41cb482d13cde6e05de232426__',
+    coast: 'data:image/webp;base64,__AZEROT_HTML_ASSET_36df7570fa7d1f92079117eb42be20423e8822f80b74d24ab070433c8532e38f__',
+    ruins: 'data:image/webp;base64,__AZEROT_HTML_ASSET_5a568c7f0ef606b1e8a3d9a916234c7c0efe45609e07b3f78903c017fd17df9a__',
+    redridge: 'data:image/webp;base64,__AZEROT_HTML_ASSET_90f2d1946ba986ef549cccaf814053cb77e1ca645efdf00f0ebfc977d7b9af56__',
+    mine: 'data:image/webp;base64,__AZEROT_HTML_ASSET_e23a988c50de39c330e5968b1cc8c14edd9f9ef8c66f26ba037a708a609681c4__',
+    deadmines: 'data:image/webp;base64,__AZEROT_HTML_ASSET_62164505072905b4d01a57d1304f71e020c980a0e3838090190aa609498d908d__'
+  };
+
+  /* Фоны боёв для Западного края и Красногорья (векторные, как остальные сцены) */
+  const SCENES2 = {
+    fields: function () {
+      let rows = ''; for (let i = 0; i < 9; i++) { const y = 170 + i * 15; rows += '<path d="M0 ' + y + ' Q200 ' + (y - 8) + ' 400 ' + y + '" stroke="' + (i % 2 ? '#c99a2e' : '#e3b94a') + '" stroke-width="7" fill="none"/>'; }
+      return '<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="sgf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fc3e8"/><stop offset="1" stop-color="#f4e6b0"/></linearGradient></defs>' +
+        '<rect width="400" height="300" fill="url(#sgf)"/><circle cx="70" cy="52" r="22" fill="#fff4bd" opacity=".95"/>' +
+        '<ellipse cx="260" cy="48" rx="46" ry="11" fill="#fff" opacity=".7"/><ellipse cx="300" cy="40" rx="30" ry="9" fill="#fff" opacity=".7"/>' +
+        '<path d="M0 150 Q90 112 190 140 T400 126 V300 H0Z" fill="#a8b574"/><path d="M0 168 Q120 144 240 164 T400 156 V300 H0Z" fill="#c9b35c"/>' +
+        '<rect x="270" y="108" width="58" height="42" fill="#9c3d2c"/><path d="M262 110 L299 80 L336 110Z" fill="#6c2a20"/><rect x="290" y="126" width="18" height="24" fill="#3a1d14"/><rect x="326" y="86" width="9" height="40" fill="#8a8a8a"/>' +
+        '<rect x="0" y="160" width="400" height="140" fill="#d9ad36"/>' + rows +
+        '<path d="M0 262 H400" stroke="#6b4a24" stroke-width="3"/><g stroke="#6b4a24" stroke-width="4"><path d="M20 250 V285 M80 252 V287 M140 254 V289 M200 255 V290 M260 254 V289 M320 252 V287 M380 250 V285"/></g>' +
+        '<g stroke="#5a3b1c" stroke-width="4"><path d="M120 190 V228 M104 204 H136"/></g><circle cx="120" cy="184" r="8" fill="#e0c486"/><path d="M110 178 H130 L120 166Z" fill="#6c4a22"/></svg>';
+    },

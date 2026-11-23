@@ -1,0 +1,16 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Party picker: keep short click for add; hold 800ms opens the existing collection card without adding. Cancel pending hold on movement, scroll, release and close. Return focus to the candidate.",
+  "edits": [
+    {
+      "name": "Install cancellable candidate hold with capture-phase click suppression",
+      "old": "  const azDetail=document.createElement('dialog');",
+      "new": "  let azCandidateHold=null,azCandidateBlocked=null,azCandidateBlockUntil=0;\n  function azCancelCandidateHold(){if(azCandidateHold){clearTimeout(azCandidateHold.timer);azCandidateHold=null;}}\n  azPick.addEventListener('pointerdown',e=>{\n    azCancelCandidateHold();\n    const b=e.target.closest('[data-candidate]');\n    if(!b||e.isPrimary===false||(e.pointerType==='mouse'&&e.button!==0))return;\n    azCandidateBlocked=null;\n    const p={button:b,id:e.pointerId,x:e.clientX,y:e.clientY,timer:null};\n    azCandidateHold=p;\n    p.timer=setTimeout(()=>{\n      if(azCandidateHold!==p)return;\n      azCandidateHold=null;\n      if(!azPick.open||!b.isConnected||!tavRec(b.dataset.candidate))return;\n      azCandidateBlocked=b;azCandidateBlockUntil=Infinity;\n      azInspect(b.dataset.candidate,b);\n    },800);\n  });\n  document.addEventListener('pointermove',e=>{\n    const p=azCandidateHold;\n    if(p&&e.pointerId===p.id&&Math.hypot(e.clientX-p.x,e.clientY-p.y)>10)azCancelCandidateHold();\n  },true);\n  function azEndCandidateHold(){azCancelCandidateHold();if(azCandidateBlocked)azCandidateBlockUntil=performance.now()+1000;}\n  document.addEventListener('pointerup',azEndCandidateHold,true);\n  document.addEventListener('pointercancel',azEndCandidateHold,true);\n  azPick.addEventListener('scroll',azCancelCandidateHold,true);\n  azPick.addEventListener('close',()=>{azCancelCandidateHold();azCandidateBlocked=null;});\n  azPick.addEventListener('contextmenu',e=>{if(e.target.closest('[data-candidate]'))e.preventDefault();});\n  azPick.addEventListener('click',e=>{\n    const b=e.target.closest('[data-candidate]');\n    if(b&&b===azCandidateBlocked&&performance.now()<=azCandidateBlockUntil){\n      e.preventDefault();e.stopImmediatePropagation();azCandidateBlocked=null;\n    }\n  },true);\n  const azDetail=document.createElement('dialog');"
+    },
+    {
+      "name": "Restore focus after inspecting a picker candidate",
+      "old": "  function azInspect(k){const box=",
+      "new": "  let azInspectReturn=null;azDetail.addEventListener('close',()=>{if(azInspectReturn?.isConnected&&azPick.open)azInspectReturn.focus({preventScroll:true});azInspectReturn=null;});\n  function azInspect(k,trigger){azInspectReturn=trigger||document.activeElement;const box="
+    }
+  ]
+}

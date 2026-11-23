@@ -1,0 +1,46 @@
+{
+  "sourceRevision": "568e8f89c5e73a7010229337ec7245947974d321",
+  "files": {
+    "interface/paperdollinfoframe/ui-character-general-topleft.blp": {
+      "sourceSha256": "0e756154d4a01c80fc3de59b52a118ba7ae1005e2f033aaa14ca772194010019",
+      "size": 88580,
+      "dimensions": [
+        256,
+        256
+      ]
+    },
+    "interface/paperdollinfoframe/ui-character-general-topright.blp": {
+      "sourceSha256": "9df05aeab5e2cb559cf8fe15861aa04a38bd2586746d311c42143caffdaf18ca",
+      "size": 44900,
+      "dimensions": [
+        128,
+        256
+      ]
+    },
+    "interface/talentframe/ui-talentframe-botleft.blp": {
+      "sourceSha256": "81e9cfd7e87e0e0e0673d49d1dc9f7e2028cb3144f6b70831e69e930f712e42a",
+      "size": 88580,
+      "dimensions": [
+        256,
+        256
+      ]
+    },
+    "interface/talentframe/ui-talentframe-botright.blp": {
+      "sourceSha256": "11c62310c064687cfddd00c34d557d75da2914f875b2d09b358c72682f4a335e",
+      "size": 44900,
+      "dimensions": [
+        128,
+        256
+      ]
+    },
+    "interface/talentframe/talentframe-rankborder.blp": {
+      "sourceSha256": "278384b5d770681ad012ac6fe25ba2ed8fa8d623b9e9ab42bb9dfa54e5a304d6",
+      "size": 2564,
+      "dimensions": [
+        32,
+        32
+      ]
+    }
+  },
+  "notice": "World of Warcraft artwork is copyright Blizzard Entertainment. This reference pack does not grant redistribution rights. Not covered by the source repository MIT license."
+}
