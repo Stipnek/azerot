@@ -1,7 +1,7 @@
 name: Player feedback checks
 on:
   push:
-    branches: [work/player-feedback-fixes, work/first-quests-balance]
+    branches: [work/player-feedback-fixes, work/first-quests-balance, work/enemy-curve]
     paths: ['src/**', 'scripts/**', '.github/workflows/player-feedback-checks.yml']
 permissions:
   contents: read
