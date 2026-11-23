@@ -33,6 +33,8 @@ def read_source(path):
     data = b''.join(chunks)
     if len(data) != manifest['bytes'] or sha(data) != manifest['sha256']:
         raise ValueError('Reassembled source checksum mismatch')
+    if path.exists() and data != path.read_bytes():
+        raise ValueError('Split source differs from retained original: ' + str(path))
     return data
 
 def split_source(path):
