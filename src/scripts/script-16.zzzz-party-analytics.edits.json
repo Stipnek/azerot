@@ -1,0 +1,9 @@
+{
+  "sourceBlobSha1": "cc5e0c7a64aacb86ed98737fdc4e9fba9d7f2907",
+  "description": "Remove the redundant power button and make the party header keyboard accessible. No power calculations changed.",
+  "edits": [{
+    "name": "Replace separate power button with accessible header interaction",
+    "old": "const p=document.querySelector('#prep .pt'),",
+    "new": "const azPowerHead=$('pt-head');$('pt-an')?.remove();if(azPowerHead){azPowerHead.setAttribute('role','button');azPowerHead.tabIndex=0;azPowerHead.setAttribute('aria-label','Открыть аналитику отряда');azPowerHead.style.cursor='pointer';azPowerHead.addEventListener('keydown',e=>{if(e.target===azPowerHead&&(e.key==='Enter'||e.key===' ')){e.preventDefault();if(!e.repeat)azPowerHead.click();}}); }\nconst p=document.querySelector('#prep .pt'),"
+  }]
+}
