@@ -6,6 +6,7 @@ import re
 from urllib.parse import quote
 from coin_assets import restore_coin
 from split_script_sources import read_source
+from core_sources import inline_core
 
 p = argparse.ArgumentParser(description='Build Azerot without publishing')
 p.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[1])
@@ -31,7 +32,7 @@ def script(m):
             if not old or data.count(old) != 1:
                 raise SystemExit(f'Non-unique source edit in {edits.name}: {edit["name"]}')
             data = data.replace(old, new, 1)
-    return data
+    return inline_core(data, root)
 
 def asset(folder):
     def restore(m):

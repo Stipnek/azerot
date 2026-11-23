@@ -2,6 +2,7 @@ from pathlib import Path
 import hashlib
 import json
 import subprocess
+from core_sources import inline_core
 
 folder = Path(__file__).resolve().parents[1] / 'src' / 'scripts'
 groups = {}
@@ -32,6 +33,7 @@ for source, manifests in sorted(groups.items()):
                 raise SystemExit(f'{manifest}: non-unique anchor: {edit.get("name", "unnamed")}')
             data = data.replace(old, new, 1)
             count += 1
+    data = inline_core(data, folder.parent.parent)
     checked = subprocess.run(['node', '--check'], input=data, capture_output=True)
     if checked.returncode:
         raise SystemExit(str(source) + ': patched JavaScript syntax error\n' + checked.stderr.decode('utf-8', errors='replace'))
