@@ -1,0 +1,9 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Preserve explicit zero stars through cleanTav. Existing 1..5 ranks remain unchanged; missing or invalid legacy ranks retain default 1. Initial summon grants and duplicate transactions are not changed by this patch.",
+  "edits": [{
+    "name": "Allow a saved zero without downgrading existing ranks",
+    "old": "st = Math.min(5, Math.max(1, Math.round(+c.k || 1)))",
+    "new": "st = Math.min(5, Math.max(0, Number.isFinite(+c.k) && c.k !== null && c.k !== '' ? Math.round(+c.k) : 1))"
+  }]
+}
