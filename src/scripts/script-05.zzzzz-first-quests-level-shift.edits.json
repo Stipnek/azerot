@@ -1,0 +1,11 @@
+{
+  "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+  "description": "Shift early Elwynn solo/group combat encounter levels back by one so a level-1 hero with only auto-attack meets level-1 enemies first. Presentation of abilities, training kit and talents unchanged; only encounter levels change (enemy scaling, level-difference modifiers, XP reward level).",
+  "edits": [
+    {
+      "name": "Shift early Elwynn combat encounter levels back by one",
+      "old": "const TYPENAMES",
+      "new": "['koboldcamp', 'wolves', 'thieves', 'echoscout', 'echoraid', 'garrick', 'necklace', 'pie', 'fargo', 'golddust', 'goldtooth', 'jasper', 'princess', 'gnolls', 'collector', 'manhunt', 'fishy', 'lostguards', 'rolf', 'hogger'].forEach(function (k) { if (ENCOUNTERS[k] && ENCOUNTERS[k].level > 1) ENCOUNTERS[k].level -= 1; });\n  const TYPENAMES"
+    }
+  ]
+}
