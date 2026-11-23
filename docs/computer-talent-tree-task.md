@@ -18,6 +18,17 @@ Return the starting commit, input inventory, owned-file list and any overlapping
 - Preserve the current supported class/spec scope. Do not make preview-only branches playable or invent missing talent effects.
 - Keep the tree usable without mouse hover on touch devices. Test opening, buying, resetting and reopening without losing the selected tree or dialog state.
 
+## Layout and usability (owner feedback, 2026-11-23)
+
+Current problems reported by the owner: the tree needs scrolling, and it sits somewhere in the middle of a long page instead of being its own focused view. Required result:
+
+- The talent tree opens as its own WoW-style talent window/panel, not as a block inside a long page. Opening it must not require scrolling to find the tree.
+- The whole tree for the selected specialization fits in the visible area on desktop and on phones without scrolling the page or the tree. If a phone screen is too small, scale the tree to fit (and report the minimum readable size) before resorting to scrolling; any remaining scroll must be an explicit, justified exception.
+- Keep the points-remaining counter, specialization tabs/selection, reset and close controls visible at all times while the tree is shown.
+- Tooltips/details must not push the tree out of view or require extra scrolling.
+- Test in portrait and landscape and on the supported desktop sizes; provide screenshots showing the whole tree visible at once.
+- This is layout and usability only; allocation rules, talent effects and combat remain unchanged.
+
 ## Out of scope
 
 Ability unlock schedules, combat balance, new passive effects, the main character's seventh ability, companion progression, pet mechanics, core extraction and save-schema changes. Do not independently modify these to make the visual task pass. No automatic merge, publication or save reset.
