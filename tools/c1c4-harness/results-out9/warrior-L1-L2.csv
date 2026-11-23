@@ -1,0 +1,22 @@
+﻿t_s,quest,status_from,status_to,level,xp_before,xp_after,money_before,money_after,stones_before,stones_after,party,location,battle
+15.19,tutorial57_train,0,1,1,0,0,0,0,0,0,me,goldshire,
+19.11,tutorial57_train,1,2,1,0,0,0,10,0,0,me,goldshire,Победа Ходов: 3. В живых: 1 из 1. Опыт: 10
+22.2,tutorial57_train,2,3,1,0,10,10,50,0,6,me,goldshire,
+24.65,tutorial57_hire,0,3,1,10,10,50,50,6,6,me,goldshire,
+24.65,tutorial57_party,0,1,1,10,10,50,50,6,6,me,goldshire,
+29.45,tutorial57_party,1,3,1,10,10,50,50,6,6,me gmwtuydgkd2,goldshire,
+30.97,tutorial57_team,0,1,1,10,10,50,50,6,6,me gmwtuydgkd2,goldshire,
+35.06,tutorial57_team,1,2,1,10,10,50,70,6,6,me gmwtuydgkd2,goldshire,Победа Ходов: 3. В живых: 2 из 2. Опыт: 20
+38.12,tutorial57_team,2,3,1,10,30,70,170,6,15,me gmwtuydgkd2,goldshire,
+40.49,wolves,0,1,1,30,30,170,170,15,15,me gmwtuydgkd2,abbey,
+65.18,wolves,1,2,1,30,30,170,190,15,15,me gmwtuydgkd2,valley,Победа Ходов: 23. В живых: 1 из 1. Опыт: 100
+83.49,kobold_camp,0,1,1,30,30,190,190,15,15,me gmwtuydgkd2,abbey,
+116.51,kobold_camp,1,2,1,30,30,190,211,15,15,me gmwtuydgkd2,valley,Победа Ходов: 31. В живых: 1 из 1. Опыт: 105
+122.21,kobold_camp,2,3,1,30,135,211,253,15,22,me gmwtuydgkd2,abbey,
+123.72,wolves,2,3,1,135,235,253,293,22,28,me gmwtuydgkd2,abbey,
+125.26,thieves,0,1,1,235,235,293,293,28,28,me gmwtuydgkd2,abbey,
+155.8,thieves,1,2,1,235,235,293,313,28,28,me gmwtuydgkd2,nvine,Победа Ходов: 28. В живых: 1 из 1. Опыт: 100
+162.93,thieves,2,3,1,235,335,313,353,28,34,me gmwtuydgkd2,abbey,
+163.68,echo_scout,0,1,1,335,335,353,353,34,34,me gmwtuydgkd2,abbey,
+231.48,echo_scout,1,2,1,335,335,353,386,34,34,me gmwtuydgkd2,echo,Победа Ходов: 66. В живых: 1 из 1. Опыт: 110
+240.96,echo_scout,2,3,2,335,445,386,430,34,42,me gmwtuydgkd2,abbey,
