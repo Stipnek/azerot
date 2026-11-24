@@ -19,7 +19,7 @@ def run(browser,label,viewport):
     errors=[];report=[];status='failed'
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.route('https://**/*',lambda route:route.abort())
-    dialog=page.locator('#w-hero dialog[aria-label="Умения и особенности"]')
+    dialog=page.locator('#w-hero dialog[aria-label="Таланты и дополнительные сведения"]')
     inspector=dialog.locator('[data-arms-inspector]')
     def activate(target):
         if label=='desktop':target.click()
@@ -51,7 +51,7 @@ def run(browser,label,viewport):
         expect(page.locator('#pa-entry')).to_have_attribute('data-state','ready')
         page.locator('#pa-enter').click();page.locator('#sel-enter').click()
         page.locator('#bnav [data-tab="hero"]').click()
-        page.locator('#w-hero').get_by_role('button',name='Умения и особенности',exact=True).click()
+        page.locator('#w-hero').get_by_role('button',name='Таланты и дополнительные сведения',exact=True).click()
         expect(inspector).to_be_hidden()
         base_padding=dialog.evaluate('d=>getComputedStyle(d).paddingBottom')
         keys=node('ihs').evaluate("e=>[...e.closest('[data-arms-panel]').querySelectorAll('[data-arms-node]:not([data-arms-delta])')].map(n=>n.dataset.armsNode)")
