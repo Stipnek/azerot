@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Reveal preview inside actual close/reset boundaries, scroll only dialog descendants, and shrink inspector if needed. Keep strict browser overlap assertions.",
+  "edits": [
+    {
+      "name": "Replace nearest scrolling with measured safe bounds",
+      "old": "          button.scrollIntoView({block:'nearest', inline:'nearest'});",
+      "new": "          const dialog = button.closest('dialog');\n          const inspector = panel.querySelector('[data-arms-inspector]');\n          const close = dialog.querySelector(':scope>button.btn');\n          const reset = panel.querySelector('[data-arms-reset]').parentElement;\n          inspector.style.removeProperty('max-height');\n          armsHeroMeasure(panel);\n          const bounds = function () {\n            return {top:Math.max(dialog.getBoundingClientRect().top, close.getBoundingClientRect().bottom) + 8,\n              bottom:Math.min(dialog.getBoundingClientRect().bottom, reset.getBoundingClientRect().top) - 8};\n          };\n          let safe = bounds();\n          const shortage = button.getBoundingClientRect().height - (safe.bottom - safe.top);\n          if (shortage > 0) {\n            inspector.style.maxHeight = Math.max(44, inspector.getBoundingClientRect().height - shortage) + 'px';\n            armsHeroMeasure(panel);\n            safe = bounds();\n          }\n          for (let scroller = button.parentElement; scroller && dialog.contains(scroller); scroller = scroller.parentElement) {\n            if (scroller.scrollHeight <= scroller.clientHeight || !/auto|scroll|overlay/.test(getComputedStyle(scroller).overflowY)) continue;\n            const frame = scroller.getBoundingClientRect();\n            const top = Math.max(safe.top, frame.top + scroller.clientTop);\n            const bottom = Math.min(safe.bottom, frame.top + scroller.clientTop + scroller.clientHeight);\n            const rect = button.getBoundingClientRect();\n            const delta = rect.bottom > bottom ? rect.bottom - bottom : rect.top < top ? rect.top - top : 0;\n            scroller.scrollTop += delta;\n          }"
+    }
+  ]
+}
