@@ -1,9 +1,7 @@
-import functools
-import http.server
-import json
-import os
-import threading
-import traceback
+"""Preview-first editor, refusal messages and two-hero save isolation.
+Chromium only; remote artwork blocked. No real-device or live acceptance.
+"""
+import functools, http.server, json, os, threading, traceback
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
@@ -38,19 +36,47 @@ def run(browser, label, options):
         expect(value).to_be_visible()
         return value
 
-    def node(index, name, minus=False):
-        return panel(index).locator(f'[data-arms-node="{name}"]' + ('[data-arms-delta="-1"]' if minus else ':not([data-arms-delta])'))
+    def node(index, name):
+        return panel(index).locator(f'[data-arms-node="{name}"]:not([data-arms-delta])')
+
+    def inspector(index):
+        return panel(index).locator('[data-arms-inspector]')
+
+    def activate(target):
+        if options.get('has_touch'):
+            target.tap()
+        else:
+            target.click()
+
+    def snapshot():
+        return page.evaluate('(key) => localStorage.getItem(key)', KEY)
+
+    def preview(index, name):
+        card = inspector(index)
+        if card.is_visible():
+            activate(card.locator('[data-arms-inspector-close]'))
+            expect(card).to_be_hidden()
+        button = node(index, name)
+        button.scroll_into_view_if_needed()
+        before, rank = snapshot(), button.inner_text()
+        activate(button)
+        expect(card).to_be_visible()
+        expect(panel(index).locator(f'[data-arms-help="{name}"]')).to_have_attribute('open', '')
+        expect(button).to_have_text(rank)
+        assert snapshot() == before, 'Preview changed the saved state'
+
+    def action(index, name, minus=False):
+        return inspector(index).locator(f'[data-arms-node="{name}"][data-arms-delta="{-1 if minus else 1}"]')
 
     def verify(a, b):
-        saved = page.evaluate('(key) => JSON.parse(localStorage.getItem(key))', KEY)
+        saved = json.loads(snapshot())
         assert len(saved['chars']) == 2
-        ranks = {h['id']:h.get('armsTalents', {}).get('ihs', 0) for h in saved['chars']}
-        assert ranks == {IDS[0]:a, IDS[1]:b}, ranks
+        ranks = {h['id']: h.get('armsTalents', {}).get('ihs', 0) for h in saved['chars']}
+        assert ranks == {IDS[0]: a, IDS[1]: b}, ranks
         assert page.evaluate("localStorage.getItem('azeroth-ab-setup-v5')") == NORMAL
 
     def enter(index, rank):
-        card = page.locator(f'#sel-chars [data-char="{IDS[index]}"]')
-        card.click()
+        page.locator(f'#sel-chars [data-char="{IDS[index]}"]').click()
         expect(page.locator(f'#sel-chars [data-char="{IDS[index]}"]')).to_have_attribute('aria-pressed', 'true')
         page.locator('#sel-enter').click()
         page.locator('#bnav [data-tab="hero"]').click()
@@ -58,8 +84,8 @@ def run(browser, label, options):
         page.locator('#w-hero').get_by_role('button', name='Умения и особенности', exact=True).click()
         expect(node(index, 'ihs')).to_contain_text(f'{rank}/3')
         expect(panel(index).locator('details[data-arms-help][open]')).to_have_count(0)
-        expect(panel(index).locator('[data-arms-inspector]')).to_be_hidden()
-        assert page.evaluate('(key) => JSON.parse(localStorage.getItem(key)).cur', KEY) == IDS[index]
+        expect(inspector(index)).to_be_hidden()
+        assert json.loads(snapshot())['cur'] == IDS[index]
 
     def leave():
         dialog.get_by_role('button', name='Закрыть', exact=True).click()
@@ -68,99 +94,107 @@ def run(browser, label, options):
         expect(page.locator('#select')).to_be_visible()
 
     def change(index, name, rank, maximum, minus=False):
-        button = node(index, name, minus)
+        preview(index, name)
+        button = action(index, name, minus)
         button.scroll_into_view_if_needed()
-        original = dialog.element_handle()
-        top = dialog.evaluate('(d) => d.scrollTop')
-        button.click()
+        original, top = dialog.element_handle(), dialog.evaluate('(d) => d.scrollTop')
+        activate(button)
         assert original.evaluate('(d) => d.isConnected && d.open'), 'Original dialog was closed/replaced'
         expect(node(index, name)).to_contain_text(f'{rank}/{maximum}')
-        assert abs(dialog.evaluate('(d) => d.scrollTop') - top) <= 2, 'Dialog scroll jumped'
-        expect(dialog.locator('[data-arms-help="ihs"]')).to_have_attribute('open', '')
+        assert abs(dialog.evaluate('(d) => d.scrollTop') - top) <= 2, 'Dialog scroll jumped on rank change'
+        expect(panel(index).locator(f'[data-arms-help="{name}"]')).to_have_attribute('open', '')
 
     def positions(index):
-        return panel(index).locator('[data-arms-node]').evaluate_all("""nodes => nodes.map(n => {
-            const r = n.getBoundingClientRect();
-            return {key:n.dataset.armsNode + ':' + (n.dataset.armsDelta || '1'), rect:[r.x,r.y,r.width,r.height]};
+        return panel(index).locator('[data-arms-node]').evaluate_all("""nodes => nodes.filter(n => !n.closest('[data-arms-inspector]')).map(n => {
+            const r=n.getBoundingClientRect();
+            return {key:n.dataset.armsNode+':'+(n.dataset.armsDelta||'preview'),rect:[r.x,r.y,r.width,r.height]};
         })""")
 
     def assert_stable(index, before):
         page.evaluate('() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))')
         after = positions(index)
         assert [x['key'] for x in before] == [x['key'] for x in after]
-        shifted = [{'key':a['key'], 'before':a['rect'], 'after':b['rect']} for a,b in zip(before,after)
-                   if max(abs(x-y) for x,y in zip(a['rect'],b['rect'])) > 1]
-        assert not shifted, json.dumps({'gridShift':shifted}, ensure_ascii=False)
+        shifted = [{'key': a['key'], 'before': a['rect'], 'after': b['rect']} for a, b in zip(before, after)
+                   if max(abs(x-y) for x, y in zip(a['rect'], b['rect'])) > 1]
+        assert not shifted, json.dumps({'gridShift': shifted}, ensure_ascii=False)
 
     def explain_refusal(index, name, message, minus=False):
-        button = node(index, name, minus)
+        preview(index, name)
+        button = action(index, name, minus)
         expect(button).to_have_attribute('aria-disabled', 'true')
         button.scroll_into_view_if_needed()
-        before = positions(index)
+        before, saved = positions(index), snapshot()
         box = button.bounding_box()
-        x, y = box['x'] + box['width']/2, box['y'] + box['height']/2
+        x, y = box['x']+box['width']/2, box['y']+box['height']/2
         if options.get('has_touch'):
             page.touchscreen.tap(x, y)
         else:
             page.mouse.click(x, y)
         notice = panel(index).locator('[data-arms-status]')
         expect(notice).to_contain_text(message)
+        notice.scroll_into_view_if_needed()
         expect(notice).to_be_in_viewport(ratio=1)
-        expect(panel(index).locator('[data-arms-inspector]')).to_be_visible()
+        expect(inspector(index)).to_be_visible()
+        assert snapshot() == saved, 'Refused action changed the saved state'
         assert_stable(index, before)
 
     def open_help(index):
+        if inspector(index).is_visible():
+            activate(inspector(index).locator('[data-arms-inspector-close]'))
         help_box = panel(index).locator('[data-arms-help="ihs"]')
         help_box.locator('summary').scroll_into_view_if_needed()
-        before = positions(index)
-        help_box.locator('summary').click()
+        before, saved = positions(index), snapshot()
+        activate(help_box.locator('summary'))
         expect(help_box).to_have_attribute('open', '')
         expect(help_box.locator('p')).to_be_hidden()
-        card = panel(index).locator('[data-arms-inspector]')
+        card = inspector(index)
         expect(card).to_be_visible()
         expect(card.locator('[data-arms-heading]')).to_have_text('Улучшенный смертельный удар')
         effect = card.locator('[data-arms-effect]')
         expect(effect).to_contain_text('1/2/3')
+        effect.scroll_into_view_if_needed()
         expect(effect).to_be_in_viewport(ratio=1)
-        content_width = panel(index).evaluate('(e) => e.clientWidth - parseFloat(getComputedStyle(e).paddingLeft) - parseFloat(getComputedStyle(e).paddingRight)')
-        assert card.bounding_box()['width'] >= content_width - 2
+        content_width = panel(index).evaluate('(e) => e.clientWidth-parseFloat(getComputedStyle(e).paddingLeft)-parseFloat(getComputedStyle(e).paddingRight)')
+        assert card.bounding_box()['width'] >= content_width-2
         assert effect.bounding_box()['width'] >= 240
         assert effect.evaluate('(e) => parseFloat(getComputedStyle(e).fontSize)') >= 14
+        box, viewport = card.bounding_box(), page.viewport_size
+        assert box['x'] >= -1 and box['y'] >= -1 and box['x']+box['width'] <= viewport['width']+1 and box['y']+box['height'] <= viewport['height']+1
+        expect(dialog.get_by_role('button', name='Закрыть', exact=True)).to_be_in_viewport(ratio=1)
+        assert snapshot() == saved
         assert_stable(index, before)
-        assert dialog.evaluate('(d) => parseFloat(getComputedStyle(d).scrollPaddingTop)') >= card.bounding_box()['height']
 
     try:
         page.goto(url, wait_until='domcontentloaded')
         page.wait_for_function('!!(window.Battle && Battle.armsIntegrated)')
         page.evaluate("""({key, normal, ids, names}) => {
-            const chars = ids.map((id, i) => ({id, name:names[i], cls:'warrior', race:'human', level:15,
-                hxp:{me:Battle.xpAt(15)}, specs:{me:'arms',warrior:'arms'}, party:['me'], armsTalents:{},
-                money:0, items:{}, gear:{}, tav:{st:0,coll:{}}, q:{}, v57migrated:true,
-                v57onboarding:false, intro:{elwynn:1}, zone:'elwynn', at:'goldshire', pos:{x:44.7,y:45.8}}));
-            localStorage.setItem('azeroth-ab-setup-v5', normal);
-            localStorage.setItem(key, JSON.stringify({chars,cur:ids[0],enc:'hogger',sound:false,compAll:false,allSpecs:false}));
-        }""", {'key':KEY, 'normal':NORMAL, 'ids':IDS, 'names':NAMES})
+            const chars=ids.map((id,i)=>({id,name:names[i],cls:'warrior',race:'human',level:15,
+                hxp:{me:Battle.xpAt(15)},specs:{me:'arms',warrior:'arms'},party:['me'],armsTalents:{},
+                money:0,items:{},gear:{},tav:{st:0,coll:{}},q:{},v57migrated:true,v57onboarding:false,
+                intro:{elwynn:1},zone:'elwynn',at:'goldshire',pos:{x:44.7,y:45.8}}));
+            localStorage.setItem('azeroth-ab-setup-v5',normal);
+            localStorage.setItem(key,JSON.stringify({chars,cur:ids[0],enc:'hogger',sound:false,compAll:false,allSpecs:false}));
+        }""", {'key': KEY, 'normal': NORMAL, 'ids': IDS, 'names': NAMES})
         page.reload(wait_until='domcontentloaded')
         enter(0, 0)
-        expected_names = page.evaluate('Battle.armsIntegrated.TREE.map(n => n.ru)')
-        assert panel(0).locator('details summary').all_inner_texts() == expected_names
+        assert panel(0).locator('details summary').all_inner_texts() == page.evaluate('Battle.armsIntegrated.TREE.map(n=>n.ru)')
         for text in ['Ветка талантов появится позже', 'Тестовая интеграция', 'Зависимости проверяются общим валидатором', 'Баланс прототипа не согласован', 'Левый клик']:
             expect(dialog).not_to_contain_text(text)
         expect(panel(0).locator('[data-arms-node="mortal"]')).to_have_count(0)
         for target in panel(0).locator('button:visible, summary:visible').all():
             box = target.bounding_box()
             assert box and box['width'] >= 43.9 and box['height'] >= 43.9, box
-        assert panel(0).evaluate('(e) => e.scrollWidth <= e.clientWidth')
+        assert panel(0).evaluate('(e)=>e.scrollWidth<=e.clientWidth')
         open_help(0)
-        panel(0).locator('[data-arms-inspector-close]').click()
-        expect(panel(0).locator('[data-arms-inspector]')).to_be_hidden()
+        activate(inspector(0).locator('[data-arms-inspector-close]'))
+        expect(inspector(0)).to_be_hidden()
         expect(panel(0).locator('details[data-arms-help][open]')).to_have_count(0)
         explain_refusal(0, 'sweeping', 'Ряд 5')
         open_help(0)
         verify(0, 0)
         change(0, 'ihs', 1, 3)
         verify(1, 0)
-        page.screenshot(path=str(out / 'a-rank-1.png'), full_page=True)
+        page.screenshot(path=str(out/'a-rank-1.png'), full_page=True)
         leave()
         enter(1, 0)
         open_help(1)
@@ -180,7 +214,7 @@ def run(browser, label, options):
             leave()
             enter(other, other_rank)
             verify(1, 2)
-        checks.append('Two heroes retain independent visible ranks A=1/3 and B=2/3 across switching and two reloads')
+        checks.append('Two independent hero ranks persist across switching and two reloads')
         open_help(0)
         change(0, 'ihs', 0, 3, minus=True)
         for rank in [1, 2, 3]:
@@ -194,42 +228,44 @@ def run(browser, label, options):
         explain_refusal(0, 'imprend', 'Все очки распределены')
         explain_refusal(0, 'ihs', 'Сначала снимите зависимые ранги', minus=True)
         change(0, 'impthunder', 0, 3, minus=True)
+        preview(0, 'ihs')
         reset = panel(0).locator('[data-arms-reset]')
         reset.scroll_into_view_if_needed()
         original = dialog.element_handle()
-        reset.click()
-        assert original.evaluate('(d) => d.isConnected && d.open')
+        activate(reset)
+        assert original.evaluate('(d)=>d.isConnected&&d.open')
         expect(node(0, 'ihs')).to_contain_text('0/3')
-        expect(dialog.locator('[data-arms-help="ihs"]')).to_have_attribute('open', '')
+        expect(panel(0).locator('[data-arms-help="ihs"]')).to_have_attribute('open', '')
         verify(0, 2)
-        checks.append('Purchases/refunds/reset preserve original native dialog and open effect description; rank changes preserve scroll')
-        checks.append('Visible names, touch-readable effects, 44px targets, obsolete/debug-text removal and refusal explanations verified')
-        checks.append('Descriptions start closed; wide readable inspector and on-screen player-facing refusals verified')
-        checks.append('First description opening and first refusal do not shift any rank button; dialog scroll padding covers the inspector')
+        checks.extend(['Preview and refused actions do not change saves',
+                       'Explicit purchase/refund/reset preserve the native dialog; rank changes preserve scroll',
+                       'Names, 44px targets, readable in-viewport inspector and Close verified',
+                       'Summary opening and refusal messages do not shift grid controls; inspector actions excluded from grid geometry'])
         assert not errors, errors
         status = 'passed'
     except Exception:
-        (out / 'failure.txt').write_text(traceback.format_exc(), encoding='utf-8')
+        (out/'failure.txt').write_text(traceback.format_exc(), encoding='utf-8')
         raise
     finally:
-        (out / 'result.json').write_text(json.dumps({'status':status, 'sourceCommit':os.environ.get('SOURCE_COMMIT'),
-            'mode':label, 'checks':checks, 'pageErrors':errors,
-            'scope':'Integrated editor UX and two-hero persistence in Chromium. Remote artwork blocked. No combat, real-device, Safari, dungeon or live acceptance.'}, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+        (out/'result.json').write_text(json.dumps({'status': status, 'sourceCommit': os.environ.get('SOURCE_COMMIT'),
+            'mode': label, 'checks': checks, 'pageErrors': errors,
+            'scope': 'Integrated preview-first editor and two-hero persistence in Chromium. Remote artwork blocked. No combat, real-device, Safari, dungeon or live acceptance.'}, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
         try:
-            page.screenshot(path=str(out / 'final.png'), full_page=True)
+            page.screenshot(path=str(out/'final.png'), full_page=True)
         finally:
-            context.tracing.stop(path=str(out / 'trace.zip'))
+            context.tracing.stop(path=str(out/'trace.zip'))
             context.close()
-    print(json.dumps({'mode':label, 'status':status, 'checks':checks}, ensure_ascii=False))
+    print(json.dumps({'mode': label, 'status': status, 'checks': checks}, ensure_ascii=False))
 
 
 try:
     with sync_playwright() as p:
         browser = p.chromium.launch()
         try:
-            run(browser, 'desktop', {'viewport':{'width':1280, 'height':900}})
+            run(browser, 'desktop', {'viewport': {'width': 1280, 'height': 900}})
             run(browser, 'mobile', dict(p.devices['iPhone 13']))
         finally:
             browser.close()
 finally:
     server.shutdown()
+    server.server_close()

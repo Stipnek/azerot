@@ -40,24 +40,74 @@ assert.deepEqual(plain(battle.heroes[1].skills),['heroicstrike','thunder','rend'
 levels.low=25;party=plain(call('partyArg()'));
 battle=B.createBattle({party,main:'warrior',level:30,encounter:'daily_wf_coast',seed:1});
 assert.deepEqual(plain(battle.heroes[1].tal),plain(P.line(25)));
-assert.match(call('armsHeroPanel()'),/data-arms-panel="first"/);
+const html=call('armsHeroPanel()');
+assert.match(html,/data-arms-panel="first"/);
+const icons=[...html.matchAll(/<button\b[^>]*data-arms-node="[^"]+"[^>]*>/g)].map(m=>m[0]).filter(tag=>!tag.includes('data-arms-delta'));
+assert.equal(icons.length,B.armsIntegrated.TREE.length);
+for (const icon of icons) {
+  assert.match(icon,/aria-label="Описание таланта:/);
+  assert.doesNotMatch(icon,/\baria-disabled=|\sdisabled(?:\s|>|=)/);
+}
 function click(dataset,type='click') {
-  context.ev={type,target:{closest:()=>({dataset})},preventDefault(){},stopPropagation(){}};
+  const detail={dataset:{armsHelp:dataset.armsNode},open:false};
+  const other={dataset:{armsHelp:'other'},open:true};
+  const box={hidden:true},note={textContent:'stale'},heading={textContent:''},effect={textContent:''},actions={innerHTML:''};
+  const panel={
+    closest(selector){assert.equal(selector,'dialog');return null;},
+    querySelectorAll(selector){
+      if(selector==='details[data-arms-help]')return [detail,other];
+      if(selector==='details[data-arms-help][open]')return [detail,other].filter(d=>d.open);
+      throw new Error('Unexpected querySelectorAll: '+selector);
+    },
+    querySelector(selector){
+      if(selector==='details[data-arms-help][open]')return [detail,other].find(d=>d.open)||null;
+      const fields={'[data-arms-inspector]':box,'[data-arms-status]':note,'[data-arms-heading]':heading,'[data-arms-effect]':effect,'[data-arms-actions]':actions};
+      assert.ok(Object.hasOwn(fields,selector),'Unexpected querySelector: '+selector);
+      return fields[selector];
+    }
+  };
+  const button={dataset,closest(selector){assert.equal(selector,'[data-arms-panel]');return panel;}};
+  context.ev={type,target:{closest:()=>button},preventDefault(){},stopPropagation(){}};
   call('armsHeroAction(ev)');
+  return {detail,other,box,note,heading,effect,actions};
 }
 S.hero.armsTalents={};
-click({armsHero:'first',armsNode:'imprend'});
+function checkPreview(id) {
+  const before=JSON.stringify(S.hero),beforeStored=stored,beforeWrites=writes,beforeRefreshes=refreshes;
+  const ui=click({armsHero:S.hero.id,armsNode:id});
+  assert.equal(JSON.stringify(S.hero),before);assert.equal(stored,beforeStored);
+  assert.equal(writes,beforeWrites);assert.equal(refreshes,beforeRefreshes);
+  assert.equal(ui.detail.open,true);assert.equal(ui.other.open,false);assert.equal(ui.box.hidden,false);
+  assert.equal(ui.note.textContent,'');
+  assert.equal(ui.heading.textContent,B.armsIntegrated.TREE.find(n=>n.id===id).ru);
+  assert.ok(ui.effect.textContent.length>0);
+  assert.match(ui.actions.innerHTML,/data-arms-delta="1"/);assert.match(ui.actions.innerHTML,/data-arms-delta="-1"/);
+  return ui;
+}
+checkPreview('imprend');checkPreview('imprend');
+const locked=B.armsIntegrated.CONFIG.unavailable[0];
+assert.ok(locked);checkPreview(locked);
+click({armsHero:'first',armsNode:locked,armsDelta:'1'});
+assert.deepEqual(plain(S.hero.armsTalents),{});assert.equal(writes,0);
+click({armsHero:'first',armsNode:'imprend',armsDelta:'1'});
 assert.equal(S.hero.armsTalents.imprend,1);assert.equal(writes,1);assert.equal(refreshes,1);
 assert.deepEqual(JSON.parse(stored).armsTalents,{imprend:1});
 const first=JSON.parse(stored);S.hero={id:'second',cls:'warrior',armsTalents:{}};
 assert.deepEqual(plain(call("armsLoadout('me').talents")),{});
-click({armsHero:'first',armsNode:'imprend'});assert.equal(writes,1);
+const stale=click({armsHero:'first',armsNode:'imprend'});assert.equal(stale.detail.open,false);assert.equal(writes,1);
+click({armsHero:'first',armsNode:'imprend',armsDelta:'1'});assert.equal(writes,1);
 S.hero=first;click({armsHero:'first',armsNode:'imprend'},'contextmenu');
 assert.deepEqual(plain(S.hero.armsTalents),{});
-allowSave=false;click({armsHero:'first',armsNode:'imprend'});
+allowSave=false;click({armsHero:'first',armsNode:'imprend',armsDelta:'1'});
 assert.deepEqual(plain(S.hero.armsTalents),{});assert.equal(alerts,1);
 allowSave=true;context.st={over:false};const before=writes;
-click({armsHero:'first',armsNode:'imprend'});assert.equal(writes,before);context.st=null;
+click({armsHero:'first',armsNode:'imprend',armsDelta:'1'});assert.equal(writes,before);context.st=null;
+const maxNode=B.armsIntegrated.TREE.find(n=>n.id==='imprend');
+S.hero.armsTalents={imprend:maxNode.max};assert.ok(B.armsIntegrated.validate(S.hero.armsTalents,30).ok);
+checkPreview('imprend');const beforeMax=writes;
+click({armsHero:'first',armsNode:'imprend',armsDelta:'1'});assert.equal(writes,beforeMax);
+click({armsHero:'first',armsNode:'imprend',armsDelta:'-1'});assert.equal(S.hero.armsTalents.imprend,maxNode.max-1);
+click({armsHero:'first',armsReset:'1'});assert.deepEqual(plain(S.hero.armsTalents),{});
 S.hero.armsTalents=plain(P.line(30));levels.me=14;
 assert.deepEqual(plain(call("armsLoadout('me').talents")),{});
 assert.match(call('armsHeroPanel()'),/откроются на 15 уровне/);
@@ -74,4 +124,4 @@ assert.equal(openSave(),'azeroth-arms-hero-v1');assert.equal(values.get('azeroth
 values.set('azeroth-arms-hero-v1','updated');openSave();
 assert.equal(values.get('azeroth-arms-hero-v1'),'updated');assert.equal(values.get('azeroth-ab-setup-v5'),original);
 assert.deepEqual(keys,['azeroth-arms-hero-v1']);
-console.log('Arms hero integration: own-level battle adapter, persistence actions, isolation, validation, rollback and flag-off passed');
+console.log('Arms hero integration: preview without writes, explicit actions, own-level adapter, isolation, validation, rollback and flag-off passed');

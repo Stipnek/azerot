@@ -1,0 +1,36 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Preview talent icons without spending points; explicit inspector purchase/refund controls. Existing validator and save schema unchanged.",
+  "edits": [
+    {
+      "name": "Add explicit rank action container",
+      "old": "<p data-arms-effect></p></aside>",
+      "new": "<p data-arms-effect></p><div data-arms-actions></div></aside>"
+    },
+    {
+      "name": "Render explicit purchase and refund controls",
+      "old": "    panel.querySelector('[data-arms-effect]').textContent = node ? armsHeroEffect(node.id) : '';",
+      "new": "    panel.querySelector('[data-arms-effect]').textContent = node ? armsHeroEffect(node.id) : '';\n    const actions = panel.querySelector('[data-arms-actions]');\n    if (actions) {\n      const level = hLevel('me'), alloc = armsHeroData(S.hero, level);\n      const rank = node ? (alloc[node.id] || 0) : 0;\n      const control = function(delta, text) {\n        const allowed = B.armsIntegrated.change(alloc, node.id, delta, level).ok;\n        return '<button type=\"button\" class=\"btn\" data-arms-node=\"'+esc(node.id)+'\" data-arms-delta=\"'+delta+'\" data-arms-hero=\"'+esc(S.hero.id)+'\" aria-disabled=\"'+!allowed+'\">'+text+'</button>';\n      };\n      actions.innerHTML = node ? '<p>Ранг: '+rank+' / '+node.max+'</p>'+control(1, 'Добавить ранг')+control(-1, 'Убрать ранг') : '';\n    }"
+    },
+    {
+      "name": "Preview icon clicks before any allocation change",
+      "old": "    const old = S.hero.armsTalents, had = Object.prototype.hasOwnProperty.call(S.hero, 'armsTalents');",
+      "new": "    if (ev.type === 'click' && button.dataset.armsNode && !button.dataset.armsDelta) {\n      const panel = button.closest('[data-arms-panel]');\n      if (!panel) return;\n      const detail = Array.from(panel.querySelectorAll('details[data-arms-help]')).find(x => x.dataset.armsHelp === button.dataset.armsNode);\n      if (!detail) return;\n      panel.querySelectorAll('details[data-arms-help][open]').forEach(x => { if (x !== detail) x.open = false; });\n      panel.querySelector('[data-arms-status]').textContent = '';\n      detail.open = true;\n      armsHeroPresent(panel, button.dataset.armsNode);\n      return;\n    }\n    const old = S.hero.armsTalents, had = Object.prototype.hasOwnProperty.call(S.hero, 'armsTalents');"
+    },
+    {
+      "name": "Describe icon action accurately for assistive technology",
+      "old": "esc('Добавить ранг: '+label)",
+      "new": "esc('Описание таланта: '+label)"
+    },
+    {
+      "name": "Explain preview-first interaction",
+      "old": "Нажмите значок, чтобы добавить ранг, или «−», чтобы снять. Название под значком открывает описание эффекта.",
+      "new": "Нажмите значок или название, чтобы посмотреть талант. Очки меняются только кнопками «Добавить ранг», «Убрать ранг» или «−». Правый клик снимает ранг."
+    },
+    {
+      "name": "Restore focus to the correct explicit action",
+      "old": "(button.dataset.armsDelta ? '[data-arms-delta=\"-1\"]' : ':not([data-arms-delta])')",
+      "new": "(button.dataset.armsDelta ? '[data-arms-delta=\"' + button.dataset.armsDelta + '\"]' : ':not([data-arms-delta])')"
+    }
+  ]
+}

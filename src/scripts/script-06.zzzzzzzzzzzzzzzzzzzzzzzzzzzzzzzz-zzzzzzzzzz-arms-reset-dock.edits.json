@@ -1,0 +1,26 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Fix reset bar escaping the viewport: fixed docking above measured inspector height, updated safe scroll space, resize remeasurement. Rules and save schema unchanged.",
+  "edits": [
+    {
+      "name": "Use measured height for both safe offsets",
+      "old": "padding-bottom:calc(var(--arms-inspector-limit) + 24px);scroll-padding-bottom:calc(var(--arms-inspector-limit) + 80px)",
+      "new": "padding-bottom:calc(var(--arms-inspector-height, 45dvh) + 80px);scroll-padding-bottom:calc(var(--arms-inspector-height, 45dvh) + 80px)"
+    },
+    {
+      "name": "Dock reset outside sticky containing-block constraints",
+      "old": "p:has(>[data-arms-reset]){bottom:calc(var(--arms-inspector-limit) + 12px)}",
+      "new": "p:has(>[data-arms-reset]){position:fixed;top:auto;left:6px;right:6px;bottom:calc(var(--arms-inspector-height, 45dvh) + 12px);z-index:10002}"
+    },
+    {
+      "name": "Measure the inspector after rendering action controls",
+      "old": "      actions.innerHTML = node ? '<p>Ранг: '+rank+' / '+node.max+'</p>'+control(1, 'Добавить ранг')+control(-1, 'Убрать ранг') : '';",
+      "new": "      actions.innerHTML = node ? '<p>Ранг: '+rank+' / '+node.max+'</p>'+control(1, 'Добавить ранг')+control(-1, 'Убрать ранг') : '';\n      armsHeroMeasure(panel);"
+    },
+    {
+      "name": "Add live inspector measurement and resize refresh",
+      "old": "  function armsHeroRefusal(button, result) {",
+      "new": "  function armsHeroMeasure(panel) {\n    const dialog = typeof panel.closest === 'function' && panel.closest('dialog');\n    if (!dialog) return;\n    const box = panel.querySelector('[data-arms-inspector]');\n    const height = box.hidden ? 0 : Math.ceil(box.getBoundingClientRect().height);\n    dialog.style.setProperty('--arms-inspector-height', height + 'px');\n  }\n  if (typeof window.addEventListener === 'function') window.addEventListener('resize', function () {\n    document.querySelectorAll('#w-hero [data-arms-panel]').forEach(armsHeroMeasure);\n  });\n  function armsHeroRefusal(button, result) {"
+    }
+  ]
+}

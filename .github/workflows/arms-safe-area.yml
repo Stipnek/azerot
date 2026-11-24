@@ -1,0 +1,36 @@
+name: Arms inspector safe area
+on:
+  push:
+    branches: [work/arms-inspector-safe-area]
+  pull_request:
+    paths: ['src/**', 'scripts/**', '.github/workflows/arms-safe-area.yml']
+permissions:
+  contents: read
+jobs:
+  safe-area:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python3 scripts/check_source_edits.py
+      - run: node scripts/test_arms_hero.cjs && node scripts/test_arms_preview_reveal.cjs
+      - run: python3 scripts/build_combined_preview.py
+      - run: python -m pip install playwright==1.56.0
+      - run: python -m playwright install --with-deps chromium
+      - run: python3 scripts/test_arms_safe_area.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: arms-safe-area-diagnostics
+          if-no-files-found: warn
+          path: |
+            test-results/arms-safe-area/
+            preview/combined-build.json
