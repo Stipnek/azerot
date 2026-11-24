@@ -1,6 +1,6 @@
 # Reading the effective game source
 
-Status: source-reading guide, not a complete subsystem map. Inspected source revision: `69997572a43473255b0aa2dc35653909bac3ffe9` on `work/docs-release-guide`, 2026-11-24. No builds or tests were executed for this guide.
+Status: source-reading guide, not a complete subsystem map. Base source inspection: `69997572a43473255b0aa2dc35653909bac3ffe9`. Build-variant inspection: `b69e328805f51ae965c3545c040d5cfa4a51032a`. Both revisions are on `work/docs-release-guide`, reviewed 2026-11-24. No builds or tests were executed for this guide.
 
 ## Scope and inspected entry points
 
@@ -8,8 +8,11 @@ Status: source-reading guide, not a complete subsystem map. Inspected source rev
 - [Split-source reader](../scripts/split_script_sources.py)
 - [Core inliner](../scripts/core_sources.py)
 - [Node engine loader](../scripts/lib_engine_load.cjs)
+- [Hero variant builder](../scripts/build_arms_hero.py)
+- [Entry-screen builder](../scripts/build_entry_preview.py)
+- [Combined candidate builder](../scripts/build_combined_preview.py)
 
-This page describes base source assembly. Later entry/hero transformations and release packaging are outside its scope; see the [release section](../DEVELOPMENT.md#production-boundary).
+This page describes source assembly and candidate variants. For release triggers and packaging, see the [release section](../DEVELOPMENT.md#production-boundary). It is not a save-compatibility acceptance report.
 
 ## Source layers
 
@@ -48,6 +51,46 @@ After applying edits, the builder calls `inline_core`. The inspected inliner res
 The inspected Node engine loader reads the whole `.txt` file directly, then applies sorted edits and inlines core. It does not use the Python split-source reader. The base HTML builder can read the parts and checks them against a retained whole file when present.
 
 This is an observed input-reading difference, not proof that tests currently fail or disagree with the game. Before changing either path, inspect consumers, mirror checks, and fixtures; compare effective source and behavior. No loader changes are included here.
+
+## Build variants
+
+The following describes default invocations; `build_game.py --entry-screen` is a separate option that also adds the entry screen to the base output.
+
+| Output | Builder | Added transformation |
+|---|---|---|
+| `preview/index.html` | `build_game.py` | Base source assembly. |
+| `preview/arms-hero.html` | `build_arms_hero.py` | Rebuilds the base, then inserts `window.__AZEROT_ARMS_HERO__=true;` before its first script. |
+| `preview/entry.html` | `build_entry_preview.py` | Rebuilds the base, then embeds the entry screen into a separate output. |
+| `preview/combined.html` | `build_combined_preview.py` | Runs the hero builder, then embeds the entry screen into the hero variant. |
+
+```text
+Game sources -> base preview/index.html
+  + entry screen -> preview/entry.html
+  + hero flag -> preview/arms-hero.html
+                   + entry screen -> preview/combined.html
+                                      -> release checks and packaging
+```
+
+The inspected release workflow packages `preview/combined.html`, not the base or entry-only variant. When reporting a browser check, identify which output and source revision were tested. A result for one variant is not automatically acceptance of another.
+
+The combined builder checks for exactly one entry overlay and hero flag, checks that combining does not modify the existing base and hero outputs, and records their hashes and source commit in `preview/combined-build.json`. These guards do not establish complete gameplay or save compatibility.
+
+## Where to investigate an entry-screen fix
+
+| Concern | Starting point |
+|---|---|
+| Markup | [Entry HTML](../src/entry/screen.html) |
+| Layout and styling | [Entry CSS](../src/entry/screen.css) |
+| Buttons and runtime behavior | [Entry JavaScript](../src/entry/screen.js) |
+| Artwork selection and embedding | [Entry builder](../scripts/build_entry_preview.py) and `src/assets/entry/` |
+| Hero-mode behavior | Find consumers of `__AZEROT_ARMS_HERO__`; the hero builder only enables the flag. |
+| Release packaging | [Pages workflow](../.github/workflows/pages.yml) |
+
+These entry source paths were identified from the builder; their contents and runtime correctness were not audited for this addition. The entry assembler embeds HTML, CSS and JavaScript and converts the selected PNGs to data URIs. It checks the selected images' format, dimensions and Git blob hashes. Do not silently substitute artwork or change these guards.
+
+## Save-safety boundary
+
+The hero builder inserts a flag; that alone does not prove save isolation or compatibility. Preview-only wording in a builder or manifest is not a safety guarantee, especially when the combined output is used by the release workflow. Trace flag consumers and save/load paths and run targeted acceptance before making claims about ordinary saves. No save behavior is changed or accepted by this documentation update.
 
 ## Before choosing where to fix a problem
 

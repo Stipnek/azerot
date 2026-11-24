@@ -6,7 +6,7 @@ Review recorded: 2026-11-24. Scope: documentation in `work/docs-release-guide` a
 
 ## Source-reading guide
 
-[Reading the effective game source](reading-source.md) explains source parts, ordered edits, core inlining, and the observed Node-loader input difference. Its inspected revision and limitations are recorded on that page. It is not a complete subsystem map.
+[Reading the effective game source](reading-source.md) explains source parts, ordered edits, core inlining, the observed Node-loader input difference, build variants, entry-screen source locations, and save-safety limitations. Its inspected revisions and limitations are recorded on that page. It is not a complete subsystem map.
 
 ## How to use this page
 
