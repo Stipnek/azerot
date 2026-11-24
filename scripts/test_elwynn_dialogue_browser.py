@@ -70,6 +70,7 @@ try:
                     evaluate(page,'t.prepare(true,0); t.take();')
                     dialog(page).wait_for()
                     dialog(page).get_by_role('button',name='Закрыть',exact=True).click()
+                    page.locator('#elwynn-story-dialog').wait_for(state='detached')
                     assert evaluate(page,'return t.state();')==0, 'Closing offer must not accept'
                     evaluate(page,'t.take();')
                     dialog(page).get_by_role('button',name='Принять',exact=True).click()
@@ -82,6 +83,7 @@ try:
                     dialog(page).wait_for(timeout=15000)
                     assert evaluate(page,'return t.state();')==1, 'Travel must not hand in quest'
                     page.keyboard.press('Escape')
+                    page.locator('#elwynn-story-dialog').wait_for(state='detached')
                     assert evaluate(page,'return t.state();')==1
                     assert evaluate(page,'return t.rewards();')==before, 'Closing completion must not grant rewards'
                     evaluate(page,'t.perform();')
@@ -89,6 +91,7 @@ try:
                     assert dialog(page).evaluate('(d)=>{const r=d.getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1;}'), 'Dialog must fit viewport'
                     page.screenshot(path=str(OUT/(name+'-completion.png')),full_page=True)
                     dialog(page).get_by_role('button',name='Завершить задание',exact=True).evaluate('(button)=>{button.click();button.click();}')
+                    page.locator('#elwynn-story-dialog').wait_for(state='detached')
                     assert evaluate(page,'return t.state();')==3, 'Explicit completion must hand in quest'
                     after=evaluate(page,'return t.rewards();')
                     assert after!=before, 'First hand-in must grant reward'
@@ -102,6 +105,7 @@ try:
                     evaluate(page,'t.prepare(true,2); t.turn();')
                     dialog(page).wait_for(timeout=15000)
                     dialog(page).get_by_role('button',name='Закрыть',exact=True).click()
+                    page.locator('#elwynn-story-dialog').wait_for(state='detached')
                     assert evaluate(page,'return t.state();')==2, 'Existing ready-to-turn state must remain ready after close'
                     evaluate(page,'t.prepare(true,0); t.take();')
                     dialog(page).wait_for()
