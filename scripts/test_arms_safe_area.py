@@ -1,5 +1,6 @@
 """Safe-area geometry on the actual combined candidate, not live acceptance."""
 import functools, http.server, json, threading, traceback
+from itertools import combinations
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
@@ -30,7 +31,8 @@ def run(browser,label,viewport):
           const r=e=>{const b=e.getBoundingClientRect();return {x:b.x,y:b.y,w:b.width,h:b.height}};
           const selected=[...d.querySelectorAll('[data-arms-node]:not([data-arms-delta])')].find(e=>e.dataset.armsNode===key);
           return {node:r(selected),inspector:r(d.querySelector('[data-arms-inspector]')),
-            reset:r(d.querySelector('[data-arms-reset]')),close:r(d.querySelector(':scope>button.btn')),
+            reset:r(d.querySelector('[data-arms-reset]').parentElement),close:r(d.querySelector(':scope>button.btn')),
+            measuredHeight:parseFloat(d.style.getPropertyValue('--arms-inspector-height')),
             pageY:scrollY,overflow:d.scrollWidth>d.clientWidth+1};
         }""",key)
     def inside(r):return r['w']>0 and r['h']>0 and r['x']>=-1 and r['y']>=-1 and r['x']+r['w']<=viewport['width']+1 and r['y']+r['h']<=viewport['height']+1
@@ -58,14 +60,17 @@ def run(browser,label,viewport):
             before=saved();activate(node(key));expect(inspector).to_be_visible()
             page.evaluate('()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))')
             g=geometry(key);report.append({'key':key,**g})
-            assert all(inside(g[x]) for x in ['node','inspector','reset','close']),g
-            assert not overlaps(g['node'],g['inspector']) and not overlaps(g['reset'],g['inspector']),g
-            assert not overlaps(g['node'],g['close']),g
+            regions=['node','inspector','reset','close']
+            assert all(inside(g[x]) for x in regions),g
+            for a,b in combinations(regions,2):
+                assert not overlaps(g[a],g[b]),{'overlap':[a,b],**g}
+            assert 0<=g['measuredHeight']-g['inspector']['h']<1.01,g
             assert not g['overflow'] and g['pageY']==page_y,g
             assert saved()==before
             page.screenshot(path=str(out/f'{key}.png'))
             activate(inspector.locator('[data-arms-inspector-close]'));expect(inspector).to_be_hidden()
             assert dialog.evaluate('d=>getComputedStyle(d).paddingBottom')==base_padding
+            assert dialog.evaluate("d=>d.style.getPropertyValue('--arms-inspector-height')")=='0px'
         activate(node('ihs'));activate(inspector.locator('[data-arms-node="ihs"][data-arms-delta="1"]'))
         expect(node('ihs')).to_contain_text('1/3')
         activate(inspector.locator('[data-arms-node="ihs"][data-arms-delta="-1"]'))
