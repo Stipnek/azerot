@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Talent icons are preview controls, including locked and max-rank talents. Purchase/refund controls retain availability semantics.",
+  "edits": [
+    {
+      "name": "Keep every talent icon accessible for preview",
+      "old": "esc('Описание таланта: '+label)+'\" aria-disabled=\"'+!plus+'\" style=\"padding:2px;border-color:",
+      "new": "esc('Описание таланта: '+label)+'\" style=\"padding:2px;border-color:"
+    }
+  ]
+}
