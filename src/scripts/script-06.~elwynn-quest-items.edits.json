@@ -1,0 +1,21 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Issue 24 inventory prerequisite only. Preserve namespaced Raelen wood in existing hero.items and display it in the existing bag without adding it to equipment/drop/vendor catalogues. No collection timer, quest restoration, hand-in or attack implementation yet.",
+  "edits": [
+    {
+      "name": "define world quest items separately from equipment",
+      "old": "  function cleanInventory(items) {",
+      "new": "  function worldQuestItems() {\n    return [{id:'quest:ef_bundle:wood',name:'Связка древесины',questKey:'ef_bundle',questItem:true}];\n  }\n  function renderWorldQuestBag(root) {\n    if (!S.hero) return;\n    const bag=root.querySelector('.az573-bag'), count=root.querySelector('.az573-count'), detail=root.querySelector('.az573-inspect');\n    if (!bag || !count || !detail) return;\n    const rows=worldQuestItems().filter(item=>inventoryCount(S.hero.items,item.id)>0);\n    if (!rows.length) return;\n    for (const item of rows) {\n      const n=inventoryCount(S.hero.items,item.id), cell=document.createElement('div');\n      const button=gearButton('Древесина',function () { detail.textContent=item.name+' ×'+n+' · Предмет задания. Нельзя надеть или продать.'; });\n      button.className='az573-cell';\n      button.style.cssText='font-size:10px;overflow-wrap:anywhere';\n      button.setAttribute('aria-label',item.name+', количество '+n+', предмет задания');\n      const quantity=document.createElement('small'); quantity.textContent='×'+n;\n      cell.append(button,quantity); bag.append(cell);\n    }\n    const gear=gearItems.filter(item=>bagItemCount(S.hero,item)>0);\n    count.textContent=(gear.length+rows.length)+' типов · '+(gear.reduce((sum,item)=>sum+bagItemCount(S.hero,item),0)+rows.reduce((sum,item)=>sum+inventoryCount(S.hero.items,item.id),0))+' шт.';\n  }\n  function cleanInventory(items) {"
+    },
+    {
+      "name": "retain known quest items during character load",
+      "old": "    return Object.fromEntries(gearItems.map(function (item) { return [item.id, inventoryCount(items, item.id)]; }).filter(function (entry) { return entry[1] > 0; }));",
+      "new": "    return Object.fromEntries(gearItems.concat(worldQuestItems()).map(function (item) { return [item.id, inventoryCount(items, item.id)]; }).filter(function (entry) { return entry[1] > 0; }));"
+    },
+    {
+      "name": "append quest items to existing bag without equipment actions",
+      "old": "  function renderV56Gear(root,selected=null){",
+      "new": "  function renderV56Gear(root,selected=null){\n    renderV56EquipmentBag(root,selected);\n    renderWorldQuestBag(root);\n  }\n  function renderV56EquipmentBag(root,selected=null){"
+    }
+  ]
+}
