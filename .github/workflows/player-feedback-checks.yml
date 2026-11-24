@@ -94,6 +94,18 @@ jobs:
       - name: Arms talent dialog layout (desktop, mobile, landscape)
         if: ${{ !cancelled() && steps.browser-ready.outcome == 'success' }}
         run: python3 scripts/test_arms_tree_layout.py
+      - name: Print browser tracebacks and measurements
+        if: always()
+        shell: bash
+        run: |
+          if [ -d test-results ]; then
+            while IFS= read -r -d '' report; do
+              echo "::group::$report"
+              cat "$report"
+              printf '\n'
+              echo '::endgroup::'
+            done < <(find test-results -type f \( -name failure.txt -o -name result.json \) -print0)
+          fi
       - name: Upload diagnostics even on failure
         if: always()
         uses: actions/upload-artifact@v4
