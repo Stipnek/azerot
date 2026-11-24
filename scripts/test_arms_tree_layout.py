@@ -45,7 +45,7 @@ def run(browser,label,viewport):
  page.on('pageerror',lambda e: errors.append(str(e)))
  page.route('https://**/*',lambda route: route.abort())
  page.route('**/favicon.ico',lambda route: route.fulfill(status=204,body=''))
- dialog=page.locator('#w-hero dialog[aria-label="Умения и особенности"]')
+ dialog=page.locator('#w-hero dialog[aria-label="Таланты и дополнительные сведения"]')
  insp=dialog.locator('[data-arms-inspector]')
  node=lambda key: dialog.locator(f'[data-arms-node="{key}"]:not([data-arms-delta])')
  saved=lambda: page.evaluate('k=>(JSON.parse(localStorage.getItem(k)).chars[0].armsTalents||{})',KEY)
@@ -67,7 +67,7 @@ def run(browser,label,viewport):
   root=page.locator('#pa-entry'); expect(root).to_have_attribute('data-state','ready')
   page.locator('#pa-enter').click(); expect(root).to_be_hidden(); page.locator('#sel-enter').click()
   page.locator('#bnav [data-tab="hero"]').click()
-  page.locator('#w-hero').get_by_role('button',name='Умения и особенности',exact=True).click()
+  page.locator('#w-hero').get_by_role('button',name='Таланты и дополнительные сведения',exact=True).click()
   expect(dialog).to_be_visible()
  try:
   page.goto(URL,wait_until='domcontentloaded',timeout=90000)
