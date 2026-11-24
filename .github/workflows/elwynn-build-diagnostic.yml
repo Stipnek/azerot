@@ -1,0 +1,63 @@
+name: Elwynn build diagnostic
+on:
+  push:
+    branches: [work/elwynn-collection-dialogues]
+    paths: ['src/**', 'scripts/**', '.github/workflows/elwynn-build-diagnostic.yml']
+permissions:
+  contents: read
+concurrency:
+  group: elwynn-diagnostic-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      result: ${{ steps.probe.outputs.result }}
+      summary: ${{ steps.probe.outputs.summary }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Capture first source or build error
+        id: probe
+        shell: python
+        run: |
+          import os, re, subprocess
+          result, summary = 'pass', 'PASS source edits and game build'
+          print('Tested commit:', os.environ['GITHUB_SHA'])
+          for script in ['scripts/check_source_edits.py', 'scripts/build_game.py']:
+              try:
+                  run = subprocess.run(['python3', script], text=True, capture_output=True, timeout=180)
+                  text = run.stdout + '\n' + run.stderr
+                  print(script, 'exit:', run.returncode)
+                  print(text)
+                  if run.returncode:
+                      lines = [line.strip() for line in text.splitlines() if line.strip()]
+                      error = next((line for line in lines if re.search(r'non-unique|checksum|source changed|syntaxerror|error:', line, re.I)), lines[-1] if lines else 'failed without output')
+                      result, summary = 'fail', 'FAIL ' + error
+                      break
+              except subprocess.TimeoutExpired:
+                  result, summary = 'fail', 'FAIL timeout: ' + script
+                  break
+          summary = ' '.join(summary.split())[:220]
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('result=' + result + '\nsummary=' + summary + '\n')
+  diagnostic-result:
+    needs: probe
+    if: always()
+    name: 'Elwynn diagnostic: ${{ needs.probe.outputs.summary }}'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Preserve failure status
+        env:
+          DIAGNOSTIC_RESULT: ${{ needs.probe.outputs.result }}
+        run: test "$DIAGNOSTIC_RESULT" = pass
