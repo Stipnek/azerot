@@ -40,9 +40,67 @@ Artifacts: browser-smoke-results contains a startup screenshot and JavaScript er
 
 ## Production boundary
 
-The inspected Pages workflow publishes main changes to .github/workflows/pages.yml, patches.json, index.html, game-1.txt, or game-2.txt, and supports manual dispatch. Recheck filters before integration. Source-only or documentation-only changes do not themselves release gameplay.
+The release workflow is `.github/workflows/pages.yml`. Recheck its
+triggers and build steps before integration; do not infer the current
+release process from historical notes.
 
-Production assembles the root parts, applies optional patches, hashes the final bytes, versions loader requests with that hash, and writes version.json. It does not build from src/. Preview must not be assumed equal to patched production. Do not replace production files or change deployment incidentally. Review the complete release diff and obtain separate publication approval.
+### Release triggers
+
+Pushes to `main` and pull requests targeting `main` trigger this workflow
+when changes match `src/**`, `scripts/**`, `index.html`, or the release
+workflow itself.
+
+Pull requests run checks and packaging without deployment. A matching
+push to `main` can deploy after the build job succeeds.
+
+Manual runs on `main` can deploy when the `publish` input is enabled.
+Its default is false.
+
+Changes only to this guide or `docs/**` do not match the current automatic
+path filters. This does not prevent a separately requested manual run.
+
+### Source build and packaging
+
+The workflow runs source-edit checks, Node regression tests, the coin
+asset test, the base game build, and selected browser checks. It creates
+the combined entry-and-hero candidate with
+`scripts/build_combined_preview.py`.
+
+The release payload is `preview/combined.html`, not the repository-root
+`game-1.txt` and `game-2.txt` concatenated directly by the packaging step.
+
+Before packaging, the workflow verifies the candidate's source commit
+and SHA256 against `preview/combined-build.json`, and checks required
+integration markers.
+
+Packaging writes:
+- `_site/index.html`: the root loader with a build-specific version query;
+- `_site/game-1.txt` and `_site/game-2.txt`: two parts generated from the
+  combined candidate;
+- `_site/version.json`: the build hash and source commit.
+
+It verifies that joining the generated parts reproduces the candidate
+bytes. The `_site` directory is uploaded for Pages deployment.
+
+Do not assume `preview/index.html` is the published candidate: the
+workflow packages `preview/combined.html`.
+
+### Safety and evidence
+
+A successful workflow establishes only what its executed checks cover.
+It does not by itself prove complete gameplay correctness or save
+migration compatibility.
+
+Older preview-only descriptions in builders or manifests must be
+reconciled with their current release use. Do not treat publication as
+proof that those descriptions or save-related assumptions are correct.
+
+Review the full diff before integration. Changes under `src/**` or
+`scripts/**` can trigger a release when pushed to `main`. Obtain separate
+approval for merging and publishing.
+
+This section describes the workflow configuration, not confirmation
+that a particular deployment completed successfully.
 
 ## Agreed experience rules: pending implementation and tests
 
