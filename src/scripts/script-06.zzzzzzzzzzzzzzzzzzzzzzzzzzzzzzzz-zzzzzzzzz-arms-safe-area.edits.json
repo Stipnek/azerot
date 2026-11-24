@@ -1,0 +1,16 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Candidate safe area for the bottom inspector and reset bar, shorter inspector on short viewports, connected icon preview reveal only. No allocation or save changes. Browser acceptance required.",
+  "edits": [
+    {
+      "name": "Reserve inspector safe area",
+      "old": "#w-hero dialog:has([data-arms-panel]) [data-arms-inspector][hidden]{display:none!important}",
+      "new": "#w-hero dialog:has([data-arms-panel]) [data-arms-inspector][hidden]{display:none!important}#w-hero dialog:has([data-arms-panel]){--arms-inspector-limit:45dvh}#w-hero dialog:has([data-arms-panel]) [data-arms-inspector]{max-height:var(--arms-inspector-limit)}#w-hero dialog:has([data-arms-panel]):has([data-arms-inspector]:not([hidden])){padding-bottom:calc(var(--arms-inspector-limit) + 24px);scroll-padding-bottom:calc(var(--arms-inspector-limit) + 80px)}#w-hero dialog:has([data-arms-panel]):has([data-arms-inspector]:not([hidden])) [data-arms-panel] p:has(>[data-arms-reset]){bottom:calc(var(--arms-inspector-limit) + 12px)}@media(max-height:420px){#w-hero dialog:has([data-arms-panel]){--arms-inspector-limit:30dvh}}"
+    },
+    {
+      "name": "Reveal a still-selected connected preview icon",
+      "old": "      armsHeroPresent(panel, button.dataset.armsNode);\n      return;\n    }\n    const old = S.hero.armsTalents",
+      "new": "      armsHeroPresent(panel, button.dataset.armsNode);\n      if (button.isConnected) requestAnimationFrame(function () {\n        if (button.isConnected && detail.open && !panel.querySelector('[data-arms-inspector]').hidden) {\n          button.scrollIntoView({block:'nearest', inline:'nearest'});\n        }\n      });\n      return;\n    }\n    const old = S.hero.armsTalents"
+    }
+  ]
+}
