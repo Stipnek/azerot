@@ -1,9 +1,9 @@
 {
   "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
-  "description": "Keep the real skill list visible alongside the existing Arms editor. No gameplay or save changes.",
+  "description": "Keep the real skill list visible alongside the existing Arms editor. Training already comes from skillsHtml: do not append its duplicate from armsHeroPanel. No gameplay or save changes.",
   "edits": [{
     "name": "Do not replace the character skill list with the talent editor",
     "old": "(armsHeroPanel() || skillsHtml(S.main, sp, cl, true, lv).replace('<details', '<details open'))",
-    "new": "(skillsHtml(S.main, sp, cl, true, lv).replace('<details', '<details open') + armsHeroPanel())"
+    "new": "(skillsHtml(S.main, sp, cl, true, lv).replace('<details', '<details open') + (armsLoadout('me').neutralTraining === true ? '' : armsHeroPanel()))"
   }]
 }
