@@ -16,6 +16,7 @@ The game was previously named Azerot / Азерот. The repository name, site a
 A complete source map and documentation catalog are still being prepared. This section is an initial reading guide, not a complete or verified map of the project.
 
 ## Documentation
+- [Initial documentation navigation and review status](docs/INDEX.md)
 - [Branding and rename boundaries](docs/BRANDING.md)
 - [Commitment audit and open verification work](docs/CHAT-AUDIT.md)
 - [Development guide and earlier agreements](DEVELOPMENT.md)
