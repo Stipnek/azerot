@@ -72,7 +72,15 @@ def run(browser, label, viewport):
         page.locator('#w-hero').get_by_role('button', name='Умения и особенности', exact=True).click()
         expect(rank_button).to_contain_text('0/3')
         rank_button.scroll_into_view_if_needed()
+        before_preview = page.evaluate('(key) => localStorage.getItem(key)', KEY)
         rank_button.click()
+        inspector = dialog.locator('[data-arms-inspector]')
+        expect(inspector).to_be_visible()
+        expect(inspector.locator('[data-arms-heading]')).to_have_text('Улучшенный смертельный удар')
+        expect(rank_button).to_contain_text('0/3')
+        verify(0)
+        assert page.evaluate('(key) => localStorage.getItem(key)', KEY) == before_preview
+        inspector.locator('[data-arms-node="ihs"][data-arms-delta="1"]').click()
         expect(rank_button).to_contain_text('1/3')
         verify(1)
         page.screenshot(path=str(out / 'talent.png'), full_page=True)
@@ -106,7 +114,7 @@ def run(browser, label, viewport):
     finally:
         (out / 'result.json').write_text(json.dumps({'status': status, 'sourceCommit': os.environ.get('GITHUB_SHA'),
             'viewport': viewport, 'pageErrors': errors,
-            'scope': 'Combined opt-in entry/settings, main Arms purchase/reload and bag toggles in Chromium. Seeded isolated saves, remote HTTPS blocked. Not all-class skill, combat, reward-toast, real-save migration, real-device or live acceptance.'}, ensure_ascii=False, indent=2), encoding='utf-8')
+            'scope': 'Combined opt-in entry/settings, Arms preview without writes, explicit purchase/reload and bag toggles in Chromium. Seeded isolated saves, remote HTTPS blocked. Not all-class skill, combat, reward-toast, real-save migration, real-device or live acceptance.'}, ensure_ascii=False, indent=2), encoding='utf-8')
         try:
             page.screenshot(path=str(out / 'final.png'), full_page=True)
         finally:
