@@ -3,15 +3,26 @@ on:
   push:
     branches: [work/player-feedback-fixes, work/first-quests-balance, work/enemy-curve]
     paths: ['src/**', 'scripts/**', '.github/workflows/player-feedback-checks.yml']
+  # PRs into main (e.g. #17 feature/talent-tree-restyle). Plain pull_request (not
+  # pull_request_target): PR code runs with a read-only token and no secrets.
+  # github.sha here is the merge candidate refs/pull/N/merge (PR head merged onto
+  # current main), not the branch head; both SHAs are printed by "Record tested SHAs".
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+    paths: ['src/**', 'scripts/**', '.github/workflows/player-feedback-checks.yml']
 permissions:
   contents: read
 concurrency:
+  # PR runs share refs/pull/N/merge, so a newer push to the PR cancels the older run.
   group: player-feedback-checks-${{ github.ref }}
   cancel-in-progress: true
 env:
   SOURCE_COMMIT: ${{ github.sha }}
 jobs:
   source-and-modules:
+    # 'edited' is only needed for a base-branch change; skip title/body edits.
+    if: ${{ github.event_name != 'pull_request' || github.event.action != 'edited' || github.event.changes.base != null }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -19,6 +30,10 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
+      - name: Record tested SHAs
+        run: |
+          echo "event=${{ github.event_name }} tested=$SOURCE_COMMIT"
+          echo "pr_head=${{ github.event.pull_request.head.sha }} pr_base=${{ github.event.pull_request.base.sha }}"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -46,6 +61,8 @@ jobs:
         if: ${{ !cancelled() }}
         run: python3 scripts/build_combined_preview.py
   browser:
+    # 'edited' is only needed for a base-branch change; skip title/body edits.
+    if: ${{ github.event_name != 'pull_request' || github.event.action != 'edited' || github.event.changes.base != null }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     steps:
@@ -53,6 +70,10 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
+      - name: Record tested SHAs
+        run: |
+          echo "event=${{ github.event_name }} tested=$SOURCE_COMMIT"
+          echo "pr_head=${{ github.event.pull_request.head.sha }} pr_base=${{ github.event.pull_request.base.sha }}"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -70,6 +91,9 @@ jobs:
       - name: Eight classes on combined HTML and entry screen
         if: ${{ !cancelled() && steps.browser-ready.outcome == 'success' }}
         run: python3 scripts/test_neutral_training_combined.py
+      - name: Arms talent dialog layout (desktop, mobile, landscape)
+        if: ${{ !cancelled() && steps.browser-ready.outcome == 'success' }}
+        run: python3 scripts/test_arms_tree_layout.py
       - name: Upload diagnostics even on failure
         if: always()
         uses: actions/upload-artifact@v4
@@ -80,5 +104,6 @@ jobs:
           path: |
             test-results/combined-preview/
             test-results/neutral-training-combined/
+            test-results/arms-tree-layout/
             preview/combined-build.json
             preview/*.html

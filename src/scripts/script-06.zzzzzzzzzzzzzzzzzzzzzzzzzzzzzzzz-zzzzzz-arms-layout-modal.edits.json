@@ -1,0 +1,16 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Arms talent dialog as a fixed full-viewport overlay that scrolls internally (page never scrolls), with sticky Close, sticky points counter and sticky reset bar, a fixed bottom-sheet inspector that takes no space when hidden, and a visible placeholder for talent icons that fail to load (kept distinct from locked dimming). Presentation only: allocation rules, save schema and talent IDs unchanged. Not auto-scaled: the tree scrolls inside the dialog on small screens.",
+  "edits": [
+    {
+      "name": "Open the talent dialog as a fixed, internally scrolling overlay with sticky controls",
+      "old": "#w-hero [data-arms-inspector-close]{float:right;margin:0 0 4px 8px}",
+      "new": "#w-hero [data-arms-inspector-close]{float:right;margin:0 0 4px 8px}#w-hero dialog:has([data-arms-panel])[open]{position:fixed;inset:0;z-index:9999;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;margin:0;padding:0 6px 6px;box-sizing:border-box;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scroll-padding:96px 0 64px;background:rgba(0,0,0,.92);border:0}#w-hero dialog:has([data-arms-panel])::backdrop{background:rgba(0,0,0,.75)}#w-hero dialog:has([data-arms-panel])>*{flex-shrink:0}#w-hero dialog:has([data-arms-panel])>.box:has([data-arms-panel]){order:-1}#w-hero dialog:has([data-arms-panel])>button.btn:first-child{order:-2}#w-hero dialog:has([data-arms-panel])>button.btn:first-child{position:sticky;top:0;z-index:7;display:block;width:100%;min-height:44px;margin:0 0 6px}#w-hero dialog:has([data-arms-panel]) [data-arms-inspector]+p{position:sticky;top:44px;z-index:6;margin:0;padding:6px 0;background:var(--panel,#222a2d);font-weight:700}#w-hero dialog:has([data-arms-panel]) [data-arms-panel] p:has(>[data-arms-reset]){position:sticky;bottom:0;z-index:6;margin:6px 0 0;padding:6px 0;background:var(--panel,#222a2d)}#w-hero dialog:has([data-arms-panel]) [data-arms-inspector]{position:fixed;top:auto;left:6px;right:6px;bottom:6px;width:auto;height:auto;max-height:45dvh;z-index:10001}#w-hero dialog:has([data-arms-panel]) [data-arms-inspector][hidden]{display:none!important}#w-hero [data-arms-node] img{width:clamp(40px,9vw,56px);height:auto;aspect-ratio:1;object-fit:cover;background:#333}#w-hero [data-arms-node][data-arms-icon]::before{content:\"⚔\";display:inline-flex;align-items:center;justify-content:center;width:clamp(40px,9vw,56px);aspect-ratio:1;box-sizing:border-box;background:#3a3226;color:#f3e2b5;border:1px dashed #a08a5a;font-size:22px}#w-hero [data-arms-node][data-arms-icon=locked]::before{opacity:.45;filter:grayscale(1)}"
+    },
+    {
+      "name": "Show a placeholder when a talent icon fails to load, keeping locked state",
+      "old": "'.jpg\" style=\"'+(plus||rank?'':'filter:grayscale(1);opacity:.5')+'\">'",
+      "new": "'.jpg\" onerror=\"this.hidden=true;this.parentNode.dataset.armsIcon=this.style.filter?&quot;locked&quot;:&quot;missing&quot;\" style=\"'+(plus||rank?'':'filter:grayscale(1);opacity:.5')+'\">'"
+    }
+  ]
+}
