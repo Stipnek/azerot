@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Guard resize registration in environments without window; preserve browser measurement behavior.",
+  "edits": [
+    {
+      "name": "Check window before accessing its listener API",
+      "old": "  if (typeof window.addEventListener === 'function') window.addEventListener('resize', function () {",
+      "new": "  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') window.addEventListener('resize', function () {"
+    }
+  ]
+}
