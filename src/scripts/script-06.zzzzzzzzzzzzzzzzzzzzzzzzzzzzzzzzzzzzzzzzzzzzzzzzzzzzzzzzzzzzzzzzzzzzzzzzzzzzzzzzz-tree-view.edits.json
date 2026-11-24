@@ -1,6 +1,6 @@
 {
   "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
-  "description": "Three-tree hero navigation and read-only viewer. Druid forms remain separate runtime profiles. Does not implement hybrid allocation or alter saves, balance, costs or companion controls.",
+  "description": "Three-tree hero navigation and read-only viewer. Druid forms remain separate runtime profiles. Retain the pre-specialization training notice; match the source after neutral-training edits. No save or combat changes.",
   "edits": [
     {
       "name": "Add isolated tree browsing helpers",
@@ -9,13 +9,18 @@
     },
     {
       "name": "Replace main hero spec selection with three view buttons",
-      "old": "    const specBox = !canSpecialize('me')\n      ? '<p class=\"hint\">Выбор специализации откроется на ' + SPEC_LEVEL + ' уровне. Сохранённый выбор: ' + esc(B.specOf(S.main, selectedSpec('me')).name) + '.</p>'\n      : '<div class=\"specs\" role=\"group\" aria-label=\"Спек героя\">' + keys.map(function (k) { const x = cl.specs[k]; return '<button class=\"sp\" data-hspec=\"' + k + '\" aria-pressed=\"' + (sk === k) + '\">' + RN[x.role] + ' · ' + esc(x.name) + '</button>'; }).join('') + '</div>';",
-      "new": "    const specBox = heroTreeButtons();"
+      "old": "    const specBox = !canSpecialize('me')\n      ? (armsLoadout('me').neutralTraining === true ? '<p class=\"hint\">На 15 уровне автоматически назначится случайная ДД-специализация класса. До этого действует общий учебный набор.</p>' : '<p class=\"hint\">Выбор специализации откроется на ' + SPEC_LEVEL + ' уровне. Сохранённый выбор: ' + esc(B.specOf(S.main, selectedSpec('me')).name) + '.</p>')\n      : '<div class=\"specs\" role=\"group\" aria-label=\"Спек героя\">' + keys.map(function (k) { const x = cl.specs[k]; return '<button class=\"sp\" data-hspec=\"' + k + '\" aria-pressed=\"' + (sk === k) + '\">' + RN[x.role] + ' · ' + esc(x.name) + '</button>'; }).join('') + '</div>';",
+      "new": "    const specBox = heroTreeButtons();\n    const specNotice = !canSpecialize('me')\n      ? (armsLoadout('me').neutralTraining === true ? '<p class=\"hint\">На 15 уровне автоматически назначится случайная ДД-специализация класса. До этого действует общий учебный набор.</p>' : '<p class=\"hint\">Выбор специализации откроется на ' + SPEC_LEVEL + ' уровне. Сохранённый выбор: ' + esc(B.specOf(S.main, selectedSpec('me')).name) + '.</p>')\n      : '';"
     },
     {
       "name": "Route tree browsing without calling specialization or save handlers",
       "old": "  $('w-hero').addEventListener('click', function (ev) {",
       "new": "  $('w-hero').addEventListener('click', function (ev) {\n    const tree = ev.target.closest('[data-tree-view]');\n    if (tree) { ev.preventDefault(); openHeroTree(tree.dataset.treeView,tree); return; }"
+    },
+    {
+      "name": "Keep the existing training notice alongside view buttons",
+      "old": "+ specBox + '</div>'",
+      "new": "+ specNotice + specBox + '</div>'"
     }
   ]
 }
