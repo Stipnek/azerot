@@ -4,6 +4,10 @@ Status: initial, incomplete catalog. This is navigation, not a completed source 
 
 Review recorded: 2026-11-24. Scope: documentation in `work/docs-release-guide` at commit `f78812b450b8d2f72f8cbf6cfc7411d95e1bfa6e`. Recheck changes after that revision.
 
+## Source-reading guide
+
+[Reading the effective game source](reading-source.md) explains source parts, ordered edits, core inlining, and the observed Node-loader input difference. Its inspected revision and limitations are recorded on that page. It is not a complete subsystem map.
+
 ## How to use this page
 
 - Fully read means the document was retrieved and read in full during this review; it does not mean its claims were verified against current code.
