@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Embed the four user-mapped PNG illustrations; keep Wetlands save keys and quests; register Tirisfal with a physical entry and remove duplicate locked world labels. Artwork geography is not certified as original cartography.",
+  "edits": [
+    {
+      "name": "register uploaded zone artwork before initial map rendering",
+      "old": "  const MAP_SVG = '';",
+      "new": "  __AZEROT_CORE_WORLD_MAPS__\n  const MAP_SVG = '';"
+    }
+  ]
+}
