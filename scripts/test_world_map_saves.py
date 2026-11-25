@@ -30,6 +30,8 @@ try:
             expect(page.locator('#select')).to_be_visible()
             original = page.evaluate('(key)=>JSON.parse(localStorage.getItem(key))', KEY)
             assert len(original['chars']) == 1, original
+            original['chars'][0].setdefault('items', {})
+            original['chars'][0].setdefault('gear', {})
             hero_id = original['chars'][0]['id']
             for zone, at, x, y in [('wetlands_route', 'wt_inn', 28, 28), ('tirisfal', 'tg_brill', 61, 52)]:
                 for migrated in [False, True]:
