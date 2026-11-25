@@ -33,7 +33,7 @@ try:
             original['chars'][0].setdefault('items', {})
             original['chars'][0].setdefault('gear', {})
             hero_id = original['chars'][0]['id']
-            for zone, at, x, y in [('wetlands_route', 'wt_inn', 28, 28), ('tirisfal', 'tg_brill', 61, 52)]:
+            for zone, at, x, y in [('wetlands_route', 'wt_inn', 28, 28), ('tirisfal', 'tg_brill', 61, 52), ('westfall', 'lighthouse', 11, 31)]:
                 for migrated in [False, True]:
                     label = zone + '-' + str(migrated).lower()
                     try:
@@ -67,5 +67,5 @@ try:
 finally:
     server.shutdown()
     server.server_close()
-    (OUT / 'result.json').write_text(json.dumps({'cases': results, 'pageErrors': errors, 'scope': 'Chromium desktop; ordinary production build; UI-created character and injected saved locations; both migration flag states. No physical-device or live acceptance.'}, ensure_ascii=False, indent=2), encoding='utf-8')
-assert len(results) == 4, results
+    (OUT / 'result.json').write_text(json.dumps({'cases': results, 'pageErrors': errors, 'scope': 'Chromium desktop; ordinary production build; UI-created character and injected saved locations; both migration flag states. No physical-device or live acceptance. Does not verify that the lighthouse marker sits on the artwork.'}, ensure_ascii=False, indent=2), encoding='utf-8')
+assert len(results) == 6, results
