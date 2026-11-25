@@ -1,29 +1,60 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Pocket Azeroth</title>
-<style>html,body{margin:0;background:#080c12;color:#f5dfac;height:100%;font-family:Georgia,serif}*{box-sizing:border-box}[hidden]{display:none!important}#boot{position:fixed;inset:0;display:grid;place-items:center;isolation:isolate;background:#080c12}picture,picture img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}#boot:after{content:'';position:absolute;inset:0;background:linear-gradient(#0005,transparent 40%,#000c);z-index:-1}h1{position:absolute;top:7%;width:100%;text-align:center;font-size:clamp(32px,6vw,76px);text-shadow:0 3px 8px #000;margin:0}.bottom{position:absolute;bottom:max(6%,env(safe-area-inset-bottom));width:min(86%,420px);text-align:center}progress{width:100%;height:12px;accent-color:#c69a42}button{font:inherit;color:#ffe6a6;background:#172333;border:1px solid #bd934b;border-radius:6px;padding:12px 24px;margin:5px;cursor:pointer}button:disabled{opacity:.5;cursor:wait}#status{min-height:2.5em}#sound{font-size:14px}iframe{border:0;position:fixed;inset:0;width:100%;height:100%;background:#080c12;visibility:hidden}iframe.live{visibility:visible}#error{overflow-wrap:anywhere}</style></head><body>
-<section id="boot" aria-label="Pocket Azeroth"><picture><source media="(orientation:portrait)" srcset="src/assets/entry/image-2.png"><img src="src/assets/entry/image-3.png" alt="" fetchpriority="high"></picture><h1>Pocket Azeroth</h1><div class="bottom"><p id="status" role="status">Открываем портал…</p><progress id="progress" aria-label="Скачивание игры"></progress><div><button id="enter" disabled>Войти в мир</button><button id="sound" hidden>Включить музыку</button></div><p id="error" role="alert" hidden></p><button id="retry" hidden>Повторить</button></div></section><noscript>Для запуска игры включите JavaScript.</noscript>
+<html lang="ru" data-pa-entry="loading"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Pocket Azeroth</title>
+<style id="pa-critical">html,body{margin:0;background:#030914;color:#f5dfaa}html[data-pa-entry]{overflow:hidden}html[data-pa-entry] body>main,html[data-pa-entry] body>nav,html[data-pa-entry] body>#fsb,html[data-pa-entry] body>.rot{visibility:hidden!important}#pa-entry{position:fixed;inset:0;z-index:2147483000;background:#030914;isolation:isolate;text-align:center;color:#f5dfaa;font-family:Georgia,serif}#pa-entry[hidden],#pa-entry [hidden]{display:none!important}#pa-picture{position:absolute;inset:0;z-index:-1}#pa-art{width:100%;height:100%;object-fit:cover;object-position:center top}.pa-logo{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}#pa-entry.pa-no-art .pa-logo{clip-path:none;width:auto;height:auto;left:16px;right:16px;top:6%;font-size:40px}#pa-entry .pa-bottom{position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(340px,calc(100% - 40px))}#pa-entry button{min-height:48px;padding:10px 20px;background:#172333;color:#f5dfaa;border:2px solid #b89545;font:20px Georgia,serif}#pa-entry .pa-progress{height:12px;background:#168de4}#pa-entry #pa-actions{opacity:1;transform:none}</style>
+<link id="pa-styles" rel="stylesheet" href="src/entry/screen.css">
+</head><body>
+<section id="pa-entry" role="dialog" aria-modal="true" aria-label="Pocket Azeroth" data-state="loading">
+<picture id="pa-picture"><source media="(orientation:portrait)" srcset="src/assets/entry/image-2.png"><img id="pa-art" src="src/assets/entry/image-3.png" alt="" fetchpriority="high" onerror="this.closest('section').classList.add('pa-no-art')"></picture>
+<h1 class="pa-logo">Pocket Azeroth</h1><div class="pa-bottom">
+<div id="pa-loading"><p role="status">Открываем портал…</p><div class="pa-progress" role="progressbar" aria-label="Загрузка игры"><span></span></div></div>
+<div id="pa-actions" hidden><button id="pa-enter" type="button">Войти в мир</button><button id="pa-settings-open" type="button">Настройки</button></div>
+<div id="pa-failure" hidden><p role="alert">Не удалось загрузить игру.</p><button id="pa-retry" type="button" onclick="location.reload()">Повторить</button></div><p id="pa-feedback" role="status"></p></div>
+<dialog id="pa-settings" aria-labelledby="pa-settings-title"><header><h2 id="pa-settings-title">Настройки звука</h2><button id="pa-settings-close" type="button">Закрыть</button></header><div id="pa-settings-host"></div></dialog>
+</section><noscript>Для запуска игры включите JavaScript.</noscript>
 <script>
 (()=>{'use strict';
-const $=id=>document.getElementById(id),status=$('status'),bar=$('progress'),enter=$('enter'),sound=$('sound');
-let frame,ready=false,failed=false,leaving=false,audioReady=false,audioFailed=false;
-const audio=new Audio();audio.loop=true;audio.preload='auto';
-let cfg={enabled:true,musicEnabled:true,master:1,music:.3};
-try{const saved=JSON.parse(localStorage.getItem('azeroth-ab-audio-v2')||'{}');for(const k of ['enabled','musicEnabled'])if(typeof saved[k]==='boolean')cfg[k]=saved[k];for(const k of ['master','music'])if(Number.isFinite(saved[k]))cfg[k]=Math.max(0,Math.min(1,saved[k]));}catch(_){}
-const musicAllowed=cfg.enabled&&cfg.musicEnabled&&cfg.master*cfg.music>0;audio.volume=cfg.master*cfg.music;
-function play(){if(!musicAllowed||!audioReady||audioFailed||leaving||failed||document.hidden)return;audio.play().then(()=>{sound.hidden=true;}).catch(()=>{if(!leaving&&!failed)sound.hidden=false;});}
-sound.onclick=play;
-function gesture(e){if(e.type==='keydown'&&['Tab','Escape','Shift','Control','Alt','Meta'].includes(e.key))return;play();}
-document.addEventListener('pointerdown',gesture,{passive:true});document.addEventListener('keydown',gesture);
-document.addEventListener('visibilitychange',()=>{if(document.hidden)audio.pause();else play();});
-window.addEventListener('pagehide',()=>audio.pause());
-$('retry').onclick=()=>location.reload();
-const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),180000);
-function fail(e){if(failed)return;failed=true;clearTimeout(timeout);controller.abort();audio.pause();bar.hidden=true;enter.disabled=true;sound.hidden=true;status.textContent='Не удалось загрузить игру';$('error').textContent=e.name==='AbortError'?'Загрузка прервана или заняла слишком много времени. Проверьте соединение.':String(e.message||e);$('error').hidden=false;$('retry').hidden=false;if(frame)frame.remove();}
-if(musicAllowed)fetch('src/html-assets/8bff6636176243c2f3030079b89ef19a30ac674a14e05489adcb731034d8c7c7.b64',{signal:controller.signal}).then(r=>{if(!r.ok)throw Error('Music HTTP '+r.status);return r.text();}).then(b64=>{if(leaving||failed)return;audio.src='data:audio/mpeg;base64,'+b64.trim();audioReady=true;play();}).catch(()=>{audioFailed=true;sound.hidden=true;});
-const received=[0,0],totals=[0,0];
-function progress(){const bytes=received[0]+received[1];status.textContent='Загрузка игры · '+(bytes/1048576).toFixed(1)+' МБ';if(totals.every(n=>n>0)){bar.max=totals[0]+totals[1];bar.value=Math.min(bytes,bar.max);}else bar.removeAttribute('value');}
-async function download(file,i){const r=await fetch(file+'?v=573crest',{cache:'no-cache',signal:controller.signal});if(!r.ok)throw Error(file+' — HTTP '+r.status);if(i===0)window.__AZEROT_RUNNING_BUILD__=new URL(r.url,location.href).searchParams.get('v');totals[i]=Number(r.headers.get('content-length'))||0;if(!r.body){const b=new Uint8Array(await r.arrayBuffer());received[i]=b.length;progress();return b;}const reader=r.body.getReader(),chunks=[];for(;;){const {done,value}=await reader.read();if(done)break;chunks.push(value);received[i]+=value.length;progress();}const result=new Uint8Array(received[i]);let offset=0;for(const chunk of chunks){result.set(chunk,offset);offset+=chunk.length;}return result;}
-enter.onclick=()=>{if(!ready||failed||leaving)return;leaving=true;const game=frame.contentWindow,doc=game.document,track=doc.getElementById('az-a0');const time=audio.currentTime;audio.pause();if(track&&Number.isFinite(time)){try{track.currentTime=time;}catch(_){}}frame.classList.add('live');$('boot').hidden=true;document.removeEventListener('pointerdown',gesture);document.removeEventListener('keydown',gesture);game.focus();doc.dispatchEvent(new game.Event('pointerdown',{bubbles:true}));const target=doc.querySelector('#select:not([hidden]) #sel-enter,#create:not([hidden]) #cr-go');if(target)target.focus();};
-(async()=>{try{const parts=await Promise.all(['game-1.txt','game-2.txt'].map(download));const bytes=new Uint8Array(parts[0].length+parts[1].length);bytes.set(parts[0]);bytes.set(parts[1],parts[0].length);const html=new TextDecoder('utf-8',{fatal:true}).decode(bytes);if(!html.includes('id="az-clean-crest"'))throw Error('Не найдена сборка с новым гербом');status.textContent='Подготавливаем мир…';bar.removeAttribute('value');frame=document.createElement('iframe');frame.title='Pocket Azeroth';frame.setAttribute('allow','autoplay; fullscreen');frame.setAttribute('allowfullscreen','');document.body.append(frame);frame.contentWindow.__AZEROT_RUNNING_BUILD__=window.__AZEROT_RUNNING_BUILD__;const doc=frame.contentDocument;doc.open();doc.write(html);doc.close();const deadline=performance.now()+30000;function check(){if(failed)return;try{const d=frame.contentDocument,w=frame.contentWindow;const visible=Array.from(d.querySelectorAll('#create,#select,#world')).some(el=>!el.hidden&&w.getComputedStyle(el).display!=='none');if(d.readyState==='complete'&&visible&&w.AzerothAudio){ready=true;clearTimeout(timeout);bar.hidden=true;status.textContent='Портал открыт';enter.disabled=false;return;}if(performance.now()>deadline)throw Error('Игра не завершила запуск. Попробуйте ещё раз.');setTimeout(check,50);}catch(e){fail(e);}}check();}catch(e){fail(e);}})();
+function mount(){
+ const $=id=>document.getElementById(id),root=$('pa-entry');
+ const blocked=Array.from(document.querySelectorAll('body>main,body>nav,body>#fsb,body>.rot')).map(el=>[el,el.inert]);
+ blocked.forEach(([el])=>{el.inert=true;});
+ const settings=$('pa-settings');let marker=null,panel=null;
+ $('pa-settings-open').onclick=()=>{panel=$('az-settings');if(!panel)return;marker=document.createComment('settings');panel.before(marker);$('pa-settings-host').append(panel);settings.showModal();};
+ $('pa-settings-close').onclick=()=>settings.close();
+ settings.addEventListener('close',()=>{if(marker&&panel){marker.replaceWith(panel);marker=null;panel=null;}$('pa-settings-open').focus();});
+ $('pa-enter').onclick=()=>{if(root.dataset.state!=='ready'||settings.open)return;root.hidden=true;document.documentElement.removeAttribute('data-pa-entry');blocked.forEach(([el,value])=>{el.inert=value;});const target=document.querySelector('#select:not([hidden]) #sel-enter,#create:not([hidden]) #cr-go');if(target)target.focus();};
+ const deadline=performance.now()+30000;
+ function check(){
+  const visible=Array.from(document.querySelectorAll('#create,#select,#world')).some(el=>!el.hidden&&getComputedStyle(el).display!=='none');
+  if(visible&&window.AzerothAudio){root.dataset.state='ready';$('pa-loading').hidden=true;$('pa-actions').hidden=false;$('pa-actions').classList.add('pa-arrive');document.dispatchEvent(new Event('pointerdown',{bubbles:true}));return;}
+  if(performance.now()>deadline){root.dataset.state='error';$('pa-loading').hidden=true;$('pa-failure').hidden=false;$('pa-feedback').textContent='Игра не завершила запуск.';return;}
+  setTimeout(check,50);
+ }
+ check();
+}
+const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),180000),received=[0,0];
+async function download(file,i){
+ const response=await fetch(file+'?v=573crest',{cache:'no-cache',signal:controller.signal});
+ if(!response.ok)throw Error(file+' — HTTP '+response.status);
+ if(i===0)window.__AZEROT_RUNNING_BUILD__=new URL(response.url,location.href).searchParams.get('v');
+ if(!response.body)return new Uint8Array(await response.arrayBuffer());
+ const reader=response.body.getReader(),chunks=[];
+ for(;;){const {done,value}=await reader.read();if(done)break;chunks.push(value);received[i]+=value.length;document.querySelector('#pa-loading p').textContent='Загрузка игры · '+((received[0]+received[1])/1048576).toFixed(1)+' МБ';}
+ const bytes=new Uint8Array(received[i]);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}return bytes;
+}
+(async()=>{try{
+ const parts=await Promise.all(['game-1.txt','game-2.txt'].map(download));clearTimeout(timer);
+ const bytes=new Uint8Array(parts[0].length+parts[1].length);bytes.set(parts[0]);bytes.set(parts[1],parts[0].length);
+ let html=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+ if(!html.includes('id="az-clean-crest"')||!html.includes('<head>')||!html.includes('<body>')||!html.includes('</body>'))throw Error('Не найдена ожидаемая сборка игры');
+ document.querySelector('#pa-loading p').textContent='Подготавливаем мир…';
+ const markup=document.getElementById('pa-entry').outerHTML;
+ const styles=document.getElementById('pa-critical').outerHTML+document.getElementById('pa-styles').outerHTML;
+ html=html.replace('<head>','<head>'+styles+'<script>document.documentElement.dataset.paEntry="loading";<\/script>');
+ html=html.replace('<body>','<body>'+markup);
+ const end=html.lastIndexOf('</body>');
+ html=html.slice(0,end)+'<script>document.addEventListener("DOMContentLoaded",'+mount.toString()+',{once:true});<\/script>'+html.slice(end);
+ document.open();document.write(html);document.close();
+}catch(error){clearTimeout(timer);controller.abort();document.getElementById('pa-loading').hidden=true;document.getElementById('pa-failure').hidden=false;document.getElementById('pa-feedback').textContent=error.name==='AbortError'?'Загрузка заняла слишком много времени.':error.message;}})();
 })();
 </script></body></html>

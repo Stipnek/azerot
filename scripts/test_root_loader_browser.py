@@ -16,20 +16,10 @@ async def scenario(browser, name, viewport, muted=False, recovery=False):
     await context.tracing.start(screenshots=True, snapshots=True, sources=True)
     if muted:
         await context.add_init_script("localStorage.setItem('azeroth-ab-audio-v2', JSON.stringify({enabled:false,musicEnabled:false,master:1,music:0.3}));")
-    await context.add_init_script("""if (window === window.top) {
-      const NativeAudio = window.Audio;
-      window.Audio = function(...args) {
-        const audio = new NativeAudio(...args);
-        window.__testBootAudio = audio;
-        return audio;
-      };
-      window.Audio.prototype = NativeAudio.prototype;
-    }""")
     page = await context.new_page()
-    errors, console_errors, requests = [], [], []
+    errors, console_errors = [], []
     page.on('pageerror', lambda e: errors.append(str(e)))
     page.on('console', lambda m: console_errors.append(m.text) if m.type == 'error' else None)
-    page.on('request', lambda r: requests.append(r.url))
     gate = asyncio.Event()
     attempts = 0
     async def intercept(route):
@@ -45,43 +35,47 @@ async def scenario(browser, name, viewport, muted=False, recovery=False):
     report.append(result)
     try:
         await page.goto('http://127.0.0.1:8765/', wait_until='domcontentloaded', timeout=90000)
-        await expect(page.locator('#boot')).to_be_visible()
+        await expect(page.locator('#pa-entry')).to_be_visible()
         if recovery:
-            await expect(page.locator('#error')).to_be_visible(timeout=30000)
-            await expect(page.locator('#retry')).to_be_visible()
-            await expect(page.locator('#enter')).to_be_disabled()
+            await expect(page.locator('#pa-failure')).to_be_visible(timeout=30000)
             await page.screenshot(path=str(OUT / (name + '-error.png')))
             gate.set()
-            await page.locator('#retry').click()
+            await page.locator('#pa-retry').click()
         else:
-            await expect(page.locator('#enter')).to_be_disabled()
-            await page.wait_for_function("document.querySelector('#boot img').naturalWidth > 0", timeout=60000)
-            assert await page.evaluate("getComputedStyle(document.body).backgroundColor") != 'rgb(255, 255, 255)'
+            await page.wait_for_function("document.querySelector('#pa-art').naturalWidth > 0", timeout=60000)
+            await expect(page.locator('#pa-actions')).to_be_hidden()
             await page.screenshot(path=str(OUT / (name + '-loading.png')))
             await page.wait_for_timeout(1500)
-            await expect(page.locator('#enter')).to_be_disabled()
-            if not muted:
-                await page.wait_for_function("window.__testBootAudio && !!window.__testBootAudio.src", timeout=90000)
-                await page.locator('h1').click()
-                await page.wait_for_function("!window.__testBootAudio.paused && window.__testBootAudio.currentTime > 0.1", timeout=30000)
-                result['music_on_loading_screen'] = True
-            else:
-                assert not any('/src/html-assets/' in url for url in requests)
-                assert await page.evaluate('window.__testBootAudio.paused')
-                result['saved_mute_respected'] = True
+            await expect(page.locator('#pa-actions')).to_be_hidden()
             gate.set()
-        await expect(page.locator('#enter')).to_be_enabled(timeout=180000)
+        await expect(page.locator('#pa-entry')).to_have_attribute('data-state', 'ready', timeout=180000)
+        assert await page.locator('iframe').count() == 0
+        assert await page.locator('audio').count() == 8
+        result['no_iframe_or_extra_audio'] = True
+        await expect(page.locator('body > main')).to_have_js_property('inert', True)
+        if not muted:
+            await page.locator('#pa-feedback').evaluate("el => el.textContent = 'Проверка звука'")
+            await page.locator('#pa-feedback').click()
+            await page.wait_for_function("!document.getElementById('az-a0').paused && document.getElementById('az-a0').currentTime > 0.1", timeout=30000)
+            result['native_music_on_entry_screen'] = True
+        else:
+            assert await page.locator('#az-a0').evaluate('a => a.paused')
+            result['saved_mute_respected'] = True
+        await page.locator('#pa-settings-open').click()
+        await expect(page.locator('#pa-settings')).to_be_visible()
+        await expect(page.locator('#pa-settings #az-settings')).to_be_visible()
+        await page.locator('#pa-settings-close').click()
+        await expect(page.locator('#pa-settings')).not_to_be_visible()
+        result['settings_roundtrip'] = True
         await page.screenshot(path=str(OUT / (name + '-ready.png')))
-        await page.locator('#enter').click()
-        await expect(page.locator('#boot')).to_be_hidden()
-        await expect(page.locator('iframe.live')).to_be_visible()
-        game = page.frame_locator('iframe.live')
-        await expect(game.locator('#create:visible, #select:visible, #world:visible').first).to_be_visible(timeout=30000)
-        if not recovery and not muted:
-            await page.wait_for_function("!document.querySelector('iframe').contentDocument.querySelector('#az-a0').paused", timeout=30000)
-            result['music_after_enter'] = True
+        await page.locator('#pa-enter').click()
+        await expect(page.locator('#pa-entry')).to_be_hidden()
+        await expect(page.locator('body > main')).to_have_js_property('inert', False)
+        await expect(page.locator('#create:visible, #select:visible, #world:visible').first).to_be_visible(timeout=30000)
         if muted:
-            assert await page.locator('iframe').evaluate("f => f.contentDocument.querySelector('#az-a0').paused")
+            assert await page.locator('#az-a0').evaluate('a => a.paused')
+        else:
+            await page.wait_for_function("!document.getElementById('az-a0').paused", timeout=30000)
         await page.screenshot(path=str(OUT / (name + '-game.png')))
         assert not errors, 'JavaScript errors: ' + repr(errors)
         result['passed'] = True
