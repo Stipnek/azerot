@@ -1,0 +1,32 @@
+{
+  "commit": "9a1ec77e90de469f0f35e9923101703e26506e33",
+  "run_url": "https://github.com/Stipnek/azerot/actions/runs/45528943634",
+  "run_attempt": "1",
+  "status_before_publish": "success",
+  "test_step": "success",
+  "scenarios": [
+    {
+      "scenario": "landscape",
+      "passed": true,
+      "javascript_errors": [],
+      "console_errors": [],
+      "music_on_loading_screen": true,
+      "music_after_enter": true
+    },
+    {
+      "scenario": "portrait-muted",
+      "passed": true,
+      "javascript_errors": [],
+      "console_errors": [],
+      "saved_mute_respected": true
+    },
+    {
+      "scenario": "download-retry",
+      "passed": true,
+      "javascript_errors": [],
+      "console_errors": [
+        "Failed to load resource: net::ERR_FAILED"
+      ]
+    }
+  ]
+}
