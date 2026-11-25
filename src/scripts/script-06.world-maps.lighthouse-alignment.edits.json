@@ -10,7 +10,7 @@
     {
       "name": "realign saved lighthouse occupants once per loaded character",
       "old": "  function mePos() {\n    const c = S.hero; if (!c) return { x: 50, y: 50 };",
-      "new": "  const LIGHTHOUSE_ART_ALIGNED = new WeakSet();\n  function mePos() {\n    const c = S.hero; if (!c) return { x: 50, y: 50 };\n    if (heroZone() === 'westfall' && c.at === 'lighthouse' && !LIGHTHOUSE_ART_ALIGNED.has(c)) {\n      c.pos = spot('lighthouse');\n      LIGHTHOUSE_ART_ALIGNED.add(c);\n    }"
+      "new": "  const LIGHTHOUSE_ART_ALIGNED = new WeakSet();\n  function mePos() {\n    const c = S.hero; if (!c) return { x: 50, y: 50 };\n    if (c.zone === 'westfall' && c.at === 'lighthouse' && !LIGHTHOUSE_ART_ALIGNED.has(c)) {\n      c.pos = { x: PLACES.lighthouse.x, y: PLACES.lighthouse.y };\n      LIGHTHOUSE_ART_ALIGNED.add(c);\n    }"
     }
   ]
 }
