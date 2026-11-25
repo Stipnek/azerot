@@ -94,18 +94,61 @@ jobs:
       - name: Arms talent dialog layout (desktop, mobile, landscape)
         if: ${{ !cancelled() && steps.browser-ready.outcome == 'success' }}
         run: python3 scripts/test_arms_tree_layout.py
-      - name: Print browser tracebacks and measurements
+      - name: Browser failures - annotations and summary
         if: always()
         shell: bash
         run: |
-          if [ -d test-results ]; then
-            while IFS= read -r -d '' report; do
-              echo "::group::$report"
-              cat "$report"
-              printf '\n'
-              echo '::endgroup::'
-            done < <(find test-results -type f \( -name failure.txt -o -name result.json \) -print0)
-          fi
+          python3 - <<'PY'
+          import html, json, os, re
+          from pathlib import Path
+
+          def escaped(value):
+              return str(value).replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+
+          def prop(value):
+              return escaped(value).replace(',', '%2C').replace(':', '%3A')
+
+          root = Path('test-results')
+          failed = {p.parent: p.read_text(encoding='utf-8', errors='replace')
+                    for p in sorted(root.rglob('failure.txt'))}
+          for p in sorted(root.rglob('result.json')):
+              try:
+                  result = json.loads(p.read_text(encoding='utf-8'))
+              except (ValueError, OSError):
+                  continue
+              if result.get('status') == 'failed' and p.parent not in failed:
+                  failed[p.parent] = str(result.get('failure') or result.get('error')
+                                         or 'Failed without traceback; inspect measurements below.')
+          summary = ['# Browser failure diagnostics\n',
+                     'Tested commit: `' + os.environ.get('SOURCE_COMMIT', 'unknown') + '`\n']
+          for folder, trace in failed.items():
+              title = str(folder.relative_to(root))
+              frames = re.findall(r'File "([^"]+)", line (\d+)', trace)
+              frames = [(f, n) for f, n in frames if f.startswith('scripts/') or '/scripts/' in f]
+              location = ''
+              if frames:
+                  filename, line = frames[-1]
+                  filename = 'scripts/' + filename.split('/scripts/', 1)[-1] if '/scripts/' in filename else filename
+                  location = ',file=' + prop(filename) + ',line=' + line
+              message = trace[-6000:]
+              print('::error title=' + prop(title) + location + '::' + escaped(message), flush=True)
+              print('FAILED: ' + title, flush=True)
+              for text in trace.splitlines():
+                  print('  ' + text, flush=True)
+              summary.append('## ' + html.escape(title) + '\n<pre>' + html.escape(trace) + '</pre>\n')
+              result_path = folder / 'result.json'
+              if result_path.is_file():
+                  measurements = result_path.read_text(encoding='utf-8', errors='replace')
+                  summary.append('### Measurements\n<pre>' + html.escape(measurements) + '</pre>\n')
+          if not failed:
+              note = 'No saved failure reports found. This does not establish that all test steps passed; check their outcomes.'
+              print(note)
+              summary.append(note + '\n')
+          destination = os.environ.get('GITHUB_STEP_SUMMARY')
+          if destination:
+              with open(destination, 'a', encoding='utf-8') as stream:
+                  stream.write('\n'.join(summary))
+          PY
       - name: Upload diagnostics even on failure
         if: always()
         uses: actions/upload-artifact@v4
