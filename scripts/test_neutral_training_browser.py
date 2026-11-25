@@ -146,15 +146,23 @@ def run_case(browser,label,options,cls):
             assert hero['hxp']['me']==page.evaluate('(level)=>Battle.xpAt(level)',level)
             for field in ['money','items','gear']:
                 assert hero.get(field,{ } if field!='money' else 0)==initial.get(field,{ } if field!='money' else 0),(field,hero,initial)
-            stage(page,'open skills dialog')
-            page.locator('#w-hero').get_by_role('button',name='Умения и особенности',exact=True).click()
-            dialog=page.locator('#w-hero dialog[aria-label="Умения и особенности"]')
-            expect(dialog).to_be_visible()
+            stage(page,'verify visible main-screen skills')
+            before_skills=page.evaluate('(key)=>localStorage.getItem(key)',KEY)
+            overview=page.locator('#w-hero > .az-hero-content:visible')
+            expect(overview).to_have_count(1)
+            skills=overview.locator('details.sk')
+            expect(skills).to_have_count(1)
+            expect(skills).to_be_visible()
+            expect(skills).to_have_attribute('open','')
+            expect(skills.locator(':scope > summary')).to_have_text('Умения')
             stage(page,'verify training slots or level-15 specialization')
-            training=dialog.locator('[data-neutral-training]')
+            training=skills.locator('[data-neutral-training]')
             if level<15:
                 assert hero['autoSpec15']['chosen'] is None
+                training=overview.locator('[data-neutral-training]')
+                expect(page.locator('#w-hero [data-neutral-training]')).to_have_count(1)
                 expect(training).to_have_count(1)
+                expect(training).to_be_visible()
                 expect(training).to_have_attribute('data-neutral-training',cls)
                 expect(training).to_have_attribute('data-own-level',str(level))
                 slots=page.evaluate('({cls,level})=>Battle.neutralTraining.slots(cls,level)',{'cls':cls,'level':level})
@@ -166,15 +174,15 @@ def run_case(browser,label,options,cls):
                     if not slot['available']:
                         expect(row).to_contain_text('Откроется на '+str(slot['unlockLevel'])+' уровне')
                 assert training.evaluate('(e)=>e.scrollWidth<=e.clientWidth+1'),'Horizontal training overflow'
-                expect(dialog.locator('[data-arms-panel]')).to_have_count(0)
+                expect(page.locator('#w-hero [data-arms-panel]')).to_have_count(0)
             else:
-                expect(training).to_have_count(0)
+                expect(page.locator('#w-hero [data-neutral-training]')).to_have_count(0)
                 expected=page.evaluate('({cls,roll})=>Object.keys(Battle.CLASSES[cls].specs).filter(s=>Battle.CLASSES[cls].specs[s].role==="dd").sort()[Math.floor(roll*Object.values(Battle.CLASSES[cls].specs).filter(s=>s.role==="dd").length)]',{'cls':cls,'roll':roll})
                 assert hero['autoSpec15']['chosen']==expected and hero['specs']['me']==expected,hero
             if level in [1,14,15]:
                 page.screenshot(path=str(folder/f'level-{level}.png'),full_page=True)
-            stage(page,'close skills dialog')
-            dialog.get_by_role('button',name='Закрыть',exact=True).click()
+            stage(page,'verify main-screen skill inspection did not write saves')
+            assert page.evaluate('(key)=>localStorage.getItem(key)',KEY)==before_skills
             if level==9:
                 live_battle(page,cls,folder)
             stage(page,'verify ordinary save isolation')
@@ -189,7 +197,7 @@ def run_case(browser,label,options,cls):
         (folder/'failure.txt').write_text(detail,encoding='utf-8')
         raise
     finally:
-        (folder/'result.json').write_text(json.dumps({'status':status,'sourceCommit':os.environ.get('SOURCE_COMMIT'),'viewport':label,'class':cls,'checks':checks,'failedStep':getattr(page,'_neutral_step',None) if status!='passed' else None,'pageErrors':errors,'scope':'Chromium desktop/mobile emulation. Actual creation, entry, skill dialogs, native polygon fight and tooltips. XP injected into test saves, onboarding skipped, remote assets blocked. No earned-XP grind, physical mobile/Safari, old-save migration or ordinary-mode browser acceptance.'},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        (folder/'result.json').write_text(json.dumps({'status':status,'sourceCommit':os.environ.get('SOURCE_COMMIT'),'viewport':label,'class':cls,'checks':checks,'failedStep':getattr(page,'_neutral_step',None) if status!='passed' else None,'pageErrors':errors,'scope':'Chromium desktop/mobile emulation. Actual creation, entry, visible main-screen skills, native polygon fight and tooltips. XP injected into test saves, onboarding skipped, remote assets blocked. No earned-XP grind, physical mobile/Safari, old-save migration or ordinary-mode browser acceptance.'},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
         try:
             if status!='passed':
                 page.screenshot(path=str(folder/'failure.png'),full_page=True)

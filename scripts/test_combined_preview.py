@@ -53,7 +53,7 @@ def run(browser, label, viewport):
         page.locator('#bnav [data-tab="hero"]').click()
         expect(page.locator('#w-hero .hname')).to_have_text('Общий тест')
 
-    dialog = page.locator('#w-hero dialog[aria-label="Умения и особенности"]')
+    dialog = page.locator('#w-hero dialog[aria-label="Таланты и дополнительные сведения"]')
     rank_button = dialog.locator('[data-arms-panel="combined-test"] [data-arms-node="ihs"]:not([data-arms-delta])')
     try:
         page.goto(URL, wait_until='domcontentloaded', timeout=90000)
@@ -69,7 +69,7 @@ def run(browser, label, viewport):
         }""", {'key': KEY, 'normal': NORMAL})
         page.reload(wait_until='domcontentloaded')
         enter()
-        page.locator('#w-hero').get_by_role('button', name='Умения и особенности', exact=True).click()
+        page.locator('#w-hero').get_by_role('button', name='Таланты и дополнительные сведения', exact=True).click()
         expect(rank_button).to_contain_text('0/3')
         rank_button.scroll_into_view_if_needed()
         before_preview = page.evaluate('(key) => localStorage.getItem(key)', KEY)
@@ -103,7 +103,7 @@ def run(browser, label, viewport):
         gear.get_by_role('button', name='Закрыть', exact=True).click()
         page.reload(wait_until='domcontentloaded')
         enter()
-        page.locator('#w-hero').get_by_role('button', name='Умения и особенности', exact=True).click()
+        page.locator('#w-hero').get_by_role('button', name='Таланты и дополнительные сведения', exact=True).click()
         expect(rank_button).to_contain_text('1/3')
         verify(1)
         assert not errors, errors

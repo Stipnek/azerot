@@ -28,7 +28,7 @@ def run(browser, label, options):
     page.on('pageerror', lambda error: errors.append(str(error)))
     page.route('https://**/*', lambda route: route.abort())
     page.route('**/favicon.ico', lambda route: route.fulfill(status=204, body=''))
-    dialog = page.locator('#w-hero dialog[aria-label="Умения и особенности"]')
+    dialog = page.locator('#w-hero dialog[aria-label="Таланты и дополнительные сведения"]')
 
     def panel(index):
         expect(dialog).to_be_visible()
@@ -81,7 +81,7 @@ def run(browser, label, options):
         page.locator('#sel-enter').click()
         page.locator('#bnav [data-tab="hero"]').click()
         expect(page.locator('#w-hero .hname')).to_have_text(NAMES[index])
-        page.locator('#w-hero').get_by_role('button', name='Умения и особенности', exact=True).click()
+        page.locator('#w-hero').get_by_role('button', name='Таланты и дополнительные сведения', exact=True).click()
         expect(node(index, 'ihs')).to_contain_text(f'{rank}/3')
         expect(panel(index).locator('details[data-arms-help][open]')).to_have_count(0)
         expect(inspector(index)).to_be_hidden()
