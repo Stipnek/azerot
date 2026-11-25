@@ -2,11 +2,11 @@
 
 Status: incomplete catalog. This is navigation, not a completed source audit or a registry of implemented features.
 
-Review recorded: 2026-11-24 and 2026-11-25. Initial catalog scope: `work/docs-release-guide` at `f78812b450b8d2f72f8cbf6cfc7411d95e1bfa6e`. Follow-up reading of OPEN-WORK.md, the layout and travel supplements and the UI review register: `main` at `204f22da1114e75f1723ab04ea9d562ace2f4f63`. Entry-screen documents: `main` at `2f4296dcf3fc3c3caf652d192f6aaeecfe873669`. Combat and progression documents: `main` at `b8164d35f48ca2becdd02c73ec8e154cc38ba13d`. Recheck later changes; earlier coverage is not automatically revalidated.
+Review recorded: 2026-11-24 and 2026-11-25. Initial catalog scope: `work/docs-release-guide` at `f78812b450b8d2f72f8cbf6cfc7411d95e1bfa6e`. Follow-up reading of OPEN-WORK.md, the layout and travel supplements and the UI review register: `main` at `204f22da1114e75f1723ab04ea9d562ace2f4f63`. Entry-screen documents: `main` at `2f4296dcf3fc3c3caf652d192f6aaeecfe873669`. Combat, progression and balance documents: `main` at `b8164d35f48ca2becdd02c73ec8e154cc38ba13d` and the branch `work/docs-index-combat` created from main. Recheck later changes; earlier coverage is not automatically revalidated.
 
 ## For AI reviewers
 
-Start with [CLAUDE.md](../CLAUDE.md) (workflow and hard limits), then [AI handoff](AI-HANDOFF.md) (checkpoints, established relationships, unverified areas) and the [review map](REVIEW-MAP.md) (targeted source and test index). They supplement this catalog and do not replace the documents they cite.
+Start with [CLAUDE.md](../CLAUDE.md) (workflow and hard limits), then [AI handoff](AI-HANDOFF.md) (checkpoints, established relationships, unverified areas) and the [review map](REVIEW-MAP.md) (targeted source and test index). For combat, progression and balance also read the [progression and balance notes](PROGRESSION-BALANCE-NOTES.md). They supplement this catalog and do not replace the documents they cite.
 
 ## Reading order and document relationships
 
@@ -22,7 +22,7 @@ Start with [CLAUDE.md](../CLAUDE.md) (workflow and hard limits), then [AI handof
 | Layout correction | [Layout correction](design-layout-correction.md) | Explicitly takes precedence over the earlier placement of the service menu in design.md. Do not generalize this precedence to unrelated requirements. |
 | Travel supplement | [World travel hint](design-world-travel.md) | Supplements design.md with hint conditions, accessibility and motion rules; not a replacement for the whole design. |
 | Entry screen | [Entry screen](ENTRY-SCREEN.md), [polish](ENTRY-POLISH.md), [artwork](ENTRY-ARTWORK.md) | Artwork explicitly supersedes the earlier low-resolution artwork description; polish adds a later step. Preview-only wording in the entry screen document is historical: the release workflow packages the combined candidate. |
-| Combat and progression | See the combat section below | Dated decision records and addenda; the main decision record is the base, addenda state what they supplement or supersede. |
+| Combat and progression | See the combat section below and the [notes](PROGRESSION-BALANCE-NOTES.md) | Dated decision records and addenda; the main decision record is the base, addenda state what they supplement or supersede. |
 | Open-work register | [Open work](OPEN-WORK.md) | Consolidates requirements and remaining reconciliation; links supporting records rather than replacing them. Preserve older requirements until individually reconciled. |
 | UI review evidence | [UI review register](ui-review-register.md), [saved CI record](validation/ui-redesign-ci.json) | Scoped historical evidence, not a new requirements authority or proof of current live behavior. |
 | Build and source guidance | [Development](../DEVELOPMENT.md), [source reading](reading-source.md), [review map](REVIEW-MAP.md) | Explain where to inspect and how assembly and release work. Recheck current code and workflow before acting. |
@@ -38,18 +38,29 @@ Explicit corrections apply to the subjects they identify. Do not resolve other c
 
 ## Combat and progression: read in full
 
-All are dated 2026-11-21 design records or addenda. They record agreements, not implementation, passing tests, balance or publication.
+All are dated 2026-11-21 design records or addenda unless stated. They record agreements, not implementation, passing tests, balance or publication.
 
 | Document | Role | Key limits |
 |---|---|---|
-| [Combat decisions](combat-decisions-2026-11-21.md) | Base record: specialization at own level 15, six guaranteed base actives, separate seventh ability, kit changes, pets, damage event model, Soul Link adaptation, auras, interrupts, tests. | Not a full ability catalogue. Earlier six-ability and aura spreadsheets stay drafts unless settled here. Unlock levels, coefficients and many details remain open. |
+| [Combat decisions](combat-decisions-2026-11-21.md) | Base record: specialization at own level 15, six guaranteed base actives, separate seventh ability, kit changes, pets, damage event model, Soul Link adaptation, auras, interrupts, tests. | Not a full ability catalogue. Earlier six-ability and aura spreadsheets stay drafts unless settled here. Its Voidwalker level 9 is superseded by the pets record. |
 | [Training roles and transition](combat-training-2026-11-21.md) | Addendum: basic training kits before 15, specialization opens at own level 15, no hidden future bonuses. | Does not choose per-class training abilities, role interface, values or migration. |
-| [Passive unlock schedule](combat-passives-2026-11-21.md) | Addendum: passive schedule at levels 15 and 30. Supersedes the earlier open status of that schedule only. | No ranks, chances, durations or costs approved. Several adaptations remain unresolved. |
+| [Passive unlock schedule](combat-passives-2026-11-21.md) | Addendum: passive schedule at levels 15 and 30. | No ranks, chances, durations or costs approved. Several adaptations remain unresolved. |
 | [Interrupt timing and feedback](combat-interrupts-2026-11-21.md) | Addendum: warnings follow normal speed order; no guaranteed reaction window. | Exact timing, tie-breaking, channel rules and immunities remain open. |
+| [Beast Mastery kit](combat-bm-2026-11-21.md) | Addendum: Multi-Shot as sixth base ability at 54; consolidated target kit. | Registry entry alone is not runtime use; AI integration and balance remain to verify. |
+| [Pet progression and selection](combat-pets-2026-11-21.md) | Addendum: pet unlock schedule, per-owner selection and persistence. Supersedes Voidwalker level 9. | Detailed pet kits, recovery rules and numbers remain open. |
 | [Arms hero integration gates](arms-integration-gates-2026-11-21.md) | Required corrections and verification before accepting the integrated hero preview. | Refers to an earlier implementation commit and a failed run whose log was not read there. Opus proposal is not an executable specification. |
 | [Own-level specialization transition](spec15-transition-scope.md) | Records an opt-in preview patch at threshold 15. | Test-branch scope only; other seven classes' training kits are not finished. Browser and dungeon acceptance not established. |
+| [Temporary Arms rules, cap 30](arms-stage1-temporary-rules.md) | Temporary integrated rules for the warrior in the test build. Governs integratedArms descriptors over the prototype. | Not level 60 progression, not accepted balance. Browser acceptance of the integrated hero page not established. |
+| [Arms talent prototype](prototype-arms-2026-11-21.md) | Isolated flag-gated prototype and comparison baseline. | Several effects are explicit proposals; talent UI only in an isolated page. |
 
-How they relate: combat-decisions is the base. Training roles, passive schedule and interrupts are addenda to it. The integration gates and the transition scope apply the rules to the hero preview and state what remains unverified. Verify each statement against current code before treating it as implemented.
+How they relate: combat-decisions is the base. Training roles, passive schedule, interrupts, Beast Mastery and pets are addenda to it. The integration gates, the transition scope and the stage 1 rules apply these decisions to the hero preview; the prototype is the earlier comparison baseline. Verify each statement against current code before treating it as implemented.
+
+## Balance: read
+
+| Document | Role | Key limits |
+|---|---|---|
+| [Enemy curve report](enemy-curve-2026-11-23.md) (Russian) | Describes a shared enemy-strength curve, parameters, simulation method and remaining failures. | Branch and PR statuses it cites are historical. Browser and manual checks were not done. Level-shift key issue left as an open decision. |
+| [Enemy curve simulation table](enemy-curve-sim-2026-11-23.md) (Russian) | Full per-fight table of simulated win rates before and after. | Retrieved only partially: output was truncated within the ambush rows. Results are simulations on fixed seeds, not browser tests. |
 
 ## Other documents: read in full
 
@@ -72,7 +83,7 @@ How they relate: combat-decisions is the base. Training roles, passive schedule 
 
 - The layout correction's pending-acceptance statement and the UI register's later scoped checks must be read together. Neither establishes complete acceptance of the current game.
 - OPEN-WORK.md says Opus materials had not been supplied or reviewed in that session. `opus-audit.txt` and a DOCX chat/ability archive are present in this directory. Presence does not establish reading, approval or reconciliation; their contents remain unreviewed in this catalog.
-- The arms integration gates cite a historical implementation commit and failed run. Do not use them as current test results.
+- The arms integration gates and the enemy curve report cite historical commits, branches and runs. Do not use them as current test results.
 - Keep requirements, implementation evidence, executed checks and publication evidence distinct. Do not silently overwrite historical records with present-tense completion claims.
 
 ## Located, not yet reviewed
@@ -81,10 +92,7 @@ Do not infer approval, completeness or implementation from a file's presence. Ab
 
 Documents in this directory:
 - [Branding](BRANDING.md) and [chat audit](CHAT-AUDIT.md)
-- [Combat: Beast Mastery](combat-bm-2026-11-21.md) and [combat: pets](combat-pets-2026-11-21.md)
-- [Arms stage 1 temporary rules](arms-stage1-temporary-rules.md) and [arms prototype](prototype-arms-2026-11-21.md)
 - [Computer talent tree task](computer-talent-tree-task.md)
-- [Enemy curve](enemy-curve-2026-11-23.md) and [enemy curve simulation](enemy-curve-sim-2026-11-23.md)
 - Archive materials: `opus-audit.txt` and the DOCX chat and ability archive
 
 Quest locations (read the [quest catalog introduction](quests/README.md) first):
