@@ -1,6 +1,6 @@
 {
-  "commit": "9a1ec77e90de469f0f35e9923101703e26506e33",
-  "run_url": "https://github.com/Stipnek/azerot/actions/runs/45528943634",
+  "commit": "a7fdef7d53dc175f2708a5bc0faee7500c9020fa",
+  "run_url": "https://github.com/Stipnek/azerot/actions/runs/45532738387",
   "run_attempt": "1",
   "status_before_publish": "success",
   "test_step": "success",
@@ -10,15 +10,18 @@
       "passed": true,
       "javascript_errors": [],
       "console_errors": [],
-      "music_on_loading_screen": true,
-      "music_after_enter": true
+      "no_iframe_or_extra_audio": true,
+      "native_music_on_entry_screen": true,
+      "settings_roundtrip": true
     },
     {
       "scenario": "portrait-muted",
       "passed": true,
       "javascript_errors": [],
       "console_errors": [],
-      "saved_mute_respected": true
+      "no_iframe_or_extra_audio": true,
+      "saved_mute_respected": true,
+      "settings_roundtrip": true
     },
     {
       "scenario": "download-retry",
@@ -26,7 +29,10 @@
       "javascript_errors": [],
       "console_errors": [
         "Failed to load resource: net::ERR_FAILED"
-      ]
+      ],
+      "no_iframe_or_extra_audio": true,
+      "native_music_on_entry_screen": true,
+      "settings_roundtrip": true
     }
   ]
 }
