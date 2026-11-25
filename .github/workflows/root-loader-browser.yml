@@ -2,9 +2,13 @@ name: Root loader browser test
 on:
   push:
     branches: [fix/initial-loading-screen]
+    paths-ignore: ['.ci/root-loader/**']
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: root-loader-browser-fix
+  cancel-in-progress: false
 jobs:
   browser:
     runs-on: ubuntu-24.04
@@ -18,10 +22,54 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install playwright==1.56.0
       - run: python -m playwright install --with-deps chromium
-      - run: python scripts/test_root_loader_browser.py
+      - id: browser
+        run: python scripts/test_root_loader_browser.py
+      - name: Prepare readable result
+        if: always()
+        env:
+          RUN_STATUS: ${{ job.status }}
+          TEST_OUTCOME: ${{ steps.browser.outcome }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          target = Path('results/root-loader')
+          target.mkdir(parents=True, exist_ok=True)
+          report = target / 'report.json'
+          result = {
+              'commit': os.environ['GITHUB_SHA'],
+              'run_url': os.environ['GITHUB_SERVER_URL'] + '/' + os.environ['GITHUB_REPOSITORY'] + '/actions/runs/' + os.environ['GITHUB_RUN_ID'],
+              'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'status_before_publish': os.environ['RUN_STATUS'],
+              'test_step': os.environ.get('TEST_OUTCOME', ''),
+              'scenarios': json.loads(report.read_text()) if report.exists() else None,
+          }
+          (target / 'latest.json').write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding='utf-8')
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: root-loader-browser-results
           path: results/root-loader/
           retention-days: 14
+      - name: Checkout report destination
+        if: always()
+        uses: actions/checkout@v4
+        with:
+          ref: fix/initial-loading-screen
+          path: report-target
+          persist-credentials: true
+      - name: Publish JSON report to fix branch only
+        if: always()
+        run: |
+          test -f results/root-loader/latest.json
+          mkdir -p report-target/.ci/root-loader
+          cp results/root-loader/latest.json report-target/.ci/root-loader/latest.json
+          cd report-target
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .ci/root-loader/latest.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'ci: record root loader browser result [skip ci]'
+            git push origin HEAD:fix/initial-loading-screen
+          fi
