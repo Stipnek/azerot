@@ -4,7 +4,15 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { spawnSync } = require('node:child_process');
 function inlineCore(text, root = path.resolve(__dirname, '..')) {
+  if (text.includes('__AZEROT_CORE_WORLD_MAPS__')) {
+    const code = 'import sys; from pathlib import Path; root = Path(sys.argv[1]).resolve(); sys.path.insert(0, str(root / "scripts")); from core_sources import inline_core; sys.stdout.buffer.write(inline_core(sys.stdin.buffer.read(), root))';
+    const result = spawnSync('python3', ['-c', code, root], { input: text, encoding: 'utf8', maxBuffer: 128 * 1024 * 1024 });
+    if (result.error) throw result.error;
+    if (result.status !== 0) throw new Error((result.stderr || '').trim() || 'Production core inliner failed');
+    return result.stdout;
+  }
   const marker = '__AZEROT_CORE_ABILITY_PROGRESSION__';
   if (text.includes(marker)) {
     if (text.split(marker).length !== 2) throw new Error('Duplicate core module marker');
