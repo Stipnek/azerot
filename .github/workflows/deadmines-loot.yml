@@ -1,8 +1,5 @@
 name: Deadmines loot and equipment
 on:
-  push:
-    branches: ['work/roster-xp-and-updates']
-    paths: ['src/**', 'scripts/**', '.github/workflows/deadmines-loot.yml']
   pull_request:
     branches: ['main']
     paths: ['src/**', 'scripts/**', '.github/workflows/deadmines-loot.yml']

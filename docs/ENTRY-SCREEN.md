@@ -1,15 +1,27 @@
-# Pocket Azeroth entry-screen preview
+# Pocket Azeroth entry screen
 
-This package adds a separate, unpublished source-build preview. Run `python3 scripts/build_entry_preview.py`, serve the `preview` directory, and open `entry.html`. The ordinary `preview/index.html`, production loader, Pages workflow and main game sources are not changed by this package.
+> **Status 2026-11-26:** the release workflow publishes the combined build, which includes this entry screen. Statements below that this is preview-only, test-only or unpublished describe their own date. Open items are tracked in [OPEN-WORK](OPEN-WORK.md) (ENTRY-01).
 
-The preview embeds the two low-resolution test backgrounds from `src/assets/entry/`. Their painted buttons and progress bars were cropped away; the painted Pocket Azeroth logo stays in the artwork. Portrait and landscape assets switch with orientation. These are composition-test assets, not final release-resolution artwork.
+Updated: 2026-11-24. Source checkpoint: `2c2fc62a4d6ebddaf8ac846f399a56fe3d1ee156`. Related: issue #22 and the audit recorded in closed PR #11.
 
-Loading remains visible for at least 1000 ms after initialization and waits for the native game screen and audio controller. The animated bar is indeterminate: it does not claim a measured loading percentage. Startup timeout offers a working reload button; artwork failure falls back to a text logo.
+## Build modes
 
-Enter reveals the existing character creation/selection UI without navigating to another origin or migrating saves. Background game controls are hidden and inert while the entry screen is active. Settings temporarily moves the actual `#az-settings` panel into a modal dialog and restores the same DOM element on close or Escape. Existing volume listeners and the existing audio preference key remain in use. No new gameplay-save writes or identifiers are introduced.
+The entry package began as an isolated preview. That historical restriction is not the current release architecture. `scripts/build_entry_preview.py` produces the separate `preview/entry.html`; `scripts/build_game.py` produces the ordinary preview. The inspected Pages workflow builds and verifies `preview/combined.html` through `scripts/build_combined_preview.py`, then packages those exact bytes for publication. See [DEVELOPMENT.md](../DEVELOPMENT.md) and `.github/workflows/pages.yml`.
 
-Only working controls are shown. EN/RU controls are intentionally absent until the separately agreed localization work. No account, login/password fields or new authentication is introduced. The original lion artwork and game mechanics remain unchanged.
+A local preview, merged source, successful deployment and player acceptance are distinct states. This document does not confirm that the checkpoint has deployed.
 
-The CI job checks minimum loading time, artwork decoding/orientation, 44px controls in landscape, settings open/close/Escape, real volume persistence, return of the original settings panel, entry to the native UI, and absence of startup JavaScript errors in Chromium desktop/mobile emulation. It records screenshots and traces and uploads the self-contained entry HTML only after success. Proposed tests are not evidence of a passed browser run; inspect the current commit's CI result.
+## Entry behavior
 
-This preview does not establish full game, combat, Safari or real-device acceptance. It is not published by the current Pages workflow. Promoting it to the normal game startup requires a separately reviewed integration and release approval.
+Loading remains visible for at least 1000 ms and waits for the native game screen and audio controller. The animated bar is indeterminate, not a measured percentage. Startup timeout offers reload; artwork failure falls back to a text logo.
+
+Enter reveals the existing game UI without authentication or navigation to another origin. Background game controls are hidden and inert while entry is active. Settings temporarily moves the actual `#az-settings` panel into a modal and restores the same element on close or Escape, retaining existing audio listeners and preference key. See the combined builder for the hero-mode boundary; entry-overlay behavior alone does not establish normal-save migration compatibility.
+
+Only working controls are shown. EN/RU selection remains separate localization work; no account or password system is introduced.
+
+## Artwork and polish
+
+Current selected assets are the original portrait and landscape PNGs described in [ENTRY-ARTWORK.md](ENTRY-ARTWORK.md), not the old test SVGs. [ENTRY-POLISH.md](ENTRY-POLISH.md) records the first polish patch and its superseded assumptions.
+
+## Validation limits
+
+Entry tests cover readiness timing, decoding/orientation, control geometry, keyboard focus, settings close/Escape, volume persistence, return of the original settings panel and entry into the native UI. Combined tests exercise additional integration paths. Test definitions are not execution results; inspect checks for the exact revision. Chromium emulation does not establish Safari, physical-device, complete combat or production-save acceptance. Verify cropping and readability on the current candidate before declaring visual acceptance.

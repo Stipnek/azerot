@@ -1,0 +1,36 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Keep Wetlands geography without restoring retired quests; accept Tirisfal before loading saves. No entry screen or new mechanics.",
+  "edits": [
+    {
+      "name": "recognize Tirisfal before saved characters are normalized",
+      "old": "const ZONE_KEYS = ['elwynn', 'westfall', 'redridge', 'duskwood', 'stormwind', 'wetlands_route'];",
+      "new": "const ZONE_KEYS = ['elwynn', 'westfall', 'redridge', 'duskwood', 'stormwind', 'wetlands_route', 'tirisfal'];"
+    },
+    {
+      "name": "keep Wetlands places and their roads",
+      "old": "['stormwind','wetlands_route'].includes(PLACES[k].z)",
+      "new": "PLACES[k].z==='stormwind'"
+    },
+    {
+      "name": "preserve Wetlands registration and reserve the Tirisfal save key",
+      "old": "delete ZONES.stormwind;delete ZONES.wetlands_route;",
+      "new": "delete ZONES.stormwind;"
+    },
+    {
+      "name": "do not remove Tirisfal from save keys before map registration",
+      "old": "if(!ZONES[ZONE_KEYS[i]])ZONE_KEYS.splice(i,1);",
+      "new": "if(!ZONES[ZONE_KEYS[i]]&&ZONE_KEYS[i]!=='tirisfal')ZONE_KEYS.splice(i,1);"
+    },
+    {
+      "name": "do not relocate saved Wetlands characters",
+      "old": "const invalid=['stormwind','wetlands_route'].includes(c.zone)||v57DisabledPlaces.has(c.at);",
+      "new": "const invalid=c.zone==='stormwind'||v57DisabledPlaces.has(c.at);"
+    },
+    {
+      "name": "describe Wetlands without advertising retired quests",
+      "old": "  __AZEROT_CORE_WORLD_MAPS__",
+      "new": "  __AZEROT_CORE_WORLD_MAPS__\n  ZONE_INTRO.wetlands_route = ['✦', 'Болотина. Старые задания маршрута удалены; новые задания пока не добавлены.'];"
+    }
+  ]
+}

@@ -1,7 +1,5 @@
 name: Combined entry and talents preview
 on:
-  push:
-    branches: ['work/pocket-entry-screen']
   pull_request:
     branches: ['main']
     paths: ['src/**', 'scripts/**', '.github/workflows/combined-preview-ci.yml']

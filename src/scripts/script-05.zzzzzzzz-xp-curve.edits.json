@@ -1,0 +1,26 @@
+{
+  "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+  "description": "XP curve v2 (owner 2026-11-26): Classic 1.12 XP-per-level table; normal quest reward = need / quests-per-level (1.2 at level 1, +0.35 per level), so level 2 takes one quest and a few enemies and later levels take ever more quests; fewer quests than Classic are compensated by Deadmines (dungeon room multiplier 0.6: one full run at level 19 is about one level). Fitted with scripts/sim_campaign.cjs. Old saves are converted in script-06 (xpCurve: 2).",
+  "edits": [
+    {
+      "name": "XP table and quest reward",
+      "old": "  function xpNeed(l) { return Math.round(XPC.first * (1 + XPC.step * (l - 1))); }",
+      "new": "  /* Кривая опыта (26 ноября, по форме WoW Classic 1.12): сколько опыта нужно с уровня l на l+1. На 1 уровне хватает квеста и пары врагов,\n     дальше на уровень нужно всё больше квестов (XP_CURVE.quests). Награда за обычный квест уровня l = XP_TABLE[l] / quests(l).\n     Сохранения со старой линейной кривой переводятся при загрузке с сохранением уровня и доли прогресса (script-06, xpCurve: 2). */\n  const XP_TABLE = [0, 400, 900, 1400, 2100, 2800, 3600, 4500, 5400, 6500, 7600, 8800, 10100, 11400, 12900, 14400, 16000, 17700, 19400, 21300, 23200, 25200, 27300, 29400, 31700, 34000, 36400, 38900, 41400, 44300];\n  const XP_CURVE = { version: 2, quests: { first: 1.2, perLevel: 0.35 } };\n  function xpNeed(l) { const L = Math.max(1, Math.min(XP_TABLE.length - 1, Math.round(l))); return XP_TABLE[L]; }\n  function questsPerLevel(l) { return XP_CURVE.quests.first + XP_CURVE.quests.perLevel * (Math.max(1, l) - 1); }\n  function xpReward(l) { const L = Math.max(1, Math.round(l)); return L < XP_TABLE.length ? XP_TABLE[L] / questsPerLevel(L) : XP_TABLE[XP_TABLE.length - 1] * Math.pow(1.07, L - XP_TABLE.length + 1) / questsPerLevel(L); }"
+    },
+    {
+      "name": "xpFor uses the table reward",
+      "old": "    return Math.round(XPC.base * (1 + XPC.rew * (rewardLevel - 1)) * mult * grp);",
+      "new": "    return Math.round(xpReward(rewardLevel) * mult * grp);"
+    },
+    {
+      "name": "Dungeon room XP multiplier",
+      "old": "group: 2, room: 1,",
+      "new": "group: 2, room: 0.6,"
+    },
+    {
+      "name": "Expose the XP curve",
+      "old": "xpFor, xpShares, xpNeed,",
+      "new": "xpFor, xpShares, xpNeed, XP_TABLE, XP_CURVE, xpReward, questsPerLevel,"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "First visual alignment only: move the existing Westfall lighthouse to its uploaded-artwork position. Other places and road geometry remain unreviewed. No quest, identity or inventory changes.",
+  "edits": [
+    {
+      "name": "align the existing lighthouse without changing its key",
+      "old": "  __AZEROT_CORE_WORLD_MAPS__",
+      "new": "  __AZEROT_CORE_WORLD_MAPS__\n  PLACES.lighthouse.x = 13;\n  PLACES.lighthouse.y = 65;\n  PLACES.lighthouse.lx = 5;\n  PLACES.lighthouse.ly = -3;"
+    },
+    {
+      "name": "realign saved lighthouse occupants once per loaded character",
+      "old": "  function mePos() {\n    const c = S.hero; if (!c) return { x: 50, y: 50 };",
+      "new": "  const LIGHTHOUSE_ART_ALIGNED = new WeakSet();\n  function mePos() {\n    const c = S.hero; if (!c) return { x: 50, y: 50 };\n    if (c.zone === 'westfall' && c.at === 'lighthouse' && !LIGHTHOUSE_ART_ALIGNED.has(c)) {\n      c.pos = { x: PLACES.lighthouse.x, y: PLACES.lighthouse.y };\n      LIGHTHOUSE_ART_ALIGNED.add(c);\n    }"
+    }
+  ]
+}

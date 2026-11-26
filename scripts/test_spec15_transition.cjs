@@ -21,7 +21,7 @@ function fn(name) {
   }
   throw new Error('Unclosed function: ' + name);
 }
-const names = ['hLevel','selectedSpec','canSpecialize','runtimeLeaderAura','startSpec','effectiveSpec','ddSpec','syncLevel','specKey','save','cleanChar','cleanSpecs','cleanHxp','cleanNames','cleanQuestProgress','inventoryCount','worldQuestItems','cleanInventory','canEquipQuestGear','cleanGear','cleanTav','migrateTav','isGid','cleanParty','startParty','clsOf','tavRec','armsHeroData','armsLoadout','partyArg','petFree'];
+const names = ['hLevel','selectedSpec','canSpecialize','runtimeLeaderAura','startSpec','effectiveSpec','ddSpec','syncLevel','specKey','save','cleanChar','cleanSpecs','cleanHxp','legacyXpToV2','cleanNames','cleanQuestProgress','inventoryCount','worldQuestItems','cleanInventory','canEquipQuestGear','cleanGear','cleanTav','migrateTav','isGid','cleanParty','startParty','clsOf','tavRec','armsHeroData','armsLoadout','partyArg','petFree'];
 const code = names.map(fn).join('\n');
 const S = {main:'warrior',specs:{me:'fury'},level:14,party:['me','g_low'],allSpecs:false,chars:[],cur:'hero'};
 const values = new Map();
@@ -37,7 +37,7 @@ const context = vm.createContext(sandbox);vm.runInContext(code,context);
 const call = expr => vm.runInContext(expr,context);
 assert.deepEqual(plain(call("cleanInventory({57001:'3',999:8})")),{'57001':3},'real inventory normalization, not a stub');
 function character(level,spec) {
-  return {id:'hero',name:'Hero',cls:'warrior',race:'human',level,hxp:{me:B.xpAt(level),g_low:B.xpAt(14)},specs:{warrior:'prot',me:spec,g_low:'prot'},party:['me','g_low'],money:12345,items:{57001:3},gear:{chest:57001},tav:{st:0,coll:{g_low:{cls:'warrior',sp:'prot',br:0,r:0,k:1,n:'Companion',race:'human'}}}};
+  return {id:'hero',name:'Hero',cls:'warrior',race:'human',level,xpCurve:2,hxp:{me:B.xpAt(level),g_low:B.xpAt(14)},specs:{warrior:'prot',me:spec,g_low:'prot'},party:['me','g_low'],money:12345,items:{57001:3},gear:{chest:57001},tav:{st:0,coll:{g_low:{cls:'warrior',sp:'prot',br:0,r:0,k:1,n:'Companion',race:'human'}}}};
 }
 function install(raw) {context.raw=raw;S.hero=call('cleanChar(raw)');assert.ok(S.hero);S.chars=[S.hero];S.main=S.hero.cls;S.specs=plain(S.hero.specs);S.level=S.hero.level;call('syncLevel()');}
 for (const spec of ['prot','arms','fury']) for (let level=10;level<=14;level++) {

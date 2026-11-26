@@ -4,11 +4,25 @@ Pocket Azeroth — браузерная фан-игра, не связанная
 
 The game was previously named Azerot / Азерот. The repository name, site address, save keys and stable internal identifiers remain unchanged. The in-world place name Azeroth / Азерот is not an application-brand reference.
 
+## Legal status / Правовой статус
+
+Pocket Azeroth is a non-commercial hobby fan project made for fun. It is not affiliated with, endorsed or sponsored by Blizzard Entertainment. World of Warcraft, Warcraft, Azeroth and related names, characters, quest texts and artwork are trademarks or copyrighted material of Blizzard Entertainment, Inc.
+
+The repository has no licence file. No licence is granted for third-party material, including Blizzard textures and names (see the NOTICE.md inside `classic-original-art-*/`), referenced quest data, music, sounds or icons. If a rights holder asks, the affected material will be changed or removed.
+
+Некоммерческий фан-проект «для души». Не связан с Blizzard Entertainment и не одобрен ею. Права на World of Warcraft, названия, тексты и графику Blizzard принадлежат Blizzard Entertainment, Inc. Лицензии на сторонние материалы нет; по запросу правообладателя материалы будут переделаны или удалены.
+
+## Start here: contributors and AI assistants
+
+1. Record the branch and current commit before starting. Read files from that revision; do not reconstruct the project from chat history.
+2. Start with the [development guide](DEVELOPMENT.md), including its release section. Other sections may contain earlier agreements or historical status; verify their applicability against the current source.
+3. Read the documents for the relevant system. Check each document's status and inspected revision: a proposal, an approved requirement, and implemented behavior are different things.
+4. Before changing code, inspect its callers, data sources, build integration, and related tests.
+5. If a file was retrieved only partially, record that limitation and obtain the missing content before treating its review as complete.
+6. The presence of code does not establish successful tests or deployment. Report what was read, changed, tested, and published separately.
+
 ## Documentation
-- [Branding and rename boundaries](docs/BRANDING.md)
-- [Commitment audit and open verification work](docs/CHAT-AUDIT.md)
-- [Development guide and earlier agreements](DEVELOPMENT.md)
-- [Design overview](docs/design.md)
-- [Bottom navigation and dungeon layout correction](docs/design-layout-correction.md)
-- [World-map travel hint](docs/design-world-travel.md)
-- [Deadmines loot](docs/loot/deadmines.md)
+- [Documentation index](docs/INDEX.md): the single catalogue of current and archived documents
+- [How we work](docs/WORKFLOW.md): branches, pull requests, checks, release and AI helpers
+- [Open work register](docs/OPEN-WORK.md): every requirement, decision and its status
+- [Development guide](DEVELOPMENT.md): build, source layout and the release pipeline

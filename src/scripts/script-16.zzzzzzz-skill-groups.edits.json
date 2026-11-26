@@ -1,0 +1,16 @@
+{
+  "sourceBlobSha1": "cc5e0c7a64aacb86ed98737fdc4e9fba9d7f2907",
+  "description": "Group existing hero skill rows by presentation only. Reuse nodes, descriptions and runtime availability; do not change companions, combat, allocation or saves.",
+  "edits": [
+    {
+      "name": "Add hero-only grouping helper",
+      "old": "const hero=$('w-hero');",
+      "new": "  /* HERO_SKILL_GROUPS_BEGIN */\n  function groupHeroSkills(details) {\n    const list = details.querySelector(':scope > ul');\n    if (!list) return;\n    const groups = {auto: [], active: [], passive: [], aura: []};\n    for (const row of Array.from(list.children)) {\n      const title = row.querySelector('b')?.textContent || '';\n      const kind = row.matches('[data-integrated-passive]') ? 'passive'\n        : row.classList.contains('au') ? (title.startsWith('Аура вашего героя:') ? 'aura' : 'passive')\n        : row.querySelector('.scd')?.textContent === 'автоатака' ? 'auto' : 'active';\n      groups[kind].push(row);\n    }\n    const labels = {auto: 'Автоматическое действие', active: 'Активные умения', passive: 'Пассивные эффекты', aura: 'Аура'};\n    const sections = [];\n    for (const kind of Object.keys(groups)) {\n      if (!groups[kind].length) continue;\n      const section = document.createElement('section'), title = document.createElement('h4'), ul = document.createElement('ul');\n      section.dataset.skillGroup = kind; title.textContent = labels[kind];\n      ul.append(...groups[kind]); section.append(title, ul); sections.push(section);\n    }\n    list.replaceWith(...sections);\n    const aura = Array.from(details.children).find(n => n.tagName === 'P' && n.textContent.startsWith('Аура:'));\n    if (aura) {\n      const section = document.createElement('section'), title = document.createElement('h4');\n      section.dataset.skillGroup = 'aura'; title.textContent = labels.aura;\n      aura.before(section); section.append(title, aura);\n    }\n  }\n  /* HERO_SKILL_GROUPS_END */\nconst hero=$('w-hero');"
+    },
+    {
+      "name": "Group rows when mounting the main hero overview",
+      "old": "skillBox.querySelector('details.sk').open=true;overview.append(skillBox);",
+      "new": "skillBox.querySelector('details.sk').open=true;groupHeroSkills(skillBox.querySelector('details.sk'));overview.append(skillBox);"
+    }
+  ]
+}
