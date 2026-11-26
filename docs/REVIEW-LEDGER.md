@@ -121,3 +121,27 @@ Done on `claude/nifty-fermat-oci73c` (not on main):
 - Docs: single index (docs/INDEX.md, docs/README.md removed), rewritten OPEN-WORK.md as the single register (all earlier IDs kept, new IDs BAL-01…04, SPEC-01/02, PET-01, COMBAT-01, ARMS-01/02, TALENT-02, AUDIT-01, QUEST-03/04, UI-09, ENTRY-01, LOAD-01, RELEASE-01, LEGAL-01, ARCH-01, REPO-01, STOCK-01), new WORKFLOW.md, historical records moved to docs/archive/, status notes added to stale documents, quest README links fixed.
 - Kept deliberately: root game-1.txt/game-2.txt (css-roundtrip baseline), classic-original-art-* (owner: keep for now), scripts used only by retired workflows (changing scripts/** would trigger a release; separate step).
 - Verified after cleanup: check_source_edits (329 replacements), 40 node tests, coin asset test, build_combined_preview.py, check_css_roundtrip.py (28 blocks, 30245533 bytes match), relative Markdown link check (0 broken).
+
+## Session 2 — 2026-11-26 (day 2)
+
+### Revision and state
+
+- Branch `claude/nifty-fermat-oci73c` at `362e06f` (clean). Diff to main `50bd6ab` checked: no paths under `src/`, `scripts/`, `index.html` or `.github/workflows/pages.yml`; the only deploying workflow is pages.yml. On push to main only browser-smoke (DEVELOPMENT.md path) and css-roundtrip would run, both checks.
+- Remote: 29 branches. Fully merged into main (ahead 0), 19: feature/talent-tree-restyle, fix/world-map-art-alignment, fix/world-map-startup-and-tirisfal, test/arms-talent-prototype, test/css-roundtrip, work/abacus-test-file, work/ability-schedule-test, work/arms-inspector-safe-area, work/arms-touch-preview, work/docs-release-guide, work/enemy-curve, work/first-quests-balance, work/hero-talents-rework, work/player-feedback-fixes, work/pocket-azeroth, work/pocket-entry-screen, work/roster-xp-and-updates, work/talents-integration, work/ui-redesign-clean. docs/documentation-refresh and work/docs-index-combat are ancestors of this branch. Open PRs (search API): only #26 and #28.
+- Owner-requested GitHub actions **not performed**: this session has no GitHub MCP tools, and `git push` of the archive tags was refused by the session proxy (HTTP 403). No PR was created, nothing was merged, no tags or branches changed on the remote.
+
+### BAL-04: why the simulator says early quests are passable
+
+Executed: `python3 scripts/build_combined_preview.py` (local), runtime dump of quests and encounters from the built game in Chromium (isolated context, no saves, scratch-only debug hook), engine probe. Evidence and scripts: [evidence/bal-04](evidence/bal-04/README.md).
+
+Checked and **not** the cause: runtime `Battle.ENCOUNTERS` for every early quest (levels, enemies, size, type) and `ENEMY_CURVE` are identical in the release build and in the engine the simulator loads; new heroes do get neutral training (`autoSpec15` v1 on creation, arms-hero mode); companions never get neutral training in either.
+
+Causes (confirmed by code reading and executed probe):
+1. **Hero level assumption.** `sim_enemy_curve.cjs` fights every encounter with the hero at the encounter's level (solo ≤9 also one below). In the game enemies are spawned at the encounter level (`spawnEnemy`: `ENCOUNTERS[st.encounter].level`) while heroes use their own level (`createBattle`: `p.level`, from `hLevel`). Quests have no level gate: `qNeedMet` checks only `minLevel` (none in Elwynn/Westfall) and the `need` chain. Hogger (7) needs only echo_raid (3); all Westfall quests (10–14) need only hogger/each other.
+2. **XP economy is short of the quest levels.** Doing every Elwynn and Westfall quest up to level 14 lowest-first yields 6350 XP → own level 12. On arrival the hero is 1–3 levels below: princess 6 at 4, wf_heirloom 10 at 8, wf_patrol 12 at 10, wf_bandanas 13 at 10, wf_coast1 13 at 11, wf_sander4 14 at 12, wf_coast2 14 at 12. At those levels win rates collapse (e.g. wf_bandanas 0% for warrior/druid/priest/mage; wf_sander4 0–1% for druid/priest/mage/warrior; wf_coast2 0–56% even with 3 heroes) while the same fights at the encounter level are ≥95%.
+3. **Goal quests spawn more enemies.** `prepareQuestEnemies` replaces the encounter's enemies with up to 3 remaining goal targets; ef_candles/kelp/linen/frontier/bounty have one static enemy, which is what the simulator fights. With the hero's level on the path these remained winnable, so this is a simulator gap, not the main cause.
+4. **Party size from level 10.** The simulator assumes main + prot warrior + holy priest for groups from 10. A player with only the free companion fights two-hero groups (wf_militia2 and wf_coast2: 0% for every class at own level 11–12).
+
+Conclusion: the simulator answers "can a hero at the quest's level win?", the game asks "can the hero at the level the XP actually gives win?". Fix order proposed for owner approval: (a) make the simulator follow the campaign path (own level from XP, goal enemies, party actually available), (b) then choose the balance lever: quest XP / curve per level, level gates (`minLevel`) on Westfall, or per-encounter levels. No gameplay change made.
+
+Open questions for the owner: how many companions do you have at levels 6–14, and at which quest/level did fights first become unwinnable? Which lever is preferred (more XP, gating quests by level, lower encounter levels)?
