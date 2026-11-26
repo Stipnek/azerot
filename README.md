@@ -4,6 +4,14 @@ Pocket Azeroth — браузерная фан-игра, не связанная
 
 The game was previously named Azerot / Азерот. The repository name, site address, save keys and stable internal identifiers remain unchanged. The in-world place name Azeroth / Азерот is not an application-brand reference.
 
+## Legal status / Правовой статус
+
+Pocket Azeroth is a non-commercial hobby fan project made for fun. It is not affiliated with, endorsed or sponsored by Blizzard Entertainment. World of Warcraft, Warcraft, Azeroth and related names, characters, quest texts and artwork are trademarks or copyrighted material of Blizzard Entertainment, Inc.
+
+The repository has no licence file. No licence is granted for third-party material, including Blizzard textures and names (see the NOTICE.md inside `classic-original-art-*/`), referenced quest data, music, sounds or icons. If a rights holder asks, the affected material will be changed or removed.
+
+Некоммерческий фан-проект «для души». Не связан с Blizzard Entertainment и не одобрен ею. Права на World of Warcraft, названия, тексты и графику Blizzard принадлежат Blizzard Entertainment, Inc. Лицензии на сторонние материалы нет; по запросу правообладателя материалы будут переделаны или удалены.
+
 ## Start here: contributors and AI assistants
 
 1. Record the branch and current commit before starting. Read files from that revision; do not reconstruct the project from chat history.
