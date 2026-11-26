@@ -18,7 +18,7 @@ Rules:
 |---|---|---|
 | BAL-04 | Early fights must feel like Classic (owner 2026-11-26): a level-1 enemy dies in 3–5 auto-attacks, abilities come gradually; two same-level enemies cost about half HP without gear; three need gear or a level advantage. Group quests harder later, with data. Cause of the old mismatch: simulator put the hero at the quest level ([evidence](evidence/bal-04/README.md)). Candidate on `claude/loving-cannon-ykm747`: solo enemy curve for levels 1–14, max two enemies per early solo fight, early XP ×1.25, BAL-02 key fix; new `scripts/sim_campaign.cjs`. | Candidate, owner play-test |
 | LOAD-01 | Loading screen: artwork immediately, real download progress, entry buttons when ready (PR #28). Audit list in the PR: audio handoff, autoplay denial, saved settings, fullscreen/safe-area, focus, retry/timeout, saves. Decide whether music can start before the first tap (browser autoplay rules). | Partial (PR #28) |
-| QUEST-03 | Elwynn: Eagan dialogue pilot and Raelen quest wood in inventory (PR #26). Wood collection timer, attacks while collecting, hand-in not yet implemented. Bag rendering not browser-tested. | Partial (PR #26) |
+| QUEST-03 | Elwynn: Eagan dialogue pilot and Raelen wood gathering on the map (issue 24, PR #26): ef_bundle restored with 4 bundles (Classic 8), ~2 s gather bar on map markers, attack interrupts and opens the existing ambush fight (pending attack saved), bag items, hand-in takes 4 once. Open owner decisions: attack chance (5% is a proposal), marker look and positions, rounding rule for odd counts before other gather quests. | Candidate (PR #26) |
 
 ## Balance and progression
 

@@ -18,7 +18,7 @@ function fixture(key='kobold_camp',options={}){
  const c={B,S:{hero,money:0,specs:{me:options.spec}},QUESTS:[q],DAY:86400000,PULL_COST:50,
  esc:s=>String(s).replace(/[&<>"]/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x])),
  qIdx:k=>k===key?0:-1,qState:k=>hero.q[k]||0,questGoalsDone:()=>options.goals!==false,
- tavOpen(){},completeV57Party(){},qDone(){return false;},showWorld(){},questSound(){events.sounds++;},
+ tavOpen(){},completeV57Party(){},qDone(){return false;},showWorld(){},elwynnGatherCfg:()=>({key:'ef_bundle'}),questSound(){events.sounds++;},
  encOf:()=>({res:0}),qMoney:()=>40,giveXp:()=>{events.xp++;return {main:100,mainUp:0};},
  qStones:()=>6,tavOf:()=>tv,setQ:(k,v)=>{hero.q[k]=v;},qRepN:k=>hero.rep[k]||0,
  syncLevel(){},save:()=>{events.saved=JSON.stringify(hero);return options.save!==false;},
