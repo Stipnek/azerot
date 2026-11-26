@@ -1,1 +1,42 @@
-<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pocket Azeroth</title><p id="status">Pocket Azeroth: загрузка…</p><script>(async()=>{try{const r=await Promise.all(['game-1.txt','game-2.txt'].map(async f=>{const x=await fetch(f+'?v=573crest',{cache:'no-cache'});if(!x.ok)throw Error(f+' — HTTP '+x.status);if(f==='game-1.txt')window.__AZEROT_RUNNING_BUILD__=new URL(x.url,location.href).searchParams.get('v');return x.arrayBuffer()}));const b=new Uint8Array(r[0].byteLength+r[1].byteLength);b.set(new Uint8Array(r[0]));b.set(new Uint8Array(r[1]),r[0].byteLength);const s=new TextDecoder('utf-8',{fatal:true}).decode(b);if(!s.includes('id="az-clean-crest"'))throw Error('Не найдена сборка с новым гербом');document.open();document.write(s);document.close()}catch(e){document.getElementById('status').textContent='Не удалось загрузить игру: '+e.message}})();</script></html>
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Pocket Azeroth</title>
+<style>html,body{margin:0;background:#030914;color:#f5dfaa;font-family:Georgia,serif}#pa-fallback{padding:24px}#pa-entry .pa-progress span.pa-real{animation:none!important;transform:none!important;width:0;transition:width .2s linear}</style>
+<!--PA_ENTRY_STYLE-->
+</head><body>
+<!--PA_ENTRY_MARKUP-->
+<p id="pa-fallback" role="status" hidden>Pocket Azeroth: загрузка…</p>
+<script>
+/* Root loader (LOAD-01): shows the release entry screen (same markup, stylesheet and approved art as the game) while the
+   game parts download with real progress, then replaces itself with the game, whose own entry screen shows the buttons. */
+(()=>{'use strict';
+const SIZES=__PA_PART_BYTES__,FILES=['game-1.txt','game-2.txt'],TIMEOUT=180000;
+const $=id=>document.getElementById(id),root=$('pa-entry');
+const status=root?root.querySelector('#pa-loading p'):$('pa-fallback'),bar=root&&root.querySelector('.pa-progress span');
+if(!root)$('pa-fallback').hidden=false;
+if(bar)bar.classList.add('pa-real');
+const total=Array.isArray(SIZES)?SIZES.reduce((a,b)=>a+b,0):0,got=[0,0];
+function progress(){const n=got[0]+got[1];if(total>0){const p=Math.min(100,Math.floor(n*100/total));status.textContent='Загрузка игры · '+p+'%';if(bar)bar.style.width=p+'%';const pb=root&&root.querySelector('.pa-progress');if(pb){pb.setAttribute('aria-valuenow',String(p));pb.setAttribute('aria-valuemin','0');pb.setAttribute('aria-valuemax','100');}}else status.textContent='Загрузка игры · '+(n/1048576).toFixed(1)+' МБ';}
+function fail(text){if(!root){status.textContent='Не удалось загрузить игру: '+text;return;}root.dataset.state='error';$('pa-loading').hidden=true;$('pa-failure').hidden=false;$('pa-feedback').textContent=text;const r=$('pa-retry');r.onclick=()=>location.reload();r.focus({preventScroll:true});}
+async function download(file,i,signal){
+ const response=await fetch(file+'?v=573crest',{cache:'no-cache',signal});
+ if(!response.ok)throw Error(file+' — HTTP '+response.status);
+ if(i===0)window.__AZEROT_RUNNING_BUILD__=new URL(response.url,location.href).searchParams.get('v');
+ if(!response.body){const b=new Uint8Array(await response.arrayBuffer());got[i]=b.length;progress();return b;}
+ const reader=response.body.getReader(),chunks=[];
+ for(;;){const {done,value}=await reader.read();if(done)break;chunks.push(value);got[i]+=value.length;progress();}
+ const bytes=new Uint8Array(got[i]);let off=0;for(const c of chunks){bytes.set(c,off);off+=c.length;}return bytes;
+}
+(async()=>{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),TIMEOUT);
+ try{
+  const parts=await Promise.all(FILES.map((f,i)=>download(f,i,controller.signal)));clearTimeout(timer);
+  if(Array.isArray(SIZES)&&parts.some((p,i)=>p.length!==SIZES[i]))throw Error('Файлы игры повреждены или устарели. Обновите страницу.');
+  const bytes=new Uint8Array(parts[0].length+parts[1].length);bytes.set(parts[0]);bytes.set(parts[1],parts[0].length);
+  const html=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+  if(!html.includes('id="az-clean-crest"'))throw Error('Не найдена ожидаемая сборка игры');
+  status.textContent='Подготавливаем мир…';
+  document.open();document.write(html);document.close();
+ }catch(error){clearTimeout(timer);controller.abort();fail(error.name==='AbortError'?'Загрузка заняла слишком много времени.':error.message);}
+})();
+})();
+</script></body></html>
