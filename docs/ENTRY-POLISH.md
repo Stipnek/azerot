@@ -1,13 +1,15 @@
-# Entry preview: first visual-polish patch
+# Entry screen: first polish patch history
 
-This patch addresses the Computer review of implementation 4ad1a05 without changing the accepted game-entry or audio-save mechanisms.
+Status: historical implementation record, reconciled 2026-11-24. Use [ENTRY-SCREEN.md](ENTRY-SCREEN.md) for the current build boundary and [ENTRY-ARTWORK.md](ENTRY-ARTWORK.md) for selected assets.
 
-- Remove automatic focus on the Enter button at startup, preserving the existing visible keyboard-focus outline.
-- Fade out loading and fade in actions after the minimum loading interval; skip transition delays for reduced-motion preference.
-- Keep the settings header and close button sticky while its content scrolls.
-- Use light percentage values and hide diagnostic audio paragraphs only inside the entry settings modal. The same DOM nodes and listeners remain intact.
-- Extend browser checks for these changes, short landscape settings at 750x342, and a 342x750 reduced-motion viewport.
+The first patch addressed the Computer review of implementation `4ad1a05` without redesigning game entry or audio persistence:
 
-Local syntax/parser checks and calculated color contrast do not establish browser acceptance. Check CI for the new head commit.
+- Remove automatic focus on Enter while preserving visible keyboard focus.
+- Fade loading out and actions in; respect reduced motion.
+- Keep the settings header and close control sticky while content scrolls.
+- Use light percentage values and hide diagnostic audio paragraphs only inside the entry modal, preserving DOM nodes and listeners.
+- Extend checks for short landscape and reduced-motion viewports.
 
-Still outstanding: high-resolution artwork, safe-zone composition, visible background seams/borders, and a locally bundled font. Existing low-resolution artwork and its fitting mode are deliberately unchanged. This patch is not the final visual release and does not publish or merge anything.
+The original notes that this patch retained low-resolution test artwork describe that stage only. Later PNG selection supersedes that artwork status. Likewise, isolated-preview/no-publication wording is not a description of the current combined Pages workflow.
+
+Historical concerns about safe-zone composition, seams/borders and a locally bundled font require reconciliation against current sources and visuals. Do not describe them as confirmed current defects or silently implement changes from this checklist. Syntax checks and calculated contrast do not establish browser or player acceptance.
