@@ -1,67 +1,93 @@
-# Open work and design index
+# Open work register
 
-Updated: 2026-11-20 (user-local date).
+The single list of requirements, open decisions and pending acceptance. Updated 2026-11-26 (main `50bd6ab`). Design detail lives in the linked documents; this register records what is wanted and where each item stands. It replaces the 2026-11-20 and 2026-11-24 versions and the requirement sections formerly in DEVELOPMENT.md; all earlier IDs are preserved.
 
-## Start here
+## How to read and update
 
-This is the current handoff index and additive requirements register, not proof that every listed feature is absent. Read DEVELOPMENT.md, docs/design.md, docs/design-layout-correction.md, docs/design-world-travel.md, docs/loot/deadmines.md, docs/CHAT-AUDIT.md and docs/ui-review-register.md as supporting records. These documents already exist; the project did not lack design documentation. Several historical status and production statements are stale. Explicit later user decisions take precedence; preserve older requirements until individually reconciled.
+Status values: **Decision** (owner must decide) · **Approved** (agreed, implementation not confirmed) · **Partial** (some code exists, acceptance missing) · **Verify** (code reportedly exists; check effective source and play) · **Done** (implemented, tested and accepted by the owner, with revision).
 
-Repository and chat evidence were reviewed, not the complete effective game or live UI. Statuses below deliberately distinguish source implementation from acceptance. Do not close a requirement based solely on a filename, passing aggregate CI or this document.
+Rules:
+1. Open does not mean absent. Before implementing, trace the effective source (base + ordered edits + core) and existing tests.
+2. Close an item only with evidence: revision, tests run, release revision and owner acceptance in play.
+3. Change this file when a decision or status changes. Do not start a separate task list elsewhere.
+4. One item → one branch → one PR (see [WORKFLOW.md](WORKFLOW.md)).
 
-## Release checkpoint
+## Now (agreed priorities)
 
-PR #7 merged to main as 8bc983a07c114120ee28bb0f301105d31b71c5a0. Pre-merge CI passed all eight recorded stages for 0891a4918679aa84836a7452f9e3dd1321a604ad: https://github.com/Stipnek/azerot/actions/runs/44852529229 . Successful post-merge deployment and live sourceCommit remain unverified in this handoff. Confirm them separately. Physical-phone acceptance and a complete dungeon run were not established by that CI.
+| ID | Item | Status |
+|---|---|---|
+| BAL-04 | Early quests are hard in real play without the temporary easing, while the simulator (`scripts/sim_enemy_curve.cjs`) reports ≥95% wins for every class up to level 14. Find where the simulator diverges from the real game path (party, carried HP, ambushes, gear, abilities granted before 15, release build vs engine loader), then tune balance from correct numbers. Day-2 finding ([evidence](evidence/bal-04/README.md)): the simulator puts the hero at the quest's level, but quests have no level gate and full-clear XP leaves the hero 1–3 levels below (own level 12 after all quests up to 14); at real levels Westfall 12–14 fights drop to 0–60%. Goal quests also spawn up to 3 enemies vs 1 in the simulator. Next: owner picks the lever (XP, level gates, encounter levels); simulator to follow the campaign path. | Cause found, decision |
+| LOAD-01 | Loading screen: artwork immediately, real download progress, entry buttons when ready (PR #28). Audit list in the PR: audio handoff, autoplay denial, saved settings, fullscreen/safe-area, focus, retry/timeout, saves. Decide whether music can start before the first tap (browser autoplay rules). | Partial (PR #28) |
+| QUEST-03 | Elwynn: Eagan dialogue pilot and Raelen quest wood in inventory (PR #26). Wood collection timer, attacks while collecting, hand-in not yet implemented. Bag rendering not browser-tested. | Partial (PR #26) |
 
-## Latest user requirements
+## Balance and progression
 
-All items remain open for implementation reconciliation or acceptance; open does not mean absent.
+| ID | Requirement | Status / next step |
+|---|---|---|
+| BAL-01 | Enemy curve (ENEMY_CURVE full 15, hp 0.45, atk 0.40, pow 2) — decide whether to raise the middle of the curve. [Report](enemy-curve-2026-11-23.md) | Decision |
+| BAL-02 | Early Elwynn level shift: five keys are misspelled (`koboldcamp`, `echoscout`, `echoraid`, `golddust`, `lostguards` vs `kobold_camp`, `echo_scout`, `echo_raid`, `gold_dust`, `lost_guards`) so the shift does not apply to them. Decide keep-and-fix or replace with a proper solution under BAL-04. | Decision (simulated impact: none) |
+| BAL-03 | Weak solo cases in the report: fire/arcane mage solo at 15–17, one level-24 fight, three-murloc ambush at level 1 (mage 43% simulated on 2026-11-26). | Verify |
+| XP-01 | Every acquired roster member gets 100% of the base quest/dungeon XP; rewards are not divided by roster size; main's cap or low-level quest must not suppress roster rewards; each recipient uses own level. | Verify (code has rosterPct 1) |
+| XP-02 | A participating companion below the main's level gets 125% instead of 100% (not additional); caught-up companions get 100%. Support multiple level gains per reward, cap 60; new characters start at 1 with no retroactive XP. Settle the mid-award catch-up rule explicitly. Tests: level-60 main with level-1 companion, reserve, catch-up, multi-level, cap, save/load, duplicate processing. | Verify / Decision (catch-up rule) |
+| PROG-01 | Repeatable dungeons give post-campaign progression: builds, main gear, an accessory for each party character, roster XP; no endless mode. Main-character loot alone does not satisfy companion accessories. Guard room/completion/skip rewards against duplicates. | Partial |
+| ABIL-01 | About six active abilities per class/spec, unlocked by own level over 60 levels (full set by 50 allowed); the first location must not be played with one ability. Companions unlock by own level. Audit effects, AI, resources, basics, spec changes, saves before proposing sets. Approved base rules: [combat decisions](combat-decisions-2026-11-21.md) and addenda. | Partial |
+| ABIL-02 | Personal seventh ability at own level 60 for the eight named legendaries; identity-based, not rarity-based. Effects need approval. | Approved (effects: Decision) |
+| ABIL-03 | Hero overview: ability icon slots incl. greyed locked abilities with unlock level and readable description; locked abilities unusable. | Verify |
+| SPEC-01 | Specialization at own level 15 with neutral training before 15; replaced training abilities leave the rotation; same rules for main and companions ([training](combat-training-2026-11-21.md), [scope](spec15-transition-scope.md)). Training kits for the seven non-warrior classes still need approval. | Partial |
+| SPEC-02 | Passive schedule: primary at own level 15, secondary at 30 for listed specs ([passives](combat-passives-2026-11-21.md)). No numbers approved. | Approved |
+| PET-01 | Warlock: Imp 1, Voidwalker 10, Succubus 20, Felhunter 30. Hunter: Turtle 10, Cat 20, Wolf 30, Owl 40. Per-pet state, no switching in combat, no taming/feeding ([pets](combat-pets-2026-11-21.md)). Code shows a single PET_SELECTION_LEVEL = 10. | Approved, likely not implemented |
+| COMBAT-01 | Beast Mastery kit (Multi-Shot sixth at 54), Soul Link at 40, paladin seals, event model (types, schools, DoT/HoT no crit), interrupt policy ([decisions](combat-decisions-2026-11-21.md), [BM](combat-bm-2026-11-21.md), [interrupts](combat-interrupts-2026-11-21.md)). | Approved, implementation to verify |
+| ARMS-01 | Integrated Arms (stage-1 temporary rules, cap 30): verify 14/15 and 29/30 transitions, no seventh active for ordinary companions, consistent views ([gates](arms-integration-gates-2026-11-21.md), [rules](arms-stage1-temporary-rules.md)). Released to the live game. | Verify |
+| ARMS-02 | Arms hero UX blockers from the 2026-11-21 QA: dialog closes after each rank change, talent names not visible, stale «Ветка талантов появится позже», debug wording visible to players. Strings still in sources. | Verify |
+| TALENT-01 | Talents: earlier direction "from level 10, free allocation" vs integrated own-level-15 records. Hybrids, roles, druid directions, kit interactions need scoped agreement; do not generalize Arms decisions to all classes. | Decision |
+| TALENT-02 | Talent tree must fit without page or tree scrolling, controls visible ([task](computer-talent-tree-task.md)); merged PR #17 uses an internally scrolling dialog. | Decision / Verify |
+| AUDIT-01 | Unverified Opus audit risks on current main: Subtlety stealth without Ambush makes no moves; Whirlwind/Cleave AI branches end the turn; createBattle falls back to quest level; Protection/Holy paladin solo strength; mid-dungeon unlocks; racial abilities on companions. ([archive](archive/opus-audit.txt)) | Verify |
 
-| ID | Requirement / acceptance | Current evidence and next work |
-| --- | --- | --- |
-| PARTY-01 | Ordinary-party and dungeon preparation use one reusable companion picker, not divergent implementations. | User requirement. Trace both callers and shared details before changing either. |
-| PARTY-02 | Remove the visible rarity/bonus line such as «Редкий · +…% к характеристикам» from picker cards; keep rarity color and accessible information. | The inspected party-quest-ui manifest adds az-picker-rarity and this line. Check all later edits before removing it. |
-| PARTY-03 | Holding a hero opens the same details dialog as the collection; releasing after a hold must not also select the hero. | Implementation not confirmed. Verify touch/mouse, cancellation, scrolling and click suppression. Distinct from holding the party header for analytics. |
-| PARTY-04 | Shared hero details show the accessory slot, including when composing a party. | Requirement, not confirmation that accessory mechanics or the slot exist. Reconcile with PROG-01. |
-| GEAR-01 | Equip/unequip buttons follow the common game style; selecting armor must not make the screen jump. | Fullscreen slot-based equipment is in PR #7; this does not establish visual stability. Check repeated selections, long names, empty slots and phone layouts. |
-| GEAR-02 | Item stats are vertical labelled rows everywhere: receipts, dungeon catalogue, bag and equipment. «При замене» is separate from the item's own stats. | Inventory comparison/layout patches exist. Coverage across all four surfaces and browser acceptance remain unverified. Do not redo already-correct comparison logic. |
-| QUEST-01 | Within one location: ready-to-turn-in quests first; normal quests by level next; group quests in a separate bottom block by level. Stable order for equal levels. | Exact effective ordering not reconciled. Test state transitions and equal-level ties. |
-| ART-02 | Slightly reduce the dungeon entrance icon and try a thin neutral border; preserve the approved artwork and orientation. | New adjustment, separate from the original entrance implementation. Border appearance needs visual approval. |
-| DM-05 | Between-boss buttons have consistent height and spacing; long labels wrap without compressing controls. | A layout patch groups equipment and optional-boss actions, but grouping does not prove equal heights. User observed a compressed Cookie button before VanCleef. |
-| DM-06 | Suggested short action: «Зайти к Куки», with separate explanation «Необязательный бой перед Ван Клифом». | Proposed wording, not verified implemented text. Preserve optional encounter rules and access timing. |
-| AUDIO-01 | Separate Deadmines music; smooth transition on entry/exit; respect shared sound/volume settings; do not restart between bosses. | Implementation and audio-asset choice/rights not confirmed. Verify mute, volume, exit, defeat and browser audio behavior. |
-| QUEST-02 | Preserve truthful «Источник и адаптация» information. | Earlier code inspection found a v56 section with adapted Classic, authored tutorial and service-stage variants, and a source link when provided. Exact quest coverage was not audited; never claim every quest has it. |
+## Party, gear and quests
 
-## Earlier agreements: preserve and reconcile
+| ID | Requirement | Status / next step |
+|---|---|---|
+| PARTY-01 | Ordinary party and dungeon preparation use one reusable companion picker. | Verify |
+| PARTY-02 | Remove the visible rarity/bonus line («Редкий · +…% к характеристикам») from picker cards; keep rarity colour and accessible info. The party-quest-ui manifest adds `az-picker-rarity`. | Approved |
+| PARTY-03 | Holding a hero opens the same details dialog as the collection; releasing after a hold must not also select. | Verify |
+| PARTY-04 | Shared hero details show the accessory slot, including during party composition (with PROG-01). | Approved |
+| GEAR-01 | Equip/unequip buttons in the common style; selecting armour must not make the screen jump. | Verify |
+| GEAR-02 | Item stats as vertical labelled rows everywhere (receipts, dungeon catalogue, bag, equipment); «При замене» separate from own stats. | Partial |
+| QUEST-01 | Per location: ready-to-turn-in first, then normal quests by level, group quests in a separate bottom block by level; stable order for ties. | Verify |
+| QUEST-02 | Keep truthful «Источник и адаптация» information; never claim every quest has it. | Partial |
+| QUEST-04 | Zone content pipeline: Wetlands, Hillsbrad, Alterac, Tirisfal, Silverpine research → [ZONE-TEMPLATE](quests/ZONE-TEMPLATE.md) cards → owner approval → implementation. Faction scope (Alliance only vs both) needs a decision. | Decision |
 
-The detailed historical requirements and evidence are in docs/CHAT-AUDIT.md; do not treat old pending labels as evidence of current absence.
+## Interface and dungeon
 
-- UI-01 / DM-01 / DM-02 / LOOT-01: bottom service drawer, explicit dungeon preparation/start, readable dungeon flow, real boss loot, between-room equipment, truthful grant/save failures and duplicate-reward guards. Some source and browser coverage exist; check remaining acceptance individually.
-- UI-02: World Map hint conditions, removal when no longer applicable and reduced motion.
-- UI-03: Tavern summon-available indicator follows the real stone threshold and updates across balance/character/navigation changes.
-- UI-04: movement follows drawn roads and avoids obstacles; inspect the central Duskwood mountain visually.
-- UI-05: smooth summon/card-flip motion, cancellation/skip and reduced motion.
-- UI-06: separate 2–3 second equipment-acquisition notice, visible timer, click opens bag; reconcile with existing receipts before adding another notification.
-- UI-07: no unapproved first-companion replay/map button across all onboarding paths.
-- UI-08: party analytics via hold, without a separate visible duplicate button; test touch/mouse cancellation.
-- XP-01 / XP-02: every acquired roster member gets 100% base reward; eligible participating companions below main get 125% instead, not an additional 125%; own-level calculation, reserve, cap 60, multiple levels, new characters at level 1 without retroactive XP. Audit current code/tests; settle mid-award catch-up rule explicitly if still unresolved.
-- PROG-01: repeatable dungeons support builds, main gear, companion accessories and roster XP; no additional endless mode required. Main-character loot alone does not deliver companion accessories.
-- UPDATE-01: safe optional updates at startup/tab return/intervals, successful save before reload, no interruption of combat/summoning/rewards, offline failure does not block play. Reconcile existing code before rewriting.
-- ABIL-01: approximately six active abilities per class/spec, gradual own-level unlocks; avoid one-ability play throughout the first location. Audit actual effects, AI, resources, basics, spec changes and saves before proposing sets/unlock order.
-- ABIL-02: personal seventh ability at own level 60 for the eight named current legendaries; identity-based, not orange rarity alone. Effects require approval.
-- ABIL-03: hero overview ability icons, grey locked slots, unlock levels, readable descriptions and execution guards.
-- TALENT-01: talents from level 10, free allocation preferred; spec selection is not a talent tree. Hybrids, roles, druid directions and kit interactions need design agreement.
-- LOC-01: future RU/EN preserving Russian and stable save keys. Pin the exact Classic branch and patch/date at kickoff; use official names for existing entities and translate original content separately.
-- Stockade remains deferred. Mirrored entrance art is not authorization to implement it.
+| ID | Requirement | Status / next step |
+|---|---|---|
+| UI-01 | Bottom service drawer next to «Герой», opening upward; one menu for tavern, merchant, catalogue. Lifecycle: toggle opens the current dialog after re-render or zone change with correct focus. Physical Android check pending. | Partial |
+| UI-02 | World-map hint conditions, removal when no longer applicable, reduced motion ([travel](design-world-travel.md)). | Partial |
+| UI-03 | Tavern summon-available dot follows the real stone threshold and updates on balance/character/navigation changes. | Verify |
+| UI-04 | Movement follows drawn roads and avoids obstacles; inspect the central Duskwood mountain crossing. | Approved |
+| UI-05 | Smooth summon/card-flip motion (Hearthstone as reference), skip and reduced motion. | Approved |
+| UI-06 | Separate 2–3 s equipment-acquisition notice with visible timer; click opens bag; reconcile with existing receipts. | Approved |
+| UI-07 | No unapproved first-companion replay/map button on any onboarding path. | Verify |
+| UI-08 | Party analytics via hold on the party header, no separate visible button; touch/mouse cancellation. | Verify |
+| UI-09 | Final service-button label: «Город» (current code), «Меню», «Услуги» or «Сервисы». | Decision |
+| SYS-01 | Coherent UI system: spacing, action priority, distinction beyond colour, typography, dialog rules. | Approved |
+| ART-01 | Dungeon entrance art acceptance on dark and light map backgrounds, alpha/edges, mirrored preview. | Verify |
+| ART-02 | Slightly smaller dungeon entrance icon, try a thin neutral border; keep approved art and orientation. | Approved |
+| DM-01…03 / LOOT-01 | Explicit dungeon preparation and start, readable flow, real boss loot to the bag, between-room equipment, truthful grant/save failures, duplicate-reward guards; owned/equipped item-card branches not browser-tested. | Partial |
+| DM-04 | Separate result, defeat and completion screens; distinguish actual reward from inventory/save errors. | Partial |
+| DM-05 | Between-boss buttons of equal height and spacing; long labels wrap (compressed Cookie button seen before VanCleef). | Approved |
+| DM-06 | Short action «Зайти к Куки» with explanation «Необязательный бой перед Ван Клифом». | Decision (wording) |
+| AUDIO-01 | Separate Deadmines music, smooth entry/exit transitions, shared sound settings, no restart between bosses. Asset choice/rights open. | Approved |
+| ENTRY-01 | Entry screen: locally bundled font, safe-zone composition, background seams/borders, Safari and real-device check. | Partial |
+| STOCK-01 | Stockade stays deferred; mirrored entrance art does not authorize it. | Deferred |
 
-## Pending Opus material
+## Platform and release
 
-The user has an earlier Opus chat archive and ability audit. They have not been supplied or reviewed in this session. On receipt: distinguish proposals from actual commits, compare with current main, classify confirmed bugs / balance questions / description-mechanics mismatches / unsupported assumptions. Do not import proposed mechanics as approved decisions.
-
-## Working and acceptance rules
-
-1. For each item record: agreed; source reconciled/written; targeted tests; CI; deployed revision; browser/user acceptance. Include revision/evidence and failures or skips.
-2. First confirm the release checkpoint, then review the Opus materials, then prioritize implementation with the user. This is a proposed work order, not authorization to change gameplay.
-3. Keep approved art, stable save keys and reusable components. Back up saves before migration tests.
-4. Update this index and the relevant design document when decisions or status change. Do not scatter a new independent task list into every chat.
-5. External writes, merges and publication require exact-action confirmation. Documentation-only changes do not trigger the currently inspected Pages source-path filters.
-6. No background execution or CI monitoring is implied between chat turns. In a new chat, read this file and the linked documents first.
+| ID | Requirement | Status / next step |
+|---|---|---|
+| UPDATE-01 | Check `version.json` on start, on tab return and periodically; notify about a newer build; never force reload or interrupt combat, summoning or reward delivery; save successfully before reload, otherwise show an error and stay; offline failures never block play; verify save compatibility. | Verify |
+| RELEASE-01 | Record source commit, build hash and live `sourceCommit` for every release (version.json exists in the package). | Partial |
+| LOC-01 | Future RU/EN: keep Russian and save keys; at kickoff pin the exact WoW Classic branch and patch/date; official names for existing entities; original content translated separately, never presented as Blizzard text. | Approved (not started) |
+| LEGAL-01 | Fan-project notice in README; no licence for third-party material; replace or remove on a rights holder's request. Coin PNGs are fetched at build time without a vendored copy. | Done (notice) / Verify (coins) |
+| ARCH-01 | Core extraction: two modules exist (`src/core/ability-progression.js`, `src/core/world-maps.js`); acceptance gates (browser checks, old saves) and a source map are still to do ([contract](core-module-contract.md), [notes](modularization-notes.md)). | Partial |
+| REPO-01 | Repository hygiene: dormant workflows retired, root junk removed, build outputs untracked (2026-11-26). Remaining decisions: root `game-1.txt`/`game-2.txt` (CSS round-trip baseline), `classic-original-art-*` (Blizzard textures, kept for now), old branches. | Partial |

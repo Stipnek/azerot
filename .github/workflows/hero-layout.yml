@@ -1,8 +1,5 @@
 name: Hero layout regression
 on:
-  push:
-    branches: [work/hero-talents-rework]
-    paths: ['src/**', 'scripts/**', '.github/workflows/hero-layout.yml']
   pull_request:
     paths: ['src/**', 'scripts/**', '.github/workflows/hero-layout.yml']
   workflow_dispatch:

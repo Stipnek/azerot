@@ -1,1 +1,6 @@
 __pycache__/
+
+# Build outputs (regenerate with scripts/build_*.py)
+preview/
+_site/
+test-results/

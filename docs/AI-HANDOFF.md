@@ -1,5 +1,7 @@
 # AI review handoff
 
+> **Status 2026-11-26:** the current coverage, findings and checkpoints are in [REVIEW-LEDGER.md](REVIEW-LEDGER.md); requirements in [OPEN-WORK.md](OPEN-WORK.md). The checkpoints below are historical. Documents named here as unread have since been read (see the ledger); historical audits moved to [archive/](archive/).
+
 Prepared: 2026-11-25. Bounded handoff, not a completed audit or a replacement requirements register.
 
 ## Goal

@@ -1,7 +1,5 @@
 name: Pocket Azeroth branding
 on:
-  push:
-    branches: ['work/pocket-azeroth']
   pull_request:
     branches: ['main']
     paths: ['src/**', 'scripts/**', 'index.html', '.github/workflows/pocket-azeroth-branding.yml']
