@@ -1,0 +1,21 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "BAL-04 in the interface layer: road ambushes and quest goal fights spawn at most Battle.SOLO_MAX_ENEMIES enemies at once in early solo fights; the encounter enemy summary shows the same solo-curve numbers as the battle.",
+  "edits": [
+    {
+      "name": "Ambush enemy cap",
+      "old": "const n = Math.min(cap, 1 + Math.floor(Math.random() * 3));",
+      "new": "const n = Math.min(cap, B.SOLO_MAX_ENEMIES || 3, 1 + Math.floor(Math.random() * 3)); /* BAL-04: засада — одиночный бой, не больше SOLO_MAX_ENEMIES врагов */"
+    },
+    {
+      "name": "Goal fight enemy cap",
+      "old": "function prepareQuestEnemies(q){if(!q||!q.goals||!q.goals.length)return;const p=questProgress(q),a=[];for(let i=0;i<q.goals.length&&a.length<3;i++){const g=q.goals[i];const remaining=Math.min(g.count-(p[i]||0),3-a.length);",
+      "new": "function prepareQuestEnemies(q){if(!q||!q.goals||!q.goals.length)return;const p=questProgress(q),a=[],e0=B.ENCOUNTERS[q.k],cap=e0&&e0.size===1&&B.SOLO_MAX_ENEMIES&&e0.level<15?B.SOLO_MAX_ENEMIES:3;/* BAL-04: в одиночном бою за целями не больше SOLO_MAX_ENEMIES врагов за раз */for(let i=0;i<q.goals.length&&a.length<cap;i++){const g=q.goals[i];const remaining=Math.min(g.count-(p[i]||0),cap-a.length);"
+    },
+    {
+      "name": "Enemy summary uses the solo curve",
+      "old": "Math.round(x.d.hp * f * (B.enemyCurve ? B.enemyCurve(e.level, 'hp') : 1)) + ' ХП, удар ~' + Math.round(x.d.atk * f * (B.enemyCurve ? B.enemyCurve(e.level, 'atk') : 1))",
+      "new": "Math.round(x.d.hp * f * (B.enemyCurve ? B.enemyCurve(e.level, 'hp', e.size === 1 && e.type !== 'dungeon') : 1)) + ' ХП, удар ~' + Math.round(x.d.atk * f * (B.enemyCurve ? B.enemyCurve(e.level, 'atk', e.size === 1 && e.type !== 'dungeon') : 1))"
+    }
+  ]
+}

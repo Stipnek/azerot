@@ -1,11 +1,11 @@
 {
   "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
-  "description": "Early Elwynn balance: shift combat encounter levels back by one (PR 18, unchanged key list). The temporary per-quest enemy easing (x0.6/x0.7 copies *_e60/_e70) was removed in favour of the general enemy curve in script-05.zzzzzz-enemy-curve.edits.json.",
+  "description": "Early Elwynn balance: shift combat encounter levels back by one (PR 18, unchanged key list). The temporary per-quest enemy easing (x0.6/x0.7 copies *_e60/_e70) was removed in favour of the general enemy curve in script-05.zzzzzz-enemy-curve.edits.json. Five keys were misspelled (koboldcamp, echoscout, echoraid, golddust, lostguards) so the shift silently skipped them; corrected 2026-11-26 under BAL-04/BAL-02.",
   "edits": [
     {
       "name": "Shift early Elwynn combat encounter levels back by one",
       "old": "const TM = 1000;",
-      "new": "['koboldcamp', 'wolves', 'thieves', 'echoscout', 'echoraid', 'garrick', 'necklace', 'pie', 'fargo', 'golddust', 'goldtooth', 'jasper', 'princess', 'gnolls', 'collector', 'manhunt', 'fishy', 'lostguards', 'rolf', 'hogger'].forEach(function (k) { if (ENCOUNTERS[k] && ENCOUNTERS[k].level > 1) ENCOUNTERS[k].level -= 1; });\n  const TM = 1000;"
+      "new": "['kobold_camp', 'wolves', 'thieves', 'echo_scout', 'echo_raid', 'garrick', 'necklace', 'pie', 'fargo', 'gold_dust', 'goldtooth', 'jasper', 'princess', 'gnolls', 'collector', 'manhunt', 'fishy', 'lost_guards', 'rolf', 'hogger'].forEach(function (k) { if (ENCOUNTERS[k] && ENCOUNTERS[k].level > 1) ENCOUNTERS[k].level -= 1; });\n  const TM = 1000;"
     }
   ]
 }

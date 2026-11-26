@@ -1,0 +1,354 @@
+{
+ "source": "Runtime QUESTS of preview/combined.html (Elwynn and Westfall), dumped by scripts/dump_quest_graph.cjs. Regenerate after quest changes.",
+ "quests": [
+  {
+   "k": "kobold_camp",
+   "z": "elwynn",
+   "need": []
+  },
+  {
+   "k": "wolves",
+   "z": "elwynn",
+   "need": [],
+   "minLevel": 1
+  },
+  {
+   "k": "thieves",
+   "z": "elwynn",
+   "need": []
+  },
+  {
+   "k": "echo_scout",
+   "z": "elwynn",
+   "need": [
+    "kobold_camp"
+   ]
+  },
+  {
+   "k": "echo_raid",
+   "z": "elwynn",
+   "need": [
+    "echo_scout"
+   ]
+  },
+  {
+   "k": "garrick",
+   "z": "elwynn",
+   "need": [
+    "thieves"
+   ]
+  },
+  {
+   "k": "necklace",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "pie",
+   "z": "elwynn",
+   "need": [
+    "necklace"
+   ]
+  },
+  {
+   "k": "goldtooth",
+   "z": "elwynn",
+   "need": [
+    "pie"
+   ]
+  },
+  {
+   "k": "fargo",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "gold_dust",
+   "z": "elwynn",
+   "need": [
+    "fargo"
+   ]
+  },
+  {
+   "k": "jasper",
+   "z": "elwynn",
+   "need": [
+    "fargo"
+   ]
+  },
+  {
+   "k": "princess",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "gnolls",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "manhunt",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "hogger",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "dungeon:deadmines",
+   "z": "westfall",
+   "need": [
+    "db4"
+   ]
+  },
+  {
+   "k": "wf_pie",
+   "z": "westfall",
+   "need": [
+    "hogger"
+   ]
+  },
+  {
+   "k": "wf_heirloom",
+   "z": "westfall",
+   "need": [
+    "hogger"
+   ]
+  },
+  {
+   "k": "wf_killing",
+   "z": "westfall",
+   "need": [
+    "wf_pie"
+   ]
+  },
+  {
+   "k": "wf_militia1",
+   "z": "westfall",
+   "need": [
+    "hogger"
+   ]
+  },
+  {
+   "k": "wf_patrol",
+   "z": "westfall",
+   "need": [
+    "wf_militia1"
+   ]
+  },
+  {
+   "k": "wf_stew2",
+   "z": "westfall",
+   "need": [
+    "hogger"
+   ]
+  },
+  {
+   "k": "wf_bandanas",
+   "z": "westfall",
+   "need": [
+    "wf_militia1"
+   ]
+  },
+  {
+   "k": "wf_militia2",
+   "z": "westfall",
+   "need": [
+    "wf_militia1"
+   ]
+  },
+  {
+   "k": "wf_coast1",
+   "z": "westfall",
+   "need": [
+    "wf_stew2"
+   ]
+  },
+  {
+   "k": "wf_sander4",
+   "z": "westfall",
+   "need": [
+    "wf_coast1"
+   ]
+  },
+  {
+   "k": "wf_coast2",
+   "z": "westfall",
+   "need": [
+    "wf_coast1"
+   ]
+  },
+  {
+   "k": "db3",
+   "z": "westfall",
+   "need": [
+    "rr_assess",
+    "rr_menace"
+   ]
+  },
+  {
+   "k": "db4",
+   "z": "westfall",
+   "need": [
+    "db3"
+   ],
+   "minLevel": 1
+  },
+  {
+   "k": "ef_candles",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "kobold",
+     "count": 8
+    }
+   ]
+  },
+  {
+   "k": "ef_kelp",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "murloc",
+     "count": 4
+    }
+   ]
+  },
+  {
+   "k": "ef_linen",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "thief",
+     "count": 6
+    }
+   ]
+  },
+  {
+   "k": "ef_frontier",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "wolf",
+     "count": 8
+    },
+    {
+     "enemy": "v56_bear",
+     "count": 5
+    }
+   ]
+  },
+  {
+   "k": "ef_bounty",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "murloc",
+     "count": 8
+    }
+   ]
+  },
+  {
+   "k": "wf_militia3",
+   "z": "westfall",
+   "need": [
+    "wf_militia2"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "looter",
+     "count": 15
+    },
+    {
+     "enemy": "trapper",
+     "count": 15
+    },
+    {
+     "enemy": "pillager",
+     "count": 5
+    }
+   ]
+  },
+  {
+   "k": "wf_silk",
+   "z": "westfall",
+   "need": [
+    "db4",
+    "wf_bandanas"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "pillager",
+     "count": 10
+    }
+   ]
+  },
+  {
+   "k": "tutorial57_train",
+   "z": "elwynn",
+   "need": [],
+   "intro": true
+  },
+  {
+   "k": "tutorial57_hire",
+   "z": "elwynn",
+   "need": [
+    "tutorial57_train"
+   ],
+   "intro": true
+  },
+  {
+   "k": "tutorial57_party",
+   "z": "elwynn",
+   "need": [
+    "tutorial57_hire"
+   ],
+   "intro": true
+  },
+  {
+   "k": "tutorial57_team",
+   "z": "elwynn",
+   "need": [
+    "tutorial57_train",
+    "tutorial57_party"
+   ],
+   "intro": true
+  }
+ ]
+}

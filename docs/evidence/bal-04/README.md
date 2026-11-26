@@ -23,3 +23,24 @@ See [campaign-2026-11-26.md](campaign-2026-11-26.md). "sim-assumed" = hero at th
 | wf_coast2 (14) | 12 | warrior 0%, druid 6%, rogue 27%, priest 35%, hunter 43%, warlock 46%, paladin 54%, mage 56% |
 | wf_coast2 (14) | 14 | all 100% |
 | princess (6) | 4 | all 100% (2 heroes: druid 26%) |
+
+## Day 3 (2026-11-26): owner rule and first balance candidate
+
+Owner direction (chat, 2026-11-26): the game is now too easy and fights drag. Classic feel: a level-1 enemy dies in 3–5 auto-attacks, abilities come gradually; two enemies cost about half HP without gear; three need gear or a level advantage. Group quests to be made harder later, when there is data.
+
+Measured before the change (engine, hero alone, no gear, own level = enemy level): a level-1 hero has 681 HP (warrior) against wolf hits of 7–16, so cannot lose; from level 2 the training kit's skill plus an auto kills an enemy in one turn (1.9 hits). Two same-level enemies cost 3–28% HP, three 7–60%, with 100% wins. Cause: the general enemy curve (`ENEMY_CURVE`, 23 Nov) halves enemy HP and attack below level 10, on top of the neutral training kit from level 2. Reference point: at level 15–16 against Redridge orc grunts (curve 1.0) the numbers already match the owner's rule (−15% / −47% / 55% wins).
+
+Candidate (branch `claude/loving-cannon-ykm747`, not merged):
+
+1. `script-05.zzzzzzz-solo-enemy-curve.edits.json`
+   - `SOLO_ENEMY_CURVE`: per-level HP/attack multipliers for size-1 non-dungeon fights (solo quests, quest goal fights, road ambushes), levels 1–14. Group fights, dungeons, dummies and level 15+ keep `ENEMY_CURVE`. `enabled: false` restores the old behaviour.
+   - `SOLO_MAX_ENEMIES = 2`: early solo encounters spawn at most two enemies (first two of the list; the original list stays in `uncappedEnemies`).
+   - `EARLY_XP`: rewards of levels 1–14 ×1.25. Without it the hero reaches Westfall quests 1–3 levels low; with it the arrival level is the quest level ±1 and the hero is level 14 after all quests up to 14 (was 12).
+2. `script-05.zzzzz-first-quests-level-shift.edits.json`: five misspelled keys fixed (BAL-02), so kobold_camp is level 1, echo_scout/echo_raid 2, gold_dust 4, lost_guards 6 as PR 18 intended. Without this the first level-2 quest is taken at level 1 with no abilities (3% wins).
+3. `script-06.…-bal04-solo-fights.edits.json`: ambushes and goal fights use the same two-enemy cap; the enemy summary shows solo-curve numbers.
+
+Tool: `scripts/sim_campaign.cjs` (fight feel table + campaign path from `scripts/fixtures/early-quest-graph.json`, own level from XP). Results N=60: [before](sim-before-2026-11-26.md), [after](sim-after-2026-11-26.md).
+
+After, in short: enemies die in 3.4–5 hits; one enemy costs 8–25% HP; two cost 40–65% for most enemy types; three at the same level win 25–55%, at +2 levels ~80%. Campaign path: every solo quest ≥87% average wins except wf_heirloom (two gnoll runts, 65%) and wf_bandanas (looter + trapper, 58%).
+
+Known gaps, not addressed here: class spread (priest and mage weakest in the training kit; druid weak vs gnoll runts at 4–5); strong enemy types (gnollRunt, trapper, pillager, thief at 4) sit above target; group quests are unchanged and still trivial early (3–8% HP lost) but wf_coast2 with only main + free companion is 0% and wf_militia2 54%; level 15+ normal enemies are also easier than the rule (not measured in depth); battle pacing on screen not measured.

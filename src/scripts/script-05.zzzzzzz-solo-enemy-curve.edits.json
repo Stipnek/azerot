@@ -1,0 +1,36 @@
+{
+  "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+  "description": "BAL-04 (owner rule 2026-11-26: one normal enemy dies in 3-5 hits, two same-level enemies cost about half HP without gear, three need a level or gear advantage). (1) SOLO_ENEMY_CURVE: per-level HP/attack multipliers for size-1 non-dungeon encounters (solo quests, quest goal fights, road ambushes) at levels 1-14; group fights, dungeons, training dummies and level 15+ keep ENEMY_CURVE. (2) SOLO_MAX_ENEMIES: early solo encounters spawn at most two enemies. (3) EARLY_XP: rewards of levels 1-14 x1.25 so the campaign path keeps the hero at the quest level. Measured with scripts/sim_campaign.cjs.",
+  "edits": [
+    {
+      "name": "Solo enemy curve table",
+      "old": "  const ENEMY_CURVE = { full: 15, hp: 0.45, atk: 0.40, pow: 2 };\n  function enemyCurve(level, kind) {\n    const c = ENEMY_CURVE, start = c[kind];\n",
+      "new": "  const ENEMY_CURVE = { full: 15, hp: 0.45, atk: 0.40, pow: 2 };\n  /* BAL-04 (26 ноября): одиночные бои героя (соло-квесты, цели квестов, засады) на уровнях 1–14 по правилу владельца:\n     обычный враг умирает за 3–5 ударов, бой с двумя врагами того же уровня без снаряжения стоит около половины ХП,\n     с тремя нужен перевес по уровню или снаряжение. Множители — по уровню врага, индекс 0 = 1 уровень; с уровня full — 1.0; enabled: false возвращает общую кривую.\n     Групповые бои, подземелья и манекены по-прежнему используют общую кривую ENEMY_CURVE. */\n  const SOLO_ENEMY_CURVE = { enabled: true, full: 15,\n    hp:  [0.50, 1.00, 1.20, 1.30, 1.30, 1.30, 1.20, 1.15, 1.10, 1.00, 1.00, 0.95, 0.90, 0.90],\n    atk: [0.65, 1.50, 2.00, 2.20, 2.30, 2.30, 2.20, 2.20, 2.20, 2.20, 2.00, 1.90, 1.90, 1.90] };\n  function enemyCurve(level, kind, solo) {\n    if (solo && SOLO_ENEMY_CURVE.enabled) {\n      const sc = SOLO_ENEMY_CURVE, row = sc[kind];\n      if (!Number.isFinite(level) || level >= sc.full || !row) return 1;\n      const v = row[Math.max(0, Math.min(row.length - 1, Math.round(level) - 1))];\n      return Number.isFinite(v) && v > 0 ? v : 1;\n    }\n    const c = ENEMY_CURVE, start = c[kind];\n"
+    },
+    {
+      "name": "Apply the solo curve in spawnEnemy",
+      "old": "const chp = dummy ? 1 : enemyCurve(elvl, 'hp'), catk = dummy ? 1 : enemyCurve(elvl, 'atk');",
+      "new": "const solo = ENCOUNTERS[st.encounter].size === 1 && ENCOUNTERS[st.encounter].type !== 'dungeon' && !st.test;\n    const chp = dummy ? 1 : enemyCurve(elvl, 'hp', solo), catk = dummy ? 1 : enemyCurve(elvl, 'atk', solo);"
+    },
+    {
+      "name": "Expose the solo curve for balance reports",
+      "old": "ENEMY_CURVE, enemyCurve, heroStats,",
+      "new": "ENEMY_CURVE, SOLO_ENEMY_CURVE, SOLO_MAX_ENEMIES, EARLY_XP, enemyCurve, heroStats,"
+    },
+    {
+      "name": "Early XP multiplier",
+      "old": "  const XPC = { first: 350,",
+      "new": "  /* BAL-04 (26 ноября): награды уровней 1–14 ×1.25, чтобы герой, сделавший все квесты Элвинна и Западного края, приходил к квесту на его уровне, а не на 1–3 ниже. */\n  const EARLY_XP = { below: 15, mult: 1.25 };\n  const XPC = { first: 350,"
+    },
+    {
+      "name": "Apply early XP multiplier in xpFor",
+      "old": "    return Math.round(XPC.base * (1 + XPC.rew * (rewardLevel - 1)) * mult * grp);",
+      "new": "    return Math.round(XPC.base * (1 + XPC.rew * (rewardLevel - 1)) * mult * grp * (rewardLevel < EARLY_XP.below ? EARLY_XP.mult : 1));"
+    },
+    {
+      "name": "At most two enemies in early solo encounters",
+      "old": "  const api = { armsProto: {",
+      "new": "  /* BAL-04 (26 ноября): в одиночном бою уровней 1–14 одновременно не больше двух врагов (бой с тремя — только в групповых заданиях). Берутся первые два; исходный список остаётся в uncappedEnemies для отчётов баланса. */\n  const SOLO_MAX_ENEMIES = 2;\n  Object.keys(ENCOUNTERS).forEach(function (k) {\n    const e = ENCOUNTERS[k];\n    if (e && e.size === 1 && e.type === 'solo' && e.level < SOLO_ENEMY_CURVE.full && Array.isArray(e.enemies) && e.enemies.length > SOLO_MAX_ENEMIES) { e.uncappedEnemies = e.enemies.slice(); e.enemies = e.enemies.slice(0, SOLO_MAX_ENEMIES); }\n  });\n  const api = { armsProto: {"
+    }
+  ]
+}
