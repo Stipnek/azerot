@@ -1,53 +1,56 @@
-# Documentation navigation
+# Documentation index
 
-Status: initial, incomplete catalog. This is navigation, not a completed source audit or a registry of implemented features.
+The single catalogue of project documentation. Updated 2026-11-26 against main `50bd6ab` plus the documentation branch `claude/nifty-fermat-oci73c`. Every file listed was read in full on that date (see [review ledger](REVIEW-LEDGER.md)); "read" does not mean its claims were verified against code.
 
-Review recorded: 2026-11-24. Scope: documentation in `work/docs-release-guide` at commit `f78812b450b8d2f72f8cbf6cfc7411d95e1bfa6e`. Recheck changes after that revision.
+## Start here
 
-## Source-reading guide
+| Need | Read |
+|---|---|
+| What the project is, legal status | [README](../README.md) |
+| How we work: branches, PRs, checks, release, AI helpers | [Workflow](WORKFLOW.md) |
+| Build, source layout, release pipeline | [Development guide](../DEVELOPMENT.md), [reading the effective source](reading-source.md) |
+| What is decided and what is still open | [Open work](OPEN-WORK.md), the single requirements register |
+| Where code and tests live | [Review map](REVIEW-MAP.md) |
+| Review coverage and findings | [Review ledger](REVIEW-LEDGER.md) |
+| AI assistant rules | [CLAUDE.md](../CLAUDE.md), [AI handoff](AI-HANDOFF.md) |
 
-[Reading the effective game source](reading-source.md) explains source parts, ordered edits, core inlining, the observed Node-loader input difference, build variants, entry-screen source locations, and save-safety limitations. Its inspected revisions and limitations are recorded on that page. It is not a complete subsystem map.
+## Status vocabulary
 
-## How to use this page
+Keep these separate in every document: **proposed** → **approved design** → **implemented** at a revision → **tested** (with scope) → **merged** → **released** (deployed revision) → **accepted** by the owner in play. A passing check or a merged PR proves only its own step.
 
-- Fully read means the document was retrieved and read in full during this review; it does not mean its claims were verified against current code.
-- Located means the file or directory was listed, but its contents were not reviewed in full.
-- Document status, implementation status, test results, and deployment status are separate.
-- This index does not replace the linked documents or override their requirements.
+Release fact (2026-11-26): the Pages workflow publishes `preview/combined.html`, which always includes the entry screen and the integrated hero mode (`__AZEROT_ARMS_HERO__=true`). Older documents that call these "preview only", "test only" or "not published" describe their own date; the owner is currently the only player.
 
-## Documents read in full
+## Current design and decision documents
 
-| Topic | Document | Interpretation and limitations |
-|---|---|---|
-| Development and release | [Development guide](../DEVELOPMENT.md) | The release section was corrected in this branch. Other sections contain earlier agreements and historical status that still require verification. |
-| Interface and dungeon design | [Design and implementation status](design.md) | Records decisions and status dated 2026-11-19; not confirmation of current live behavior. Ongoing design work is not modified by this catalog. |
-| Quest catalog rules | [Quest catalog introduction](quests/README.md) | Read before individual locations. Contains corrections that withdraw some earlier adaptation proposals. Research is not implemented content. |
-| Deadmines loot | [Loot document](loot/deadmines.md) | Describes working-branch integration and provisional item values. Current implementation, acceptance, and publication require separate verification. |
-| Core extraction | [Core module contract](core-module-contract.md) | Implementation plan tied to an earlier inspected revision; not proof of a completed module system. |
-| Modularization | [Modularization notes](modularization-notes.md) | Advice and risks, not approved or completed restructuring. Verify technical details against current sources. |
-| Saved UI checks | [UI redesign CI record](validation/ui-redesign-ci.json) | Records checks for commit `82036a382323eaf08b2852d5ab69341891460eb3`. Its stated scope excludes physical Android and full dungeon-run acceptance. The referenced Actions run was not independently inspected in this review. |
+| Area | Document | Role | Notes |
+|---|---|---|---|
+| Interface, dungeon | [design.md](design.md) | Approved baseline (2026-11-19) | Service-menu placement superseded by the layout correction. |
+| Interface | [design-layout-correction.md](design-layout-correction.md) | Approved correction | Takes precedence over design.md for the service menu and dungeon layout. Button label in code is «Город»; final label open (OPEN-WORK UI-09). |
+| Interface | [design-world-travel.md](design-world-travel.md) | Approved supplement | World-map hint rules; browser acceptance open. |
+| Entry screen | [ENTRY-SCREEN.md](ENTRY-SCREEN.md), [ENTRY-ARTWORK.md](ENTRY-ARTWORK.md), [ENTRY-POLISH.md](ENTRY-POLISH.md) | Implemented, released | ARTWORK supersedes the art description in SCREEN. Open items in OPEN-WORK ENTRY-01. |
+| Branding | [BRANDING.md](BRANDING.md) | Approved decision | Pocket Azeroth; keep repo name, save keys, identifiers. |
+| Loot | [loot/deadmines.md](loot/deadmines.md) | Approved spec, implemented | On main since PR #2. |
+| Combat (base) | [combat-decisions-2026-11-21.md](combat-decisions-2026-11-21.md) | Approved design | Voidwalker level superseded by pets addendum. |
+| Combat addenda | [training](combat-training-2026-11-21.md), [passives](combat-passives-2026-11-21.md), [interrupts](combat-interrupts-2026-11-21.md), [Beast Mastery](combat-bm-2026-11-21.md), [pets](combat-pets-2026-11-21.md) | Approved addenda | Each states what it supplements or supersedes. Pet schedule appears unimplemented (to verify). |
+| Warrior Arms | [arms-stage1-temporary-rules.md](arms-stage1-temporary-rules.md) | Owner-accepted temporary rules (cap 30) | Supersedes the archived prototype for integrated Arms. |
+| Warrior Arms | [arms-integration-gates-2026-11-21.md](arms-integration-gates-2026-11-21.md), [spec15-transition-scope.md](spec15-transition-scope.md) | Acceptance gates, scope | Integrated mode is now released; their open checks are in OPEN-WORK. |
+| Talent tree UI | [computer-talent-tree-task.md](computer-talent-tree-task.md) | Task brief with owner feedback | "No scrolling" requirement vs merged internal-scroll dialog is open (TALENT-02). |
+| Balance | [enemy-curve-2026-11-23.md](enemy-curve-2026-11-23.md) | Implemented report | Owner decisions open (BAL-01…03). |
+| Progression summary | [PROGRESSION-BALANCE-NOTES.md](PROGRESSION-BALANCE-NOTES.md) | Reading notes | Precedence chains between combat documents. |
+| Architecture | [core-module-contract.md](core-module-contract.md), [modularization-notes.md](modularization-notes.md) | Plan, advice | Two core modules already exist in `src/core/`. |
+| Quests | [quests/README.md](quests/README.md) first, then [ZONE-TEMPLATE](quests/ZONE-TEMPLATE.md), [audit](quests/quest-audit-2026-11-24.md), zones: [Wetlands](quests/wetlands.md) + [cards](quests/wetlands-cards.md), [Hillsbrad](quests/hillsbrad.md), [Tirisfal](quests/tirisfal.md), [Alterac](quests/alterac.md), [Silverpine](quests/silverpine.md); art prompts: [Hillsbrad](quests/hillsbrad-map-prompt.md), [Tirisfal](quests/tirisfal-map-prompt.md) | Research and templates | Nothing from these zones is implemented except the pre-existing Wetlands Lightforge chain. The audit corrects tirisfal.md (quests 367, 358). |
 
-## Quest location documents: located, not yet reviewed
+## Archive
 
-Always read the [quest catalog introduction](quests/README.md) first. Do not infer approval, completeness, or implementation from a location file's presence.
+[docs/archive/](archive/) keeps historical evidence. It is not a source of current requirements; anything still open from it is listed in OPEN-WORK.
 
-- [Wetlands](quests/wetlands.md)
-- [Hillsbrad](quests/hillsbrad.md)
-- [Tirisfal](quests/tirisfal.md)
-- [Alterac](quests/alterac.md) — present in the directory but absent from the introductory location table at the reviewed revision.
-- [Hillsbrad map prompt](quests/hillsbrad-map-prompt.md)
-- [Tirisfal map prompt](quests/tirisfal-map-prompt.md)
+| Document | What it is |
+|---|---|
+| [CHAT-AUDIT.md](archive/CHAT-AUDIT.md) | Requirements audit at 2026-11-19; carried into OPEN-WORK. |
+| [ui-review-register.md](archive/ui-review-register.md) | UI review gate register (2026-11-20) with scoped browser evidence. |
+| [prototype-arms-2026-11-21.md](archive/prototype-arms-2026-11-21.md) | Isolated Arms talent prototype; superseded by stage-1 rules. |
+| [enemy-curve-sim-2026-11-23.md](archive/enemy-curve-sim-2026-11-23.md) | Simulation table for the enemy-curve report (historical numbers). |
+| [opus-audit.txt](archive/opus-audit.txt) and the DOCX with the same text | Opus chat and ability audit (2026-11-20); table C is a proposal. Unverified findings are in OPEN-WORK AUDIT-01. |
+| [validation/](archive/validation/) | Saved CI and source-inspection records for specific old commits. |
 
-## Validation records: located, not yet reviewed
-
-These files are saved records, not evidence that the current revision passed checks.
-
-- [Feedback UI source record](validation/feedback-ui-source.json)
-- [Rarity source record](validation/rarity-source.json)
-- [UI test preview record](validation/ui-test-preview.json)
-
-## Remaining coverage
-
-Other documents in this directory and documents outside it are not yet fully cataloged here. Absence from this page is not a recommendation to ignore or delete a file.
-
-Next steps: read remaining documents in thematic groups; record conflicts and superseding decisions; then build a source map backed by inspected implementation and callers. Do not move or delete source documents merely to tidy this index.
+Git history keeps everything that was deleted in the 2026-11-26 cleanup (root QA packages, prototype patch/bundle, dev-readback, retired workflows); see the review ledger for the list.

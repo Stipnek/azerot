@@ -1,7 +1,7 @@
 name: Build and browser smoke test
 on:
   push:
-    branches: ['test/css-roundtrip', 'main']
+    branches: ['main']
     paths: ['src/**', 'scripts/**', 'DEVELOPMENT.md', '.github/workflows/browser-smoke.yml']
   pull_request:
     branches: ['main']

@@ -1,0 +1,21 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "XP curve v2 save migration: characters without xpCurve 2 have every stored XP value converted from the old linear curve, keeping level and the fraction of progress within the level; the original values stay in the character as hxpLegacy (rollback copy; no extra storage key, so hero-mode storage isolation holds). New characters start with xpCurve 2.",
+  "edits": [
+    {
+      "name": "Convert legacy XP in cleanHxp",
+      "old": "  function cleanHxp(h) {\n",
+      "new": "  /* Перевод опыта со старой линейной кривой (350 × (1 + 0.1 × (ур − 1))) на кривую v2: уровень и доля прогресса внутри уровня сохраняются. */\n  function legacyXpToV2(v) {\n    let x = Math.max(0, Math.round(+v) || 0), l = 1;\n    const need = function (n) { return Math.round(350 * (1 + 0.1 * (n - 1))); };\n    while (l < B.XPC.cap && x >= need(l)) { x -= need(l); l++; }\n    if (l >= B.XPC.cap) return B.xpAt(B.XPC.cap);\n    return B.xpAt(l) + Math.floor(x / need(l) * B.xpNeed(l));\n  }\n  function cleanHxp(h) {\n    if (h && h.hxp && typeof h.hxp === 'object' && h.xpCurve !== 2) { const v = {}; Object.keys(h.hxp).forEach(function (k) { v[k] = isFinite(+h.hxp[k]) ? legacyXpToV2(h.hxp[k]) : h.hxp[k]; }); h = Object.assign({}, h, { hxp: v }); }\n"
+    },
+    {
+      "name": "Mark cleaned characters as curve v2 and keep legacy XP",
+      "old": "hxp: cleanHxp(h),",
+      "new": "hxp: cleanHxp(h), xpCurve: 2, ...(h.xpCurve === 2 ? (h.hxpLegacy && typeof h.hxpLegacy === 'object' ? { hxpLegacy: h.hxpLegacy } : {}) : (h.hxp && typeof h.hxp === 'object' ? { hxpLegacy: Object.assign({}, h.hxp) } : {})),"
+    },
+    {
+      "name": "New characters use curve v2",
+      "old": "hxp: cleanHxp({ level: 1, hxp: {} }),",
+      "new": "hxp: cleanHxp({ level: 1, hxp: {}, xpCurve: 2 }), xpCurve: 2,"
+    }
+  ]
+}

@@ -53,7 +53,7 @@ def run(browser, label, viewport):
         page.locator('#bnav [data-tab="hero"]').click()
         expect(page.locator('#w-hero .hname')).to_have_text('Общий тест')
 
-    dialog = page.locator('#w-hero dialog[aria-label="Умения и особенности"]')
+    dialog = page.locator('#w-hero dialog[aria-label="Таланты и дополнительные сведения"]')
     rank_button = dialog.locator('[data-arms-panel="combined-test"] [data-arms-node="ihs"]:not([data-arms-delta])')
     try:
         page.goto(URL, wait_until='domcontentloaded', timeout=90000)
@@ -61,7 +61,7 @@ def run(browser, label, viewport):
         assert page.evaluate('window.__AZEROT_ARMS_HERO__ === true')
         page.evaluate("""({key, normal}) => {
             const hero={id:'combined-test',name:'Общий тест',race:'human',cls:'warrior',level:15,
-                hxp:{me:Battle.xpAt(15)},party:['me'],specs:{me:'arms',warrior:'arms'},armsTalents:{},
+                xpCurve:2,hxp:{me:Battle.xpAt(15)},party:['me'],specs:{me:'arms',warrior:'arms'},armsTalents:{},
                 items:{910001:1,910002:1},gear:{},money:0,q:{},zone:'elwynn',at:'goldshire',
                 intro:{elwynn:1},v57migrated:true,v57onboarding:false,tav:{st:0,coll:{}}};
             localStorage.setItem('azeroth-ab-setup-v5',normal);
@@ -69,7 +69,7 @@ def run(browser, label, viewport):
         }""", {'key': KEY, 'normal': NORMAL})
         page.reload(wait_until='domcontentloaded')
         enter()
-        page.locator('#w-hero').get_by_role('button', name='Умения и особенности', exact=True).click()
+        page.locator('#w-hero').get_by_role('button', name='Таланты и дополнительные сведения', exact=True).click()
         expect(rank_button).to_contain_text('0/3')
         rank_button.scroll_into_view_if_needed()
         before_preview = page.evaluate('(key) => localStorage.getItem(key)', KEY)
@@ -103,7 +103,7 @@ def run(browser, label, viewport):
         gear.get_by_role('button', name='Закрыть', exact=True).click()
         page.reload(wait_until='domcontentloaded')
         enter()
-        page.locator('#w-hero').get_by_role('button', name='Умения и особенности', exact=True).click()
+        page.locator('#w-hero').get_by_role('button', name='Таланты и дополнительные сведения', exact=True).click()
         expect(rank_button).to_contain_text('1/3')
         verify(1)
         assert not errors, errors

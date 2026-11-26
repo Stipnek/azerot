@@ -1,7 +1,5 @@
 name: Pocket Azeroth entry preview
 on:
-  push:
-    branches: ['work/pocket-entry-screen']
   pull_request:
     branches: ['main']
     paths: ['src/entry/**', 'src/assets/entry/**', 'scripts/*entry_preview.py', 'scripts/build_game.py', 'src/build-info.js', 'scripts/coin_assets.py', 'scripts/audit_release_abilities.cjs', 'scripts/lib_engine_load.cjs', 'src/scripts/**', '.github/workflows/pocket-entry-screen.yml']

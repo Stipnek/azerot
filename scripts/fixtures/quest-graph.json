@@ -1,0 +1,809 @@
+{
+ "source": "Runtime QUESTS of preview/combined.html (all zones), dumped by scripts/dump_quest_graph.cjs. Regenerate after quest changes.",
+ "quests": [
+  {
+   "k": "kobold_camp",
+   "z": "elwynn",
+   "need": []
+  },
+  {
+   "k": "wolves",
+   "z": "elwynn",
+   "need": [],
+   "minLevel": 1
+  },
+  {
+   "k": "thieves",
+   "z": "elwynn",
+   "need": []
+  },
+  {
+   "k": "echo_scout",
+   "z": "elwynn",
+   "need": [
+    "kobold_camp"
+   ]
+  },
+  {
+   "k": "echo_raid",
+   "z": "elwynn",
+   "need": [
+    "echo_scout"
+   ]
+  },
+  {
+   "k": "garrick",
+   "z": "elwynn",
+   "need": [
+    "thieves"
+   ]
+  },
+  {
+   "k": "necklace",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "pie",
+   "z": "elwynn",
+   "need": [
+    "necklace"
+   ]
+  },
+  {
+   "k": "goldtooth",
+   "z": "elwynn",
+   "need": [
+    "pie"
+   ]
+  },
+  {
+   "k": "fargo",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "gold_dust",
+   "z": "elwynn",
+   "need": [
+    "fargo"
+   ]
+  },
+  {
+   "k": "jasper",
+   "z": "elwynn",
+   "need": [
+    "fargo"
+   ]
+  },
+  {
+   "k": "princess",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "gnolls",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "manhunt",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "hogger",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ]
+  },
+  {
+   "k": "dungeon:deadmines",
+   "z": "westfall",
+   "need": [
+    "db4"
+   ]
+  },
+  {
+   "k": "wf_pie",
+   "z": "westfall",
+   "need": [
+    "hogger"
+   ]
+  },
+  {
+   "k": "wf_heirloom",
+   "z": "westfall",
+   "need": [
+    "hogger"
+   ]
+  },
+  {
+   "k": "wf_killing",
+   "z": "westfall",
+   "need": [
+    "wf_pie"
+   ]
+  },
+  {
+   "k": "wf_militia1",
+   "z": "westfall",
+   "need": [
+    "hogger"
+   ]
+  },
+  {
+   "k": "wf_patrol",
+   "z": "westfall",
+   "need": [
+    "wf_militia1"
+   ]
+  },
+  {
+   "k": "wf_stew2",
+   "z": "westfall",
+   "need": [
+    "hogger"
+   ]
+  },
+  {
+   "k": "wf_bandanas",
+   "z": "westfall",
+   "need": [
+    "wf_militia1"
+   ]
+  },
+  {
+   "k": "wf_militia2",
+   "z": "westfall",
+   "need": [
+    "wf_militia1"
+   ]
+  },
+  {
+   "k": "wf_coast1",
+   "z": "westfall",
+   "need": [
+    "wf_stew2"
+   ]
+  },
+  {
+   "k": "wf_sander4",
+   "z": "westfall",
+   "need": [
+    "wf_coast1"
+   ]
+  },
+  {
+   "k": "wf_coast2",
+   "z": "westfall",
+   "need": [
+    "wf_coast1"
+   ]
+  },
+  {
+   "k": "rr_gnolls",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 10
+  },
+  {
+   "k": "rr_tools",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 10
+  },
+  {
+   "k": "rr_assess",
+   "z": "redridge",
+   "need": [
+    "rr_gnolls"
+   ]
+  },
+  {
+   "k": "rr_goulash",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 10
+  },
+  {
+   "k": "rr_poach",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 12
+  },
+  {
+   "k": "rr_menace",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 15
+  },
+  {
+   "k": "rr_whelps",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 1
+  },
+  {
+   "k": "rr_fangore",
+   "z": "redridge",
+   "need": [
+    "rr_assess"
+   ]
+  },
+  {
+   "k": "rr_tharil",
+   "z": "redridge",
+   "need": [
+    "rr_menace"
+   ]
+  },
+  {
+   "k": "rr_morganth",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 1
+  },
+  {
+   "k": "db3",
+   "z": "westfall",
+   "need": [
+    "rr_assess",
+    "rr_menace"
+   ]
+  },
+  {
+   "k": "db4",
+   "z": "westfall",
+   "need": [
+    "db3"
+   ],
+   "minLevel": 1
+  },
+  {
+   "k": "cl_watch1",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 18,
+   "goals": [
+    {
+     "enemy": "v56_skw",
+     "count": 8
+    },
+    {
+     "enemy": "v56_skm",
+     "count": 6
+    }
+   ]
+  },
+  {
+   "k": "cl_watch2",
+   "z": "duskwood",
+   "need": [
+    "cl_watch1"
+   ],
+   "minLevel": 18,
+   "goals": [
+    {
+     "enemy": "v56_fiend",
+     "count": 15
+    },
+    {
+     "enemy": "v56_horror",
+     "count": 15
+    }
+   ]
+  },
+  {
+   "k": "cl_watch3",
+   "z": "duskwood",
+   "need": [
+    "cl_watch2"
+   ],
+   "minLevel": 18,
+   "goals": [
+    {
+     "enemy": "v56_plague",
+     "count": 20
+    }
+   ]
+  },
+  {
+   "k": "cl_cakes",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 17,
+   "goals": [
+    {
+     "enemy": "dw_spider",
+     "count": 6
+    }
+   ]
+  },
+  {
+   "k": "cl_spiders",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 17,
+   "goals": [
+    {
+     "enemy": "dw_spider",
+     "count": 15
+    }
+   ]
+  },
+  {
+   "k": "cl_wolves",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 18,
+   "goals": [
+    {
+     "enemy": "dw_wolf",
+     "count": 12
+    },
+    {
+     "enemy": "v56_rabid",
+     "count": 8
+    }
+   ]
+  },
+  {
+   "k": "cl_totem",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 18,
+   "goals": [
+    {
+     "enemy": "dw_ghoul",
+     "count": 10
+    },
+    {
+     "enemy": "dw_skeleton",
+     "count": 10
+    },
+    {
+     "enemy": "dw_spider",
+     "count": 5
+    }
+   ]
+  },
+  {
+   "k": "cl_kabobs",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 18,
+   "goals": [
+    {
+     "enemy": "dw_wolf",
+     "count": 10
+    }
+   ]
+  },
+  {
+   "k": "cl_emb7",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 20,
+   "goals": [
+    {
+     "enemy": "dw_skeleton",
+     "count": 8
+    }
+   ]
+  },
+  {
+   "k": "cl_emb9",
+   "z": "duskwood",
+   "need": [
+    "cl_emb7"
+   ],
+   "minLevel": 20,
+   "goals": [
+    {
+     "enemy": "dw_ghoul",
+     "count": 7
+    }
+   ]
+  },
+  {
+   "k": "cl_emb10",
+   "z": "duskwood",
+   "need": [
+    "cl_emb9"
+   ],
+   "minLevel": 20,
+   "goals": [
+    {
+     "enemy": "dw_ogre",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "k": "cl_emb15",
+   "z": "duskwood",
+   "need": [
+    "cl_emb10"
+   ],
+   "minLevel": 20,
+   "goals": [
+    {
+     "enemy": "v56_eliza",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "k": "cl_stalvan13",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 22,
+   "goals": [
+    {
+     "enemy": "v56_stalvan",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "k": "cl_grave3",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 20,
+   "goals": [
+    {
+     "enemy": "dw_morladim",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "k": "cl_worgen1",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 23,
+   "goals": [
+    {
+     "enemy": "v56_weaver",
+     "count": 6
+    }
+   ]
+  },
+  {
+   "k": "cl_worgen2",
+   "z": "duskwood",
+   "need": [
+    "cl_worgen1"
+   ],
+   "minLevel": 23,
+   "goals": [
+    {
+     "enemy": "v56_runner",
+     "count": 12
+    }
+   ]
+  },
+  {
+   "k": "cl_worgen3",
+   "z": "duskwood",
+   "need": [
+    "cl_worgen2"
+   ],
+   "minLevel": 23,
+   "goals": [
+    {
+     "enemy": "v56_fang",
+     "count": 8
+    },
+    {
+     "enemy": "v56_tainted",
+     "count": 8
+    }
+   ]
+  },
+  {
+   "k": "cl_sven8",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 20,
+   "goals": [
+    {
+     "enemy": "v56_raider",
+     "count": 15
+    },
+    {
+     "enemy": "v56_healer",
+     "count": 3
+    },
+    {
+     "enemy": "v56_warder",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "k": "cl_sven15",
+   "z": "duskwood",
+   "need": [
+    "cl_sven8"
+   ],
+   "minLevel": 20,
+   "goals": [
+    {
+     "enemy": "v56_morbent",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "k": "cl_stars3",
+   "z": "duskwood",
+   "need": [],
+   "minLevel": 20,
+   "goals": [
+    {
+     "enemy": "v56_insane",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "k": "cl_stars4",
+   "z": "duskwood",
+   "need": [
+    "cl_stars3"
+   ],
+   "minLevel": 20,
+   "goals": [
+    {
+     "enemy": "v56_zzarc",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "k": "ef_candles",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "kobold",
+     "count": 8
+    }
+   ]
+  },
+  {
+   "k": "ef_kelp",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "murloc",
+     "count": 4
+    }
+   ]
+  },
+  {
+   "k": "ef_linen",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "thief",
+     "count": 6
+    }
+   ]
+  },
+  {
+   "k": "ef_frontier",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "wolf",
+     "count": 8
+    },
+    {
+     "enemy": "v56_bear",
+     "count": 5
+    }
+   ]
+  },
+  {
+   "k": "ef_bounty",
+   "z": "elwynn",
+   "need": [
+    "echo_raid"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "murloc",
+     "count": 8
+    }
+   ]
+  },
+  {
+   "k": "wf_militia3",
+   "z": "westfall",
+   "need": [
+    "wf_militia2"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "looter",
+     "count": 15
+    },
+    {
+     "enemy": "trapper",
+     "count": 15
+    },
+    {
+     "enemy": "pillager",
+     "count": 5
+    }
+   ]
+  },
+  {
+   "k": "wf_silk",
+   "z": "westfall",
+   "need": [
+    "db4",
+    "wf_bandanas"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "pillager",
+     "count": 10
+    }
+   ]
+  },
+  {
+   "k": "rr_baying",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "gnollRunt",
+     "count": 10
+    }
+   ]
+  },
+  {
+   "k": "rr_howler",
+   "z": "redridge",
+   "need": [
+    "rr_baying"
+   ],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "v56_howler",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "k": "rr_bridge",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "gnollRunt",
+     "count": 5
+    },
+    {
+     "enemy": "gnollMiner",
+     "count": 5
+    }
+   ]
+  },
+  {
+   "k": "rr_fish",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "murlocWarrior",
+     "count": 10
+    }
+   ]
+  },
+  {
+   "k": "rr_shadow",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "orcGrunt",
+     "count": 3
+    }
+   ]
+  },
+  {
+   "k": "rr_law",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "gnollMiner",
+     "count": 10
+    }
+   ]
+  },
+  {
+   "k": "rr_gath",
+   "z": "redridge",
+   "need": [],
+   "minLevel": 1,
+   "goals": [
+    {
+     "enemy": "v56_gath",
+     "count": 1
+    }
+   ]
+  },
+  {
+   "k": "tutorial57_train",
+   "z": "elwynn",
+   "need": [],
+   "intro": true
+  },
+  {
+   "k": "tutorial57_hire",
+   "z": "elwynn",
+   "need": [
+    "tutorial57_train"
+   ],
+   "intro": true
+  },
+  {
+   "k": "tutorial57_party",
+   "z": "elwynn",
+   "need": [
+    "tutorial57_hire"
+   ],
+   "intro": true
+  },
+  {
+   "k": "tutorial57_team",
+   "z": "elwynn",
+   "need": [
+    "tutorial57_train",
+    "tutorial57_party"
+   ],
+   "intro": true
+  }
+ ]
+}

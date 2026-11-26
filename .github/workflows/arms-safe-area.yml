@@ -1,7 +1,5 @@
 name: Arms inspector safe area
 on:
-  push:
-    branches: [work/arms-inspector-safe-area]
   pull_request:
     paths: ['src/**', 'scripts/**', '.github/workflows/arms-safe-area.yml']
 permissions:

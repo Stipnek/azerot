@@ -1,7 +1,7 @@
 name: CSS round-trip check
 on:
   push:
-    branches: ['test/css-roundtrip', 'main']
+    branches: ['main']
   pull_request:
     branches: ['main']
 permissions:

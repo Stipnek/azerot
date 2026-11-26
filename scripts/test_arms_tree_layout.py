@@ -11,7 +11,7 @@ NORMAL = '{"chars":[],"sound":false,"marker":"KEEP_NORMAL_LAYOUT"}'
 VIEWPORTS = {'desktop': {'width': 1280, 'height': 800}, 'mobile': {'width': 390, 'height': 844}, 'landscape': {'width': 750, 'height': 342}}
 SEED = """({key, normal}) => {
  const hero={id:'layout-test',name:'Тест дерева',race:'human',cls:'warrior',level:15,
- hxp:{me:Battle.xpAt(15)},party:['me'],specs:{me:'arms',warrior:'arms'},armsTalents:{},
+ xpCurve:2,hxp:{me:Battle.xpAt(15)},party:['me'],specs:{me:'arms',warrior:'arms'},armsTalents:{},
  items:{},gear:{},money:0,q:{},zone:'elwynn',at:'goldshire',intro:{elwynn:1},
  v57migrated:true,v57onboarding:false,tav:{st:0,coll:{}}};
  localStorage.setItem('azeroth-ab-setup-v5',normal);
@@ -45,7 +45,7 @@ def run(browser,label,viewport):
  page.on('pageerror',lambda e: errors.append(str(e)))
  page.route('https://**/*',lambda route: route.abort())
  page.route('**/favicon.ico',lambda route: route.fulfill(status=204,body=''))
- dialog=page.locator('#w-hero dialog[aria-label="Умения и особенности"]')
+ dialog=page.locator('#w-hero dialog[aria-label="Таланты и дополнительные сведения"]')
  insp=dialog.locator('[data-arms-inspector]')
  node=lambda key: dialog.locator(f'[data-arms-node="{key}"]:not([data-arms-delta])')
  saved=lambda: page.evaluate('k=>(JSON.parse(localStorage.getItem(k)).chars[0].armsTalents||{})',KEY)
@@ -67,7 +67,7 @@ def run(browser,label,viewport):
   root=page.locator('#pa-entry'); expect(root).to_have_attribute('data-state','ready')
   page.locator('#pa-enter').click(); expect(root).to_be_hidden(); page.locator('#sel-enter').click()
   page.locator('#bnav [data-tab="hero"]').click()
-  page.locator('#w-hero').get_by_role('button',name='Умения и особенности',exact=True).click()
+  page.locator('#w-hero').get_by_role('button',name='Таланты и дополнительные сведения',exact=True).click()
   expect(dialog).to_be_visible()
  try:
   page.goto(URL,wait_until='domcontentloaded',timeout=90000)

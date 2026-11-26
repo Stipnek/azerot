@@ -1,7 +1,5 @@
 name: Equipment UI browser checks
 on:
-  push:
-    branches: ['work/pocket-entry-screen']
   pull_request:
     branches: ['main']
     paths: ['src/**', 'scripts/test_equipment_browser.py', 'scripts/build_game.py', 'scripts/coin_assets.py', '.github/workflows/equipment-ui-ci.yml']
