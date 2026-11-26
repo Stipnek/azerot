@@ -169,7 +169,7 @@ def run(browser, label, options):
         page.wait_for_function('!!(window.Battle && Battle.armsIntegrated)')
         page.evaluate("""({key, normal, ids, names}) => {
             const chars=ids.map((id,i)=>({id,name:names[i],cls:'warrior',race:'human',level:15,
-                hxp:{me:Battle.xpAt(15)},specs:{me:'arms',warrior:'arms'},party:['me'],armsTalents:{},
+                xpCurve:2,hxp:{me:Battle.xpAt(15)},specs:{me:'arms',warrior:'arms'},party:['me'],armsTalents:{},
                 money:0,items:{},gear:{},tav:{st:0,coll:{}},q:{},v57migrated:true,v57onboarding:false,
                 intro:{elwynn:1},zone:'elwynn',at:'goldshire',pos:{x:44.7,y:45.8}}));
             localStorage.setItem('azeroth-ab-setup-v5',normal);

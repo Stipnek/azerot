@@ -69,7 +69,7 @@ def run(browser, label, viewport):
         page.wait_for_function('!!window.Battle')
         page.evaluate("""({key, items}) => {
             const hero={id:'equipment-browser',name:'Проверка сумки',race:'human',cls:'warrior',level:20,
-                hxp:{me:Battle.xpAt(20)},party:['me'],specs:{me:'prot'},items,gear:{chest:910001},
+                xpCurve:2,hxp:{me:Battle.xpAt(20)},party:['me'],specs:{me:'prot'},items,gear:{chest:910001},
                 money:123,q:{},zone:'elwynn',at:'goldshire',intro:{elwynn:1},
                 v57migrated:true,v57onboarding:false,tav:{st:0,coll:{}}};
             localStorage.setItem(key,JSON.stringify({chars:[hero],cur:hero.id,sound:false,compAll:false}));

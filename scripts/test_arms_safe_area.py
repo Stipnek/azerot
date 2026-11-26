@@ -41,7 +41,7 @@ def run(browser,label,viewport):
         page.goto(URL,wait_until='domcontentloaded')
         page.wait_for_function('!!(window.Battle&&Battle.armsIntegrated)')
         page.evaluate("""k=>{
-          const h={id:'safe-area',name:'Safe area',race:'human',cls:'warrior',level:15,hxp:{me:Battle.xpAt(15)},party:['me'],
+          const h={id:'safe-area',name:'Safe area',race:'human',cls:'warrior',level:15,xpCurve:2,hxp:{me:Battle.xpAt(15)},party:['me'],
             specs:{me:'arms',warrior:'arms'},armsTalents:{},items:{},gear:{},money:0,q:{},zone:'elwynn',at:'goldshire',
             intro:{elwynn:1},v57migrated:true,v57onboarding:false,tav:{st:0,coll:{}}};
           localStorage.setItem('azeroth-ab-setup-v5','KEEP_SAFE_AREA_NORMAL');

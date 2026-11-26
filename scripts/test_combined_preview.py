@@ -61,7 +61,7 @@ def run(browser, label, viewport):
         assert page.evaluate('window.__AZEROT_ARMS_HERO__ === true')
         page.evaluate("""({key, normal}) => {
             const hero={id:'combined-test',name:'Общий тест',race:'human',cls:'warrior',level:15,
-                hxp:{me:Battle.xpAt(15)},party:['me'],specs:{me:'arms',warrior:'arms'},armsTalents:{},
+                xpCurve:2,hxp:{me:Battle.xpAt(15)},party:['me'],specs:{me:'arms',warrior:'arms'},armsTalents:{},
                 items:{910001:1,910002:1},gear:{},money:0,q:{},zone:'elwynn',at:'goldshire',
                 intro:{elwynn:1},v57migrated:true,v57onboarding:false,tav:{st:0,coll:{}}};
             localStorage.setItem('azeroth-ab-setup-v5',normal);

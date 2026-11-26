@@ -25,7 +25,7 @@ def run(browser,url,label,size,profile,identity):
   page.goto(url,wait_until='domcontentloaded',timeout=90000)
   page.wait_for_function('!!(window.Battle&&Battle.armsIntegrated)')
   page.evaluate("""({key,normal,marker,cls,spec,level})=>{
-   const h={id:'hero-ui',name:'UI регрессия',cls,race:'human',level,hxp:{me:Battle.xpAt(level)},
+   const h={id:'hero-ui',name:'UI регрессия',cls,race:'human',level,xpCurve:2,hxp:{me:Battle.xpAt(level)},
     specs:{me:spec,[cls]:spec},party:['me'],armsTalents:{},items:{},gear:{},money:0,q:{},
     zone:'elwynn',at:'goldshire',intro:{elwynn:1},v57migrated:true,v57onboarding:false,tav:{st:0,coll:{}}};
    localStorage.setItem(normal,marker);localStorage.setItem(key,JSON.stringify({chars:[h],cur:h.id,sound:false,compAll:false}));

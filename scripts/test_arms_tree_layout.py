@@ -11,7 +11,7 @@ NORMAL = '{"chars":[],"sound":false,"marker":"KEEP_NORMAL_LAYOUT"}'
 VIEWPORTS = {'desktop': {'width': 1280, 'height': 800}, 'mobile': {'width': 390, 'height': 844}, 'landscape': {'width': 750, 'height': 342}}
 SEED = """({key, normal}) => {
  const hero={id:'layout-test',name:'Тест дерева',race:'human',cls:'warrior',level:15,
- hxp:{me:Battle.xpAt(15)},party:['me'],specs:{me:'arms',warrior:'arms'},armsTalents:{},
+ xpCurve:2,hxp:{me:Battle.xpAt(15)},party:['me'],specs:{me:'arms',warrior:'arms'},armsTalents:{},
  items:{},gear:{},money:0,q:{},zone:'elwynn',at:'goldshire',intro:{elwynn:1},
  v57migrated:true,v57onboarding:false,tav:{st:0,coll:{}}};
  localStorage.setItem('azeroth-ab-setup-v5',normal);

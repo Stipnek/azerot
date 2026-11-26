@@ -104,7 +104,7 @@ for (const s of route) { if (s.dungeon) { console.log(`| deadmines run | dungeon
   console.log(`| ${s.k} | ${s.type}/${s.size} | ${s.encLevel} | ${f.mainLevel}/${s.compLevel} | ${f.enemies.join(', ')}${f.count > 1 ? ' ×' + f.count + ' fights' : ''} | ${pct(f.result.win)} | ${f.result.worst} | ${pct(f.result.lost)} |`);
 }
 }
-const zoneEnd = {}; for (const r of route) zoneEnd[r.zone] = r.levelAfter || r.mainLevel;
+const zoneEnd = {}; for (const r of route) if (!r.dungeon) zoneEnd[r.zone] = r.levelAfter;
 console.log('\nLevel at the end of each zone: ' + Object.entries(zoneEnd).map(([z, l]) => z + ' ' + l).join(', ') + '; Deadmines runs: ' + route.filter(r => r.dungeon && !r.dungeon.stuck).length);
 console.log('Level after the last quest: main ' + B.levelOf(xpMain) + ' (' + xpMain + ' XP), companion ' + B.levelOf(xpComp));
 if (jsonOut) require('node:fs').writeFileSync(jsonOut, JSON.stringify({ N, soloCurve: B.SOLO_ENEMY_CURVE, feel, route }, null, 1));
