@@ -1,5 +1,7 @@
 # Общая кривая силы врагов — отчёт (2026-11-23)
 
+> **Статус 2026-11-26:** кривая врагов и сдвиг уровней влиты в main и опубликованы. Пять ключей сдвига написаны с ошибкой и не применяются. Открытые решения — в [OPEN-WORK](OPEN-WORK.md) (BAL-01…BAL-04).
+
 Статус: тестовая ветка `work/enemy-curve` от `work/first-quests-balance`. Не слито, не опубликовано, `main` не менялся.
 Заменяет временное ослабление пяти квестов (×0.6/×0.7, копии врагов `*_e60`/`*_e70`) одной общей кривой.
 
@@ -126,4 +128,4 @@ ENEMY_CURVE='{"full":15,"hp":0.45,"atk":0.40,"pow":2}' ONLY_SOLO_EARLY=1 node sc
 | Учебный набор 2/5/9 | `script-05.zzz-neutral-training.edits.json`, `script-05.zzzz-neutral-training-runtime.edits.json` |
 | Применение правок | `scripts/build_game.py`, `scripts/lib_engine_load.cjs` (тесты), проверка — `scripts/check_source_edits.py` |
 | Тесты | `scripts/test_*.cjs` (Node), `scripts/test_combined_preview.py`, `scripts/test_neutral_training_combined.py` (Playwright, в CI) |
-| Отчёт по балансу | `scripts/sim_enemy_curve.cjs`; полная таблица — `docs/enemy-curve-sim-2026-11-23.md` |
+| Отчёт по балансу | `scripts/sim_enemy_curve.cjs`; полная таблица — `docs/archive/enemy-curve-sim-2026-11-23.md` |

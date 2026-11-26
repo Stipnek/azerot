@@ -1,5 +1,7 @@
 # Temporary integrated Arms rules — cap 30
 
+> **Status 2026-11-26:** the release workflow publishes the combined build, which includes the integrated hero mode with these temporary rules. Statements below that this is preview-only, test-only or unpublished describe their own date. Open items are tracked in [OPEN-WORK](OPEN-WORK.md) (ARMS-01).
+
 Reconciled: 2026-11-24 against source checkpoint `2c2fc62a4d6ebddaf8ac846f399a56fe3d1ee156`. Original reviewed baseline: `567ce1b2cdd465df7be7c3836535f7c797098dbe`.
 
 ## Status and boundary

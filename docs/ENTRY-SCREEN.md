@@ -1,5 +1,7 @@
 # Pocket Azeroth entry screen
 
+> **Status 2026-11-26:** the release workflow publishes the combined build, which includes this entry screen. Statements below that this is preview-only, test-only or unpublished describe their own date. Open items are tracked in [OPEN-WORK](OPEN-WORK.md) (ENTRY-01).
+
 Updated: 2026-11-24. Source checkpoint: `2c2fc62a4d6ebddaf8ac846f399a56fe3d1ee156`. Related: issue #22 and the audit recorded in closed PR #11.
 
 ## Build modes

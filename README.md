@@ -21,14 +21,8 @@ The repository has no licence file. No licence is granted for third-party materi
 5. If a file was retrieved only partially, record that limitation and obtain the missing content before treating its review as complete.
 6. The presence of code does not establish successful tests or deployment. Report what was read, changed, tested, and published separately.
 
-A complete source map and documentation catalog are still being prepared. This section is an initial reading guide, not a complete or verified map of the project.
-
 ## Documentation
-- [Initial documentation navigation and review status](docs/INDEX.md)
-- [Branding and rename boundaries](docs/BRANDING.md)
-- [Commitment audit and open verification work](docs/CHAT-AUDIT.md)
-- [Development guide and earlier agreements](DEVELOPMENT.md)
-- [Design overview](docs/design.md)
-- [Bottom navigation and dungeon layout correction](docs/design-layout-correction.md)
-- [World-map travel hint](docs/design-world-travel.md)
-- [Deadmines loot](docs/loot/deadmines.md)
+- [Documentation index](docs/INDEX.md): the single catalogue of current and archived documents
+- [How we work](docs/WORKFLOW.md): branches, pull requests, checks, release and AI helpers
+- [Open work register](docs/OPEN-WORK.md): every requirement, decision and its status
+- [Development guide](DEVELOPMENT.md): build, source layout and the release pipeline

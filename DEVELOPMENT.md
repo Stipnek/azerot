@@ -4,7 +4,7 @@ Updated: 2026-11-24. Reconciled against `2c2fc62a4d6ebddaf8ac846f399a56fe3d1ee15
 
 ## Source of truth
 
-Start with [the documentation index](docs/README.md), [design](docs/design.md) and [open requirements](docs/OPEN-WORK.md). Read current sources before editing; do not rebuild the project from old chat summaries. Technical documentation is maintained in English; existing Russian design records and game UI are preserved.
+Start with [the documentation index](docs/INDEX.md), [design](docs/design.md) and [open requirements](docs/OPEN-WORK.md). Read current sources before editing; do not rebuild the project from old chat summaries. Technical documentation is maintained in English; existing Russian design records and game UI are preserved.
 
 Historical requirements from the previous guide remain available in [its checkpoint version](https://github.com/Stipnek/azerot/blob/2c2fc62a4d6ebddaf8ac846f399a56fe3d1ee156/DEVELOPMENT.md). They are not cancelled by this rewrite. The old working-branch assignment, production architecture and blanket pending-implementation labels are not current status reports. Reconcile requirements individually in OPEN-WORK rather than copying a second backlog here.
 

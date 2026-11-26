@@ -1,5 +1,7 @@
 # Own-level specialization transition: scope and history
 
+> **Status 2026-11-26:** the release workflow publishes the combined build, which includes the integrated hero mode with the own-level-15 transition. Statements below that this is preview-only, test-only or unpublished describe their own date. Open items are tracked in [OPEN-WORK](OPEN-WORK.md) (SPEC-01).
+
 Reconciled: 2026-11-24 against source checkpoint `2c2fc62a4d6ebddaf8ac846f399a56fe3d1ee156`. Documentation changes are on `docs/documentation-refresh`, not yet merged.
 
 ## Later source evidence

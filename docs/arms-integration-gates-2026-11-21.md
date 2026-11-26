@@ -1,5 +1,7 @@
 # Arms hero integration gates: decisions and history
 
+> **Status 2026-11-26:** the release workflow publishes the combined build, which includes the integrated hero mode (`__AZEROT_ARMS_HERO__=true`). Statements below that this is preview-only, test-only or unpublished describe their own date. Open items are tracked in [OPEN-WORK](OPEN-WORK.md) (ARMS-01, ARMS-02).
+
 Reconciled: 2026-11-24. Source checkpoint: `2c2fc62a4d6ebddaf8ac846f399a56fe3d1ee156`. This update changes documentation only; it neither executes tests nor confirms deployment.
 
 ## Current reading of the original gates

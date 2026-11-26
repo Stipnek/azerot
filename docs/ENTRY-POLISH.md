@@ -1,5 +1,7 @@
 # Entry screen: first polish patch history
 
+> **Status 2026-11-26:** the release workflow publishes the combined build, which includes this entry screen. Statements below that this is preview-only, test-only or unpublished describe their own date. Open items are tracked in [OPEN-WORK](OPEN-WORK.md) (ENTRY-01).
+
 Status: historical implementation record, reconciled 2026-11-24. Use [ENTRY-SCREEN.md](ENTRY-SCREEN.md) for the current build boundary and [ENTRY-ARTWORK.md](ENTRY-ARTWORK.md) for selected assets.
 
 The first patch addressed the Computer review of implementation `4ad1a05` without redesigning game entry or audio persistence:

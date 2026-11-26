@@ -1,5 +1,7 @@
 # Entry artwork
 
+> **Status 2026-11-26:** the release workflow publishes the combined build, which includes this entry screen and artwork. Statements below that this is preview-only, test-only or unpublished describe their own date. Open items are tracked in [OPEN-WORK](OPEN-WORK.md) (ENTRY-01).
+
 Updated: 2026-11-24. Selected original PNGs:
 
 - Portrait: `src/assets/entry/image-2.png`, 852x1846, Git blob `36a9ba0f1cf5402514e9145e3374457daf3d386c`.
