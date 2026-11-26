@@ -39,7 +39,7 @@ Candidate (branch `claude/loving-cannon-ykm747`, not merged):
 2. `script-05.zzzzz-first-quests-level-shift.edits.json`: five misspelled keys fixed (BAL-02), so kobold_camp is level 1, echo_scout/echo_raid 2, gold_dust 4, lost_guards 6 as PR 18 intended. Without this the first level-2 quest is taken at level 1 with no abilities (3% wins).
 3. `script-06.…-bal04-solo-fights.edits.json`: ambushes and goal fights use the same two-enemy cap; the enemy summary shows solo-curve numbers.
 
-Tool: `scripts/sim_campaign.cjs` (fight feel table + campaign path from `scripts/fixtures/early-quest-graph.json`, own level from XP). Results N=60: [before](sim-before-2026-11-26.md), [after](sim-after-2026-11-26.md).
+Tool: `scripts/sim_campaign.cjs` (fight feel table + campaign path from `scripts/fixtures/quest-graph.json`, own level from XP). Results N=60: [before](sim-before-2026-11-26.md), [after](sim-after-2026-11-26.md).
 
 After, in short: enemies die in 3.4–5 hits; one enemy costs 8–25% HP; two cost 40–65% for most enemy types; three at the same level win 25–55%, at +2 levels ~80%. Campaign path: every solo quest ≥87% average wins except wf_heirloom (two gnoll runts, 65%) and wf_bandanas (looter + trapper, 58%).
 

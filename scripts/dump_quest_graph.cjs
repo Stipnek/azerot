@@ -1,5 +1,5 @@
 'use strict';
-// Regenerates scripts/fixtures/early-quest-graph.json from the built game (report tooling, not a test).
+// Regenerates scripts/fixtures/quest-graph.json from the built game (report tooling, not a test).
 // Run: python3 scripts/build_combined_preview.py && node scripts/dump_quest_graph.cjs
 // Loads an in-memory copy of preview/combined.html in Chromium (isolated context, no saves) with one debug line
 // exposing the closure QUESTS/PLACES; the source and the build on disk are not changed.
@@ -17,7 +17,7 @@ fs.writeFileSync(file, html);
   await p.goto('file://' + file); await p.waitForFunction(() => window.__dbg, null, { timeout: 60000 });
   const q = await p.evaluate(() => window.__dbg.QUESTS.map(q => ({ k: q.k, z: (window.__dbg.PLACES[q.d] || {}).z, need: q.need || [], minLevel: q.minLevel || 0, goals: q.goals ? q.goals.map(g => ({ enemy: g.enemy, count: g.count })) : null, intro: !!q.v57intro })));
   await b.close(); fs.rmSync(tmp, { recursive: true, force: true });
-  const quests = q.filter(x => x.z === 'elwynn' || x.z === 'westfall').map(x => { const o = { k: x.k, z: x.z, need: x.need }; if (x.minLevel) o.minLevel = x.minLevel; if (x.goals) o.goals = x.goals; if (x.intro) o.intro = true; return o; });
-  fs.writeFileSync(path.join(__dirname, 'fixtures/early-quest-graph.json'), JSON.stringify({ source: 'Runtime QUESTS of preview/combined.html (Elwynn and Westfall), dumped by scripts/dump_quest_graph.cjs. Regenerate after quest changes.', quests }, null, 1) + '\n');
+  const quests = q.filter(x => x.z).map(x => { const o = { k: x.k, z: x.z, need: x.need }; if (x.minLevel) o.minLevel = x.minLevel; if (x.goals) o.goals = x.goals; if (x.intro) o.intro = true; return o; });
+  fs.writeFileSync(path.join(__dirname, 'fixtures/quest-graph.json'), JSON.stringify({ source: 'Runtime QUESTS of preview/combined.html (all zones), dumped by scripts/dump_quest_graph.cjs. Regenerate after quest changes.', quests }, null, 1) + '\n');
   console.log('quests:', quests.length);
 })().catch(e => { console.error(e); process.exit(1); });
