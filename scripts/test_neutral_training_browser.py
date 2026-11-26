@@ -112,7 +112,9 @@ def run_case(browser,label,options,cls):
     folder.mkdir(parents=True,exist_ok=True)
     context=browser.new_context(**options)
     context.add_init_script(OBSERVER)
-    context.tracing.start(screenshots=True,snapshots=True,sources=False)
+    trace=os.environ.get('NEUTRAL_TRACE')=='1'  # full Playwright traces are slow; enable for debugging only
+    if trace:
+        context.tracing.start(screenshots=True,snapshots=True,sources=False)
     page=context.new_page()
     page._neutral_case={'viewport':label,'class':cls,'ownLevel':None}
     page.set_default_timeout(20000)
@@ -134,7 +136,9 @@ def run_case(browser,label,options,cls):
         roll=initial['autoSpec15']['roll']
         assert 0<=roll<1 and initial['autoSpec15']['chosen'] is None
         hero_id=initial['id']
-        for level in [1,2,5,9,14,15,15]:
+        # Desktop covers the whole training path (start, live battle at 9, last training level, spec at 15 and its reload);
+        # mobile checks layout at the first and last training level and at 15. Slot logic for every level is in test_neutral_training*.cjs.
+        for level in ([1,9,14,15,15] if label=='desktop' else [1,14,15]):
             page._neutral_case['ownLevel']=level
             stage(page,'set test XP and reload')
             level_fixture(page,level)
@@ -202,7 +206,8 @@ def run_case(browser,label,options,cls):
             if status!='passed':
                 page.screenshot(path=str(folder/'failure.png'),full_page=True)
         finally:
-            context.tracing.stop(path=str(folder/'trace.zip'))
+            if trace:
+                context.tracing.stop(path=str(folder/'trace.zip'))
             context.close()
     print(json.dumps({'viewport':label,'class':cls,'status':status,'checks':checks},ensure_ascii=False),flush=True)
 
