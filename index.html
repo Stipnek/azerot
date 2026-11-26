@@ -1,60 +1,42 @@
 <!doctype html>
-<html lang="ru" data-pa-entry="loading"><head>
+<html lang="ru"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Pocket Azeroth</title>
-<style id="pa-critical">html,body{margin:0;background:#030914;color:#f5dfaa}html[data-pa-entry]{overflow:hidden}html[data-pa-entry] body>main,html[data-pa-entry] body>nav,html[data-pa-entry] body>#fsb,html[data-pa-entry] body>.rot{visibility:hidden!important}#pa-entry{position:fixed;inset:0;z-index:2147483000;background:#030914;isolation:isolate;text-align:center;color:#f5dfaa;font-family:Georgia,serif}#pa-entry[hidden],#pa-entry [hidden]{display:none!important}#pa-picture{position:absolute;inset:0;z-index:-1}#pa-art{width:100%;height:100%;object-fit:cover;object-position:center top}.pa-logo{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}#pa-entry.pa-no-art .pa-logo{clip-path:none;width:auto;height:auto;left:16px;right:16px;top:6%;font-size:40px}#pa-entry .pa-bottom{position:absolute;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);width:min(340px,calc(100% - 40px))}#pa-entry button{min-height:48px;padding:10px 20px;background:#172333;color:#f5dfaa;border:2px solid #b89545;font:20px Georgia,serif}#pa-entry .pa-progress{height:12px;background:#168de4}#pa-entry #pa-actions{opacity:1;transform:none}</style>
-<link id="pa-styles" rel="stylesheet" href="src/entry/screen.css">
+<style>html,body{margin:0;background:#030914;color:#f5dfaa;font-family:Georgia,serif}#pa-fallback{padding:24px}#pa-entry .pa-progress span.pa-real{animation:none!important;transform:none!important;width:0;transition:width .2s linear}</style>
+<!--PA_ENTRY_STYLE-->
 </head><body>
-<section id="pa-entry" role="dialog" aria-modal="true" aria-label="Pocket Azeroth" data-state="loading">
-<picture id="pa-picture"><source media="(orientation:portrait)" srcset="src/assets/entry/image-2.png"><img id="pa-art" src="src/assets/entry/image-3.png" alt="" fetchpriority="high" onerror="this.closest('section').classList.add('pa-no-art')"></picture>
-<h1 class="pa-logo">Pocket Azeroth</h1><div class="pa-bottom">
-<div id="pa-loading"><p role="status">Открываем портал…</p><div class="pa-progress" role="progressbar" aria-label="Загрузка игры"><span></span></div></div>
-<div id="pa-actions" hidden><button id="pa-enter" type="button">Войти в мир</button><button id="pa-settings-open" type="button">Настройки</button></div>
-<div id="pa-failure" hidden><p role="alert">Не удалось загрузить игру.</p><button id="pa-retry" type="button" onclick="location.reload()">Повторить</button></div><p id="pa-feedback" role="status"></p></div>
-<dialog id="pa-settings" aria-labelledby="pa-settings-title"><header><h2 id="pa-settings-title">Настройки звука</h2><button id="pa-settings-close" type="button">Закрыть</button></header><div id="pa-settings-host"></div></dialog>
-</section><noscript>Для запуска игры включите JavaScript.</noscript>
+<!--PA_ENTRY_MARKUP-->
+<p id="pa-fallback" role="status" hidden>Pocket Azeroth: загрузка…</p>
 <script>
+/* Root loader (LOAD-01): shows the release entry screen (same markup, stylesheet and approved art as the game) while the
+   game parts download with real progress, then replaces itself with the game, whose own entry screen shows the buttons. */
 (()=>{'use strict';
-function mount(){
- const $=id=>document.getElementById(id),root=$('pa-entry');
- const blocked=Array.from(document.querySelectorAll('body>main,body>nav,body>#fsb,body>.rot')).map(el=>[el,el.inert]);
- blocked.forEach(([el])=>{el.inert=true;});
- const settings=$('pa-settings');let marker=null,panel=null;
- $('pa-settings-open').onclick=()=>{panel=$('az-settings');if(!panel)return;marker=document.createComment('settings');panel.before(marker);$('pa-settings-host').append(panel);settings.showModal();};
- $('pa-settings-close').onclick=()=>settings.close();
- settings.addEventListener('close',()=>{if(marker&&panel){marker.replaceWith(panel);marker=null;panel=null;}$('pa-settings-open').focus();});
- $('pa-enter').onclick=()=>{if(root.dataset.state!=='ready'||settings.open)return;root.hidden=true;document.documentElement.removeAttribute('data-pa-entry');blocked.forEach(([el,value])=>{el.inert=value;});const target=document.querySelector('#select:not([hidden]) #sel-enter,#create:not([hidden]) #cr-go');if(target)target.focus();};
- const deadline=performance.now()+30000;
- function check(){
-  const visible=Array.from(document.querySelectorAll('#create,#select,#world')).some(el=>!el.hidden&&getComputedStyle(el).display!=='none');
-  if(visible&&window.AzerothAudio){root.dataset.state='ready';$('pa-loading').hidden=true;$('pa-actions').hidden=false;$('pa-actions').classList.add('pa-arrive');document.dispatchEvent(new Event('pointerdown',{bubbles:true}));return;}
-  if(performance.now()>deadline){root.dataset.state='error';$('pa-loading').hidden=true;$('pa-failure').hidden=false;$('pa-feedback').textContent='Игра не завершила запуск.';return;}
-  setTimeout(check,50);
- }
- check();
-}
-const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),180000),received=[0,0];
-async function download(file,i){
- const response=await fetch(file+'?v=573crest',{cache:'no-cache',signal:controller.signal});
+const SIZES=__PA_PART_BYTES__,FILES=['game-1.txt','game-2.txt'],TIMEOUT=180000;
+const $=id=>document.getElementById(id),root=$('pa-entry');
+const status=root?root.querySelector('#pa-loading p'):$('pa-fallback'),bar=root&&root.querySelector('.pa-progress span');
+if(!root)$('pa-fallback').hidden=false;
+if(bar)bar.classList.add('pa-real');
+const total=Array.isArray(SIZES)?SIZES.reduce((a,b)=>a+b,0):0,got=[0,0];
+function progress(){const n=got[0]+got[1];if(total>0){const p=Math.min(100,Math.floor(n*100/total));status.textContent='Загрузка игры · '+p+'%';if(bar)bar.style.width=p+'%';const pb=root&&root.querySelector('.pa-progress');if(pb){pb.setAttribute('aria-valuenow',String(p));pb.setAttribute('aria-valuemin','0');pb.setAttribute('aria-valuemax','100');}}else status.textContent='Загрузка игры · '+(n/1048576).toFixed(1)+' МБ';}
+function fail(text){if(!root){status.textContent='Не удалось загрузить игру: '+text;return;}root.dataset.state='error';$('pa-loading').hidden=true;$('pa-failure').hidden=false;$('pa-feedback').textContent=text;const r=$('pa-retry');r.onclick=()=>location.reload();r.focus({preventScroll:true});}
+async function download(file,i,signal){
+ const response=await fetch(file+'?v=573crest',{cache:'no-cache',signal});
  if(!response.ok)throw Error(file+' — HTTP '+response.status);
  if(i===0)window.__AZEROT_RUNNING_BUILD__=new URL(response.url,location.href).searchParams.get('v');
- if(!response.body)return new Uint8Array(await response.arrayBuffer());
+ if(!response.body){const b=new Uint8Array(await response.arrayBuffer());got[i]=b.length;progress();return b;}
  const reader=response.body.getReader(),chunks=[];
- for(;;){const {done,value}=await reader.read();if(done)break;chunks.push(value);received[i]+=value.length;document.querySelector('#pa-loading p').textContent='Загрузка игры · '+((received[0]+received[1])/1048576).toFixed(1)+' МБ';}
- const bytes=new Uint8Array(received[i]);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}return bytes;
+ for(;;){const {done,value}=await reader.read();if(done)break;chunks.push(value);got[i]+=value.length;progress();}
+ const bytes=new Uint8Array(got[i]);let off=0;for(const c of chunks){bytes.set(c,off);off+=c.length;}return bytes;
 }
-(async()=>{try{
- const parts=await Promise.all(['game-1.txt','game-2.txt'].map(download));clearTimeout(timer);
- const bytes=new Uint8Array(parts[0].length+parts[1].length);bytes.set(parts[0]);bytes.set(parts[1],parts[0].length);
- let html=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
- if(!html.includes('id="az-clean-crest"')||!html.includes('<head>')||!html.includes('<body>')||!html.includes('</body>'))throw Error('Не найдена ожидаемая сборка игры');
- document.querySelector('#pa-loading p').textContent='Подготавливаем мир…';
- const markup=document.getElementById('pa-entry').outerHTML;
- const styles=document.getElementById('pa-critical').outerHTML+document.getElementById('pa-styles').outerHTML;
- html=html.replace('<head>','<head>'+styles+'<script>document.documentElement.dataset.paEntry="loading";<\/script>');
- html=html.replace('<body>','<body>'+markup);
- const end=html.lastIndexOf('</body>');
- html=html.slice(0,end)+'<script>document.addEventListener("DOMContentLoaded",'+mount.toString()+',{once:true});<\/script>'+html.slice(end);
- document.open();document.write(html);document.close();
-}catch(error){clearTimeout(timer);controller.abort();document.getElementById('pa-loading').hidden=true;document.getElementById('pa-failure').hidden=false;document.getElementById('pa-feedback').textContent=error.name==='AbortError'?'Загрузка заняла слишком много времени.':error.message;}})();
+(async()=>{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),TIMEOUT);
+ try{
+  const parts=await Promise.all(FILES.map((f,i)=>download(f,i,controller.signal)));clearTimeout(timer);
+  if(Array.isArray(SIZES)&&parts.some((p,i)=>p.length!==SIZES[i]))throw Error('Файлы игры повреждены или устарели. Обновите страницу.');
+  const bytes=new Uint8Array(parts[0].length+parts[1].length);bytes.set(parts[0]);bytes.set(parts[1],parts[0].length);
+  const html=new TextDecoder('utf-8',{fatal:true}).decode(bytes);
+  if(!html.includes('id="az-clean-crest"'))throw Error('Не найдена ожидаемая сборка игры');
+  status.textContent='Подготавливаем мир…';
+  document.open();document.write(html);document.close();
+ }catch(error){clearTimeout(timer);controller.abort();fail(error.name==='AbortError'?'Загрузка заняла слишком много времени.':error.message);}
+})();
 })();
 </script></body></html>

@@ -61,8 +61,9 @@ Before packaging, the workflow verifies the candidate's source commit
 and SHA256 against `preview/combined-build.json`, and checks required
 integration markers.
 
-Packaging writes:
-- `_site/index.html`: the root loader with a build-specific version query;
+Packaging (`scripts/package_site.py`, also used by `scripts/test_root_loader_browser.py`) writes:
+- `_site/index.html`: the root loader with a build-specific version query, the entry-screen markup from `src/entry/screen.html` and the exact part sizes for the progress bar;
+- `_site/entry/`: `screen.css` and the two approved entry images (portrait `image-2.png`, landscape `image-3.png`) shown while the game downloads;
 - `_site/game-1.txt` and `_site/game-2.txt`: two parts generated from the
   combined candidate;
 - `_site/version.json`: the build hash and source commit.

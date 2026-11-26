@@ -55,35 +55,10 @@ jobs:
         run: python3 scripts/test_neutral_training_browser.py
       - name: Verify the exact combined HTML before packaging
         run: python3 scripts/test_combined_preview.py
+      - name: Verify the root loader against the packaged site
+        run: python3 scripts/test_root_loader_browser.py
       - name: Package tested source build
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          import hashlib, json, os
-          raw = Path('preview/combined.html').read_bytes()
-          game = raw.decode('utf-8')
-          manifest = json.loads(Path('preview/combined-build.json').read_text(encoding='utf-8'))
-          digest = hashlib.sha256(raw).hexdigest()
-          if manifest.get('sourceCommit') != os.environ['SOURCE_COMMIT'] or manifest.get('sha256', {}).get('combined.html') != digest:
-              raise SystemExit('Combined build identity changed or source commit mismatch')
-          if game.count('id="pa-entry"') != 1 or game.count('window.__AZEROT_ARMS_HERO__=true;') != 1:
-              raise SystemExit('Release must include entry and hero integration exactly once')
-          if 'id="az-clean-crest"' not in game or '</html>' not in game.lower() or 'function dmOpenLobby()' not in game:
-              raise SystemExit('Incomplete source build or missing lobby hotfix')
-          loader = Path('index.html').read_text(encoding='utf-8')
-          if loader.count('?v=573crest') != 1:
-              raise SystemExit('Loader anchor mismatch')
-          out = Path('_site')
-          out.mkdir()
-          (out / 'index.html').write_text(loader.replace('?v=573crest', '?v=' + digest), encoding='utf-8')
-          mid = len(raw) // 2
-          (out / 'game-1.txt').write_bytes(raw[:mid])
-          (out / 'game-2.txt').write_bytes(raw[mid:])
-          (out / 'version.json').write_text(json.dumps({'build':digest,'sourceCommit':os.environ['SOURCE_COMMIT']}), encoding='utf-8')
-          if (out / 'game-1.txt').read_bytes() + (out / 'game-2.txt').read_bytes() != raw:
-              raise SystemExit('Release split mismatch')
-          print('Release source:', os.environ['SOURCE_COMMIT'], 'build:', digest, 'bytes:', len(raw), 'entry and hero integration enabled')
-          PY
+        run: python3 scripts/package_site.py
       - name: Upload playable candidate after successful checks
         uses: actions/upload-artifact@v4
         with:
