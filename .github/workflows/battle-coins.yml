@@ -1,8 +1,5 @@
 name: Battle and quest reward tests
 on:
-  push:
-    branches: ['work/roster-xp-and-updates']
-    paths: ['src/**', 'scripts/**', '.github/workflows/battle-coins.yml']
   pull_request:
     branches: ['main']
     paths: ['src/**', 'scripts/**', '.github/workflows/battle-coins.yml']

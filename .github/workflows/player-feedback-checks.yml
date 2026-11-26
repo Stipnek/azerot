@@ -1,8 +1,5 @@
 name: Player feedback checks
 on:
-  push:
-    branches: [work/player-feedback-fixes, work/first-quests-balance, work/enemy-curve]
-    paths: ['src/**', 'scripts/**', '.github/workflows/player-feedback-checks.yml']
   # PRs into main (e.g. #17 feature/talent-tree-restyle). Plain pull_request (not
   # pull_request_target): PR code runs with a read-only token and no secrets.
   # github.sha here is the merge candidate refs/pull/N/merge (PR head merged onto

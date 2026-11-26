@@ -1,8 +1,5 @@
 name: Mobile portrait artwork layout
 on:
-  push:
-    branches: ['work/roster-xp-and-updates']
-    paths: ['src/**', 'scripts/**', '.github/workflows/mobile-art.yml']
   pull_request:
     branches: ['main']
     paths: ['src/**', 'scripts/**', '.github/workflows/mobile-art.yml']

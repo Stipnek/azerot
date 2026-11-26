@@ -1,8 +1,5 @@
 name: Tavern card cycle regression
 on:
-  push:
-    branches: ['work/roster-xp-and-updates']
-    paths: ['src/scripts/**', 'scripts/test_tavern_cycle.cjs', '.github/workflows/tavern-cycle.yml']
   pull_request:
     branches: ['main']
     paths: ['src/scripts/**', 'scripts/test_tavern_cycle.cjs', '.github/workflows/tavern-cycle.yml']
