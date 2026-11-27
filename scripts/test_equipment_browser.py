@@ -78,6 +78,9 @@ def run(browser, label, viewport):
         enter_and_open()
         all_items()
         baseline = saved()
+        # PLAY-05: one return control, no duplicate header «Закрыть»
+        expect(dialog.get_by_role('button', name='Закрыть', exact=True)).to_have_count(0)
+        expect(dialog.get_by_role('button', name='Назад к герою', exact=True)).to_have_count(1)
         geometry()
         page.screenshot(path=str(out / 'all-items.png'), full_page=True)
         slot('feet').click()
@@ -117,11 +120,11 @@ def run(browser, label, viewport):
         assert after.get('money', 0) == baseline.get('money', 0)
         assert after['gear'] == baseline['gear']
         slot('legs').click()
-        dialog.get_by_role('button', name='Закрыть', exact=True).click()
+        dialog.get_by_role('button', name='Назад к герою', exact=True).click()
         page.locator('#w-hero').get_by_role('button', name='Экипировка', exact=True).click()
         all_items()
         geometry()
-        dialog.get_by_role('button', name='Закрыть', exact=True).click()
+        dialog.get_by_role('button', name='Назад к герою', exact=True).click()
         page.reload(wait_until='domcontentloaded')
         enter_and_open()
         all_items()

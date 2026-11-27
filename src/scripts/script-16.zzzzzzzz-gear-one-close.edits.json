@@ -1,0 +1,16 @@
+{
+  "sourceBlobSha1": "cc5e0c7a64aacb86ed98737fdc4e9fba9d7f2907",
+  "description": "PLAY-05 (owner play-test 2026-11-27): the equipment window had two buttons doing the same thing (header «Закрыть» and bottom «Назад к герою»). Keep only the bottom «Назад к герою»; the header keeps the title so the content moves up. Apply after player-feedback (adds the bottom button).",
+  "edits": [
+    {
+      "name": "Header without a second close button",
+      "old": "head.append(title,close);status.setAttribute('role','status');d.append(head,status,root);",
+      "new": "head.append(title);status.setAttribute('role','status');d.append(head,status,root);"
+    },
+    {
+      "name": "Focus the remaining return button",
+      "old": "d.showModal();close.focus({preventScroll:true});}",
+      "new": "d.showModal();(d.querySelector('.az-gear-back')||close).focus({preventScroll:true});}"
+    }
+  ]
+}

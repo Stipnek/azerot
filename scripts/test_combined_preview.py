@@ -104,7 +104,7 @@ def run(browser, label, viewport):
         expect(gear.locator('.az-slot-tabs button[aria-pressed="true"]')).to_have_count(0)
         page.screenshot(path=str(out / 'equipment.png'), full_page=True)
         verify(1)
-        gear.get_by_role('button', name='Закрыть', exact=True).click()
+        gear.get_by_role('button', name='Назад к герою', exact=True).click()
         page.reload(wait_until='domcontentloaded')
         enter()
         open_talents()
