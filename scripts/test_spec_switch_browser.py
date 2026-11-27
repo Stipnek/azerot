@@ -26,9 +26,10 @@ try:
         for name, w, h in [('phone', 390, 844), ('desktop', 1280, 800)]:
             c = b.new_context(viewport={'width': w, 'height': h}, device_scale_factor=2 if name == 'phone' else 1); pg = c.new_page(); errors = []
             pg.on('pageerror', lambda e: errors.append(str(e)))
+            pg.add_init_script("window.__plays=[];HTMLMediaElement.prototype.play=function(){window.__plays.push(this.src.slice(0,14));return Promise.resolve();};")
             pg.route(url, lambda r: r.fulfill(status=200, content_type='text/html; charset=utf-8', body=html))
             pg.goto(url, wait_until='load', timeout=90000)
-            pg.evaluate('(d)=>{localStorage.clear();localStorage.setItem(d.k,d.v)}', {'k': KEY, 'v': json.dumps({'chars': [hero], 'cur': 'ss-hero', 'compAll': False, 'sound': False}, ensure_ascii=False)})
+            pg.evaluate('(d)=>{localStorage.clear();localStorage.setItem(d.k,d.v)}', {'k': KEY, 'v': json.dumps({'chars': [hero], 'cur': 'ss-hero', 'compAll': False, 'sound': True}, ensure_ascii=False)})
             pg.reload(wait_until='load')
             pg.locator('#sel-enter').click(timeout=30000); pg.locator('#bnav [data-tab="hero"]').wait_for(state='visible', timeout=30000)
             tab(pg, 'hero')
@@ -46,16 +47,19 @@ try:
             assert stored(pg)[0]['specs']['me'] == 'prot', 'picking alone changes nothing'
             go.click()
             bar = pg.locator('#az-spec-cast'); bar.wait_for(state='visible')
+            assert 'data:audio/ogg' not in pg.evaluate('window.__plays'), 'no spec sound during the cast'
             pg.wait_for_timeout(1500)
             assert pg.locator('#w-hero [data-spec-pick]').first.is_disabled(), 'cards locked during the cast'
             bar.screenshot(path=str(out / (name + '-cast.png')))
             bar.locator('[data-spec-cancel]').click(); pg.wait_for_timeout(300)
             assert pg.locator('#az-spec-cast').count() == 0 and all(x['specs']['me'] == 'prot' for x in stored(pg)), 'cancel keeps the spec'
+            assert 'data:audio/ogg' not in pg.evaluate('window.__plays'), 'no spec sound on cancel: %s' % pg.evaluate('window.__plays')
             # full cast
             pg.locator('#w-hero [data-spec-pick="fury"]').click(); pg.locator('#w-hero [data-spec-activate="fury"]').click()
             t0 = time.time(); pg.locator('#az-spec-cast').wait_for(state='detached', timeout=9000); took = time.time() - t0
             assert 4.0 <= took <= 7.5, 'cast takes about 5 s: %.1f' % took
             assert any(x['specs']['me'] == 'fury' for x in stored(pg)), 'switch saved'
+            assert pg.evaluate('window.__plays').count('data:audio/ogg') == 1, 'completion plays the WotLK sound (Ogg in Chromium): %s' % pg.evaluate('window.__plays')
             sel = pg.locator('#w-hero [data-spec-switch="hero"]')
             assert sel.locator('[data-spec-pick="fury"]').get_attribute('aria-checked') == 'true' and '0/21' in sel.locator('[data-tree-view]').inner_text(), 'Fury build is its own'
             assert all(x.get('specTalents', {}).get('prot') == {'shieldspec': 5, 'impbloodrage': 2, 'toughness': 1} for x in stored(pg)), 'Protection build kept'
