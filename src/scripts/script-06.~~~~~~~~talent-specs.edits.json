@@ -46,6 +46,11 @@
    "name": "Hero tree buttons count points of every live tree",
    "old": "    if (S.main === 'warrior' && S.hero) {\n      const v = B.armsIntegrated.validate(S.hero.armsTalents || {}, hLevel('me'));\n      totals[0] = v.ok ? v.spent : null;\n    }",
    "new": "    if (S.main === 'warrior' && S.hero) {\n      const v = B.armsIntegrated.validate(S.hero.armsTalents || {}, hLevel('me'));\n      totals[0] = v.ok ? v.spent : null;\n    }\n    if (S.hero && B.specTalents) rows.forEach(function (row, i) { const R = B.specTalents.rules(S.main, row[0]); if (R) totals[i] = R.validate(specTalentData(S.hero, row[0], hLevel('me')), hLevel('me')).spent; });"
+  },
+  {
+   "name": "Last Stand is visible in battle (owner 2026-11-27)",
+   "old": "      if (!e.dot && e.amt) setPose(e.tgt, 'hit', 340);\n",
+   "new": "      if (!e.dot && e.amt) setPose(e.tgt, 'hit', 340);\n      if (e.laststand) { float(e.tgt, 'Ни шагу назад!', 'crit'); glow(e.tgt, '#ffd100', 1200); } /* TALENT-03: бессмертие сработало */\n"
   }
  ]
 }

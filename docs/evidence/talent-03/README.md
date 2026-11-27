@@ -24,3 +24,7 @@ Every other spec's party columns use a Protection warrior companion as the tank;
 - Group quests (BAL-06 targets): full party on target 46/47 (before 39/47), median main HP lost 14% (before 20%); short party (2 heroes) ≤15% in 38/47 (before 40/47). The short parties that got stronger are main + Protection warrior companion at 24–30 (e.g. cl_watch1 skeleton warriors 17% → 49%, cl_sven8 raiders 15% → 53%). Ablation at cl_sven8 level 28: without Last Stand the duo wins 0–35%, with it 20–95%; the companion takes Last Stand on its line (an ability talent, owner rule), and the game resets cooldowns every fight (Classic: 10 min). Open owner decision.
 
 Files: `class-audit-before/after-2026-11-27.md`, `campaign-before/after-2026-11-27.md` (full tables).
+
+## Last Stand rework (owner, 2026-11-27)
+
+Variants simulated (duo = main + Protection companion, 7 main classes, cl_sven8 28 / cl_watch1 24 / cl_totem 25; ≤15% target): no talent 12/17/10%; Classic-like 30% buffer 46/44/34%; 15% buffer 30/30/21%; −30% damage for 2 turns 18/23/13% (if automatic); lethal hit → immortal 1 turn 35/33/24% (Protection main alone vs three: 68% → 78%); 2 turns 49/48/32% (93%). A pressed version costs the warrior a turn and is worse than no talent. Chosen: lethal hit → immortal until the next own turn, automatic, once per fight and per dungeon run. Campaign group section after the rework: short party ≤15% 37/47, full party 46/47, median main HP lost 13%. Class audit after: `class-audit-after-2026-11-27.md`.
