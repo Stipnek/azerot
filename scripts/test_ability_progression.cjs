@@ -5,26 +5,28 @@ const B = require('./lib_engine_load.cjs')();
 const P = B.abilityProgression;
 const plain = value => JSON.parse(JSON.stringify(value));
 assert.ok(P && Object.isFrozen(P));
-assert.deepEqual(plain(P.configuredProfiles), []);
+// Production schedule (owner 2026-11-27): every spec configured, two core abilities from 1, the whole kit open by 30, nothing above 30.
+assert.equal(P.configuredProfiles.length, Object.keys(B.ABILITY_UNLOCKS).length);
 let profiles = 0;
 for (const [cls, c] of Object.entries(B.CLASSES)) {
   for (const [spec, def] of Object.entries(c.specs)) {
     profiles++;
-    for (const level of [1, 9, 10, 14, 15, 20, 29, 30, 60]) {
-      assert.deepEqual(plain(P.active(cls, spec, level)), plain(def.skills));
-      const slots = P.slots(cls, spec, level);
-      assert.equal(slots.length, def.skills.length);
-      for (const slot of slots) {
-        assert.equal(slot.unlockLevel, null);
-        assert.equal(slot.source, 'legacy');
-        assert.equal(slot.available, true);
+    const plan = B.ABILITY_UNLOCKS[cls + ':' + spec];
+    assert.ok(plan, 'schedule for ' + cls + ':' + spec);
+    assert.deepEqual(Object.keys(plan).sort(), [...def.skills].sort(), 'schedule covers the kit: ' + cls + ':' + spec);
+    assert.ok(Object.values(plan).filter(l => l === 1).length >= 2, 'two core abilities from 1: ' + cls + ':' + spec);
+    assert.ok(Math.max(...Object.values(plan)) === 30, 'last ability at 30: ' + cls + ':' + spec);
+    for (const level of [1, 9, 14, 15, 20, 29, 30, 60]) {
+      assert.deepEqual(plain(P.active(cls, spec, level)), plain(def.skills.filter(id => plan[id] <= level)));
+      for (const slot of P.slots(cls, spec, level)) {
+        assert.equal(slot.unlockLevel, plan[slot.id]);
+        assert.equal(slot.source, 'level');
+        assert.equal(slot.available, level >= plan[slot.id]);
         assert.equal(slot.name, B.SKILLS[slot.id].name);
-        assert.equal(slot.description, B.SKILLS[slot.id].text);
         assert.ok(Object.isFrozen(slot));
       }
     }
-    const battle = B.createBattle({ encounter: 'daily_wf_coast', level: 30, main: cls, seed: 123, party: [{ cls, spec, level: 1, main: true }] });
-    assert.deepEqual(plain(battle.heroes[0].skills), plain(def.skills));
+    assert.deepEqual(plain(P.active(cls, spec, 30)), plain(def.skills), 'whole kit at 30: ' + cls + ':' + spec);
   }
 }
 const fixture = { 'warrior:prot': { heroicstrike: 1, taunt: 1, shieldslam: 15, thunder: 5, revenge: 20, wall: 30 } };
@@ -38,8 +40,8 @@ assert.ok(!profile.active('warrior', 'prot', 14).includes('shieldslam'));
 assert.ok(profile.active('warrior', 'prot', 15).includes('shieldslam'));
 assert.ok(!profile.active('warrior', 'prot', 3).includes('thunder'));
 assert.deepEqual(plain(profile.active('mage', 'fire', 1)), plain(B.CLASSES.mage.specs.fire.skills));
-const list = P.active('warrior', 'prot', 1); list.length = 0;
-assert.equal(P.active('warrior', 'prot', 1).length, B.CLASSES.warrior.specs.prot.skills.length);
+const list = P.active('warrior', 'prot', 30); list.length = 0;
+assert.equal(P.active('warrior', 'prot', 30).length, B.CLASSES.warrior.specs.prot.skills.length);
 const changed = { ...fixture['warrior:prot'], wall: 30 };
 assert.throws(() => P.create({ 'warrior:prot': { heroicstrike: 1 } }));
 assert.throws(() => P.create({ 'warrior:prot': { ...changed, invented: 10 } }));
@@ -48,5 +50,5 @@ assert.throws(() => P.create({ 'warrior:missing': {} }));
 assert.throws(() => P.create([]));
 assert.throws(() => P.slots('missing', 'prot', 1));
 for (const level of [0, 61, 1.5, '15', NaN]) assert.throws(() => P.slots('warrior', 'prot', level));
-assert.deepEqual(plain(P.active('warrior', 'missing', 1)), plain(B.CLASSES.warrior.specs[B.CLASSES.warrior.def].skills));
-console.log('Shared ability progression API passed; unchanged legacy profiles:', profiles);
+assert.deepEqual(plain(P.active('warrior', 'missing', 30)), plain(B.CLASSES.warrior.specs[B.CLASSES.warrior.def].skills));
+console.log('Shared ability progression API passed; production schedule profiles:', profiles);

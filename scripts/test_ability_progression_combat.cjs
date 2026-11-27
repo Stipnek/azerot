@@ -13,7 +13,7 @@ for (const [cls, c] of Object.entries(baseline.CLASSES)) {
   }
 }
 const source = load.source();
-const marker = 'const abilityProgression = makeAbilityProgression({});';
+const marker = 'const abilityProgression = makeAbilityProgression(ABILITY_UNLOCKS);';
 assert.equal(source.split(marker).length - 1, 1, 'fixture injection must match exactly once');
 const instrumented = source.replace(marker, 'const abilityProgression = makeAbilityProgression(' + JSON.stringify(rules) + ');');
 const m = {exports: {}};
@@ -42,5 +42,13 @@ for (const [cls, c] of Object.entries(B.CLASSES)) {
     }
   }
 }
-assert.deepEqual(plain(baseline.abilityProgression.configuredProfiles), [], 'synthetic fixture must not change the ordinary engine');
-console.log('Ability progression combat wiring passed:', cases, 'mixed-level party cases with synthetic schedules; production schedules unchanged');
+assert.equal(baseline.abilityProgression.configuredProfiles.length, Object.keys(baseline.ABILITY_UNLOCKS).length, 'synthetic fixture must not change the ordinary engine (production schedule stays)');
+// Production schedule (owner 2026-11-27): own level decides, everything open at 30.
+for (const [key, plan] of Object.entries(baseline.ABILITY_UNLOCKS)) {
+  const [cls, spec] = key.split(':'); if (cls === 'warrior' && spec === 'arms') continue; // integrated Arms has its own kit path
+  for (const lvl of [1, 15, 22, 30]) {
+    const st = baseline.createBattle({ encounter: 'daily_wf_coast', level: 30, main: cls, seed: 7, party: [{ cls: 'warrior', spec: 'prot', level: 30, main: true }, { cls, spec, level: lvl }] });
+    assert.deepEqual(plain(st.heroes[1].skills), plain(baseline.CLASSES[cls].specs[spec].skills.filter(id => plan[id] <= lvl)), key + ' companion at ' + lvl);
+  }
+}
+console.log('Ability progression combat wiring passed:', cases, 'mixed-level party cases with synthetic schedules and the production schedule for companions at 1/15/22/30');

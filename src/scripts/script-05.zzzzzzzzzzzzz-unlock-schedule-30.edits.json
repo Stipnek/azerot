@@ -1,0 +1,21 @@
+{
+ "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+ "description": "Owner 2026-11-27: every specialization opens its whole kit by own level up to the test cap 30 (later 50). Order from the archived unlock table (Opus 2026-11-20): two core abilities from level 1, the rest over 15-30 with the last at 30; Arms as in the integrated warrior rules. Shadowform (key talent-state, Classic 31-point talent at 40) opens at KEY_TALENT_LEVEL = 30 while the cap is 30, for companions automatically.",
+ "edits": [
+  {
+   "name": "Ability unlock schedule to 30",
+   "old": "  const abilityProgression = makeAbilityProgression({});",
+   "new": "  /* Владелец, 27 ноября: все умения спека открываются по собственному уровню к тестовому потолку 30 (позже — к 50; тогда точки растянутся).\n     Порядок — по архивной таблице открытия (docs/archive, табл. C, 20 ноября): первые два умения — ядро спека с 1 уровня\n     (главный герой до 15 всё равно учится нейтральным набором, спутники воюют своим спеком с 1 — PLAY-02), остальные — равномерно\n     на 15–30, последнее на 30. Оружие — как в утверждённых правилах интегрированного воина (Размах 20, Казнь 24, Мощный удар 30). */\n  const ABILITY_UNLOCKS = {\n    'warrior:prot': { heroicstrike: 1, taunt: 1, shieldslam: 19, thunder: 23, revenge: 26, wall: 30 },\n    'warrior:fury': { slam: 1, whirlwind: 1, bloodthirst: 20, execute: 25, deathwish: 30 },\n    'paladin:holy': { hshock: 1, holylight: 1, hoj: 23, divinefavor: 30 },\n    'paladin:prot': { holyshield: 1, pjudgement: 1, pconsecrate: 23, hoj: 30 },\n    'paladin:ret': { crusader: 1, judgement: 1, hoj: 20, seal: 25, hammer: 30 },\n    'druid:bear': { maul: 1, roar: 1, swipe: 23, regen: 30 },\n    'druid:resto': { rejuv: 1, regrowth: 1, entangle: 23, innervate: 30 },\n    'druid:cat': { shred: 1, bite: 1, rake: 23, rip: 30 },\n    'druid:balance': { wrath: 1, moonfire: 1, starfire: 23, hurricane: 30 },\n    'priest:holy': { renew: 1, holyfire: 1, holynova: 23, prayer: 30 },\n    'priest:disc': { pws: 1, smiteh: 1, powerinf: 23, pscream: 30 },\n    'priest:shadow': { mindflay: 1, swp: 1, mindblast: 23, vampembrace: 30 },\n    'mage:fire': { fireball: 1, fireblast: 1, scorch: 23, combustion: 30 },\n    'mage:arcane': { missiles: 1, arcexplosion: 1, pom: 23, arcpower: 30 },\n    'mage:frost': { frostbolt: 1, frostnova: 1, cone: 23, icebarrier: 30 },\n    'hunter:mm': { steady: 1, arcshot: 1, multishot: 20, aimed: 25, rapidfire: 30 },\n    'hunter:bm': { steady: 1, arcshot: 1, scorpid: 20, intimidation: 25, bwrath: 30 },\n    'hunter:surv': { steady: 1, raptor: 1, serpent: 20, wingclip: 25, immotrap: 30 },\n    'rogue:combat': { sinister: 1, eviscerate: 1, sliceanddice: 23, flurry: 30 },\n    'rogue:assn': { backstab: 1, rupture: 1, deadlypoison: 23, coldblood: 30 },\n    'rogue:subt': { ambush: 1, sinister: 1, eviscerate: 20, vanish: 25, preparation: 30 },\n    'warlock:aff': { shadowbolt: 1, corruption: 1, agony: 23, deathcoil: 30 },\n    'warlock:demo': { shadowbolt: 1, corruption: 1, demonarmor: 23, feldom: 30 },\n    'warlock:destro': { searing: 1, immolate: 1, shadowburn: 23, conflag: 30 },\n    'warrior:arms': { mortal: 1, rend: 1, cleave: 20, execute: 24, slam: 30 }\n  };\n  const abilityProgression = makeAbilityProgression(ABILITY_UNLOCKS);\n  /* Владелец, 27 ноября: ключевые таланты-состояния открываются как последний талант ветки (в Classic Облик Тьмы — 31-очковый талант, 40 уровень),\n     у спутников — автоматически. Пока потолок 30 — открытие на 30. */\n  const KEY_TALENT_LEVEL = 30;"
+  },
+  {
+   "name": "Shadowform at the key talent level",
+   "old": "shadowform: !!s.shadowform, atk",
+   "new": "shadowform: !!s.shadowform && hl >= KEY_TALENT_LEVEL, atk"
+  },
+  {
+   "name": "Expose the schedule",
+   "old": "ENEMY_CURVE, SOLO_ENEMY_CURVE,",
+   "new": "ABILITY_UNLOCKS, KEY_TALENT_LEVEL, ENEMY_CURVE, SOLO_ENEMY_CURVE,"
+  }
+ ]
+}

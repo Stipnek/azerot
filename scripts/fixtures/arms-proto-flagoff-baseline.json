@@ -2,5 +2,6 @@
   "engineSource": "src/scripts/script-05.txt @ e54150f4bdfba70fa37f1265f673e9b2467b1003",
   "sourceSha256": "c188dac19bafea0e62620f00c6b7bf9a77b4d6584f0a7e1c36107360cc875677",
   "scenarios": 300,
-  "sha256": "d0ce27a6ecd761610346df42ea3e1d8e84f9b8210e54f8250f85eafeefcd7c72"
+  "sha256": "94f0ba72ea15fbc6fd994d55df11eaa8dbf216021085f7329d78fa23a1b680a5",
+  "note": "Regenerated 2026-11-27 after owner-approved balance changes (BAL-05/06, Deadmines, ability unlock schedule to 30); still guards that the Arms prototype flag does not change ordinary classes."
 }

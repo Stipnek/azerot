@@ -20,7 +20,7 @@ assert.notEqual(python(marker + marker).status, 0);
 assert.notEqual(python('__AZEROT_CORE_UNKNOWN__').status, 0);
 const B = load();
 const plain = value => JSON.parse(JSON.stringify(value));
-const standalone = vm.runInNewContext(core)(B.CLASSES, B.SKILLS)({});
+const standalone = vm.runInNewContext(core)(B.CLASSES, B.SKILLS)(JSON.parse(JSON.stringify(B.ABILITY_UNLOCKS)));
 let checked = 0;
 for (const [cls, c] of Object.entries(B.CLASSES)) {
   for (const spec of Object.keys(c.specs)) {

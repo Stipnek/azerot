@@ -55,9 +55,11 @@ let profiles = 0;
 for (const [cls, clsDef] of Object.entries(B.CLASSES)) {
   for (const [spec, specDef] of Object.entries(clsDef.specs)) {
     profiles++;
-    const html = legacyRender(cls, specDef, clsDef, false, 1);
+    const html = legacyRender(cls, specDef, clsDef, false, 30);
     for (const id of specDef.skills) assert.match(row(html, id), /data-available="true"/);
     assert.doesNotMatch(html, /Откроется на/);
+    const low = legacyRender(cls, specDef, clsDef, false, 1), plan = B.ABILITY_UNLOCKS[cls + ':' + spec];
+    for (const id of specDef.skills) assert.match(row(low, id), plan[id] <= 1 ? /data-available="true"/ : /data-available="false"/);
     assert.ok(html.includes('автоатака'));
     for (const passive of specDef.passives || (specDef.passive ? [specDef.passive] : [])) {
       assert.ok(html.includes(esc(passive.name)), 'passive rendered: ' + cls + ':' + spec);

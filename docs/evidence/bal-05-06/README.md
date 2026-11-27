@@ -57,3 +57,12 @@ Over target for two heroes: fights that are the easiest pack of a goal quest (3 
 
   Repeat runs for XP above level 21 stay easy (Classic-like: an over-levelled party farms the dungeon). The campaign path now retries the first run at 19 (48%); the simulator treats 20–50% clears as retries and stops only below 20%.
 - Developer notes removed from player-facing quest texts (db4, wf_silk, rr_shadow, cl_sven15, cl_emb15, ef_bundle, gather progress, quest-gear reward note).
+
+## Update 2026-11-27, later (ability unlock schedule)
+
+Owner 2026-11-27: every specialization opens its whole kit by own level 30 (test cap; later 50). `ABILITY_UNLOCKS` (script-05, unlock-schedule-30 edit): two core abilities from 1, the rest over 15–30, last at 30; order from the archived unlock table (docs/archive, Opus table C, 2026-11-20); Arms as the integrated warrior (Cleave 20, Execute 24, Slam 30). Shadowform (key talent-state) opens at `KEY_TALENT_LEVEL` = 30 while the cap is 30 (Classic: 31-point talent at 40).
+
+Heroes 15–29 now have fewer abilities, so the balance was remeasured (sim-after is regenerated with the schedule):
+- Solo 15+: almost unchanged (two enemies 24–71%, median ≈ 42%). Shadow priest at 15 loses two-enemy fights against strong types (0% vs orc grunts, courier + trapper): only Mind Flay and Shadow Word: Pain until 22, no Shadowform until 30.
+- Group quests: per-quest tune recalibrated (0.57–1.18). Full party wins ~90% on average; the worst main class is often warrior (Arms main with Mortal Strike and Rend only until 20) at 30–55%. Two common heroes 0–23%.
+- Deadmines: multiplier lowered from 1.3 to 1.15 to keep the same feel: no gear at 19 46%, at 20 86%, main geared + rare companions at 19 88%.

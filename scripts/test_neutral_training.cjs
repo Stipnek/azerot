@@ -20,6 +20,6 @@ for(const [cls,ids] of Object.entries(expected)){
  for(const level of [0,15,30,60,1.5,'2',null,undefined,NaN,Infinity])assert.throws(()=>T.slots(cls,level),/Training requires own level/);
 }
 for(const cls of ['missing','constructor','__proto__'])assert.throws(()=>T.active(cls,2),/Unknown training class/);
-assert.deepEqual(plain(B.abilityProgression.configuredProfiles),[]);
-for(const [cls,c] of Object.entries(B.CLASSES))for(const [spec,def]of Object.entries(c.specs))for(const level of [1,14,15,30])assert.deepEqual(plain(B.abilityProgression.active(cls,spec,level)),plain(def.skills));
+assert.equal(B.abilityProgression.configuredProfiles.length,Object.keys(B.ABILITY_UNLOCKS).length); // owner 2026-11-27: production unlock schedule
+for(const [cls,c] of Object.entries(B.CLASSES))for(const [spec,def]of Object.entries(c.specs))assert.deepEqual(plain(B.abilityProgression.active(cls,spec,30)),plain(def.skills));
 console.log('Approved neutral training registry passed:',cases,'class/level cases, 2/5/9 boundaries, source metadata, immutable rows, input guards and unchanged legacy progression. Registry only: combat, AI, resource setup, UI and transition wiring are not covered.');
