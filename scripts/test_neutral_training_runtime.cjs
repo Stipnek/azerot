@@ -1,6 +1,8 @@
 'use strict';
 const assert=require('node:assert/strict'),B=require('./lib_engine_load.cjs')(),plain=x=>JSON.parse(JSON.stringify(x));
-const expected={warrior:['heroicstrike','thunder','rend'],paladin:['judgement','crusader','hoj'],druid:['wrath','moonfire','entangle'],priest:['smiteh','swp','mindblast'],mage:['fireball','frostbolt','missiles'],hunter:['steady','arcshot','serpent'],rogue:['sinister','eviscerate','sliceanddice'],warlock:['shadowbolt','immolate','corruption']};
+const expected={warrior:['heroicstrike','rend','thunder'],paladin:['crusader','judgement','hoj'],druid:['wrath','moonfire','entangle'],priest:['smiteh','swp','mindblast'],mage:['fireball','frostbolt','missiles'],hunter:['raptor','serpent','arcshot'],rogue:['sinister','eviscerate','sliceanddice'],warlock:['shadowbolt','immolate','corruption']};
+const LEVELS={warrior:[1,4,6],paladin:[1,4,8],druid:[1,4,8],priest:[1,4,10],mage:[1,4,8],hunter:[1,4,6],rogue:[1,1,10],warlock:[1,1,4]}; // PLAY-11 (owner 2026-11-27, option A): Classic trainer levels
+const SHAPE=B.neutralTraining.shape;
 function make(cls,spec,level,extra={}){return B.createBattle({party:[{cls,spec,level,main:true,neutralTraining:true,...extra}],main:cls,level,encounter:'test',seed:901,test:{mode:'dps',level,count:3,limit:100}});}
 function turn(st){st.heroes[0].tm=2000;st.enemies.forEach(e=>{e.tm=0;});return B.step(st);}
 function view(h){const keys=['spec','ai','role','maxHp','atk','armor','res','spd','crit','threatMult','type','healPow','fury','shadowform','pids','skills','primary','resource','maxEnergy','energy','maxRage','rage','maxMana','mana','maxCp','cp','effects'];return plain(Object.fromEntries(keys.map(k=>[k,h[k]])));}
@@ -11,14 +13,14 @@ for(const [cls,c]of Object.entries(B.CLASSES)){
   for(const spec of Object.keys(c.specs)){
    const st=make(cls,spec,level),h=st.heroes[0],v=view(h);
    assert.equal(h.neutralTraining,true);assert.equal(h.spec,null);assert.equal(h.role,'training');assert.equal(h.ai,'neutral_training');
-   assert.deepEqual(plain(h.skills),expected[cls].filter((id,i)=>level>=[2,5,9][i]));assert.deepEqual(plain(h.pids),[]);assert.deepEqual(plain(h.effects),[]);
-   for(const key of ['autoMul','parryBase','dodgeBase','impwps','shatter','critMul','arcConc','mdAll','mdMagic','mdTaken'])assert.ok(!h[key],cls+' inherited '+key);assert.equal(B.autoOf(cls,h.spec).hits||1,1);assert.equal(h.fury,false);assert.equal(h.shadowform,false);assert.equal(h.healPow,0);assert.equal(h.threatMult,1);assert.deepEqual(plain(st.aura),{res:[]});
+   assert.deepEqual(plain(h.skills),expected[cls].filter((id,i)=>level>=LEVELS[cls][i]));assert.deepEqual(plain(h.pids),[]);assert.deepEqual(plain(h.effects),[]);
+   assert.equal(h.autoMul,SHAPE[cls].auto);assert.equal(h.trainSkill,SHAPE[cls].skill);for(const key of ['parryBase','dodgeBase','impwps','shatter','critMul','arcConc','mdAll','mdMagic','mdTaken'])assert.ok(!h[key],cls+' inherited '+key);assert.equal(B.autoOf(cls,h.spec).hits||1,1);assert.equal(h.fury,false);assert.equal(h.shadowform,false);assert.equal(h.healPow,0);assert.equal(h.threatMult,1);assert.deepEqual(plain(st.aura),{res:[]});
    if(first)assert.deepEqual(v,first);else first=v;
    assert.equal(h.resource,cls==='warrior'?'rage':cls==='rogue'?'energy':'mana');assert.equal(h.maxCp,cls==='rogue'?5:0);
-   const ev=turn(st);if(level===1)assert.ok(!ev.some(e=>e.t==='skill'&&e.src===h.id));profiles++;
+   const ev=turn(st);if(level===1)assert.ok(ev.some(e=>e.t==='skill'&&e.src===h.id&&expected[cls].includes(e.skill)),cls+': a Classic level-1 ability from level 1');profiles++;
   }
  }
- const base=Object.keys(c.specs)[0],st=make(cls,base,9),h=st.heroes[0],used=new Set();
+ const base=Object.keys(c.specs)[0],st=make(cls,base,10),h=st.heroes[0],used=new Set();
  st.enemies.forEach(e=>{e.boss=false;});h.crit=1;
  for(let i=0;i<25;i++){if(h.maxMana)h.mana=h.maxMana;if(h.maxEnergy)h.energy=h.maxEnergy;if(h.maxRage)h.rage=h.maxRage;
   for(const e of turn(st))if(e.t==='skill'&&e.src===h.id){assert.ok(expected[cls].includes(e.skill));used.add(e.skill);}

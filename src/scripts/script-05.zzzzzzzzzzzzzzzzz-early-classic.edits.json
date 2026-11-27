@@ -1,0 +1,61 @@
+{
+  "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+  "description": "PLAY-11/12 (owner decision 2026-11-27, option A): every class has its Classic level-1 ability from level 1 and the other training abilities at Classic trainer levels; in the training kit (levels 1-14) melee classes deal most damage with auto-attack and casters with spells, casters melee with a weak staff hit instead of a wand. Solo enemy curve at level 1 retuned for the ability from level 1 (levels 2-14 measured unchanged).",
+  "edits": [
+    {
+      "name": "Training kits: Classic trainer order and levels",
+      "old": "      warrior: ['heroicstrike', 'thunder', 'rend'],",
+      "new": "      warrior: ['heroicstrike', 'rend', 'thunder'],"
+    },
+    {
+      "name": "Paladin: Seal of Righteousness first",
+      "old": "      paladin: ['judgement', 'crusader', 'hoj'],",
+      "new": "      paladin: ['crusader', 'judgement', 'hoj'],"
+    },
+    {
+      "name": "Hunter: Raptor Strike first",
+      "old": "      hunter: ['steady', 'arcshot', 'serpent'],",
+      "new": "      hunter: ['raptor', 'serpent', 'arcshot'],"
+    },
+    {
+      "name": "Per-class Classic trainer levels",
+      "old": "    const levels = [2, 5, 9], catalog = Object.create(null);\n    Object.keys(ids).forEach(function (cls) {\n      if (!Object.prototype.hasOwnProperty.call(CLASSES, cls)) throw new Error('Unknown training class: ' + cls);\n      catalog[cls] = Object.freeze(ids[cls].map(function (id, i) {\n        if (!Object.prototype.hasOwnProperty.call(SKILLS, id)) throw new Error('Missing training skill: ' + id);\n        return Object.freeze({id: id, unlockLevel: levels[i]});",
+      "new": "    /* PLAY-11 (владелец, 27 ноября, вариант А): умение 1 уровня из Classic с 1 уровня, остальные — на уровнях тренера Classic. */\n    const levels = {warrior: [1, 4, 6], paladin: [1, 4, 8], druid: [1, 4, 8], priest: [1, 4, 10], mage: [1, 4, 8], hunter: [1, 4, 6], rogue: [1, 1, 10], warlock: [1, 1, 4]}, catalog = Object.create(null);\n    Object.keys(ids).forEach(function (cls) {\n      if (!Object.prototype.hasOwnProperty.call(CLASSES, cls)) throw new Error('Unknown training class: ' + cls);\n      catalog[cls] = Object.freeze(ids[cls].map(function (id, i) {\n        if (!Object.prototype.hasOwnProperty.call(SKILLS, id)) throw new Error('Missing training skill: ' + id);\n        return Object.freeze({id: id, unlockLevel: levels[cls][i]});"
+    },
+    {
+      "name": "Training damage shape on the hero",
+      "old": "    h.hp=h.maxHp;\n  }\n  function neutralTrainingAct",
+      "new": "    h.hp=h.maxHp;\n    const shape=TRAINING_SHAPE[p.cls]||{};h.autoMul=shape.auto||1;h.trainSkill=shape.skill||1;\n  }\n  /* PLAY-11/12 (владелец, 27 ноября, вариант А): в учебном наборе (1–14) у бойцов ближнего боя основной урон — автоатака (55–65%), умения слабее;\n     у кастеров главный урон — заклинание (75–85%), автоатака — слабый удар посохом вблизи вместо жезла. auto — множитель автоатаки, skill — умений и их периодического урона.\n     Подобрано scripts/sim_campaign.cjs и scripts/sim_early.cjs. Таблица открыта как Battle.neutralTraining.shape для симуляторов. */\n  const TRAINING_SHAPE = {warrior:{auto:3,skill:0.5},paladin:{auto:3,skill:0.5},rogue:{auto:3,skill:0.5},hunter:{auto:3,skill:0.5},druid:{auto:1,skill:1},priest:{auto:1,skill:1},mage:{auto:1,skill:1},warlock:{auto:1,skill:1}};\n  const TRAINING_STAFF = { name: 'Удар посохом', icon: '🪵', type: 'phys' };\n  function neutralTrainingAct"
+    },
+    {
+      "name": "Hunter training: Raptor Strike instead of Concussive Shot",
+      "old": "if(hit('arcshot',1.2,'magic'))return;hit('steady',1,'phys');return;",
+      "new": "if(hit('arcshot',1.2,'magic'))return;hit('raptor',1.5,'phys');return;"
+    },
+    {
+      "name": "Casters in training melee with a staff",
+      "old": "  function autoOf(cls, spec) {",
+      "new": "  function autoOf(cls, spec) { if (!spec && (cls === 'mage' || cls === 'priest' || cls === 'warlock')) return TRAINING_STAFF; /* PLAY-11: учебный набор (spec null) */"
+    },
+    {
+      "name": "Training skill multiplier",
+      "old": "    let amt = src.atk * mult * dmgMult(st, src) * (0.9 + st.rnd() * 0.2);",
+      "new": "    if (src.trainSkill && !opt.auto && !opt.refl) mult *= src.trainSkill; /* PLAY-11/12: учебный набор */\n    let amt = src.atk * mult * dmgMult(st, src) * (0.9 + st.rnd() * 0.2);"
+    },
+    {
+      "name": "Expose the training shape",
+      "old": "    return Object.freeze({classes: Object.freeze(Object.keys(catalog)), specLevel: 15, slots: slots, active: active});",
+      "new": "    return Object.freeze({classes: Object.freeze(Object.keys(catalog)), specLevel: 15, slots: slots, active: active, shape: TRAINING_SHAPE});"
+    },
+    {
+      "name": "Solo curve level 1 for an ability from level 1",
+      "old": "    hp:  [0.50, 1.30, 1.35,",
+      "new": "    /* PLAY-11: с умением с 1 уровня враг 1 уровня ставится как на 2-м (было hp 0.50 / atk 0.65 под одну автоатаку). */\n    hp:  [1.55, 1.30, 1.35,"
+    },
+    {
+      "name": "Solo curve level 1 attack",
+      "old": "    atk: [0.65, 2.20, 2.30,",
+      "new": "    atk: [1.20, 2.20, 2.30,"
+    }
+  ]
+}

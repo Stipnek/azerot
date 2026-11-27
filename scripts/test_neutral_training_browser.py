@@ -83,7 +83,8 @@ def live_battle(page,cls,folder):
     actor=page.evaluate("""()=>{const s=window.__neutralLiveBattle,h=s.heroes.find(h=>h.isMain);
      return {id:h.id,skills:h.skills,pids:h.pids,neutral:h.neutralTraining,role:h.role};}""")
     assert actor['neutral'] and actor['role']=='training' and actor['pids']==[],actor
-    assert len(actor['skills'])==3,actor
+    expected=page.evaluate("(cls)=>{const s=window.__neutralLiveBattle,h=s.heroes.find(h=>h.isMain);return Battle.neutralTraining.active(cls,h.level);}",cls)  # PLAY-11: Classic trainer levels per class
+    assert actor['skills']==expected and len(expected)>=2,(actor,expected)
     first=actor['skills'][0]
     stage(page,'battle: open skill tooltip '+first)
     page.locator(f'#skillbar [data-sk="{first}"]').click()
