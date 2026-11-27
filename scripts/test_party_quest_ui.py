@@ -49,7 +49,13 @@ try:
                 candidates=picker.locator('[data-candidate]')
                 assert candidates.evaluate_all('(nodes)=>nodes.map(n=>n.dataset.candidate)')==['ghighrare','ghighcommon','glowlegend']
                 assert picker.locator('[data-candidate="ghighrare"]').evaluate('(n)=>getComputedStyle(n).borderTopColor')=='rgb(0, 112, 221)'
-                assert 'Легендарный' in picker.locator('[data-candidate="glowlegend"] .az-picker-rarity').inner_text()
+                # PARTY-02: no visible rarity line; rarity and bonus stay in the accessible name
+                assert picker.locator('.az-picker-rarity').count()==0
+                assert 'Легендарный' in picker.locator('[data-candidate="glowlegend"]').get_attribute('aria-label')
+                assert '% к характеристикам' in picker.locator('[data-candidate="glowlegend"]').get_attribute('aria-label')
+                # PLAY-17: filters in a compact block, nothing spills out of a card
+                assert picker.locator('[data-picker-sort]').bounding_box()['y']-picker.locator('[data-role="all"]').bounding_box()['y']<70
+                assert picker.locator('[data-candidate]').evaluate_all('(ns)=>ns.every(n=>n.scrollHeight<=n.clientHeight+1)')
                 picker.locator('[data-picker-sort]').select_option('rarity')
                 assert candidates.first.get_attribute('data-candidate')=='glowlegend'
                 picker.locator('[data-picker-sort]').select_option('power')
