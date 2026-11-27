@@ -1,0 +1,21 @@
+{
+ "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+ "description": "Owner 2026-11-27 (issue #23): Tactical Mastery is adapted for a game without stances (each rank starts combat with 5 rage, 25 at 5/5) and Anger Management (requires Tactical Mastery 5/5) gives 2 rage at the start of each own turn; both become learnable. Companion talent lines are unchanged.",
+ "edits": [
+  {
+   "name": "Tactical Mastery and Anger Management become available",
+   "old": "    unavailable: Object.freeze(['impcharge', 'tactical', 'impoverpower', 'anger', 'axe', 'mace', 'sword', 'polearm', 'imphamstring']),",
+   "new": "    unavailable: Object.freeze(['impcharge', 'impoverpower', 'axe', 'mace', 'sword', 'polearm', 'imphamstring']),\n    /* Владелец, 27 ноября: стоек в игре нет, поэтому «Мастер тактики» адаптирован — бой начинается с запасом ярости (в Classic ярость сохранялась при смене стойки, до 25);\n       «Управление гневом» (требует 5/5 «Мастера тактики») даёт ярость в начале каждого своего хода (в Classic 1 ярость раз в 3 с). Числа — предложение. */\n    tacticalRage: 5, angerRage: 2,"
+  },
+  {
+   "name": "Tactical Mastery: starting rage",
+   "old": "    h.parryBase = ARMS_PROTO.deflectionPerRank * (alloc.deflection || 0); h.sweepCharges = 0; h.sweepTurns = 0;",
+   "new": "    h.parryBase = ARMS_PROTO.deflectionPerRank * (alloc.deflection || 0); h.sweepCharges = 0; h.sweepTurns = 0;\n    if (alloc.tactical > 0 && h.maxRage) h.rage = Math.min(h.maxRage, (Number(h.rage) || 0) + ARMS_PROTO.tacticalRage * alloc.tactical);"
+  },
+  {
+   "name": "Anger Management: rage each own turn",
+   "old": "    if (u.proto && u.sweepTurns > 0 && --u.sweepTurns === 0) u.sweepCharges = 0;",
+   "new": "    if (u.proto && u.sweepTurns > 0 && --u.sweepTurns === 0) u.sweepCharges = 0;\n    if (u.proto && u.tal && u.tal.anger > 0) gainRage(u, ARMS_PROTO.angerRage, 'anger');"
+  }
+ ]
+}

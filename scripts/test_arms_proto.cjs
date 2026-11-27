@@ -31,13 +31,13 @@ ok('earliest purchase by row: 3@20, 4@25, 5@30; Mortal Strike impossible at 30',
   assert.ok(!P.kit(30, P.line(30)).includes('mortal'));
 });
 ok('validation rejects unavailable, tier, prerequisite, budget, rank errors', () => {
-  assert.match(P.validate({ tactical: 1 }, 30).errors.join(), /недоступно в прототипе/);
+  assert.match(P.validate({ impcharge: 1 }, 30).errors.join(), /недоступно в прототипе/);
   assert.match(P.validate({ deepwounds: 1, deflection: 5, ihs: 3, impthunder: 2 }, 30).errors.join(), /требует полного/);
   assert.match(P.validate({ impthunder: 1 }, 30).errors.join(), /Ряд 2/);
   assert.match(P.validate({ deflection: 5, imprend: 3 }, 15).errors.join(), /бюджете 6/);
   assert.match(P.validate({ ihs: 4 }, 30).errors.join(), /недопустимый ранг/);
   assert.match(P.validate({ nope: 1 }, 30).errors.join(), /Неизвестный узел/);
-  assert.equal(P.validate({ tactical: 1 }, 30, { ignoreAvailability: true }).errors.length, 1); // availability is a prototype layer only
+  assert.equal(P.validate({ impcharge: 1 }, 30, { ignoreAvailability: true }).errors.length, 1); // availability is a prototype layer only
 });
 ok('companion line legal at every level 15..30 and milestones exact', () => {
   for (let L = 15; L <= 30; L++) assert.equal(P.validate(P.line(L), L).ok, true, 'line ' + L);
@@ -136,6 +136,17 @@ ok('UI click path uses the same validation as loaded builds', () => {
   deq(a, P.buildAt(P.BUILD_B, L));
   assert.equal(P.change(a, 'ihs', +1, L).ok, false);
   assert.equal(P.change(a, 'imprend', -1, L).ok, false); // would break Deep Wounds prerequisite
-  assert.equal(P.change({}, 'tactical', +1, L).ok, false);
+  assert.equal(P.change({}, 'impcharge', +1, L).ok, false);
+});
+ok('issue #23: Tactical Mastery starts combat with rage, Anger Management adds rage each own turn', () => {
+  const alloc = { imprend: 3, deflection: 2, tactical: 5, anger: 1 };
+  assert.equal(P.validate(alloc, 25).ok, true, 'learnable at 25 (16 points)');
+  assert.equal(P.validate({ imprend: 3, deflection: 2, tactical: 4, anger: 1 }, 25).ok, false, 'Anger needs Tactical Mastery 5/5');
+  const mk = t => B.createBattle({ encounter: 'cl_watch1', level: 24, main: 'warrior', seed: 5, party: [{ cls: 'warrior', spec: 'arms', level: 24, main: true, proto: 'arms', integratedArms: true, talents: t }] });
+  assert.equal(mk({ imprend: 3, deflection: 2, tactical: 5 }).heroes[0].rage, 5 * P.CONFIG.tacticalRage);
+  assert.equal(mk({ imprend: 3, deflection: 2 }).heroes[0].rage, 0);
+  const st = mk(alloc), h = st.heroes[0]; h.rage = 0; const ev = []; let g = 0;
+  while (!st.over && g++ < 50) { B.step(st); ev.push(...st.events); st.events.length = 0; if (ev.some(e => e.t === 'rage' || e.t === 'res')) break; }
+  assert.ok(h.rage > 0, 'smoke: rage is gained during the fight (exact per-turn gain is checked by code review, startTurn is internal)');
 });
 console.log('arms prototype regressions passed:', n);

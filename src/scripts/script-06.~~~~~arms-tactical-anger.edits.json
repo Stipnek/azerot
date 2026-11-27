@@ -1,0 +1,11 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Issue #23: effect texts for the adapted Tactical Mastery and Anger Management in the Arms talent view.",
+ "edits": [
+  {
+   "name": "Tactical Mastery and Anger Management effect texts",
+   "old": "      sweeping: 'Оружейные удары дополнительно поражают вторую цель:",
+   "new": "      tactical: 'Бой начинается с запасом ярости: +' + C.tacticalRage + ' за ранг (до ' + C.tacticalRage * 5 + ' на 5/5). В игре нет стоек, поэтому это адаптация классического «Мастера тактики».',\n      anger: 'В начале каждого своего хода герой получает ' + C.angerRage + ' ярости. Требует «Мастер тактики» 5/5.',\n      sweeping: 'Оружейные удары дополнительно поражают вторую цель:"
+  }
+ ]
+}
