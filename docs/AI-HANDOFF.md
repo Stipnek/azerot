@@ -2,6 +2,14 @@
 
 > **Status 2026-11-26:** the current coverage, findings and checkpoints are in [REVIEW-LEDGER.md](REVIEW-LEDGER.md); requirements in [OPEN-WORK.md](OPEN-WORK.md). The checkpoints below are historical. Documents named here as unread have since been read (see the ledger); historical audits moved to [archive/](archive/).
 
+## Current handoff (2026-11-27, main `99e0401`)
+
+Released to the live site in this session (owner approved each push): BAL-04 solo-fight curve for levels 1–14 with at most two enemies per early solo fight; BAL-02 key fix; XP curve v2 shaped like Classic with legacy-save conversion (`xpCurve: 2`, `hxpLegacy`); faster neutral-training browser test; PR #26 (Eagan dialogue, Raelen map gathering with the Wowhead icon `inv_tradeskillitem_03`, 5% attack chance); PR #28 reworked loading screen (`scripts/package_site.py`, test on the packaged site); levels 2–4 retuned; companions fight with their shown spec from level 1 (PLAY-02).
+
+Tools: `scripts/sim_campaign.cjs` (fight feel + campaign path over all zones with Deadmines runs; fixture `scripts/fixtures/quest-graph.json`, regenerate with `scripts/dump_quest_graph.cjs`). Cloud environment **azerot** allows www.wowhead.com (blocks bots with 403), nether.wowhead.com and wow.zamimg.com (icons). Python Playwright: `pip install playwright==1.63.0` and `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers`. A full browser run takes ~25 min; do not commit during it (build identity checks fail).
+
+Next, in order (details in OPEN-WORK): BAL-05 solo rule at every level; BAL-06 group quests (two heroes fail unless strong epic/legendary and geared main, three at level normal); QUEST-07 rework the Eagan window into the quest card and add short mobile lore recaps; then the full project revision (CLAUDE.md phases). Ask the owner as described in WORKFLOW.md "Asking the owner".
+
 Prepared: 2026-11-25. Bounded handoff, not a completed audit or a replacement requirements register.
 
 ## Goal
