@@ -1,0 +1,21 @@
+{
+ "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+ "description": "Owner 2026-11-27 (class audit): Classic class tools missing from the kits, as whole-fight effects by own level: Protection paladin Righteous Fury (threat x1.6, existing 'rf' effect) and holy damage back to attackers (existing 'reflect'), Holy paladin Seal of Righteousness (existing 'seal' proc), Arcane mage Mana Shield (start-of-fight absorb).",
+ "edits": [
+  {
+   "name": "Class tools table",
+   "old": "  const KEY_TALENT_LEVEL = 30;",
+   "new": "  const KEY_TALENT_LEVEL = 30;\n  const CLASS_TOOLS = {\"paladin:prot\": {\"level\": 15, \"rf\": true, \"reflect\": 0.3}, \"mage:arcane\": {\"level\": 20, \"shield\": 0.3}, \"paladin:holy\": {\"level\": 1, \"seal\": true}};"
+  },
+  {
+   "name": "Apply class tools at battle start",
+   "old": "    if (opts.experiment || opts.party.some(function (p) { return p.proto; })) protoSetupAll(st, opts);",
+   "new": "    /* Классовые инструменты Classic, которых не было в наборах (владелец, 27 ноября; аудит классов): действуют весь бой, по собственному уровню, не в учебном наборе.\n       Защита паладина — «Праведное неистовство» (Classic 16: угроза ×1.6) и ответный урон Светом атакующим (как Аура воздаяния);\n       Свет паладина — «Печать праведности» (Classic 1: удары с шансом добавляют урон Светом); Тайная магия — «Мана-щит» (Classic 20: щит в начале боя). */\n    st.heroes.forEach(function (h) {\n      if (h.neutralTraining || h.dummy) return;\n      const t = CLASS_TOOLS[h.cls + ':' + h.spec]; if (!t || h.level < t.level) return;\n      if (t.rf) h.effects.push({ kind: 'rf', turns: 999, src: h.id, name: 'Праведное неистовство', icon: '🔥' });\n      if (t.reflect) h.effects.push({ kind: 'reflect', amt: t.reflect, turns: 999, src: h.id, name: 'Аура воздаяния', icon: '✨' });\n      if (t.seal) h.effects.push({ kind: 'seal', turns: 999, src: h.id, name: 'Печать праведности', icon: '⚖️' });\n      if (t.shield) h.effects.push({ kind: 'shield', amt: Math.round(h.maxHp * t.shield), turns: 999, src: h.id, name: 'Мана-щит', icon: '🔷' });\n    });\n    if (opts.experiment || opts.party.some(function (p) { return p.proto; })) protoSetupAll(st, opts);"
+  },
+  {
+   "name": "Expose class tools",
+   "old": "ABILITY_UNLOCKS, KEY_TALENT_LEVEL,",
+   "new": "ABILITY_UNLOCKS, KEY_TALENT_LEVEL, CLASS_TOOLS,"
+  }
+ ]
+}
