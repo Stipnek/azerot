@@ -1,0 +1,31 @@
+{
+  "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+  "description": "PLAY-19 (owner decision 2026-11-27): casters have no running, so Classic range is an approach turn for melee enemies against an all-ranged party (extended once by a hero's slow or root), and the training kit gets the Classic level 1-6 protective spells (Frost Armor, Demon Skin, Mark of the Wild as armour; Power Word: Shield as an absorb at battle start).",
+  "edits": [
+    {
+      "name": "Approach rule",
+      "old": "  function enemyAct(st, e) {",
+      "new": "  /* PLAY-19 (владелец, 27 ноября): механики бега нет, поэтому дистанцию Classic передаём «сближением». Если в отряде только бойцы дальнего боя\n     (маг, жрец, чернокнижник, охотник, друид вне облика), враг ближнего боя первый свой ход тратит на подход — как в Classic, где кастер успевал\n     2–3 заклинания, пока враг бежал. Замедление или корни от героя во время подхода продлевают его на один ход (один раз). Враги-заклинатели\n     (ИИ mystic, hexer) и манекены не подходят. В отряде с бойцом ближнего боя или с питомцем враги сразу заняты им (как танк в Classic). APPROACH.turns для симуляторов. */\n  const APPROACH = { turns: 1, skipAi: ['mystic', 'hexer', 'dummy', 'tankdummy', 'srcdummy'] };\n  function rangedHero(h) {\n    if (h.cls === 'mage' || h.cls === 'priest' || h.cls === 'warlock' || h.cls === 'hunter') return true;\n    return h.cls === 'druid' && (h.neutralTraining || h.spec === 'balance' || h.spec === 'resto');\n  }\n  function enemyApproach(st, e) {\n    if (e.approach === undefined) {\n      const party = alive(st.heroes).filter(function (h) { return !h.pet && !h.dummy; });\n      const meleePet = (st.pets || []).some(function (p) { return p.hp > 0 && !p.gone; }); /* с питомцем сближения нет: в Classic враг шёл на питомца (у чернокнижника с 10 — Демон Бездны) */\n      e.approach = APPROACH.turns > 0 && APPROACH.skipAi.indexOf(e.ai) === -1 && party.length && !meleePet && party.every(rangedHero) ? APPROACH.turns : 0;\n    }\n    if (!(e.approach > 0)) return false;\n    e.approach--;\n    if (!e.approachSlowed && e.effects.some(function (f) { return (f.kind === 'slow' || f.kind === 'root') && f.src && String(f.src).charAt(0) === 'h'; })) { e.approachSlowed = true; e.approach++; }\n    emit(st, { t: 'eskill', src: e.id, id: 'approach', name: 'Сближение', icon: '🏃' });\n    log(st, e.name + ' сближается', 'info');\n    return true;\n  }\n  function enemyAct(st, e) {"
+    },
+    {
+      "name": "Enemies approach before acting",
+      "old": "} else enemyAct(st, u); }",
+      "new": "} else if (!enemyApproach(st, u)) enemyAct(st, u); }"
+    },
+    {
+      "name": "Caster wards at battle start",
+      "old": "    opts.party.forEach(function (p,i) { applyNeutralTraining(st.heroes[i],p,aura); });",
+      "new": "    opts.party.forEach(function (p,i) { applyNeutralTraining(st.heroes[i],p,aura); });\n    /* PLAY-19: защитные заклинания Classic 1–6 уровня в учебном наборе (1–14) — действуют с начала боя, без кнопки:\n       маг «Ледяной доспех» (1), чернокнижник «Демоническая кожа» (1), друид «Знак дикой природы» (1) — броня; жрец «Слово силы: Щит» (6) — поглощение. */\n    st.heroes.forEach(function (h) {\n      if (!h.neutralTraining) return;\n      const w = TRAINING_WARDS[h.cls]; if (!w || h.level < w.level) return;\n      if (w.armor) h.armor = Math.min(0.75, (h.armor || 0) + w.armor);\n      if (w.shield) h.effects.push({ kind: 'shield', amt: Math.round(h.maxHp * w.shield), turns: 999, src: h.id, name: w.name, icon: w.icon });\n      else h.effects.push({ kind: 'ward', turns: 999, src: h.id, name: w.name, icon: w.icon });\n    });"
+    },
+    {
+      "name": "Ward table",
+      "old": "  function neutralTrainingAct",
+      "new": "  /* Сила подобрана scripts/sim_early.cjs: с умеренными значениями кастеры против двух врагов близки к бойцам ближнего боя (основной вклад — сближение). */\n  const TRAINING_WARDS = { mage: { level: 1, armor: 0.05, name: 'Ледяной доспех', icon: '🧊' }, warlock: { level: 1, armor: 0.05, name: 'Демоническая кожа', icon: '😈' },\n    druid: { level: 1, armor: 0.04, name: 'Знак дикой природы', icon: '🍃' }, priest: { level: 6, shield: 0.12, name: 'Слово силы: Щит', icon: '🛡️' } };\n  function neutralTrainingAct"
+    },
+    {
+      "name": "Expose approach for simulators",
+      "old": "active: active, shape: TRAINING_SHAPE});",
+      "new": "active: active, shape: TRAINING_SHAPE, wards: TRAINING_WARDS, approach: APPROACH});"
+    }
+  ]
+}

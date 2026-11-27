@@ -1,7 +1,7 @@
 {
-  "engineSource": "src/scripts/script-05.txt @ e54150f4bdfba70fa37f1265f673e9b2467b1003",
-  "sourceSha256": "c188dac19bafea0e62620f00c6b7bf9a77b4d6584f0a7e1c36107360cc875677",
+  "engineSource": "src/scripts/script-05.txt + edits through script-05.zzzzzzzzzzzzzzzzzz-caster-range.edits.json",
+  "sourceSha256": "1cb486c38b2cbb8481158a36ac830013209a0f1f7718b6d1e8ac18b156164637",
   "scenarios": 300,
-  "sha256": "23815b90d4d163511ef060e8aff243e510d584f20c1fdc9a82c0413e906b15a9",
-  "note": "Regenerated 2026-11-27 after owner-approved balance changes (BAL-05/06, Deadmines, ability unlock schedule to 30); still guards that the Arms prototype flag does not change ordinary classes."
+  "sha256": "604acee39d7105d7657adc086eeef147f3f848f6c15d6e12d4ce114c886ee382",
+  "note": "Regenerated 2026-11-27 after owner-approved PLAY-19 (approach turn for melee enemies against all-ranged parties; changes some three-hero parties of these scenarios). Earlier: BAL-05/06, Deadmines, unlock schedule. Still guards that the Arms prototype flag does not change ordinary classes."
 }

@@ -3,11 +3,13 @@
 // Hero alone in the Classic starter set (PLAY-18), own level = enemy level, enemies of the zone at that level (as sim_campaign.cjs feel section), solo enemy curve applied.
 // Per class: hero turns until the first enemy dies (information; the BAL-04 target of 3-5 hits per enemy is checked by sim_campaign.cjs --only feel), share of the hero's damage from auto-attack
 // (target: melee 55-65%, casters spell 75-85% => auto 15-25%), HP lost against two enemies (target about half, 40-65%).
-// Run: node scripts/sim_early.cjs [N=40] [--levels 1,2,3,4,5]   TRAIN_SHAPE='{"warrior":{"auto":3,"skill":0.5}}' and SOLO_CURVE (see sim_campaign.cjs) override for one run.
+// Run: node scripts/sim_early.cjs [N=40] [--levels 1,2,3,4,5]   TRAIN_SHAPE='{"warrior":{"auto":3,"skill":0.5}}', APPROACH='{"turns":1}', WARDS='{"mage":{"armor":0.1}}' and SOLO_CURVE (see sim_campaign.cjs) override for one run.
 const B = require('./lib_engine_load.cjs')();
 const args = process.argv.slice(2), N = +args.find(a => /^\d+$/.test(a)) || 40;
 const LV = args.includes('--levels') ? args[args.indexOf('--levels') + 1].split(',').map(Number) : [1, 2, 3, 4, 5, 6, 8, 10, 12, 14];
 if (process.env.TRAIN_SHAPE) for (const [k, v] of Object.entries(JSON.parse(process.env.TRAIN_SHAPE))) Object.assign(B.neutralTraining.shape[k], v);
+if (process.env.APPROACH) Object.assign(B.neutralTraining.approach, JSON.parse(process.env.APPROACH));
+if (process.env.WARDS) for (const [k, v] of Object.entries(JSON.parse(process.env.WARDS))) Object.assign(B.neutralTraining.wards[k], v);
 if (process.env.SOLO_CURVE) Object.assign(B.SOLO_ENEMY_CURVE, JSON.parse(process.env.SOLO_CURVE));
 const CLS = ['warrior', 'paladin', 'rogue', 'hunter', 'druid', 'priest', 'mage', 'warlock'], MELEE = new Set(['warrior', 'paladin', 'rogue', 'hunter']);
 const PET = { hunter: 'wolf', warlock: 'imp' };
