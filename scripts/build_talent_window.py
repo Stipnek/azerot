@@ -42,7 +42,7 @@ def window_data():
                 icons[node['icon']] = uri(icon)
                 if not (1 <= node['row'] <= 7 and 1 <= node['col'] <= 4):
                     raise SystemExit('Node outside the 7x4 grid: ' + node['id'])
-                nodes.append({k: node[k] for k in ('id', 'row', 'col', 'icon', 'max', 'name', 'req') if k in node})
+                nodes.append({k: node[k] for k in ('id', 'row', 'col', 'icon', 'max', 'name', 'req', 'baseline') if k in node})
             trees.append({'id': tree['id'], 'name': tree['name'], 'live': tree.get('live'), 'bg': uri(bg), 'nodes': nodes})
         classes[spec['class']] = {'trees': trees}
     return {'art': {'frame': uri(ART / 'frame.png'), 'rank': uri(ART / 'rank.png')}, 'icons': icons, 'classes': classes}
@@ -61,7 +61,7 @@ JS = r"""
     const P = talentRules(tree);
     return tree.nodes.map(function (n) {
       const e = P && P.TREE.find(function (x) { return x.id === n.id; });
-      return { id: n.id, row: n.row, col: n.col, icon: n.icon, max: e ? e.max : n.max, name: e ? e.ru : n.name, req: e ? e.req : n.req,
+      return { id: n.id, row: n.row, col: n.col, icon: n.icon, max: e ? e.max : n.max, name: e ? e.ru : n.name, req: e ? e.req : n.req, baseline: n.baseline || 0,
         unavailable: !!(e && P.CONFIG.unavailable.indexOf(n.id) !== -1) };
     });
   }
@@ -102,29 +102,30 @@ JS = r"""
   function talentRender() {
     const d = talentDlg, tree = talentTrees().find(function (t) { return t.id === d.tree; }), s0 = talentState(tree), nodes = talentNodes(tree), I = TALENT_WINDOW.icons;
     const pos = function (n) { return { x: 37 + (n.col - 1) * 74, y: 32 + (n.row - 1) * 45 }; };
+    const rankOf = function (n) { return n.baseline ? (s0.level >= n.baseline ? n.max : 0) : (s0.alloc[n.id] || 0); };
     const cell = function (n) {
-      const r = s0.alloc[n.id] || 0, can = s0.live && s0.P.change(s0.alloc, n.id, 1, s0.level).ok, p = pos(n);
+      const r = rankOf(n), can = !n.baseline && s0.live && s0.P.change(s0.alloc, n.id, 1, s0.level).ok, p = pos(n);
       const cls = r >= n.max ? 'max' : r > 0 ? 'on' : can ? 'can' : 'off';
       return '<button type="button" class="tw-node tw-' + cls + (d.sel === n.id ? ' tw-sel' : '') + '" data-tw-node="' + esc(n.id) + '" style="left:' + (p.x - 18) + 'px;top:' + (p.y - 18) + 'px" aria-label="' + esc(n.name + ': ранг ' + r + ' из ' + n.max) + '"><img alt="" src="' + I[n.icon] + '"><span>' + r + '/' + n.max + '</span></button>';
     };
     const arrows = nodes.filter(function (n) { return n.req; }).map(function (n) {
       const from = nodes.find(function (x) { return x.id === n.req; }); if (!from) return '';
-      const a = pos(from), b = pos(n), lit = (s0.alloc[from.id] || 0) >= from.max;
+      const a = pos(from), b = pos(n), lit = rankOf(from) >= from.max;
       const path = from.col === n.col ? 'M' + a.x + ' ' + (a.y + 20) + ' V' + (b.y - 22) : 'M' + (a.x + 20) + ' ' + a.y + ' H' + b.x + ' V' + (b.y - 22);
       return '<path d="' + path + ' m-5 -6 l5 6 5 -6" fill="none" stroke="' + (lit ? '#ffd100' : '#8a8a8a') + '" stroke-width="3" stroke-linecap="round"/>';
     }).join('');
     const sel = nodes.find(function (n) { return n.id === d.sel; });
     let info = '';
     if (sel) {
-      const r = s0.alloc[sel.id] || 0, need = 5 * (sel.row - 1), above = nodes.filter(function (n) { return n.row < sel.row; }).reduce(function (t, n) { return t + (s0.alloc[n.id] || 0); }, 0);
+      const r = rankOf(sel), need = sel.baseline ? 0 : 5 * (sel.row - 1), above = nodes.filter(function (n) { return n.row < sel.row; }).reduce(function (t, n) { return t + (s0.alloc[n.id] || 0); }, 0);
       const req = sel.req && nodes.find(function (n) { return n.id === sel.req; });
-      const desc = !s0.live ? 'Ветка «' + tree.name + '» пока только для просмотра: её таланты появятся позже.' : sel.unavailable ? 'Этот талант пока недоступен.' : armsHeroEffect(sel.id);
-      const add = s0.live && s0.P.change(s0.alloc, sel.id, 1, s0.level).ok, del = s0.live && s0.P.change(s0.alloc, sel.id, -1, s0.level).ok;
+      const desc = sel.baseline ? (B.SKILLS[sel.id] ? B.SKILLS[sel.id].text + '. ' : '') + 'В игре это базовое умение ветки: изучается само с ' + sel.baseline + ' уровня, очко не нужно.' : !s0.live ? 'Ветка «' + tree.name + '» пока только для просмотра: её таланты появятся позже.' : sel.unavailable ? 'Этот талант пока недоступен.' : armsHeroEffect(sel.id);
+      const add = !sel.baseline && s0.live && s0.P.change(s0.alloc, sel.id, 1, s0.level).ok, del = !sel.baseline && s0.live && s0.P.change(s0.alloc, sel.id, -1, s0.level).ok;
       info = '<div class="tw-info" role="dialog" aria-label="' + esc(sel.name) + '"><h3>' + esc(sel.name) + '</h3><p>Ранг ' + r + '/' + sel.max + '</p><p class="tw-desc">' + esc(desc) + '</p>'
         + (need && above < need && s0.live ? '<p class="tw-need">Нужно ' + need + ' очков в ветке выше (сейчас ' + above + ').</p>' : '')
-        + (req && (s0.alloc[req.id] || 0) < req.max ? '<p class="tw-need">Требуется: ' + esc(req.name) + ' ' + req.max + '/' + req.max + '.</p>' : '')
+        + (req && rankOf(req) < req.max ? '<p class="tw-need">Требуется: ' + esc(req.name) + ' ' + req.max + '/' + req.max + '.</p>' : '')
         + (d.msg ? '<p class="tw-msg" role="status">' + esc(d.msg) + '</p>' : '')
-        + (s0.live ? '<div class="tw-acts"><button type="button" data-tw-add aria-disabled="' + !add + '">Добавить ранг</button><button type="button" data-tw-del aria-disabled="' + !del + '">Убрать ранг</button><button type="button" data-tw-hide>Скрыть</button></div>' : '<div class="tw-acts"><button type="button" data-tw-hide>Скрыть</button></div>') + '</div>';
+        + (s0.live && !sel.baseline ? '<div class="tw-acts"><button type="button" data-tw-add aria-disabled="' + !add + '">Добавить ранг</button><button type="button" data-tw-del aria-disabled="' + !del + '">Убрать ранг</button><button type="button" data-tw-hide>Скрыть</button></div>' : '<div class="tw-acts"><button type="button" data-tw-hide>Скрыть</button></div>') + '</div>';
     }
     const status = s0.live ? (s0.level < 15 ? 'Таланты откроются на 15 уровне' : 'Свободно очков: ' + Math.max(0, s0.budget - s0.spent)) : (talentRules(tree) ? 'Распределение — когда эта ветка станет вашей' : 'Только просмотр · скоро');
     d.innerHTML = '<div class="tw-wrap"><div class="tw-box"><div class="tw-frame"><h2 class="tw-title">' + esc(tree.name) + '</h2><p class="tw-status">' + esc(status) + '</p>'

@@ -11,8 +11,9 @@ for (const tree of data.trees) {
   for (const n of tree.nodes) { const key = n.row + ',' + n.col; assert.ok(!seen.has(key), 'one talent per cell: ' + tree.id + ' ' + key); seen.add(key); }
   if (tree.live === 'armsIntegrated') {
     const ids = new Set(B.armsIntegrated.TREE.map(n => n.id));
-    assert.deepEqual([...ids].sort(), tree.nodes.map(n => n.id).sort(), 'every engine Arms talent is placed exactly once');
-    for (const n of tree.nodes) assert.equal(B.armsIntegrated.TREE.find(x => x.id === n.id).tier, n.row, 'row = engine tier: ' + n.id);
+    assert.deepEqual([...ids].sort(), tree.nodes.filter(n => !n.baseline).map(n => n.id).sort(), 'every engine Arms talent is placed exactly once');
+    assert.ok(tree.nodes.some(n => n.id === 'mortal' && n.row === 7 && n.baseline === 15), 'final talent row: Mortal Strike, a base ability from 15');
+    for (const n of tree.nodes.filter(x => !x.baseline)) assert.equal(B.armsIntegrated.TREE.find(x => x.id === n.id).tier, n.row, 'row = engine tier: ' + n.id);
   } else for (const n of tree.nodes) if (n.req) assert.ok(tree.nodes.some(x => x.id === n.req), 'prerequisite exists: ' + n.id);
 }
 console.log('talent window data ok');

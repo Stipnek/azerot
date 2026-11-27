@@ -1,6 +1,6 @@
 {
  "class": "warrior",
- "note": "Classic talent window data. Arms is live (ids, ranks, names and prerequisites come from the engine, B.armsIntegrated.TREE); Fury and Protection are view-only until their effects exist. To add a class: copy this file, set background ids (Wowhead classic talent backgrounds) and node rows/cols/icons, then run python3 scripts/build_talent_window.py.",
+ "note": "Classic talent window data. Arms is live (ids, ranks, names and prerequisites come from the engine, B.armsIntegrated.TREE); Fury and Protection are view-only until their effects exist. To add a class: copy this file, set background ids (Wowhead classic talent backgrounds) and node rows/cols/icons, then run python3 scripts/build_talent_window.py. A node with \"baseline\": N is learned automatically from own level N (e.g. Mortal Strike, a base Arms ability in our temporary rules) and costs no point.",
  "trees": [
   {
    "id": "arms",
@@ -109,6 +109,15 @@
      "row": 6,
      "col": 3,
      "icon": "ability_shockwave"
+    },
+    {
+     "id": "mortal",
+     "row": 7,
+     "col": 2,
+     "icon": "ability_warrior_savageblow",
+     "max": 1,
+     "name": "Смертельный удар",
+     "baseline": 15
     }
    ]
   },

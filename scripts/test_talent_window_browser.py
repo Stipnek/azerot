@@ -38,7 +38,7 @@ try:
             for sel in ['.tw-tabs', '.tw-bar', '.tw-x']:
                 r = pg.locator(sel).first.bounding_box()
                 assert r and r['x'] >= 0 and r['y'] >= 0 and r['x'] + r['width'] <= w + 1 and r['y'] + r['height'] <= h + 1, 'control on screen: %s %s' % (sel, r)
-            assert pg.locator('.tw-node').count() == 17 and rank(pg, 'tactical') == '0/5'
+            assert pg.locator('.tw-node').count() == 18 and rank(pg, 'tactical') == '0/5' and rank(pg, 'mortal') == '1/1', 'all seven rows incl. Mortal Strike'
             pg.locator('[data-tw-node="tactical"]').click(); pg.locator('[data-tw-add]').click()
             assert rank(pg, 'tactical') == '1/5', 'point added'
             pg.locator('[data-tw-node="impcharge"]').click()
