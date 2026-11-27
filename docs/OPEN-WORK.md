@@ -29,6 +29,25 @@ Rules:
 | PLAY-03 | Eagan dialogue window looks different from the rest of the game; unclear whether the quest is accepted in the window or with the «Выполнять» button below; quest card text and dialogue text differ (dialogue is lore, quest cards have little text). Decide one quest-presentation pattern (where text lives, which button accepts, window style from the game's dialog system) before more dialogue quests. Decided 2026-11-27 as QUEST-07 (quest card only). | Decided → QUEST-07 |
 | PLAY-04 | Tests and the simulator did not show the easy early game: the feel targets were met only from level 5; levels 2–4 were tuned for a quest level that later changed. Rerun `scripts/sim_campaign.cjs` after any quest-level or key change. | Process |
 
+## Owner play-test 2026-11-27 (evening, live `2364264`)
+
+| ID | Finding (owner, screenshots in chat) | Proposal / next step |
+|---|---|---|
+| PLAY-05 | Equipment window: «Закрыть» and «Назад к герою» do the same thing. | Keep one button, move the window content up. |
+| PLAY-06 | Character creation, class step: small starting-spec badges on class icons (old «warrior starts as tank»); before 15 every class uses the neutral training kit. | Remove the badges. |
+| PLAY-07 | Class preview at creation: ability descriptions must match the engine for every class; abilities are plain text. | Check every text against the engine; show abilities with icons; optional preview of the talent trees before creating. |
+| PLAY-08 | Talent window looks much better but still home-made: portrait does not fill the top-left circle, «Потрачено в ветке» is off-centre and pressed to the bottom. | Polish the frame; make the layout a reusable template so other classes only add data (TALENT-02). |
+| PLAY-09 | Quest «Шахта Фарго» says «три кобольда», two spawn (solo cap of two). | Audit every quest text with numbers against the spawned enemies. |
+| PLAY-10 | Quest card shows two texts (new retelling + old line). | Keep only the short retelling; drop the old line (goals stay). |
+| PLAY-11 | Level 1: 28 turns to kill one enemy; level 2 twice as fast. Cause: melee classes have only auto-attack at 1 (Heroic Strike comes at 2). In Classic melee had auto-attack + a skill from 1 (Heroic Strike, Sinister Strike, Seal of Righteousness, Raptor Strike) and casters cast their spell (Fireball, Smite, Shadow Bolt, Wrath) and meleed with a staff when out of mana; wands are items we will not have. | Proposal: every class gets its Classic level-1 ability from 1; caster auto-attack becomes a weak staff/weapon hit instead of a wand, the spell stays the main damage. Owner to confirm. |
+| PLAY-12 | Heroic Strike: ~450 damage, 79% of the warrior's damage at level 2 vs two thieves — is that Classic-like? | Check Heroic Strike share and the HP/damage scale against Classic ratios (our numbers are scaled ×~10); with PLAY-11. |
+| PLAY-13 | Dungeon entrance icon became very large on the Westfall map. It is the single icon for every instance, mirrored left/right per map. | Smaller (ART-02), keep the art; mirroring per map. |
+| PLAY-14 | «Сбор водорослей» (Collecting Kelp) is a murloc fight, not gathering. The Raelen gathering (with the ambush) was a big hit with the owner. | Convert gather quests to the map gathering pattern (QUEST-03/05), Kelp first. |
+| PLAY-15 | Warrior stuck at 13: Westfall's remaining quests are group quests, the rolled companions are weak, Redridge is too high; no other zone to level in. In Classic you would go to another zone — with instant travel it is quick here. | Add a parallel 10–20 Alliance zone. Owner named Dun Morogh; Classic fact: Dun Morogh is 1–12, the 10–20 parallel to Westfall is Loch Modan. Recommendation: Loch Modan next (Dun Morogh later as the dwarf/gnome start). Also check the solo/group ratio of Westfall. Note: earlier direction was core gameplay before zones — this is a progression gap, so one zone is justified. |
+| PLAY-16 | Button «Таланты и дополнительные сведения» — talents moved out. | Rename to «Дополнительные сведения». |
+
+Suggested order for the next sessions: (1) quick UI/text fixes PLAY-05, 06, 08, 09, 10, 13, 16; (2) early combat PLAY-11/12 with the simulators; (3) talents TALENT-03 (all specs, talent abilities only through talents, compressed tiers); (4) gathering PLAY-14; (5) Loch Modan PLAY-15; (6) class preview PLAY-07.
+
 ## Owner decisions 2026-11-27
 
 | ID | Decision | Status / next step |
