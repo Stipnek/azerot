@@ -1,6 +1,6 @@
 {
  "class": "warrior",
- "note": "Classic talent window data. Arms is live (ids, ranks, names and prerequisites come from the engine, B.armsIntegrated.TREE); Fury and Protection are view-only until their effects exist. To add a class: copy this file, set background ids (Wowhead classic talent backgrounds) and node rows/cols/icons, then run python3 scripts/build_talent_window.py. A node with \"baseline\": N is learned automatically from own level N (e.g. Mortal Strike, a base Arms ability in our temporary rules) and costs no point.",
+ "note": "Classic talent window data. All three warrior trees are live: Arms through B.armsIntegrated, Fury and Protection through B.specTalents (ids, ranks, names, prerequisites and tiers come from the engine; this file only places nodes and icons; tree ids equal spec keys). Only the current spec's tree can be changed; each spec keeps its own allocation (TALENT-01). To add a class: copy this file, set background ids (Wowhead classic talent backgrounds) and node rows/cols/icons, then run python3 scripts/build_talent_window.py.",
  "trees": [
   {
    "id": "arms",
@@ -116,8 +116,7 @@
      "col": 2,
      "icon": "ability_warrior_savageblow",
      "max": 1,
-     "name": "Смертельный удар",
-     "baseline": 15
+     "name": "Смертельный удар"
     }
    ]
   },
@@ -125,10 +124,10 @@
    "id": "fury",
    "name": "Неистовство",
    "background": 164,
-   "live": null,
+   "live": "specTalents",
    "nodes": [
     {
-     "id": "fury1",
+     "id": "boomingvoice",
      "row": 1,
      "col": 2,
      "max": 5,
@@ -136,7 +135,7 @@
      "icon": "spell_nature_purge"
     },
     {
-     "id": "fury2",
+     "id": "cruelty",
      "row": 1,
      "col": 3,
      "max": 5,
@@ -144,7 +143,7 @@
      "icon": "ability_rogue_eviscerate"
     },
     {
-     "id": "fury3",
+     "id": "impdemo",
      "row": 2,
      "col": 2,
      "max": 5,
@@ -152,7 +151,7 @@
      "icon": "ability_warrior_warcry"
     },
     {
-     "id": "fury4",
+     "id": "unbridled",
      "row": 2,
      "col": 3,
      "max": 5,
@@ -160,7 +159,7 @@
      "icon": "spell_nature_stoneclawtotem"
     },
     {
-     "id": "fury5",
+     "id": "impcleave",
      "row": 3,
      "col": 1,
      "max": 3,
@@ -168,7 +167,7 @@
      "icon": "ability_warrior_cleave"
     },
     {
-     "id": "fury6",
+     "id": "piercinghowl",
      "row": 3,
      "col": 2,
      "max": 1,
@@ -176,7 +175,7 @@
      "icon": "spell_shadow_deathscream"
     },
     {
-     "id": "fury7",
+     "id": "bloodcraze",
      "row": 3,
      "col": 3,
      "max": 3,
@@ -184,7 +183,7 @@
      "icon": "spell_shadow_summonimp"
     },
     {
-     "id": "fury8",
+     "id": "impbattleshout",
      "row": 3,
      "col": 4,
      "max": 5,
@@ -192,7 +191,7 @@
      "icon": "ability_warrior_battleshout"
     },
     {
-     "id": "fury9",
+     "id": "dualwield",
      "row": 4,
      "col": 1,
      "max": 5,
@@ -200,7 +199,7 @@
      "icon": "ability_dualwield"
     },
     {
-     "id": "fury10",
+     "id": "impexecute",
      "row": 4,
      "col": 2,
      "max": 2,
@@ -208,7 +207,7 @@
      "icon": "inv_sword_48"
     },
     {
-     "id": "fury11",
+     "id": "enrage",
      "row": 4,
      "col": 3,
      "max": 5,
@@ -216,7 +215,7 @@
      "icon": "spell_shadow_unholyfrenzy"
     },
     {
-     "id": "fury12",
+     "id": "impslam",
      "row": 5,
      "col": 1,
      "max": 5,
@@ -224,7 +223,7 @@
      "icon": "ability_warrior_decisivestrike"
     },
     {
-     "id": "fury13",
+     "id": "deathwish",
      "row": 5,
      "col": 2,
      "max": 1,
@@ -232,7 +231,7 @@
      "icon": "spell_shadow_deathpact"
     },
     {
-     "id": "fury14",
+     "id": "impintercept",
      "row": 5,
      "col": 4,
      "max": 2,
@@ -240,7 +239,7 @@
      "icon": "ability_rogue_sprint"
     },
     {
-     "id": "fury15",
+     "id": "impberserker",
      "row": 6,
      "col": 1,
      "max": 2,
@@ -248,33 +247,33 @@
      "icon": "spell_nature_ancestralguardian"
     },
     {
-     "id": "fury16",
+     "id": "flurry",
      "row": 6,
      "col": 3,
      "max": 5,
      "name": "Шквал",
      "icon": "ability_ghoulfrenzy",
-     "req": "fury11"
+     "req": "enrage"
     },
     {
-     "id": "fury17",
+     "id": "bloodthirst",
      "row": 7,
      "col": 2,
      "max": 1,
      "name": "Кровожадность",
      "icon": "spell_nature_bloodlust",
-     "req": "fury13"
+     "req": "deathwish"
     }
    ]
   },
   {
-   "id": "protection",
+   "id": "prot",
    "name": "Защита",
    "background": 163,
-   "live": null,
+   "live": "specTalents",
    "nodes": [
     {
-     "id": "prot1",
+     "id": "shieldspec",
      "row": 1,
      "col": 2,
      "max": 5,
@@ -282,7 +281,7 @@
      "icon": "inv_shield_06"
     },
     {
-     "id": "prot2",
+     "id": "anticipation",
      "row": 1,
      "col": 3,
      "max": 5,
@@ -290,7 +289,7 @@
      "icon": "spell_nature_mirrorimage"
     },
     {
-     "id": "prot3",
+     "id": "impbloodrage",
      "row": 2,
      "col": 1,
      "max": 2,
@@ -298,7 +297,7 @@
      "icon": "ability_racial_bloodrage"
     },
     {
-     "id": "prot4",
+     "id": "toughness",
      "row": 2,
      "col": 3,
      "max": 5,
@@ -306,7 +305,7 @@
      "icon": "spell_holy_devotion"
     },
     {
-     "id": "prot5",
+     "id": "ironwill",
      "row": 2,
      "col": 4,
      "max": 5,
@@ -314,25 +313,25 @@
      "icon": "spell_magic_magearmor"
     },
     {
-     "id": "prot6",
+     "id": "laststand",
      "row": 3,
      "col": 1,
      "max": 1,
      "name": "Ни шагу назад",
      "icon": "spell_holy_ashestoashes",
-     "req": "prot3"
+     "req": "impbloodrage"
     },
     {
-     "id": "prot7",
+     "id": "impshieldblock",
      "row": 3,
      "col": 2,
      "max": 3,
      "name": "Улучшенный блок щитом",
      "icon": "ability_defend",
-     "req": "prot1"
+     "req": "shieldspec"
     },
     {
-     "id": "prot8",
+     "id": "imprevenge",
      "row": 3,
      "col": 3,
      "max": 3,
@@ -340,7 +339,7 @@
      "icon": "ability_warrior_revenge"
     },
     {
-     "id": "prot9",
+     "id": "defiance",
      "row": 3,
      "col": 4,
      "max": 5,
@@ -348,7 +347,7 @@
      "icon": "ability_warrior_innerrage"
     },
     {
-     "id": "prot10",
+     "id": "impsunder",
      "row": 4,
      "col": 1,
      "max": 3,
@@ -356,7 +355,7 @@
      "icon": "ability_warrior_sunder"
     },
     {
-     "id": "prot11",
+     "id": "impdisarm",
      "row": 4,
      "col": 2,
      "max": 3,
@@ -364,7 +363,7 @@
      "icon": "ability_warrior_disarm"
     },
     {
-     "id": "prot12",
+     "id": "imptaunt",
      "row": 4,
      "col": 3,
      "max": 2,
@@ -372,7 +371,7 @@
      "icon": "spell_nature_reincarnation"
     },
     {
-     "id": "prot13",
+     "id": "impwall",
      "row": 5,
      "col": 1,
      "max": 2,
@@ -380,7 +379,7 @@
      "icon": "ability_warrior_shieldwall"
     },
     {
-     "id": "prot14",
+     "id": "concussion",
      "row": 5,
      "col": 2,
      "max": 1,
@@ -388,7 +387,7 @@
      "icon": "ability_thunderbolt"
     },
     {
-     "id": "prot15",
+     "id": "impshieldbash",
      "row": 5,
      "col": 3,
      "max": 2,
@@ -396,7 +395,7 @@
      "icon": "ability_warrior_shieldbash"
     },
     {
-     "id": "prot16",
+     "id": "onehand",
      "row": 6,
      "col": 3,
      "max": 5,
@@ -404,13 +403,13 @@
      "icon": "inv_sword_20"
     },
     {
-     "id": "prot17",
+     "id": "shieldslam",
      "row": 7,
      "col": 2,
      "max": 1,
      "name": "Мощный удар щитом",
      "icon": "inv_shield_05",
-     "req": "prot14"
+     "req": "concussion"
     }
    ]
   }

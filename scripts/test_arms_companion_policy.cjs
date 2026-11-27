@@ -50,7 +50,13 @@ function adapter(enabled) {
   });
 }
 const wired = adapter(true);
-assert.equal(wired.companion.protoNoExtraActive,true,'the real shared UI adapter enables companion policy');
+// TALENT-03 (owner 2026-11-27): integrated companions take ability talents (Sweeping Strikes, Mortal Strike) on their own line;
+// the main-only policy above remains only for the historical isolated prototype.
+assert.ok(!wired.companion.protoNoExtraActive,'integrated companions are not restricted to passives');
+assert.equal(wired.companion.integratedArms,true);
+{const st=B.createBattle({encounter:'daily_wf_coast',level:30,main:'warrior',seed:13,party:[main(),Object.assign({cls:'warrior',spec:'arms',level:30},plain(wired.companion))]});
+ assert.ok(st.heroes[1].skills.includes('mortal')&&st.heroes[1].skills.includes('sweeping'),'integrated companion at 30 has Mortal Strike and Sweeping Strikes');
+ assert.deepEqual(plain(st.heroes[1].tal),plain(B.armsIntegrated.line(30)));}
 assert.ok(!wired.main.protoNoExtraActive,'do not disable main talents');
 assert.deepEqual(plain(wired.main.talents),plain(P.line(30)));
 assert.deepEqual(plain(adapter(false)),{main:{},companion:{}},'flag-off adapter unchanged');

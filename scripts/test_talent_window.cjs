@@ -9,11 +9,20 @@ const data = require('../src/talents/warrior.json');
 for (const tree of data.trees) {
   const seen = new Set();
   for (const n of tree.nodes) { const key = n.row + ',' + n.col; assert.ok(!seen.has(key), 'one talent per cell: ' + tree.id + ' ' + key); seen.add(key); }
-  if (tree.live === 'armsIntegrated') {
-    const ids = new Set(B.armsIntegrated.TREE.map(n => n.id));
-    assert.deepEqual([...ids].sort(), tree.nodes.filter(n => !n.baseline).map(n => n.id).sort(), 'every engine Arms talent is placed exactly once');
-    assert.ok(tree.nodes.some(n => n.id === 'mortal' && n.row === 7 && n.baseline === 15), 'final talent row: Mortal Strike, a base ability from 15');
-    for (const n of tree.nodes.filter(x => !x.baseline)) assert.equal(B.armsIntegrated.TREE.find(x => x.id === n.id).tier, n.row, 'row = engine tier: ' + n.id);
-  } else for (const n of tree.nodes) if (n.req) assert.ok(tree.nodes.some(x => x.id === n.req), 'prerequisite exists: ' + n.id);
+  // TALENT-03: every warrior tree is live; the window only places nodes, the engine owns ids, ranks, tiers and prerequisites.
+  const R = tree.live === 'armsIntegrated' ? B.armsIntegrated : tree.live === 'specTalents' ? B.specTalents.rules(data.class, tree.id) : null;
+  assert.ok(R, 'live rules for ' + tree.id);
+  assert.ok(B.CLASSES[data.class].specs[tree.id], 'tree id is a spec key: ' + tree.id);
+  assert.deepEqual(JSON.parse(JSON.stringify(R.TREE.map(n => n.id))).sort(), tree.nodes.map(n => n.id).sort(), 'every engine talent is placed exactly once: ' + tree.id);
+  assert.ok(!tree.nodes.some(n => n.baseline), 'no free baseline talents: ability talents are learned with points');
+  for (const n of tree.nodes) {
+    const e = R.TREE.find(x => x.id === n.id);
+    assert.equal(e.tier, n.row, 'row = engine tier: ' + n.id);
+    if (n.req) assert.equal(e.req, n.req, 'prerequisite matches engine: ' + n.id);
+    if (n.max) assert.equal(e.max, n.max, 'rank count matches engine: ' + n.id);
+  }
+  assert.equal(R.CONFIG.perTier, 3, 'compressed tiers while the cap is 30');
 }
+const ms = B.armsIntegrated.TREE.find(n => n.id === 'mortal'), bt = B.specTalents.rules('warrior', 'fury').TREE.find(n => n.id === 'bloodthirst'), ss = B.specTalents.rules('warrior', 'prot').TREE.find(n => n.id === 'shieldslam');
+for (const n of [ms, bt, ss]) assert.ok(n.tier === 7 && n.active, 'tier-7 ability talent: ' + n.id);
 console.log('talent window data ok');

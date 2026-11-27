@@ -51,25 +51,28 @@ def window_data():
 JS = r"""
   /* TALENT_WINDOW_BEGIN — окно талантов в виде WoW Classic (владелец, 27 ноября): одно окно для просмотра и распределения очков.
      Вид и раскладка берутся из данных (src/talents/<класс>.json → scripts/build_talent_window.py): для нового класса нужны только
-     фон ветки и позиции талантов. Живые ветки меняют очки по правилам движка (B.armsIntegrated) и сохраняют их как раньше. */
+     фон ветки и позиции талантов. Живые ветки меняют очки по правилам движка: Оружие — B.armsIntegrated (сохранение armsTalents),
+     остальные — B.specTalents (сохранение specTalents[спек]). TALENT-01: у каждого спека своя раскладка; менять можно только ветку текущего спека. */
   const TALENT_WINDOW = __TALENT_DATA__;
   let talentDlg = null;
   function talentTrees() { return (TALENT_WINDOW.classes[S.main] || {}).trees || []; }
-  function talentRules(tree) { return tree && tree.live === 'armsIntegrated' ? B.armsIntegrated : null; }
-  function talentLive(tree) { return !!talentRules(tree) && ARMS_HERO_MODE && S.main === 'warrior' && specKey('me') === 'arms'; }
+  function talentRules(tree) { return !tree ? null : tree.live === 'armsIntegrated' ? B.armsIntegrated : tree.live === 'specTalents' && B.specTalents ? B.specTalents.rules(S.main, tree.id) : null; }
+  function talentLive(tree) { return !!talentRules(tree) && ARMS_HERO_MODE && !!S.hero && specKey('me') === tree.id; }
+  function talentSaved(tree, level) { return !S.hero || !talentRules(tree) ? {} : tree.live === 'armsIntegrated' ? armsHeroData(S.hero, level) : specTalentData(S.hero, tree.id, level); }
+  function talentEffect(tree, id) { const P = talentRules(tree); return tree.live === 'armsIntegrated' ? armsHeroEffect(id) : (P && P.effect(id)) || 'Этот талант пока недоступен для изучения.'; }
   function talentNodes(tree) {
     const P = talentRules(tree);
     return tree.nodes.map(function (n) {
       const e = P && P.TREE.find(function (x) { return x.id === n.id; });
       return { id: n.id, row: n.row, col: n.col, icon: n.icon, max: e ? e.max : n.max, name: e ? e.ru : n.name, req: e ? e.req : n.req, baseline: n.baseline || 0,
-        unavailable: !!(e && P.CONFIG.unavailable.indexOf(n.id) !== -1) };
+        unavailable: !!(e && (e.unavailable || P.CONFIG.unavailable.indexOf(n.id) !== -1)) };
     });
   }
   function talentState(tree) {
     const live = talentLive(tree), P = talentRules(tree), level = hLevel('me');
-    const alloc = live ? armsHeroData(S.hero, level) : {};
-    const v = live ? P.validate(alloc, level) : null;
-    return { live: live, P: P, level: level, alloc: alloc, spent: v && v.ok ? v.spent : 0, budget: live ? P.points(level) : 0 };
+    const alloc = P ? talentSaved(tree, level) : {};
+    const v = P ? P.validate(alloc, level) : null;
+    return { live: live, P: P, level: level, alloc: alloc, spent: v && v.ok ? v.spent : 0, budget: P ? P.points(level) : 0, perTier: P && P.CONFIG.perTier ? P.CONFIG.perTier : 5 };
   }
   function talentStyle() {
     if (document.getElementById('az-talent-style')) return;
@@ -118,12 +121,12 @@ JS = r"""
     const sel = nodes.find(function (n) { return n.id === d.sel; });
     let info = '';
     if (sel) {
-      const r = rankOf(sel), need = sel.baseline ? 0 : 5 * (sel.row - 1), above = nodes.filter(function (n) { return n.row < sel.row; }).reduce(function (t, n) { return t + (s0.alloc[n.id] || 0); }, 0);
+      const r = rankOf(sel), need = sel.baseline ? 0 : s0.perTier * (sel.row - 1), above = nodes.filter(function (n) { return n.row < sel.row; }).reduce(function (t, n) { return t + (s0.alloc[n.id] || 0); }, 0);
       const req = sel.req && nodes.find(function (n) { return n.id === sel.req; });
-      const desc = sel.baseline ? (B.SKILLS[sel.id] ? B.SKILLS[sel.id].text + '. ' : '') + 'В игре это базовое умение ветки: изучается само с ' + sel.baseline + ' уровня, очко не нужно.' : !s0.live ? 'Ветка «' + tree.name + '» пока только для просмотра: её таланты появятся позже.' : sel.unavailable ? 'Этот талант пока недоступен.' : armsHeroEffect(sel.id);
+      const desc = sel.baseline ? (B.SKILLS[sel.id] ? B.SKILLS[sel.id].text + '. ' : '') + 'В игре это базовое умение ветки: изучается само с ' + sel.baseline + ' уровня, очко не нужно.' : !s0.P ? 'Ветка «' + tree.name + '» пока только для просмотра: её таланты появятся позже.' : sel.unavailable ? 'Этот талант пока недоступен: такой механики в игре нет.' : talentEffect(tree, sel.id) + (s0.live ? '' : ' Очки в эту ветку вкладываются, когда «' + tree.name + '» — ваша специализация.');
       const add = !sel.baseline && s0.live && s0.P.change(s0.alloc, sel.id, 1, s0.level).ok, del = !sel.baseline && s0.live && s0.P.change(s0.alloc, sel.id, -1, s0.level).ok;
       info = '<div class="tw-info" role="dialog" aria-label="' + esc(sel.name) + '"><h3>' + esc(sel.name) + '</h3><p>Ранг ' + r + '/' + sel.max + '</p><p class="tw-desc">' + esc(desc) + '</p>'
-        + (need && above < need && s0.live ? '<p class="tw-need">Нужно ' + need + ' очков в ветке выше (сейчас ' + above + ').</p>' : '')
+        + (need && above < need && s0.P ? '<p class="tw-need">Нужно ' + need + ' очков в ветке выше (сейчас ' + above + ').</p>' : '')
         + (req && rankOf(req) < req.max ? '<p class="tw-need">Требуется: ' + esc(req.name) + ' ' + req.max + '/' + req.max + '.</p>' : '')
         + (d.msg ? '<p class="tw-msg" role="status">' + esc(d.msg) + '</p>' : '')
         + (s0.live && !sel.baseline ? '<div class="tw-acts"><button type="button" data-tw-add aria-disabled="' + !add + '">Добавить ранг</button><button type="button" data-tw-del aria-disabled="' + !del + '">Убрать ранг</button><button type="button" data-tw-hide>Скрыть</button></div>' : '<div class="tw-acts"><button type="button" data-tw-hide>Скрыть</button></div>') + '</div>';
@@ -133,7 +136,7 @@ JS = r"""
       + '<div class="tw-portrait" aria-hidden="true">' + classBadge(S.main, specKey('me')) + '</div>'
       + '<button type="button" class="tw-x" data-tw-close aria-label="Закрыть таланты">✕</button>'
       + '<div class="tw-tree" style="background-image:url(' + tree.bg + ')"><svg aria-hidden="true">' + arrows + '</svg>' + nodes.map(cell).join('') + '</div>'
-      + '<p class="tw-foot">' + (s0.live ? 'Потрачено в ветке: ' + s0.spent + ' из ' + s0.budget : 'Уровень ' + s0.level) + '</p></div></div>'
+      + '<p class="tw-foot">' + (s0.P ? 'Потрачено в ветке: ' + s0.spent + ' из ' + s0.budget : 'Уровень ' + s0.level) + '</p></div></div>'
       + '<div class="tw-side"><div class="tw-tabs" role="group" aria-label="Ветки талантов">' + talentTrees().map(function (t) { return '<button type="button" data-tw-tab="' + esc(t.id) + '" aria-pressed="' + (t.id === tree.id) + '">' + esc(t.name) + '</button>'; }).join('') + '</div>'
       + '<div class="tw-bar">' + (s0.live ? '<button type="button" data-tw-reset aria-disabled="' + !s0.spent + '">Сбросить очки</button>' : '') + '<button type="button" data-tw-close>Закрыть</button></div>'
       + (sel ? '' : (d.msg ? '<p class="tw-msg" role="status">' + esc(d.msg) + '</p>' : '<p class="hint" style="color:#b6a98d;margin:0">Нажмите на талант, чтобы увидеть описание' + (s0.live ? ' и вложить очко' : '') + '.</p>')) + info + '</div></div>';
@@ -157,9 +160,11 @@ JS = r"""
     if (st && !st.over) { d.msg = 'Таланты нельзя менять во время боя.'; return talentRender(); }
     const r = reset ? { ok: true, alloc: {} } : s0.P.change(s0.alloc, d.sel, delta, s0.level);
     if (!r.ok) { d.msg = delta < 0 ? 'Этот ранг нужен талантам ниже. Сначала снимите их.' : ((r.errors && r.errors[0]) || 'Сейчас это изменение недоступно.'); return talentRender(); }
-    const had = Object.prototype.hasOwnProperty.call(S.hero, 'armsTalents'), old = S.hero.armsTalents;
-    S.hero.armsTalents = Object.fromEntries(Object.entries(r.alloc));
-    if (!save()) { if (had) S.hero.armsTalents = old; else delete S.hero.armsTalents; d.msg = 'Не удалось сохранить. Изменение отменено.'; return talentRender(); }
+    const arms = tree.live === 'armsIntegrated', field = arms ? 'armsTalents' : 'specTalents';
+    const had = Object.prototype.hasOwnProperty.call(S.hero, field), old = S.hero[field];
+    if (arms) S.hero.armsTalents = Object.fromEntries(Object.entries(r.alloc));
+    else S.hero.specTalents = Object.assign({}, old && typeof old === 'object' && !Array.isArray(old) ? old : {}, { [tree.id]: Object.fromEntries(Object.entries(r.alloc)) });
+    if (!save()) { if (had) S.hero[field] = old; else delete S.hero[field]; d.msg = 'Не удалось сохранить. Изменение отменено.'; return talentRender(); }
     d.changed = true; d.msg = reset ? 'Очки сброшены.' : ''; talentRender();
   }
   function talentClick(ev) {

@@ -29,15 +29,15 @@ for (const [cls, c] of Object.entries(B.CLASSES)) {
     assert.deepEqual(plain(P.active(cls, spec, 30)), plain(def.skills), 'whole kit at 30: ' + cls + ':' + spec);
   }
 }
-const fixture = { 'warrior:prot': { heroicstrike: 1, taunt: 1, shieldslam: 15, thunder: 5, revenge: 20, wall: 30 } };
+const fixture = { 'warrior:prot': { heroicstrike: 1, taunt: 1, shieldblock: 15, thunder: 5, revenge: 20, wall: 30 } };
 const profile = P.create(fixture);
 fixture['warrior:prot'].wall = 1;
-for (const [id, unlock] of Object.entries({ heroicstrike: 1, taunt: 1, shieldslam: 15, thunder: 5, revenge: 20, wall: 30 })) {
+for (const [id, unlock] of Object.entries({ heroicstrike: 1, taunt: 1, shieldblock: 15, thunder: 5, revenge: 20, wall: 30 })) {
   if (unlock > 1) assert.equal(profile.slots('warrior', 'prot', unlock - 1).find(s => s.id === id).available, false);
   assert.equal(profile.slots('warrior', 'prot', unlock).find(s => s.id === id).available, true);
 }
-assert.ok(!profile.active('warrior', 'prot', 14).includes('shieldslam'));
-assert.ok(profile.active('warrior', 'prot', 15).includes('shieldslam'));
+assert.ok(!profile.active('warrior', 'prot', 14).includes('shieldblock'));
+assert.ok(profile.active('warrior', 'prot', 15).includes('shieldblock'));
 assert.ok(!profile.active('warrior', 'prot', 3).includes('thunder'));
 assert.deepEqual(plain(profile.active('mage', 'fire', 1)), plain(B.CLASSES.mage.specs.fire.skills));
 const list = P.active('warrior', 'prot', 30); list.length = 0;

@@ -1,0 +1,11 @@
+{
+ "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+ "description": "Bug fix (2026-11-27): a shield block set the blocked flag and opened Revenge but did not reduce the hit; the passive text promises -30% damage (PROT_CFG.blockReduction).",
+ "edits": [
+  {
+   "name": "Blocked hit loses 30% damage",
+   "old": "    tgt.effects.forEach(function (f) { if (f.kind === 'wall') amt *= f.mult; });\n",
+   "new": "    tgt.effects.forEach(function (f) { if (f.kind === 'wall') amt *= f.mult; });\n    if (blocked) amt *= 1 - PROT_CFG.blockReduction; /* Блок щитом: −30% урона удара, как в описании пассивки (раньше флаг ставился, но урон не снижался). */\n"
+  }
+ ]
+}

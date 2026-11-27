@@ -2,7 +2,13 @@
 
 > **Status 2026-11-26:** the current coverage, findings and checkpoints are in [REVIEW-LEDGER.md](REVIEW-LEDGER.md); requirements in [OPEN-WORK.md](OPEN-WORK.md). The checkpoints below are historical. Documents named here as unread have since been read (see the ledger); historical audits moved to [archive/](archive/).
 
-## Current handoff (2026-11-27 night; branch `claude/determined-franklin-io5qcw`, not merged)
+## Current handoff (2026-11-27 late; branch `claude/charming-shannon-y7g0a1` from main `ac90e94`; owner approved the release)
+
+Step 3 (TALENT-03 + TALENT-01, warrior) on the branch, details in OPEN-WORK: COMBAT-02 shield-block fix; Classic talents for Arms/Fury/Protection with 3-point tiers (`B.specTalents` for Fury/Protection, `B.armsIntegrated` for Arms); ability talents only through talents (companions take them on their line); kits refilled with trainer abilities; per-spec saves (`armsTalents`, new `specTalents[spec]`); all three trees live in the talent window (TALENT-04 tree id fix). Simulators give mains the companion line as build; evidence in `docs/evidence/talent-03/`.
+Spec selector (mock-up A, owner-approved): one selector in the hero tab (small spec icon, role, points, talents button for classes with the talent window) and the party tab (spec only); switch = 5 s cancellable cast with a bar, out of combat only; the owner-supplied WotLK sound `UI_DualTalentSpecilization` plays on completion (`scripts/build_spec_sound.py`). Wetlands map lost the leftover placeholder frame and label. Last Stand reworked by the owner: automatic immortality on a lethal hit until the next own turn, once per fight / per dungeon run (duos at 24–30 still above the BAL-06 target: follow-up). Next: other classes' trees (TALENT-03), then steps 4–6 (gathering PLAY-14, Loch Modan PLAY-15 research, class preview PLAY-07) and quest loot.
+Local browser tests need Python Playwright 1.63.0 (matches the preinstalled Chromium 1243), not the 1.56.0 pinned in pages.yml.
+
+## Earlier handoff (2026-11-27 night)
 
 Done on the branch (each a commit, details in OPEN-WORK): step 1 UI/text fixes PLAY-05, 06, 08, 09, 10, 13, 16, 17 + PARTY-02; step 2 PLAY-11/12 (Classic level-1 abilities, trainer levels, training damage shape, level-1 solo curve); PLAY-18 Classic starter set (new save field `starterKit`); PLAY-19 approach turn + Classic wards for casters. New tools: `scripts/sim_early.cjs`; tests `test_quest_text_counts.cjs`, `test_early_classic.cjs`, `test_caster_range.cjs`, `test_starter_kit_browser.py` (the browser test is not in pages.yml yet). Nothing published; merge to main only with the owner's «да».
 

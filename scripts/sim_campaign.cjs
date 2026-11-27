@@ -42,7 +42,11 @@ const FEEL_MOBS = { 1: ['wolf', 'thief'], 2: ['kobold', 'wolf'], 3: ['kobold', '
 // PLAY-18 (owner 2026-11-27): every main hero starts in the Classic white starter set (chest 3 + legs 3 + feet 2 armour, weapon +1 stamina +1 primary);
 // «without gear» in the targets now means «in the starter set». Companions have no gear in the game.
 const starter = cls => ({ armorFlat: 8, stamina: 1, [B.primaryKey(cls, B.CLASSES[cls].def)]: 1 });
-const hero = (cls, L) => ({ cls, spec: L < 15 ? B.CLASSES[cls].def : DD[cls], level: L, main: true, neutralTraining: L < 15, race: 'human', pet: PET[cls], statBonuses: starter(cls) });
+// TALENT-03: from 15 the main fights as in the game: integrated Arms for the warrior, and the companion talent line as its build.
+const hero = (cls, L) => { const spec = L < 15 ? B.CLASSES[cls].def : DD[cls], u = { cls, spec, level: L, main: true, neutralTraining: L < 15, race: 'human', pet: PET[cls], statBonuses: starter(cls) };
+  if (L >= 15 && cls === 'warrior' && spec === 'arms' && L <= B.XPC.cap) Object.assign(u, { proto: 'arms', integratedArms: true, talents: B.armsIntegrated.line(L) });
+  const R = L >= 15 && B.specTalents && B.specTalents.rules(cls, spec); if (R) u.talents = R.line(L);
+  return u; };
 const freeComp = (cls, L) => cls === 'warrior' ? { cls: 'priest', spec: 'holy', level: L } : { cls: 'warrior', spec: 'prot', level: L };
 // Group companions: prot warrior tank (Protection paladin tanks far worse: 15% vs 60% wins in the same party, see docs/evidence/bal-05-06) and holy priest
 // (resto druid for a priest main).

@@ -44,7 +44,8 @@ def main():
  source=subprocess.check_output(['node','-e',"process.stdout.write(require('./scripts/lib_engine_load.cjs').source('src/scripts/script-06.txt'))"],text=True)
  start='/* HERO_TREE_VIEW_BEGIN */';end='/* HERO_TREE_VIEW_END */'
  assert source.count(start)==source.count(end)==1
- assert 'const specBox = heroTreeButtons();' in source
+ # TALENT-01: the hero tab shows the spec selector; the tree buttons remain where the spec cannot be switched yet and in the tree viewer.
+ assert "const specBox = specSelectorHtml('hero');" in source and "specNotice + heroTreeButtons() + '</div>'" in source
  helper=source.split(start)[1].split(end)[0]
  commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
  out=Path('test-results/hero-layout/tree-navigation');out.mkdir(parents=True,exist_ok=True)
