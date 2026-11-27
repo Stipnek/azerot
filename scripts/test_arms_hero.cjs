@@ -14,7 +14,7 @@ assert.ok(source.includes('...armsLoadout(key), cls: clsOf(key)'));
 assert.ok(source.includes('armsTalents: armsHeroData(h, B.levelOf(cleanHxp(h).me))'));
 const esc = value => String(value).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let stored, writes = 0, refreshes = 0, allowSave = true, alerts = 0;
-const S = { hero: {id:'first',cls:'warrior',race:'human',name:'First',level:30,hxp:{me:B.xpAt(30)},armsTalents:plain(P.line(30))}, main:'warrior', party:['me','low','healer'] };
+const S = { hero: {id:'first',cls:'warrior',race:'human',name:'First',level:30,hxp:{me:B.xpAt(30)},armsTalents:plain(B.armsIntegrated.line(30))}, main:'warrior', party:['me','low','healer'] };
 const specs = {me:'arms',low:'arms',healer:'holy'}, levels = {me:30,low:14,healer:30};
 const context = vm.createContext({B,S,ARMS_HERO_MODE:true,st:null,esc,
   document:{addEventListener(){}}, window:{alert(){alerts++;}},
@@ -30,16 +30,16 @@ for (const bad of [[],false,'bad',{unknown:1},{deepwounds:3},{ihs:99}]) {
   context.raw={armsTalents:bad};assert.deepEqual(plain(call('armsHeroData(raw, 30)')),{});
 }
 let party = plain(call('partyArg()'));
-assert.deepEqual(party[0].talents,plain(P.line(30)));
+assert.deepEqual(party[0].talents,plain(B.armsIntegrated.line(30)));
 assert.equal(party[0].proto,'arms');assert.equal(party[1].proto,'arms');
 assert.equal(party[1].level,14);assert.ok(!('talents' in party[1]));assert.ok(!('proto' in party[2]));
 let battle = B.createBattle({party,main:'warrior',level:30,encounter:'daily_wf_coast',seed:1});
-assert.deepEqual(plain(battle.heroes[0].tal),plain(P.line(30)));
+assert.deepEqual(plain(battle.heroes[0].tal),plain(B.armsIntegrated.line(30)));
 assert.deepEqual(plain(battle.heroes[1].tal),{});
 assert.deepEqual(plain(battle.heroes[1].skills),['heroicstrike','thunder','rend']);
 levels.low=25;party=plain(call('partyArg()'));
 battle=B.createBattle({party,main:'warrior',level:30,encounter:'daily_wf_coast',seed:1});
-assert.deepEqual(plain(battle.heroes[1].tal),plain(P.line(25)));
+assert.deepEqual(plain(battle.heroes[1].tal),plain(B.armsIntegrated.line(25)));
 const html=call('armsHeroPanel()');
 assert.match(html,/data-arms-panel="first"/);
 const icons=[...html.matchAll(/<button\b[^>]*data-arms-node="[^"]+"[^>]*>/g)].map(m=>m[0]).filter(tag=>!tag.includes('data-arms-delta'));
@@ -108,10 +108,16 @@ checkPreview('imprend');const beforeMax=writes;
 click({armsHero:'first',armsNode:'imprend',armsDelta:'1'});assert.equal(writes,beforeMax);
 click({armsHero:'first',armsNode:'imprend',armsDelta:'-1'});assert.equal(S.hero.armsTalents.imprend,maxNode.max-1);
 click({armsHero:'first',armsReset:'1'});assert.deepEqual(plain(S.hero.armsTalents),{});
-S.hero.armsTalents=plain(P.line(30));levels.me=14;
+S.hero.armsTalents=plain(B.armsIntegrated.line(30));levels.me=14;
 assert.deepEqual(plain(call("armsLoadout('me').talents")),{});
 assert.match(call('armsHeroPanel()'),/откроются на 15 уровне/);
-levels.me=30;specs.me='prot';assert.deepEqual(plain(call("armsLoadout('me')")),{});assert.equal(call('armsHeroPanel()'),'');
+levels.me=30;specs.me='prot';assert.deepEqual(plain(call("armsLoadout('me')")),{talents:{}},'Protection main without a saved build');assert.equal(call('armsHeroPanel()'),'');
+{const R=B.specTalents.rules('warrior','prot');S.hero.specTalents={prot:plain(R.line(30)),fury:{bad:1}};
+ assert.deepEqual(plain(call("armsLoadout('me')")),{talents:plain(R.line(30))},'TALENT-01: own Protection build goes into battle');
+ specs.me='fury';assert.deepEqual(plain(call("armsLoadout('me')")),{talents:{}},'an invalid build of another spec is ignored');
+ assert.deepEqual(plain(call('specTalentsClean(S.hero,30)')),{prot:plain(R.line(30))});
+ assert.deepEqual(plain(call('armsHeroData(S.hero,30)')),plain(B.armsIntegrated.line(30)),'Arms build kept separately');
+ delete S.hero.specTalents;}
 specs.me='arms';context.ARMS_HERO_MODE=false;
 assert.deepEqual(plain(call("armsLoadout('me')")),{});assert.equal(call('armsHeroPanel()'),'');
 const keyBegin=source.indexOf('  const ARMS_HERO_MODE =');

@@ -1,7 +1,7 @@
 {
-  "engineSource": "src/scripts/script-05.txt + edits through script-05.zzzzzzzzzzzzzzzzzzz-block-reduction.edits.json",
-  "sourceSha256": "e0fb6a7c1c84a5607e91596a53ef7ea52c588bdf14bfa8f82f76854fe1d337b1",
+  "engineSource": "src/scripts/script-05.txt + edits through script-05.zzzzzzzzzzzzzzzzzzzz-warrior-talents.edits.json",
+  "sourceSha256": "c0d00dfe6b70a90e16e8640bf96a4208f57bbe83913163c6532ed1536305902f",
   "scenarios": 300,
-  "sha256": "c692ea285357709e3734749810e8092d7e6abdc7241e41348904ae4aedc8e10a",
-  "note": "Regenerated 2026-11-27 after the shield-block bug fix (a block now reduces the hit by 30% as the passive text says; changes Protection warrior fights). Earlier: after owner-approved PLAY-19 (approach turn for melee enemies against all-ranged parties; changes some three-hero parties of these scenarios). Earlier: BAL-05/06, Deadmines, unlock schedule. Still guards that the Arms prototype flag does not change ordinary classes."
+  "sha256": "30a6b397a33ed6f31aab284fa3f9e131b3e8e6eb68a225730300bd5c417ab7b4",
+  "note": "Regenerated 2026-11-27 after TALENT-03 for the warrior (owner decision B: Classic talents with 3-point tiers; ability talents only through talents, companions take them; Fury and Protection kits refilled with trainer abilities). Earlier: after the shield-block bug fix (a block now reduces the hit by 30% as the passive text says; changes Protection warrior fights). Earlier: after owner-approved PLAY-19 (approach turn for melee enemies against all-ranged parties; changes some three-hero parties of these scenarios). Earlier: BAL-05/06, Deadmines, unlock schedule. Still guards that the Arms prototype flag does not change ordinary classes."
 }

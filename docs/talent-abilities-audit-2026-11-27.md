@@ -53,3 +53,4 @@ Recommendation: B for the test, A's kit rule in both (talent abilities only thro
 - Option **B** for the test: compressed tiers while the cap is 30, back to Classic five points per tier at the 60 cap.
 - Done: Crusader Strike → «Печать праведности» (Seal of Righteousness, weapon strike under the seal), Steady Shot → «Оглушающий выстрел» (Concussive Shot, 100% damage and 20% slow for 2 turns). Internal ids `crusader` and `steady` are kept, so saves and AI are unchanged.
 - Next session: trees for all specs and the kit rework.
+- Warrior done as a candidate on `claude/charming-shannon-y7g0a1` (see OPEN-WORK TALENT-03): Mortal Strike, Bloodthirst, Death Wish, Shield Slam only through talents.

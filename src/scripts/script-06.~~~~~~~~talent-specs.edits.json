@@ -1,0 +1,51 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "TALENT-01 + TALENT-03 (owner decisions 2026-11-27): per-spec talent allocations (Arms in armsTalents, other specs in specTalents[spec]) validated on load and passed into battle for the main; companions use the engine line and take ability talents; skill lists show ability talents; Arms talent texts follow Classic.",
+ "edits": [
+  {
+   "name": "Per-spec talent saves: read, validate and pass the main allocation into battle",
+   "old": "  function armsLoadout(k) {",
+   "new": "  /* TALENT-01 (владелец, 27 ноября): у каждого спека своя раскладка с полным запасом очков. Оружие хранится в armsTalents (как раньше),\n     другие спеки — в specTalents[спек]; неверная раскладка при загрузке сбрасывается только у своего спека. */\n  function specTalentData(hero, spec, level) {\n    if (!Number.isInteger(level) || level < 1 || level > B.XPC.cap) throw new RangeError('Own hero level required');\n    const R = hero && B.specTalents ? B.specTalents.rules(hero.cls || S.main, spec) : null, all = hero && hero.specTalents;\n    const raw = R && all && typeof all === 'object' && !Array.isArray(all) && Object.prototype.hasOwnProperty.call(all, spec) ? all[spec] : null;\n    if (!R || raw === null || raw === undefined || typeof raw !== 'object' || Array.isArray(raw) || !R.validate(raw, level).ok) return {};\n    return Object.fromEntries(Object.entries(raw));\n  }\n  function specTalentsClean(hero, level) {\n    const out = {}, c = hero && B.CLASSES[hero.cls];\n    if (!c || !B.specTalents) return out;\n    Object.keys(c.specs).forEach(function (spec) { const a = specTalentData(hero, spec, level); if (Object.keys(a).length) out[spec] = a; });\n    return out;\n  }\n  function armsLoadout(k) {"
+  },
+  {
+   "name": "Fury and Protection mains fight with their saved talents; companions use their automatic line in the engine",
+   "old": "    if (!ARMS_HERO_MODE || !S.hero || clsOf(k) !== 'warrior' || specKey(k) !== 'arms') return {};\n    return k === 'me' ? { proto: 'arms', integratedArms: true, talents: armsHeroData(S.hero, hLevel(k)) } : { proto: 'arms', integratedArms: true, protoNoExtraActive: true };",
+   "new": "    if (ARMS_HERO_MODE && S.hero && k === 'me' && B.specTalents && B.specTalents.rules(clsOf(k), specKey(k))) return { talents: specTalentData(S.hero, specKey(k), hLevel(k)) };\n    if (!ARMS_HERO_MODE || !S.hero || clsOf(k) !== 'warrior' || specKey(k) !== 'arms') return {};\n    return k === 'me' ? { proto: 'arms', integratedArms: true, talents: armsHeroData(S.hero, hLevel(k)) } : { proto: 'arms', integratedArms: true };"
+  },
+  {
+   "name": "Arms talent texts after Classic",
+   "old": "      ihs: 'Смертельный удар требует на ' + C.ihs.join('/') + ' ярости меньше.',",
+   "new": "      ihs: 'Удар героя требует на ' + C.ihs.join('/') + ' ярости меньше (Classic).',\n      impcharge: 'Бой начинается с +3/+6 ярости. В Classic Улучшенный рывок давал больше ярости от Рывка; рывка в игре нет (адаптация).',\n      mortal: 'Открывает умение «Смертельный удар»: 180% урона цели, лечение цели −25% на 3 хода. Талант 7 ряда, как в Classic; спутники берут его сами.',"
+  },
+  {
+   "name": "Deep Wounds is the Classic talent again",
+   "old": "      deepwounds: 'Урон базовых Глубоких ран увеличивается на ' + C.deepWounds.totalOfAtk.map(x => Math.round(x * 100)).join('/') + '%. Второе кровотечение не добавляется.',",
+   "new": "      deepwounds: 'Критический удар оружием вызывает кровотечение: ' + C.deepWounds.totalOfAtk.map(x => Math.round(x * 100)).join('/') + '% атаки за 4 тика (Classic: за 12 с). Одно кровотечение на цель.',"
+  },
+  {
+   "name": "Sweeping Strikes: companions take it too",
+   "old": "      sweeping: 'Оружейные удары дополнительно поражают вторую цель: до ' + C.sweeping.charges + ' ударов за ' + C.sweeping.turns + ' своих хода. Стоимость: ' + C.sweeping.rage + ' ярости; перезарядка: ' + C.sweeping.cd + ' ходов.'",
+   "new": "      sweeping: 'Открывает умение: оружейные удары дополнительно поражают вторую цель: до ' + C.sweeping.charges + ' ударов за ' + C.sweeping.turns + ' своих хода. Стоимость: ' + C.sweeping.rage + ' ярости; перезарядка: ' + C.sweeping.cd + ' ходов.'"
+  },
+  {
+   "name": "Save the per-spec talents",
+   "old": "...(ARMS_HERO_MODE ? { armsTalents: armsHeroData(h, B.levelOf(cleanHxp(h).me)) } : {}),",
+   "new": "...(ARMS_HERO_MODE ? { armsTalents: armsHeroData(h, B.levelOf(cleanHxp(h).me)), specTalents: specTalentsClean(h, B.levelOf(cleanHxp(h).me)) } : {}),"
+  },
+  {
+   "name": "Talent label in the Arms skill list",
+   "old": "const label = slot.source === 'talent' ? 'Талант мейна' : ",
+   "new": "const label = slot.source === 'talent' ? (slot.available ? 'талант' : 'талант, ряд с '+slot.unlockLevel+' ур.') : "
+  },
+  {
+   "name": "Skill list shows ability talents of Fury and Protection",
+   "old": "    }).join('');\n    return '<details class=\"sk\" data-sk=\"' + k + '\"' + (openSk[k] ? ' open' : '') + '><summary>Умения: ' + esc(sp.name) + '</summary><ul>' + items +",
+   "new": "    }).join('') + (function () {\n      /* TALENT-03: умения из талантов (у своего героя — по сохранённой раскладке, у спутника — по его линии). */\n      const TR = typeof ARMS_HERO_MODE !== 'undefined' && ARMS_HERO_MODE && B.specTalents ? B.specTalents.rules(k, auKey) : null;\n      if (!TR) return '';\n      const a = isMain && S.hero ? specTalentData(S.hero, auKey, ownLevel) : TR.line(ownLevel);\n      return TR.slots(ownLevel, a).map(function (slot) {\n        const d = B.SKILLS[slot.id], cd = d.cd ? 'перезарядка ' + d.cd + ' х.' : 'без перезарядки', rage = d.rage !== undefined ? ', ярость ' + B.rageCostText(slot.id) : '';\n        const note = slot.available ? ' · талант' : ' · талант, ряд с ' + slot.unlockLevel + ' ур.';\n        return '<li class=\"az-ability-row' + (slot.available ? '' : ' az-ability-locked') + '\" data-skill=\"' + slot.id + '\" data-talent-skill=\"' + esc(slot.talent) + '\" data-available=\"' + slot.available + '\" data-own-level=\"' + ownLevel + '\"' + (slot.available ? '' : ' style=\"opacity:.55;filter:grayscale(1)\"') + '><span class=\"sic\" aria-hidden=\"true\">' + wowIcon(d) + '</span><span><b>' + esc(slot.name) + '</b> <span class=\"scd\">' + cd + rage + esc(note) + '</span><br>' + esc(slot.description) + '</span></li>';\n      }).join('') + (TR.rank(a, 'flurry') ? '<li class=\"au\" data-talent-passive=\"flurry\"><span class=\"sic\" aria-hidden=\"true\">🌪️</span><span><b>Шквал</b> <span class=\"scd\">талант</span><br>' + esc(TR.effect('flurry')) + '</span></li>' : '');\n    })();\n    return '<details class=\"sk\" data-sk=\"' + k + '\"' + (openSk[k] ? ' open' : '') + '><summary>Умения: ' + esc(sp.name) + '</summary><ul>' + items +"
+  },
+  {
+   "name": "Hero tree buttons count points of every live tree",
+   "old": "    if (S.main === 'warrior' && S.hero) {\n      const v = B.armsIntegrated.validate(S.hero.armsTalents || {}, hLevel('me'));\n      totals[0] = v.ok ? v.spent : null;\n    }",
+   "new": "    if (S.main === 'warrior' && S.hero) {\n      const v = B.armsIntegrated.validate(S.hero.armsTalents || {}, hLevel('me'));\n      totals[0] = v.ok ? v.spent : null;\n    }\n    if (S.hero && B.specTalents) rows.forEach(function (row, i) { const R = B.specTalents.rules(S.main, row[0]); if (R) totals[i] = R.validate(specTalentData(S.hero, row[0], hLevel('me')), hLevel('me')).spent; });"
+  }
+ ]
+}

@@ -21,7 +21,7 @@ function fn(name) {
   }
   throw new Error('Unclosed function: ' + name);
 }
-const names = ['hLevel','selectedSpec','canSpecialize','runtimeLeaderAura','startSpec','effectiveSpec','ddSpec','syncLevel','specKey','save','cleanChar','cleanSpecs','cleanHxp','legacyXpToV2','cleanNames','cleanQuestProgress','inventoryCount','worldQuestItems','cleanInventory','canEquipQuestGear','cleanGear','cleanTav','migrateTav','isGid','cleanParty','startParty','clsOf','tavRec','armsHeroData','armsLoadout','partyArg','petFree'];
+const names = ['hLevel','selectedSpec','canSpecialize','runtimeLeaderAura','startSpec','effectiveSpec','ddSpec','syncLevel','specKey','save','cleanChar','cleanSpecs','cleanHxp','legacyXpToV2','cleanNames','cleanQuestProgress','inventoryCount','worldQuestItems','cleanInventory','canEquipQuestGear','cleanGear','cleanTav','migrateTav','isGid','cleanParty','startParty','clsOf','tavRec','armsHeroData','specTalentData','specTalentsClean','armsLoadout','partyArg','petFree'];
 const code = names.map(fn).join('\n');
 const S = {main:'warrior',specs:{me:'fury'},level:14,party:['me','g_low'],allSpecs:false,chars:[],cur:'hero'};
 const values = new Map();

@@ -3,14 +3,16 @@
 // Run: node scripts/sim_class_audit.cjs [N=30]
 // Solo (dd specs; tanks and healers too, since the main can be any spec): hero alone, no gear, vs two same-level enemies of the zone (BAL-05 rule: about half HP).
 // Tank: fire mage main + this tank + holy priest vs a three-enemy group-quest pack of that level. Healer: prot warrior + fire mage main + this healer.
-// Warrior Arms is fought as the game's integrated Arms (training kit, Mortal Strike at 15, companion talent line), as in hero mode.
+// Warrior Arms is fought as the game's integrated Arms (trainer kit, talent abilities on the companion talent line), as in hero mode; mains of specs with talent rules use that line as their build.
 const B = require('./lib_engine_load.cjs')();
 const N = +process.argv[2] || 30;
 const MOBS = { 15: ['gnollMiner', 'tarantula', 'orcGrunt'], 20: ['gnollRunt', 'dw_spider', 'murlocWarrior'], 25: ['dw_wolf', 'dw_skeleton', 'gnollMiner'], 30: ['dw_wolf', 'dw_skeleton', 'dw_spider'] };
 const PACK = { 15: 'rr_fangore', 20: 'rr_howler', 25: 'cl_watch1', 30: 'cl_watch3' };
 const PET = { hunter: 'wolf', warlock: 'imp' };
 const unit = (cls, spec, L, main) => { const u = { cls, spec, level: L, main: !!main, race: 'human', pet: PET[cls] };
-  if (cls === 'warrior' && spec === 'arms') Object.assign(u, { proto: 'arms', integratedArms: true }, main ? { talents: B.armsIntegrated.line(L) } : { protoNoExtraActive: true });
+  // TALENT-03: the main is given the companion talent line as its build (a reasonable player build); companions use the line in the engine.
+  if (cls === 'warrior' && spec === 'arms') Object.assign(u, { proto: 'arms', integratedArms: true }, main ? { talents: B.armsIntegrated.line(L) } : {});
+  const R = B.specTalents && B.specTalents.rules(cls, spec); if (R && main) u.talents = R.line(L);
   return u; };
 B.ENCOUNTERS.__audit = { name: 'audit', place: 'audit', type: 'solo', size: 1, level: 15, enemies: [] };
 function run(enc, enemies, party, L) {

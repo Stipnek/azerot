@@ -32,18 +32,18 @@ function row(html, id) {
   return found[0];
 }
 const profile = B.abilityProgression.create({ 'warrior:prot': {
-  heroicstrike: 1, taunt: 1, thunder: 5, shieldslam: 15, revenge: 20, wall: 30
+  heroicstrike: 1, taunt: 1, thunder: 5, shieldblock: 15, revenge: 20, wall: 30
 } });
 const render = renderer(profile), c = B.CLASSES.warrior, sp = c.specs.prot;
 const low = render('warrior', sp, c, false, 1);
 const high = render('warrior', sp, c, true, 30);
-assert.match(row(low, 'shieldslam'), /data-available="false"/);
-assert.match(row(low, 'shieldslam'), /az-ability-locked/);
-assert.match(row(low, 'shieldslam'), /data-own-level="1"/);
+assert.match(row(low, 'shieldblock'), /data-available="false"/);
+assert.match(row(low, 'shieldblock'), /az-ability-locked/);
+assert.match(row(low, 'shieldblock'), /data-own-level="1"/);
 assert.match(low, /Откроется на 15 уровне/);
-assert.match(row(high, 'shieldslam'), /data-available="true"/);
-assert.doesNotMatch(row(high, 'shieldslam'), /az-ability-locked/);
-assert.match(row(high, 'shieldslam'), /data-own-level="30"/);
+assert.match(row(high, 'shieldblock'), /data-available="true"/);
+assert.doesNotMatch(row(high, 'shieldblock'), /az-ability-locked/);
+assert.match(row(high, 'shieldblock'), /data-own-level="30"/);
 assert.match(row(low, 'heroicstrike'), /data-available="true"/);
 for (const level of [14, 15, 29, 30]) {
   const html = render('warrior', sp, c, false, level);

@@ -23,7 +23,10 @@ assert.equal(B.abilityProgression.configuredProfiles.length, Object.keys(rules).
 let cases = 0;
 for (const [cls, c] of Object.entries(B.CLASSES)) {
   for (const [spec, def] of Object.entries(c.specs)) {
-    const expected = level => def.skills.filter(id => rules[cls + ':' + spec][id] <= level);
+    // TALENT-03: companions also get ability talents from their automatic line; a main without a saved allocation gets none.
+    const R = B.specTalents.rules(cls, spec);
+    const talentActives = (level, isMain) => R && !isMain ? R.actives(R.line(level)) : [];
+    const expected = (level, isMain) => { const kit = def.skills.filter(id => rules[cls + ':' + spec][id] <= level); return kit.concat(talentActives(level, isMain).filter(id => !kit.includes(id))); };
     for (const mainLevel of [1, 30]) {
       for (const companionLevel of [1, 4, 5, 8, 9, 14, 15, 19, 20, 29, 30]) {
         const state = B.createBattle({
@@ -35,8 +38,8 @@ for (const [cls, c] of Object.entries(B.CLASSES)) {
         });
         const label = cls + ':' + spec + ' main=' + mainLevel + ' companion=' + companionLevel;
         assert.equal(state.heroes.length, 2, label + ': preserve both party members');
-        assert.deepEqual(plain(state.heroes[0].skills), plain(expected(mainLevel)), label + ': main uses own level');
-        assert.deepEqual(plain(state.heroes[1].skills), plain(expected(companionLevel)), label + ': companion uses own level, not main or encounter');
+        assert.deepEqual(plain(state.heroes[0].skills), plain(expected(mainLevel, true)), label + ': main uses own level');
+        assert.deepEqual(plain(state.heroes[1].skills), plain(expected(companionLevel, false)), label + ': companion uses own level, not main or encounter');
         cases++;
       }
     }
@@ -48,7 +51,8 @@ for (const [key, plan] of Object.entries(baseline.ABILITY_UNLOCKS)) {
   const [cls, spec] = key.split(':'); if (cls === 'warrior' && spec === 'arms') continue; // integrated Arms has its own kit path
   for (const lvl of [1, 15, 22, 30]) {
     const st = baseline.createBattle({ encounter: 'daily_wf_coast', level: 30, main: cls, seed: 7, party: [{ cls: 'warrior', spec: 'prot', level: 30, main: true }, { cls, spec, level: lvl }] });
-    assert.deepEqual(plain(st.heroes[1].skills), plain(baseline.CLASSES[cls].specs[spec].skills.filter(id => plan[id] <= lvl)), key + ' companion at ' + lvl);
+    const R = baseline.specTalents.rules(cls, spec), kit = baseline.CLASSES[cls].specs[spec].skills.filter(id => plan[id] <= lvl);
+    assert.deepEqual(plain(st.heroes[1].skills), plain(kit.concat(R ? R.actives(R.line(lvl)).filter(id => !kit.includes(id)) : [])), key + ' companion at ' + lvl);
   }
 }
 console.log('Ability progression combat wiring passed:', cases, 'mixed-level party cases with synthetic schedules and the production schedule for companions at 1/15/22/30');
