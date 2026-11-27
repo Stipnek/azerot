@@ -1,0 +1,11 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "BAL-05/06 in the interface layer: quest goal fights spawn at most Battle.SOLO_MAX_ENEMIES enemies in solo quests at every level (was levels 1-14 only), and every goal fight records packSize (the size of a full goal fight) so the group power budget treats the last, smaller goal fight as weaker instead of scaling it up.",
+ "edits": [
+  {
+   "name": "Solo goal cap at every level and full goal-fight size",
+   "old": "cap=e0&&e0.size===1&&B.SOLO_MAX_ENEMIES&&e0.level<15?B.SOLO_MAX_ENEMIES:3;",
+   "new": "cap=e0&&e0.size===1&&B.SOLO_MAX_ENEMIES?B.SOLO_MAX_ENEMIES:3;if(e0)e0.packSize=Math.min(cap,q.goals.reduce(function(s,g){return s+g.count;},0));/* BAL-05: лимит одиночного боя на всех уровнях; BAL-06: размер полного боя за целями для бюджета группового задания */"
+  }
+ ]
+}
