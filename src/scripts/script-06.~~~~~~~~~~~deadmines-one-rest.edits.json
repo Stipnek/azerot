@@ -1,0 +1,11 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Owner 2026-11-27: the Deadmines lobby shows the rest count with the right Russian form (one rest per run for now).",
+ "edits": [
+  {
+   "name": "Rest count wording",
+   "old": "'+d.rests+' <span>полных отдыха</span>",
+   "new": "'+d.rests+' <span>'+(d.rests===1?'полный отдых':d.rests>=2&&d.rests<=4?'полных отдыха':'полных отдыхов')+'</span>"
+  }
+ ]
+}

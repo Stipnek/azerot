@@ -1,0 +1,21 @@
+{
+ "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+ "description": "Owner 2026-11-27: Last Stand is refreshed by a rest; the Deadmines run has one rest for now (was 3).",
+ "edits": [
+  {
+   "name": "Deadmines: one rest per run (owner 2026-11-27, for now)",
+   "old": "scene: 'deadmines', rests: 3, xpNote: true,",
+   "new": "scene: 'deadmines', rests: 1, xpNote: true, /* владелец, 27 ноября: пока один отдых за заход (отдых обновляет «Ни шагу назад») */"
+  },
+  {
+   "name": "Deadmines text",
+   "old": "text: 'Шесть боссов подряд, ХП и мана переносятся, отдохнуть можно 3 раза',",
+   "new": "text: 'Шесть боссов подряд, ХП и мана переносятся, отдохнуть можно один раз',"
+  },
+  {
+   "name": "Rest refreshes Last Stand",
+   "old": "lastStandUsed: !!x.lastStandUsed }; });",
+   "new": "lastStandUsed: false }; }); /* отдых обновляет «Ни шагу назад» (владелец, 27 ноября) */"
+  }
+ ]
+}

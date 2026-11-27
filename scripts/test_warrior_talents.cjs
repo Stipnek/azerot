@@ -43,12 +43,13 @@ assert.ok(triggered >= 10, 'Last Stand triggers in hard fights: ' + triggered);
   assert.ok(!h.lastStandUsed);
 }
 console.log('warrior talents ok; Last Stand triggered in', triggered, 'of 30 hard fights');
-{ // owner 2026-11-27: in a dungeon Last Stand works once per run (carried between rooms and kept by a rest)
+{ // owner 2026-11-27: in a dungeon Last Stand is carried between rooms; a rest refreshes it, and the Deadmines run has one rest
   const run = B.newRun('deadmines', [{ cls: 'warrior', spec: 'prot', level: 28, main: true, talents: plain(P.line(28)) }], 'warrior', 28, 7);
   const st = B.createBattle({ party: run.party, main: run.main, encounter: B.roomKey(run), level: 28, seed: 1, carry: [{ hp: 100, maxHp: 1e9, mana: 0, maxMana: 0, lastStandUsed: true }] });
   assert.equal(st.heroes[0].lastStandUsed, true, 'carried flag applies');
   run.carry = [{ hp: 10, maxHp: 100, mana: 0, maxMana: 0, lastStandUsed: true }]; B.restRun(run);
-  assert.equal(run.carry[0].lastStandUsed, true, 'rest does not reset it');
+  assert.equal(run.carry[0].lastStandUsed, false, 'owner 2026-11-27: a rest refreshes Last Stand');
+  assert.equal(B.DUNGEONS.deadmines.rests, 1, 'one rest per Deadmines run for now');
   const src = require('./lib_engine_load.cjs').source('src/scripts/script-05.txt');
   assert.ok(/lastStandUsed: !!h\.lastStandUsed/.test(src), 'room end carries the flag');
 }
