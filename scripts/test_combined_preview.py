@@ -79,7 +79,7 @@ def run(browser, label, viewport):
         rank_button.click()
         inspector = talents.locator('.tw-info')
         expect(inspector).to_be_visible()
-        expect(inspector.locator('h3')).to_have_text('Улучшенный смертельный удар')
+        expect(inspector.locator('h3')).to_have_text('Улучшенный удар героя')
         expect(rank_button).to_contain_text('0/3')
         verify(0)
         assert page.evaluate('(key) => localStorage.getItem(key)', KEY) == before_preview
