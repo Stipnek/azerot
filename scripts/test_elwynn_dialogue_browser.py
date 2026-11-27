@@ -75,6 +75,7 @@ try:
                     story=page.locator('#jd .az-quest-story')
                     story.wait_for(timeout=15000)
                     assert 'Иган' in story.inner_text(), 'Eagan card shows the short retelling'
+                    assert page.locator('#jd .az-quest-story + p').count()==0, 'PLAY-10: card shows only the retelling, not the old line'
                     assert story.evaluate('(p)=>{const r=p.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1;}'), 'Retelling must fit the viewport width'
                     page.screenshot(path=str(OUT/(name+'-card.png')),full_page=True)
                     page.locator('#jd #q-take').click()
@@ -100,7 +101,7 @@ try:
                     stub=evaluate(page,"return t.card('ef_candles');")
                     assert 'Вильям Пест' in stub and 'Выполни цель' not in stub, 'Stub description is replaced by the retelling: '+stub
                     assert not errors, errors
-                    checks.append({'viewport':name,'passed':['onboarding gate','card retelling','accept with card button','no dialogue window','acceptance persistence','complete with card button','single reward','completion persistence','stub text hidden']})
+                    checks.append({'viewport':name,'passed':['onboarding gate','card retelling','accept with card button','no dialogue window','acceptance persistence','complete with card button','single reward','completion persistence','stub text hidden','only the retelling (PLAY-10)']})
                 finally:
                     context.close()
         finally:

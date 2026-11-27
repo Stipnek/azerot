@@ -1,6 +1,6 @@
 {
   "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
-  "description": "PLAY-06 (owner play-test 2026-11-27): character creation showed the old starting-spec badge on each class icon («warrior starts as tank»). Before 15 every class uses the neutral training kit, so creation shows the plain class icon.",
+  "description": "PLAY-06 (owner play-test 2026-11-27): character creation showed the old starting-spec badge on each class icon («warrior starts as tank»). Before 15 every class uses the neutral training kit, so creation shows the plain class icon. PLAY-10 (same play-test): the quest card showed the new short retelling and the old line; it now shows only the retelling (goals stay); quests without a retelling keep their text.",
   "edits": [
     {
       "name": "Class step: plain class icons",
@@ -11,6 +11,11 @@
       "name": "Name step summary: plain class icon",
       "old": "<div class=\"cr48-summary\">'+classBadge(CR.cls,startSpec(CR.cls))+",
       "new": "<div class=\"cr48-summary\">'+classBadge(CR.cls)+"
+    },
+    {
+      "name": "Quest card: only the short retelling",
+      "old": "return '<p class=\"az-quest-story\">' + esc(story) + '</p>' + (text && !QUEST_TEXT_STUB.test(text) ? '<p>' + esc(text) + '</p>' : '');",
+      "new": "return '<p class=\"az-quest-story\">' + esc(story) + '</p>';"
     }
   ]
 }
