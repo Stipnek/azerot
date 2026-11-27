@@ -8,6 +8,12 @@ Practical rules for the owner, Claude and other AI helpers (e.g. Perplexity). Sh
 - **Claude (lead engineer)**: keeps the register and docs honest, reviews every PR, takes larger or risky changes, investigates bugs.
 - **Other AI helpers**: small, well-scoped tasks from the register, each on its own branch, always through a PR that Claude reviews.
 
+## Asking the owner
+
+- Do the work first, then report briefly; ask only for decisions that are the owner's (mechanics, content, visuals, every merge to main).
+- Ground every question in how WoW Classic did it plus current practice in similar games, give the options and say which one you would pick and why.
+- Keep reports short: the owner reads everything; details go to `docs/`.
+
 ## The loop for every change
 
 1. **Pick one item** from [OPEN-WORK.md](OPEN-WORK.md). If it has no ID, add it first. If it needs a decision, the owner decides before code.

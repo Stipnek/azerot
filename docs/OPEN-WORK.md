@@ -29,6 +29,16 @@ Rules:
 | PLAY-03 | Eagan dialogue window looks different from the rest of the game; unclear whether the quest is accepted in the window or with the «Выполнять» button below; quest card text and dialogue text differ (dialogue is lore, quest cards have little text). Decide one quest-presentation pattern (where text lives, which button accepts, window style from the game's dialog system) before more dialogue quests. | Decision / design |
 | PLAY-04 | Tests and the simulator did not show the easy early game: the feel targets were met only from level 5; levels 2–4 were tuned for a quest level that later changed. Rerun `scripts/sim_campaign.cjs` after any quest-level or key change. | Process |
 
+## Owner decisions 2026-11-27
+
+| ID | Decision | Status / next step |
+|---|---|---|
+| BAL-05 | The solo-fight rule (one enemy easy, two ≈ half HP without gear, three need gear or levels) applies at **every level**, not only 1–14: it is the reason to buy gear, run dungeons and do group quests. Extend SOLO_ENEMY_CURVE / SOLO_MAX_ENEMIES beyond 14 with the campaign simulator. | Approved, to implement |
+| BAL-06 | Group quests: with **two** heroes practically impossible unless the companion is a strong epic/legendary and the main is levelled and geared; with **three** at the quest level normal (in a gacha three heroes are easy to field). Later: enemy abilities that call for counters (e.g. an Arms warrior's healing reduction on a self-healing enemy). | Approved, to implement |
+| QUEST-05 | Gather quests: owner-approved halving rounds **up** (5 → 3). | Approved |
+| QUEST-06 | Collect quest research for **both factions** to avoid double work; only Alliance quests are active for an Alliance hero. | Approved |
+| QUEST-07 | Quest presentation stays the current quest card (no separate dialogue window style); add more lore as a **short mobile retelling** of what happens, also to existing quests — few read long text, but a quick recap can bring back how it felt 20 years ago. Rework the Eagan pilot window into the card pattern (PLAY-03). | Approved, to implement |
+
 ## Balance and progression
 
 | ID | Requirement | Status / next step |
@@ -65,7 +75,7 @@ Rules:
 | GEAR-02 | Item stats as vertical labelled rows everywhere (receipts, dungeon catalogue, bag, equipment); «При замене» separate from own stats. | Partial |
 | QUEST-01 | Per location: ready-to-turn-in first, then normal quests by level, group quests in a separate bottom block by level; stable order for ties. | Verify |
 | QUEST-02 | Keep truthful «Источник и адаптация» information; never claim every quest has it. | Partial |
-| QUEST-04 | Zone content pipeline: Wetlands, Hillsbrad, Alterac, Tirisfal, Silverpine research → [ZONE-TEMPLATE](quests/ZONE-TEMPLATE.md) cards → owner approval → implementation. Faction scope (Alliance only vs both) needs a decision. | Decision |
+| QUEST-04 | Zone content pipeline: Wetlands, Hillsbrad, Alterac, Tirisfal, Silverpine research → [ZONE-TEMPLATE](quests/ZONE-TEMPLATE.md) cards → owner approval → implementation. Faction scope decided: see QUEST-06. | Approved |
 
 ## Interface and dungeon
 
