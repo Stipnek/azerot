@@ -1,0 +1,81 @@
+{
+  "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+  "description": "PLAY-09 (owner play-test 2026-11-27): quest texts and tips must match the enemies that actually spawn. BAL-04/05 cap solo fights at two enemies (SOLO_MAX_ENEMIES), so texts and tips that still spoke of three enemies, or of a third enemy that no longer spawns (murloc, murloc shaman, pillager), are corrected. Text only; enemies unchanged. Guarded by scripts/test_quest_text_counts.cjs.",
+  "edits": [
+    {
+      "name": "fargo text",
+      "old": "text: 'Три кобольда в тесной шахте'",
+      "new": "text: 'Два кобольда в тесной шахте'"
+    },
+    {
+      "name": "echo_raid tip",
+      "old": "'Трое подряд: береги ХП и не затягивай бой.'",
+      "new": "'Двое подряд: береги ХП и не затягивай бой.'"
+    },
+    {
+      "name": "gold_dust tip",
+      "old": "'Трое подряд: нужен урон по всем.'",
+      "new": "'Двое подряд: нужен урон по всем.'"
+    },
+    {
+      "name": "wf_pie tip",
+      "old": "'Три кабана: бьют тяжело, но по очереди.'",
+      "new": "'Два кабана: бьют тяжело, но по очереди.'"
+    },
+    {
+      "name": "wf_heirloom tip",
+      "old": "'Три мародёра: береги ХП.'",
+      "new": "'Два мародёра: береги ХП.'"
+    },
+    {
+      "name": "wf_stew2 text",
+      "old": "'Салме для похлёбки нужны мясо стервятника, рыло жутеклыка и глаза мурлока'",
+      "new": "'Салме для похлёбки нужны мясо стервятника и рыло жутеклыка'"
+    },
+    {
+      "name": "wf_stew2 tip",
+      "old": "'Три разных зверя: стервятник быстрее остальных.'",
+      "new": "'Два разных зверя: стервятник быстрее.'"
+    },
+    {
+      "name": "wf_sander4 tip",
+      "old": "'Мародёр и два грабителя: береги ХП.'",
+      "new": "'Мародёр и вор: береги ХП.'"
+    },
+    {
+      "name": "rr_gnolls tip",
+      "old": "'Три гнолла: бей по очереди.'",
+      "new": "'Два гнолла: бей по очереди.'"
+    },
+    {
+      "name": "rr_tools tip",
+      "old": "'Мурлоки лезут из воды по трое.'",
+      "new": "'Мурлоки лезут из воды по двое.'"
+    },
+    {
+      "name": "rr_assess tip",
+      "old": "'Три шахтёра подряд: нужен урон по всем.'",
+      "new": "'Два шахтёра подряд: нужен урон по всем.'"
+    },
+    {
+      "name": "wf_coast1 tip (shaman no longer spawns)",
+      "old": "'Шаман лечит своих: его лучше убить первым.'",
+      "new": "'Воитель бьёт сильнее прибрежника: береги ХП.'"
+    },
+    {
+      "name": "rr_poach tip (shaman no longer spawns)",
+      "old": "'Шаман лечит своих: убей его первым.'",
+      "new": "'Два воителя бьют тяжело: береги ХП.'"
+    },
+    {
+      "name": "wf_bandanas tip (no pillager in the fight)",
+      "old": "'Мародёр бьёт сильнее грабителей: сначала убери его.'",
+      "new": "'Грабитель и охотник Братства: бей по одному.'"
+    },
+    {
+      "name": "fishy tip",
+      "old": "'Три мурлока: урон по всем очень кстати.'",
+      "new": "'Два мурлока: урон по всем очень кстати.'"
+    }
+  ]
+}
