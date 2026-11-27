@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "PLAY-02 (owner 2026-11-27, option a): in hero mode companions fight with the specialization shown in the catalogue from level 1; the start-spec rule below 15 stays for the player's own hero only.",
+  "edits": [
+    {
+      "name": "Companions use their shown spec from level 1",
+      "old": "    if (ARMS_HERO_MODE && !canSpecialize(k)) return cls === 'warrior' ? 'arms' : startSpec(cls);\n",
+      "new": "    /* PLAY-02 (владелец, 27 ноября): спутник с 1 уровня сражается той специализацией, что показана в каталоге; правило «до 15 — стартовая» остаётся только для своего героя. */\n    if (ARMS_HERO_MODE && k === 'me' && !canSpecialize(k)) return cls === 'warrior' ? 'arms' : startSpec(cls);\n"
+    }
+  ]
+}

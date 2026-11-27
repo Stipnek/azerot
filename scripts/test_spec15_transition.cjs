@@ -56,7 +56,7 @@ for (const spec of ['prot','arms','fury']) for (let level=10;level<=14;level++) 
   assert.deepEqual(plain(S.hero.items),{'57001':3});assert.deepEqual(plain(S.hero.gear),{chest:57001});
   S.hero.hxp.me=B.xpAt(15);call('syncLevel()');
   assert.equal(call("canSpecialize('me')"),true);assert.equal(call("specKey('me')"),spec);
-  assert.equal(call("canSpecialize('g_low')"),false);assert.equal(call("specKey('g_low')"),'arms');
+  assert.equal(call("canSpecialize('g_low')"),false);assert.equal(call("specKey('g_low')"),'prot','PLAY-02: companions use their shown spec from level 1');
   S.hero.hxp.g_low=B.xpAt(15);assert.equal(call("specKey('g_low')"),'prot');
 }
 let preservedProfiles=0;
