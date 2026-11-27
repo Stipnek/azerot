@@ -1,0 +1,16 @@
+{
+  "sourceBlobSha1": "cc5e0c7a64aacb86ed98737fdc4e9fba9d7f2907",
+  "description": "PLAY-16 (owner play-test 2026-11-27): talents moved to the talent window, so the hero overview button and its sheet are «Дополнительные сведения». Apply after hero-layout.",
+  "edits": [
+    {
+      "name": "Sheet label",
+      "old": "extra.setAttribute('aria-label','Таланты и дополнительные сведения');",
+      "new": "extra.setAttribute('aria-label','Дополнительные сведения');"
+    },
+    {
+      "name": "Button label",
+      "old": "const more=makeButton('Таланты и дополнительные сведения',",
+      "new": "const more=makeButton('Дополнительные сведения',"
+    }
+  ]
+}

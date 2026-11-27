@@ -53,7 +53,7 @@ def run(browser, label, viewport):
         page.locator('#bnav [data-tab="hero"]').click()
         expect(page.locator('#w-hero .hname')).to_have_text('Общий тест')
 
-    dialog = page.locator('#w-hero dialog[aria-label="Таланты и дополнительные сведения"]')
+    dialog = page.locator('#w-hero dialog[aria-label="Дополнительные сведения"]')
     talents = page.locator('dialog.az-talents')
     rank_button = talents.locator('[data-tw-node="ihs"]')
     def open_talents():

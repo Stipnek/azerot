@@ -64,8 +64,8 @@ def run(browser,url,label,size,profile,identity):
    expect(helpd).to_be_hidden();expect(trigger).to_be_focused()
    after=geometry();assert all(abs(a-b)<=1 for a,b in zip(before,after)),(before,after)
    assert snapshot()==saved,'Read-only help wrote saves'
-  more=overview.get_by_role('button',name='Таланты и дополнительные сведения',exact=True)
-  more.click();extra=page.locator('#w-hero dialog[aria-label="Таланты и дополнительные сведения"]')
+  more=overview.get_by_role('button',name='Дополнительные сведения',exact=True)
+  more.click();extra=page.locator('#w-hero dialog[aria-label="Дополнительные сведения"]')
   expect(extra).to_be_visible()
   expect(extra.locator('[data-arms-panel]')).to_have_count(0)  # talents now open in the Classic talent window (launcher in the overview)
   expect(overview.locator('[data-tw-launch]')).to_have_count(1 if cls=='warrior' else 0)
