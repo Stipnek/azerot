@@ -28,7 +28,7 @@ def run(page,helper,cls):
   assert dialog.locator('[data-primary-tree=true]').count()==(1 if cls=='warrior' else 0)
   if cls=='warrior' and tree=='arms':
    dialog.locator('[data-tree-node="anger"]').click()
-   expect(dialog.locator('[data-tree-description]')).to_contain_text('ярости')
+   expect(dialog.locator('[data-tree-description]')).to_contain_text('Описание эффекта ещё не проверено.')
    expect(dialog.locator('[data-tree-inspector]')).to_be_visible()
    dialog.locator('[data-tree-hide]').click();expect(dialog.locator('[data-tree-inspector]')).to_be_hidden()
   else:expect(dialog.locator('[data-tree-body]')).to_contain_text('Данные этого дерева ещё не подключены')
