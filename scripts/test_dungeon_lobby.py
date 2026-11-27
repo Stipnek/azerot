@@ -23,6 +23,8 @@ try:
             page.locator('#sel-enter').click(timeout=30000)
             page.locator('#dm-map-entry').wait_for(state='visible',timeout=30000)
             assert page.locator('#free-deadmines-entry').count()==0
+            box=page.locator('#dm-map-entry').bounding_box()  # PLAY-13: icon scales with the map, 44–60 px wide, art ratio 72:55
+            assert 43.5<=box['width']<=60.5 and abs(box['width']/box['height']-72/55)<0.05, box
             page.locator('#dm-map-entry').click()
             lobby=page.locator('#dm-lobby[open]')
             lobby.wait_for()

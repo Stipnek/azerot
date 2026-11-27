@@ -1,6 +1,6 @@
 {
   "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
-  "description": "PLAY-06 (owner play-test 2026-11-27): character creation showed the old starting-spec badge on each class icon («warrior starts as tank»). Before 15 every class uses the neutral training kit, so creation shows the plain class icon. PLAY-10 (same play-test): the quest card showed the new short retelling and the old line; it now shows only the retelling (goals stay); quests without a retelling keep their text. PLAY-09: retellings that named enemies the capped solo fight no longer spawns (murloc in the stew, gnolls in the goulash) are corrected.",
+  "description": "PLAY-06 (owner play-test 2026-11-27): character creation showed the old starting-spec badge on each class icon («warrior starts as tank»). Before 15 every class uses the neutral training kit, so creation shows the plain class icon. PLAY-10 (same play-test): the quest card showed the new short retelling and the old line; it now shows only the retelling (goals stay); quests without a retelling keep their text. PLAY-09: retellings that named enemies the capped solo fight no longer spawns (murloc in the stew, gnolls in the goulash) are corrected. PLAY-13: the dungeon entrance icon (one icon for every instance) scales with the map (10% of its width, 44–60 px) instead of a fixed 72×55, and can be mirrored per map (DUNGEON_ENTRY_FLIP); approved art unchanged.",
   "edits": [
     {
       "name": "Class step: plain class icons",
@@ -26,6 +26,11 @@
       "name": "PLAY-09 goulash retelling",
       "old": "тарантулы и гноллы заняли все тропы.",
       "new": "тарантулы заняли все тропы."
+    },
+    {
+      "name": "PLAY-13 dungeon entrance size and per-map mirroring",
+      "old": "function dmEntranceHtml(){const p=PLACES.deadm;if(!p||(S.mapZ||viewZone())!==p.z)return '';return '<button type=\"button\" id=\"dm-map-entry\" class=\"qn grp\" data-dungeon-entry=\"deadmines\" style=\"left:'+p.x+'%;top:'+p.y+'%\"",
+      "new": "/* PLAY-13 (владелец, 27 ноября): один значок входа для всех подземелий; размер от ширины карты (10%, 44–60 px) вместо 72×55, зеркалирование по карте — DUNGEON_ENTRY_FLIP[зона]. Арт не меняется; CSS добавляется здесь, чтобы не трогать styles-27 (проверка CSS по эталону). */\n  const DUNGEON_ENTRY_FLIP = Object.freeze({ westfall: false });\n  function dmEntranceStyle(){if(document.getElementById('az-dm-entry-size'))return;const s=document.createElement('style');s.id='az-dm-entry-size';s.textContent='#dm-map-entry{width:clamp(44px,10%,60px)!important;height:auto!important;aspect-ratio:72/55}#dm-map-entry .mk{width:100%!important;height:100%!important}#dm-map-entry[data-flip] .mk{transform:scaleX(-1)!important}';document.head.appendChild(s);}\n  function dmEntranceHtml(){const p=PLACES.deadm;if(!p||(S.mapZ||viewZone())!==p.z)return '';dmEntranceStyle();return '<button type=\"button\" id=\"dm-map-entry\" class=\"qn grp\" data-dungeon-entry=\"deadmines\"'+(DUNGEON_ENTRY_FLIP[p.z]?' data-flip=\"\"':'')+' style=\"left:'+p.x+'%;top:'+p.y+'%\""
     }
   ]
 }
