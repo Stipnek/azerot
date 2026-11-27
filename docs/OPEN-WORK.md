@@ -116,6 +116,7 @@ Suggested order for the next sessions: (1) quick UI/text fixes PLAY-05, 06, 08, 
 | UI-07 | No unapproved first-companion replay/map button on any onboarding path. | Verify |
 | UI-08 | Party analytics via hold on the party header, no separate visible button; touch/mouse cancellation. | Verify |
 | UI-09 | Final service-button label: «Город» (current code), «Меню», «Услуги» or «Сервисы». | Decision |
+| UI-10 | Show a key class form on the hero portrait/badge (owner idea 2026-11-19, from closed issue #3): Shadowform for Shadow priests once it is unlocked, possibly other forms/states later; the spec badge before unlock stays separate; cosmetic only, no combat bonus. | Decision (design) |
 | SYS-01 | Coherent UI system: spacing, action priority, distinction beyond colour, typography, dialog rules. | Approved |
 | ART-01 | Dungeon entrance art acceptance on dark and light map backgrounds, alpha/edges, mirrored preview. | Verify |
 | ART-02 | Slightly smaller dungeon entrance icon, try a thin neutral border; keep approved art and orientation. | Approved |
