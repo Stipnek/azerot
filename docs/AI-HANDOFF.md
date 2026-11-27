@@ -2,13 +2,13 @@
 
 > **Status 2026-11-26:** the current coverage, findings and checkpoints are in [REVIEW-LEDGER.md](REVIEW-LEDGER.md); requirements in [OPEN-WORK.md](OPEN-WORK.md). The checkpoints below are historical. Documents named here as unread have since been read (see the ledger); historical audits moved to [archive/](archive/).
 
-## Current handoff (2026-11-27, main `99e0401`)
+## Current handoff (2026-11-27 night, main `5c0aa99`)
 
-Released to the live site in this session (owner approved each push): BAL-04 solo-fight curve for levels 1–14 with at most two enemies per early solo fight; BAL-02 key fix; XP curve v2 shaped like Classic with legacy-save conversion (`xpCurve: 2`, `hxpLegacy`); faster neutral-training browser test; PR #26 (Eagan dialogue, Raelen map gathering with the Wowhead icon `inv_tradeskillitem_03`, 5% attack chance); PR #28 reworked loading screen (`scripts/package_site.py`, test on the packaged site); levels 2–4 retuned; companions fight with their shown spec from level 1 (PLAY-02).
+Released (owner approved «пуш в лайв» for the finished work): BAL-05 solo rule at every level; BAL-06 group quests (size 3 need three heroes, size 5 need five) with per-quest power budget and simulator-calibrated tune; tutorial dummies excluded; Deadmines ×1.3; QUEST-07 quest card only (Eagan dialogue window removed) with short retellings for 76 quests; developer notes removed from quest texts. Evidence: docs/evidence/bal-05-06, findings and issue triage in REVIEW-LEDGER session 3.
 
-Tools: `scripts/sim_campaign.cjs` (fight feel + campaign path over all zones with Deadmines runs; fixture `scripts/fixtures/quest-graph.json`, regenerate with `scripts/dump_quest_graph.cjs`). Cloud environment **azerot** allows www.wowhead.com (blocks bots with 403), nether.wowhead.com and wow.zamimg.com (icons). Python Playwright: `pip install playwright==1.63.0` and `PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers`. A full browser run takes ~25 min; do not commit during it (build identity checks fail).
+Tools: `node scripts/sim_campaign.cjs N [--only feel,campaign,group,dungeon] [--calibrate tune.json]`. Recalibrate group tune after changing group quests or hero kits.
 
-Next, in order (details in OPEN-WORK): BAL-05 solo rule at every level; BAL-06 group quests (two heroes fail unless strong epic/legendary and geared main, three at level normal); QUEST-07 rework the Eagan window into the quest card and add short mobile lore recaps; then the full project revision (CLAUDE.md phases). Ask the owner as described in WORKFLOW.md "Asking the owner".
+Waiting for owner decisions (asked 2026-11-27): (1) ability unlock schedule for all specs — only integrated Arms has one in code (Cleave 20, Execute 24, Slam 30); every other spec gets its whole kit at 15. Owner wants all abilities open by 30 for the test cap and by 50 later; needs the owner's per-spec list or approval of a Classic-based proposal. (2) Shadowform and Moonkin as Classic 31-point talents (level 40) → off under cap 30 (issue #3). (3) Tactical Mastery / Anger Management (issue #23). (4) Closing issues #24, #22, #13, #12. Owner direction: core gameplay first, no new zones for now.
 
 Prepared: 2026-11-25. Bounded handoff, not a completed audit or a replacement requirements register.
 
