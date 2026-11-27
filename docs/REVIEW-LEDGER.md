@@ -145,3 +145,37 @@ Causes (confirmed by code reading and executed probe):
 Conclusion: the simulator answers "can a hero at the quest's level win?", the game asks "can the hero at the level the XP actually gives win?". Fix order proposed for owner approval: (a) make the simulator follow the campaign path (own level from XP, goal enemies, party actually available), (b) then choose the balance lever: quest XP / curve per level, level gates (`minLevel`) on Westfall, or per-encounter levels. No gameplay change made.
 
 Open questions for the owner: how many companions do you have at levels 6–14, and at which quest/level did fights first become unwinnable? Which lever is preferred (more XP, gating quests by level, lower encounter levels)?
+
+## Session 3 — 2026-11-27 (BAL-05, BAL-06, QUEST-07, bounded revision)
+
+### Revision and state
+
+- Start: branch `ccr-56c668ef-hfihwp` = main = `c56bd95`, clean. Work: `9c0f5bf` (BAL-05/06), `3f8abfb` (tutorial dummies), `641dbf8` (QUEST-07), plus this ledger. Nothing merged to main, nothing published.
+- Read: CLAUDE.md, AI-HANDOFF (current), WORKFLOW, OPEN-WORK, INDEX, REVIEW-MAP, reading-source, README, DEVELOPMENT; effective script-05 (enemy curves, createBattle, spawnEnemy, groupScale, heroStats, solo cap) and script-06 (partyArg, tavern rarity bonus, quest gear, Deadmines loot, prepareQuestEnemies, ambush, foeLine, renderJournal, Eagan pilot, gather pilot, qNeedMet/qOpen), sim_campaign.cjs, lib_engine_load.cjs, test_arms_proto.cjs, lib_flagoff_fingerprint.cjs, test_elwynn_dialogue_browser.py, pages.yml test steps. Not read this session: the rest of script-04/05/06/08, styles, core modules, most tests.
+- Executed: check_source_edits; all 43 `scripts/test_*.cjs` (0 failures at `641dbf8`); build_game, build_combined_preview; browser tests at `9c0f5bf`: dungeon_lobby, elwynn_dialogue, elwynn_gather, neutral_training, combined_preview, root_loader, party_quest_ui — all PASS; rewritten elwynn_dialogue at `641dbf8` PASS (desktop, mobile). Simulator runs: docs/evidence/bal-05-06.
+
+### Findings (not fixed unless stated)
+
+| # | Kind | Finding | Evidence |
+|---|---|---|---|
+| F1 | Confirmed vs owner rule | Shadowform (+15% shadow damage dealt, −15% taken) is on for every Shadow priest as soon as the spec applies (own level 15; companions from level 1 since PLAY-02). Issue #3 records the owner's floor: not before level 40. | script-05 `CLASSES.priest.specs.shadow.shadowform: true`; createBattle `shadowform: !!s.shadowform`; damage ×1.15 / ×0.85 |
+| F2 | Balance | Protection paladin tanks far worse than Protection warrior: fire mage + tank + holy priest vs three Duskwood skeleton mages, 15% vs 60% wins (warrior main: 28% vs 85%). | ad-hoc engine run, 40 seeds |
+| F3 | Balance (BAL-03) | Fire mage at 15–18 and cat druid at 15 lose most two-enemy solo fights vs strong types (0–10%), before and after BAL-05. | evidence/bal-05-06 |
+| F4 | Content data | Player-facing developer notes in quest texts: db4 «Адаптация: переход и засада…», wf_silk «Адаптация: отдельный бой…», rr_shadow «Боевая модель заклинателя пока переиспользует модель орка.», cl_sven15 «…поездки за слитками и в кузницу исключены.», cl_emb15 «Записка расшифрована без отдельных этапов доставки.» Same class of text the owner already had removed (player-quest-story edit). | runtime quest dump |
+| F5 | Content data | wf_pie: quest giver Верна Хмуробров, text says «Салме Сальден нужна печень жутеклыков». | runtime quest dump |
+| F6 | Confirmed (issue #23) | Arms talent «Управление гневом» requires `tactical`, which the prototype marks unavailable, so it can never be learned; the UI now says «Описание эффекта ещё не проверено». Background of the tree not checked. | script-05 ARMS_TREE `anger … req: 'tactical'` |
+| F7 | Dead code | `foeLine()` (encounter enemy summary, edited by two manifests) has no caller in the assembled script-06. | grep of assembled source |
+| F8 | Minor | spawnEnemy's `!st.test` is always true (setupTest runs after spawning); harmless because test dummies are excluded by key/AI. ELWYNN_STORY offer/completion texts are unused after QUEST-07 (kept as provenance). | createBattle order |
+| F9 | Fixed | Simulator used the solo two-enemy cap for group goal fights (game: 3). | sim_campaign.cjs |
+| F10 | Fixed before release | BAL-06 first version scaled the tutorial «Первая совместная тренировка» dummies ×12 (main + first companion must win). | 3f8abfb |
+
+### GitHub issues (6 open, 0 open PRs) — proposed handling, owner decides
+
+| Issue | State in code | Proposal |
+|---|---|---|
+| #24 gather pilot (Raelen) | Implemented and released (PR #26); 5% chance approved; rounding up approved (QUEST-05) | Close as done; remaining acceptance stays in OPEN-WORK QUEST-03 |
+| #23 Arms «Управление гневом», tree background | F6 confirmed; background not checked | Keep open; decide: hide the talent, or make Tactical Mastery available |
+| #22 entry-screen docs | Docs carry 2026-11-26 status notes and supersession (INDEX) | Close as done |
+| #13 neutral training before 15, training quests later | Neutral training and auto DD at 15 implemented (SPEC-01); training quests not started | Close the decision part; keep «training quests» as a new OPEN-WORK item |
+| #12 compact reward, full bag | reward-compact and equipment-dock edits with tests on main | Close after the owner checks on the phone |
+| #3 Shadowform at 40 | F1: not gated | Keep open; approve a level-40 gate (code change) |
