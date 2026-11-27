@@ -1,0 +1,16 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "Owner play-test 2026-11-27: the warlock imp stays at range in battle (other pets melee); warrior companions below 15 show the skills of their rolled spec, the training kit view stays for the player's own hero.",
+  "edits": [
+    {
+      "name": "Imp is a ranged pet",
+      "old": "  function isMeleeHero(u) { return u.role !== 'heal' && !B.autoOf(u.cls, u.spec).ranged; }\n",
+      "new": "  /* PLAY-05: бес чернокнижника кидает огненные стрелы издалека; остальные питомцы — ближний бой. */\n  const RANGED_PETS = { imp: true };\n  function isMeleeHero(u) { if (u.pet) return !RANGED_PETS[u.spec]; return u.role !== 'heal' && !B.autoOf(u.cls, u.spec).ranged; }\n"
+    },
+    {
+      "name": "Companion skill card uses its rolled spec",
+      "old": "    if (typeof ARMS_HERO_MODE !== 'undefined' && ARMS_HERO_MODE && k === 'warrior' && (ownLevel < 15 || auKey === 'arms')) return integratedSkillsHtml(ownLevel,isMain);\n",
+      "new": "    /* PLAY-02: учебный набор воина до 15 — только у своего героя; спутник показывает умения выпавшей специализации. */\n    if (typeof ARMS_HERO_MODE !== 'undefined' && ARMS_HERO_MODE && k === 'warrior' && ((isMain && ownLevel < 15) || auKey === 'arms')) return integratedSkillsHtml(ownLevel,isMain);\n"
+    }
+  ]
+}
