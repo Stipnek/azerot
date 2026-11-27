@@ -26,6 +26,7 @@ assert.equal(B.groupCurve(E.vancleef, 'hp', 'vancleef'), 1, 'dungeon rooms untou
 assert.equal(B.groupCurve(E.dw1, 'hp', 'dw1'), 1, 'size-3 dungeon untouched');
 assert.equal(B.groupCurve(E.kobold_camp, 'hp', 'kobold_camp'), 1, 'solo untouched');
 assert.equal(B.groupCurve(E.test, 'hp', 'test'), 1, 'training ground untouched');
+assert.equal(B.groupCurve({ type: 'group', size: 3, level: 1, enemies: ['v56_dummy', 'v56_dummy'], packSize: 2 }, 'hp', 'tutorial57_team'), 1, 'tutorial fight with the first companion keeps its dummies');
 assert.ok(B.groupCurve(E.cl_watch1, 'hp', 'cl_watch1') > 3, 'three weak skeletons as a group quest are scaled up');
 assert.equal(B.encounterCurve(E.cl_watch1, 'atk', 'cl_watch1'), B.groupCurve(E.cl_watch1, 'atk', 'cl_watch1'), 'level 24: general curve is 1');
 // Same budget for the same pack size, whatever the enemy type; the last smaller goal fight is weaker, not scaled up.
