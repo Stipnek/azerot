@@ -88,9 +88,9 @@ jobs:
       - name: Eight classes on combined HTML and entry screen
         if: ${{ !cancelled() && steps.browser-ready.outcome == 'success' }}
         run: python3 scripts/test_neutral_training_combined.py
-      - name: Arms talent dialog layout (desktop, mobile, landscape)
+      - name: Classic talent window (portrait, landscape, desktop)
         if: ${{ !cancelled() && steps.browser-ready.outcome == 'success' }}
-        run: python3 scripts/test_arms_tree_layout.py
+        run: python3 scripts/test_talent_window_browser.py
       - name: Browser failures - annotations and summary
         if: always()
         shell: bash

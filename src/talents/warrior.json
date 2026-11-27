@@ -1,0 +1,409 @@
+{
+ "class": "warrior",
+ "note": "Classic talent window data. Arms is live (ids, ranks, names and prerequisites come from the engine, B.armsIntegrated.TREE); Fury and Protection are view-only until their effects exist. To add a class: copy this file, set background ids (Wowhead classic talent backgrounds) and node rows/cols/icons, then run python3 scripts/build_talent_window.py.",
+ "trees": [
+  {
+   "id": "arms",
+   "name": "Оружие",
+   "background": 161,
+   "live": "armsIntegrated",
+   "nodes": [
+    {
+     "id": "ihs",
+     "row": 1,
+     "col": 1,
+     "icon": "ability_warrior_savageblow"
+    },
+    {
+     "id": "deflection",
+     "row": 1,
+     "col": 2,
+     "icon": "ability_parry"
+    },
+    {
+     "id": "imprend",
+     "row": 1,
+     "col": 3,
+     "icon": "ability_gouge"
+    },
+    {
+     "id": "impcharge",
+     "row": 2,
+     "col": 1,
+     "icon": "ability_warrior_charge"
+    },
+    {
+     "id": "tactical",
+     "row": 2,
+     "col": 2,
+     "icon": "spell_nature_enchantarmor"
+    },
+    {
+     "id": "impthunder",
+     "row": 2,
+     "col": 4,
+     "icon": "ability_thunderclap"
+    },
+    {
+     "id": "impoverpower",
+     "row": 3,
+     "col": 1,
+     "icon": "inv_sword_05"
+    },
+    {
+     "id": "anger",
+     "row": 3,
+     "col": 2,
+     "icon": "spell_holy_blessingofstamina"
+    },
+    {
+     "id": "deepwounds",
+     "row": 3,
+     "col": 3,
+     "icon": "ability_backstab"
+    },
+    {
+     "id": "twohand",
+     "row": 4,
+     "col": 2,
+     "icon": "inv_axe_09"
+    },
+    {
+     "id": "impale",
+     "row": 4,
+     "col": 3,
+     "icon": "ability_searingarrow"
+    },
+    {
+     "id": "axe",
+     "row": 5,
+     "col": 1,
+     "icon": "inv_axe_06"
+    },
+    {
+     "id": "sweeping",
+     "row": 5,
+     "col": 2,
+     "icon": "ability_rogue_slicedice"
+    },
+    {
+     "id": "mace",
+     "row": 5,
+     "col": 3,
+     "icon": "inv_mace_01"
+    },
+    {
+     "id": "sword",
+     "row": 5,
+     "col": 4,
+     "icon": "inv_sword_27"
+    },
+    {
+     "id": "polearm",
+     "row": 6,
+     "col": 1,
+     "icon": "inv_weapon_halbard_01"
+    },
+    {
+     "id": "imphamstring",
+     "row": 6,
+     "col": 3,
+     "icon": "ability_shockwave"
+    }
+   ]
+  },
+  {
+   "id": "fury",
+   "name": "Неистовство",
+   "background": 164,
+   "live": null,
+   "nodes": [
+    {
+     "id": "fury1",
+     "row": 1,
+     "col": 2,
+     "max": 5,
+     "name": "Зычный голос",
+     "icon": "spell_nature_purge"
+    },
+    {
+     "id": "fury2",
+     "row": 1,
+     "col": 3,
+     "max": 5,
+     "name": "Безжалостность",
+     "icon": "ability_rogue_eviscerate"
+    },
+    {
+     "id": "fury3",
+     "row": 2,
+     "col": 2,
+     "max": 5,
+     "name": "Улучшенный деморализующий крик",
+     "icon": "ability_warrior_warcry"
+    },
+    {
+     "id": "fury4",
+     "row": 2,
+     "col": 3,
+     "max": 5,
+     "name": "Необузданный гнев",
+     "icon": "spell_nature_stoneclawtotem"
+    },
+    {
+     "id": "fury5",
+     "row": 3,
+     "col": 1,
+     "max": 3,
+     "name": "Улучшенный рассекающий удар",
+     "icon": "ability_warrior_cleave"
+    },
+    {
+     "id": "fury6",
+     "row": 3,
+     "col": 2,
+     "max": 1,
+     "name": "Пронзительный вой",
+     "icon": "spell_shadow_deathscream"
+    },
+    {
+     "id": "fury7",
+     "row": 3,
+     "col": 3,
+     "max": 3,
+     "name": "Мания крови",
+     "icon": "spell_shadow_summonimp"
+    },
+    {
+     "id": "fury8",
+     "row": 3,
+     "col": 4,
+     "max": 5,
+     "name": "Улучшенный боевой крик",
+     "icon": "ability_warrior_battleshout"
+    },
+    {
+     "id": "fury9",
+     "row": 4,
+     "col": 1,
+     "max": 5,
+     "name": "Специализация на бое двумя оружиями",
+     "icon": "ability_dualwield"
+    },
+    {
+     "id": "fury10",
+     "row": 4,
+     "col": 2,
+     "max": 2,
+     "name": "Улучшенная казнь",
+     "icon": "inv_sword_48"
+    },
+    {
+     "id": "fury11",
+     "row": 4,
+     "col": 3,
+     "max": 5,
+     "name": "Исступление",
+     "icon": "spell_shadow_unholyfrenzy"
+    },
+    {
+     "id": "fury12",
+     "row": 5,
+     "col": 1,
+     "max": 5,
+     "name": "Улучшенный мощный удар",
+     "icon": "ability_warrior_decisivestrike"
+    },
+    {
+     "id": "fury13",
+     "row": 5,
+     "col": 2,
+     "max": 1,
+     "name": "Жажда смерти",
+     "icon": "spell_shadow_deathpact"
+    },
+    {
+     "id": "fury14",
+     "row": 5,
+     "col": 4,
+     "max": 2,
+     "name": "Улучшенный перехват",
+     "icon": "ability_rogue_sprint"
+    },
+    {
+     "id": "fury15",
+     "row": 6,
+     "col": 1,
+     "max": 2,
+     "name": "Улучшенная ярость берсерка",
+     "icon": "spell_nature_ancestralguardian"
+    },
+    {
+     "id": "fury16",
+     "row": 6,
+     "col": 3,
+     "max": 5,
+     "name": "Шквал",
+     "icon": "ability_ghoulfrenzy",
+     "req": "fury11"
+    },
+    {
+     "id": "fury17",
+     "row": 7,
+     "col": 2,
+     "max": 1,
+     "name": "Кровожадность",
+     "icon": "spell_nature_bloodlust",
+     "req": "fury13"
+    }
+   ]
+  },
+  {
+   "id": "protection",
+   "name": "Защита",
+   "background": 163,
+   "live": null,
+   "nodes": [
+    {
+     "id": "prot1",
+     "row": 1,
+     "col": 2,
+     "max": 5,
+     "name": "Специализация на щитах",
+     "icon": "inv_shield_06"
+    },
+    {
+     "id": "prot2",
+     "row": 1,
+     "col": 3,
+     "max": 5,
+     "name": "Предчувствие",
+     "icon": "spell_nature_mirrorimage"
+    },
+    {
+     "id": "prot3",
+     "row": 2,
+     "col": 1,
+     "max": 2,
+     "name": "Улучшенная кровавая ярость",
+     "icon": "ability_racial_bloodrage"
+    },
+    {
+     "id": "prot4",
+     "row": 2,
+     "col": 3,
+     "max": 5,
+     "name": "Крепость",
+     "icon": "spell_holy_devotion"
+    },
+    {
+     "id": "prot5",
+     "row": 2,
+     "col": 4,
+     "max": 5,
+     "name": "Железная воля",
+     "icon": "spell_magic_magearmor"
+    },
+    {
+     "id": "prot6",
+     "row": 3,
+     "col": 1,
+     "max": 1,
+     "name": "Ни шагу назад",
+     "icon": "spell_holy_ashestoashes",
+     "req": "prot3"
+    },
+    {
+     "id": "prot7",
+     "row": 3,
+     "col": 2,
+     "max": 3,
+     "name": "Улучшенный блок щитом",
+     "icon": "ability_defend",
+     "req": "prot1"
+    },
+    {
+     "id": "prot8",
+     "row": 3,
+     "col": 3,
+     "max": 3,
+     "name": "Улучшенный реванш",
+     "icon": "ability_warrior_revenge"
+    },
+    {
+     "id": "prot9",
+     "row": 3,
+     "col": 4,
+     "max": 5,
+     "name": "Непокорность",
+     "icon": "ability_warrior_innerrage"
+    },
+    {
+     "id": "prot10",
+     "row": 4,
+     "col": 1,
+     "max": 3,
+     "name": "Улучшенный раскол брони",
+     "icon": "ability_warrior_sunder"
+    },
+    {
+     "id": "prot11",
+     "row": 4,
+     "col": 2,
+     "max": 3,
+     "name": "Улучшенное разоружение",
+     "icon": "ability_warrior_disarm"
+    },
+    {
+     "id": "prot12",
+     "row": 4,
+     "col": 3,
+     "max": 2,
+     "name": "Улучшенная провокация",
+     "icon": "spell_nature_reincarnation"
+    },
+    {
+     "id": "prot13",
+     "row": 5,
+     "col": 1,
+     "max": 2,
+     "name": "Улучшенная глухая оборона",
+     "icon": "ability_warrior_shieldwall"
+    },
+    {
+     "id": "prot14",
+     "row": 5,
+     "col": 2,
+     "max": 1,
+     "name": "Оглушающий удар",
+     "icon": "ability_thunderbolt"
+    },
+    {
+     "id": "prot15",
+     "row": 5,
+     "col": 3,
+     "max": 2,
+     "name": "Улучшенный удар щитом",
+     "icon": "ability_warrior_shieldbash"
+    },
+    {
+     "id": "prot16",
+     "row": 6,
+     "col": 3,
+     "max": 5,
+     "name": "Специализация на одноручном оружии",
+     "icon": "inv_sword_20"
+    },
+    {
+     "id": "prot17",
+     "row": 7,
+     "col": 2,
+     "max": 1,
+     "name": "Мощный удар щитом",
+     "icon": "inv_shield_05",
+     "req": "prot14"
+    }
+   ]
+  }
+ ]
+}
