@@ -45,8 +45,9 @@ Rules:
 | PLAY-14 | «Сбор водорослей» (Collecting Kelp) is a murloc fight, not gathering. The Raelen gathering (with the ambush) was a big hit with the owner. | Convert gather quests to the map gathering pattern (QUEST-03/05), Kelp first. |
 | PLAY-15 | Warrior stuck at 13: Westfall's remaining quests are group quests, the rolled companions are weak, Redridge is too high; no other zone to level in. In Classic you would go to another zone — with instant travel it is quick here. | Add a parallel 10–20 Alliance zone. Owner named Dun Morogh; Classic fact: Dun Morogh is 1–12, the 10–20 parallel to Westfall is Loch Modan. Recommendation: Loch Modan next (Dun Morogh later as the dwarf/gnome start). Also check the solo/group ratio of Westfall. Note: earlier direction was core gameplay before zones — this is a progression gap, so one zone is justified. |
 | PLAY-16 | Button «Таланты и дополнительные сведения» — talents moved out. | Rename to «Дополнительные сведения». |
+| PLAY-17 | Companion picker (Deadmines lobby, «Добавить спутника»): the line «Обычный · +0% к характеристикам» spills out of the cards and overlaps the next row; filters (role, rarity, sorting) take half the screen, so only ~2 rows of companions are visible. | Do the approved PARTY-02 (remove the rarity/bonus line, keep rarity colour and accessible info); compact filters (one row, or collapsed), card height fixed so nothing overlaps; check the same picker in the ordinary party. |
 
-Suggested order for the next sessions: (1) quick UI/text fixes PLAY-05, 06, 08, 09, 10, 13, 16; (2) early combat PLAY-11/12 with the simulators; (3) talents TALENT-03 (all specs, talent abilities only through talents, compressed tiers); (4) gathering PLAY-14; (5) Loch Modan PLAY-15; (6) class preview PLAY-07.
+Suggested order for the next sessions: (1) quick UI/text fixes PLAY-05, 06, 08, 09, 10, 13, 16, 17; (2) early combat PLAY-11/12 with the simulators; (3) talents TALENT-03 (all specs, talent abilities only through talents, compressed tiers); (4) gathering PLAY-14; (5) Loch Modan PLAY-15; (6) class preview PLAY-07.
 
 ## Owner decisions 2026-11-27
 
