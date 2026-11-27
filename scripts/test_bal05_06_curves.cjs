@@ -22,6 +22,13 @@ assert.equal(JSON.stringify(E.rr_assess.uncappedEnemies), JSON.stringify(['gnoll
 // BAL-06: group quests get a power budget; dungeons, solo fights and the training ground do not.
 const G = B.GROUP_ENEMY_CURVE;
 assert.ok(G.enabled && G.target[3] > 0 && G.target[5] > 0);
+assert.ok(G.target[5] > G.target[3], 'five-hero quests need more than three heroes');
+// Deadmines: every room, including the optional one, is harder; other fights are not.
+const dm = B.DUNGEONS.deadmines, dc = B.DUNGEON_CURVE.deadmines;
+assert.ok(dc.hp > 1 && dc.atk > 1);
+for (const k of dm.rooms.concat(dm.optional || [])) { assert.equal(B.dungeonCurve(k, 'hp'), dc.hp, 'Deadmines room ' + k); assert.equal(B.dungeonCurve(k, 'atk'), dc.atk); }
+assert.equal(B.dungeonCurve('dw1', 'hp'), 1, 'dungeons without an entry keep 1');
+assert.equal(B.dungeonCurve('cl_watch1', 'hp'), 1, 'group quests are not dungeons');
 assert.equal(B.groupCurve(E.vancleef, 'hp', 'vancleef'), 1, 'dungeon rooms untouched');
 assert.equal(B.groupCurve(E.dw1, 'hp', 'dw1'), 1, 'size-3 dungeon untouched');
 assert.equal(B.groupCurve(E.kobold_camp, 'hp', 'kobold_camp'), 1, 'solo untouched');

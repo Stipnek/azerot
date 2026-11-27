@@ -9,10 +9,11 @@
 //   own XP via the engine's xpShares, goal quests as repeated fights of the remaining goal enemies, at most SOLO_MAX_ENEMIES at once (prepareQuestEnemies),
 //   group quests with main + free companion (warrior main: holy priest, otherwise prot warrior) at the companion's own level;
 //   goal fights spawn at most SOLO_MAX_ENEMIES enemies in solo quests and 3 in group quests (prepareQuestEnemies).
+// Section 4 (Deadmines): full runs with a party of five at levels 18-30, without gear, with the main's best gear, with rare companions.
 // Section 3 (BAL-06 group quests, owner 2026-11-27): every group quest at its own level, no gear unless stated, enemies as the game spawns them.
-//   Parties: 2 = main + one companion (better of tank or healer); 3 = main + tank + healer; strong 2 = main 2 levels above the quest with
-//   gear + one legendary (rb 0.20) or epic (rb 0.15) companion. Targets: 2 common heroes win <=15%; 3 heroes win >=80% (worst class >=60%);
-//   strong 2 with a legendary win >=50%.
+//   Size 3: short = main + one companion (better of tank or healer), full = main + tank + healer. Size 5 (owner 2026-11-27: more than three):
+//   short = 3 heroes, four, full = + fire mage + combat rogue. Strong short = main 2 levels above the quest with gear, companions legendary (rb 0.20)
+//   or epic (0.15). Targets: short party win <=15%; full party >=80% (worst class >=60%); strong short with legendary >=50%.
 //   Deadmines fills gaps: when the lowest open quest is above the main's level and the main is 17+, a full run is simulated
 //   (main + prot warrior + holy priest + fire mage + combat rogue at the main's level) and its XP is added if cleared.
 //   Not modelled: ambush XP, gear and tavern bonuses (both make the party stronger), parties larger than two.
@@ -30,7 +31,7 @@ if (process.env.SOLO_CURVE) Object.assign(B.SOLO_ENEMY_CURVE, JSON.parse(process
 if (process.env.GROUP_CURVE) Object.assign(B.GROUP_ENEMY_CURVE, JSON.parse(process.env.GROUP_CURVE));
 // Goal quests: the game sets packSize (BAL-06 power budget) to the size of a full goal fight (prepareQuestEnemies).
 for (const q of G.quests) { const e = B.ENCOUNTERS[q.k]; if (!e || !q.goals) continue; e.packSize = Math.min(e.size === 1 ? SOLO_CAP : 3, q.goals.reduce((s, g) => s + g.count, 0)); }
-const only = args.includes('--only') ? args[args.indexOf('--only') + 1].split(',') : ['feel', 'campaign', 'group'];
+const only = args.includes('--only') ? args[args.indexOf('--only') + 1].split(',') : ['feel', 'campaign', 'group', 'dungeon'];
 const CLS = ['warrior', 'paladin', 'druid', 'priest', 'mage', 'hunter', 'rogue', 'warlock'];
 const PET = { hunter: 'wolf', warlock: 'imp' };
 const DD = { warrior: 'arms', paladin: 'ret', druid: 'cat', priest: 'shadow', mage: 'fire', hunter: 'mm', rogue: 'combat', warlock: 'aff' };
@@ -96,7 +97,7 @@ for (let guard = 0; guard < 200 && only.includes('campaign'); guard++) {
     for (const cls of CLS) { let c = 0; for (let s = 0; s < Math.max(4, N >> 2); s++) { const run = B.newRun('deadmines', [mk(cls, DD[cls], true), mk('warrior', 'prot'), mk('priest', 'holy'), mk('mage', 'fire'), mk('rogue', 'combat')], cls, Lm, s * 7919 + 13); B.simulateRun(run); if (run.state === 'cleared') c++; } runs.push(c / Math.max(4, N >> 2)); }
     const clear = avg(runs, x => x), xp = B.dungeonXp(Lm, 'deadmines');
     route.push({ k: 'deadmines run', zone: 'westfall', type: 'dungeon', size: 5, encLevel: 19, mainLevel: Lm, compLevel: B.levelOf(xpComp), dungeon: { clear, xp }, fights: [] });
-    if (clear < 0.5) { route[route.length - 1].dungeon.stuck = true; break; }
+    if (clear < 0.2) { route[route.length - 1].dungeon.stuck = true; break; } // below 20% clears the path is stuck; 20-50% means retries (owner: the Deadmines should be hard)
     xpMain += xp; xpComp += xp; continue;
   }
   if (!open.length) break;
@@ -115,7 +116,7 @@ for (let guard = 0; guard < 200 && only.includes('campaign'); guard++) {
 if (only.includes('campaign')) console.log('\n## 2. Campaign path (own level on arrival; every fight won; size-3 quests with main + free companion; Deadmines fills gaps from 17)\n');
 if (only.includes('campaign')) console.log('| quest | type | quest lvl | own lvl (main/comp) | enemies per fight | win avg | worst class | HP lost avg |');
 if (only.includes('campaign')) console.log('|---|---|---|---|---|---|---|---|');
-for (const s of route) { if (s.dungeon) { console.log(`| deadmines run | dungeon/5 | 18-19 | ${s.mainLevel}/${s.compLevel} | full run, party of 5 | ${pct(s.dungeon.clear)} cleared | — | +${s.dungeon.xp} XP${s.dungeon.stuck ? ' (stuck: <50% clears)' : ''} |`); continue; } for (const f of s.fights) {
+for (const s of route) { if (s.dungeon) { console.log(`| deadmines run | dungeon/5 | 18-19 | ${s.mainLevel}/${s.compLevel} | full run, party of 5 | ${pct(s.dungeon.clear)} cleared | — | +${s.dungeon.xp} XP${s.dungeon.stuck ? ' (stuck: <20% clears)' : s.dungeon.clear < 0.5 ? ' (hard: retries expected)' : ''} |`); continue; } for (const f of s.fights) {
   if (f.enemies.some(x => /dummy/.test(x))) continue;
   const r = rate(s.k, f.enemies, cls => s.size === 1 ? [hero(cls, f.mainLevel)] : [hero(cls, f.mainLevel), freeComp(cls, s.compLevel)]);
   const w = r.reduce((a, x) => x.win < a.win ? x : a);
@@ -138,35 +139,54 @@ if (only.includes('group')) {
     return [...seen.values()]; };
   const isRemainder = (q, en) => !!q.goals && en.length < B.ENCOUNTERS[q.k].packSize; // last, smaller goal fight: no target
   const worstOf = rs => rs.reduce((a, x) => x.win < a.win ? x : a);
-  // Two heroes: the main plus the better of a tank or a healer companion, per class.
-  const best2 = (k, en, L, rb, geared) => { const m = cls => Object.assign(hero(cls, L), geared ? { statBonuses: gear(cls, L) } : {});
-    const t = rate(k, en, cls => [m(cls), tankOf(cls, L, rb)]), h = rate(k, en, cls => [m(cls), healOf(cls, L, rb)]); return t.map((x, i) => x.win >= h[i].win ? x : h[i]); };
-  const three3 = (k, en, L) => rate(k, en, cls => [hero(cls, L), tankOf(cls, L), healOf(cls, L)]);
-  if (args.includes('--calibrate')) { // per-quest tune: hardest full fight of the quest, 3 heroes win ~90% (avg over main classes)
+  // Size 3: full = main + tank + healer; short = main + the better of tank or healer (2 heroes).
+  // Size 5 (owner 2026-11-27: needs more than three): full = main + tank + healer + fire mage + combat rogue; short = main + tank + healer (3 heroes); four = full minus the rogue.
+  const mainOf = (cls, L, geared) => Object.assign(hero(cls, L), geared ? { statBonuses: gear(cls, L) } : {});
+  const dps = (L, rb) => [{ cls: 'mage', spec: 'fire', level: L, rb: rb || 0 }, { cls: 'rogue', spec: 'combat', level: L, rb: rb || 0 }];
+  const fullRate = (k, en, L, size) => rate(k, en, cls => [hero(cls, L), tankOf(cls, L), healOf(cls, L)].concat(size >= 5 ? dps(L) : []));
+  const fourRate = (k, en, L) => rate(k, en, cls => [hero(cls, L), tankOf(cls, L), healOf(cls, L), dps(L)[0]]);
+  const shortRate = (k, en, L, size, rb, geared) => {
+    if (size >= 5) return rate(k, en, cls => [mainOf(cls, L, geared), tankOf(cls, L, rb), healOf(cls, L, rb)]);
+    const t = rate(k, en, cls => [mainOf(cls, L, geared), tankOf(cls, L, rb)]), h = rate(k, en, cls => [mainOf(cls, L, geared), healOf(cls, L, rb)]); return t.map((x, i) => x.win >= h[i].win ? x : h[i]); };
+  if (args.includes('--calibrate')) { // per-quest tune: hardest full fight of the quest, the full party wins ~90% (avg over main classes)
     const tune = {}, T = B.GROUP_ENEMY_CURVE.tune;
     for (const q of GQ) { const e = B.ENCOUNTERS[q.k], packs = fightsOf(q).filter(en => !isRemainder(q, en));
-      const winAt = t => { T[q.k] = t; return Math.min(...packs.map(en => avg(three3(q.k, en, e.level), x => x.win))); };
-      let lo = Math.log(0.35), hi = Math.log(3);
+      const winAt = t => { T[q.k] = t; return Math.min(...packs.map(en => avg(fullRate(q.k, en, e.level, e.size), x => x.win))); };
+      let lo = Math.log(0.35), hi = Math.log(4);
       for (let i = 0; i < 9; i++) { const mid = (lo + hi) / 2; if (winAt(Math.exp(mid)) >= 0.9) lo = mid; else hi = mid; }
       tune[q.k] = Math.round(Math.exp(lo) * 100) / 100; T[q.k] = tune[q.k]; }
     const out = args[args.indexOf('--calibrate') + 1];
     require('node:fs').writeFileSync(out, JSON.stringify(tune, null, 1) + '\n'); console.log('calibrated tune written to ' + out);
   }
-  console.log('\n## 3. Group quests at the quest level (BAL-06; avg win over 8 main classes, worst class; main HP lost avg for 3 heroes; * = outside target)\n');
-  console.log('| quest | size | lvl | enemies per fight | 2 common: win | 3 heroes: win (worst) | 3: HP lost | strong 2, legendary: win | strong 2, epic: win |');
-  console.log('|---|---|---|---|---|---|---|---|---|');
+  console.log('\n## 3. Group quests at the quest level (BAL-06; avg win over 8 main classes, worst class; main HP lost avg for the full party; * = outside target)\n');
+  console.log('Size 3: full = 3 heroes, short = 2. Size 5: full = 5 heroes, short = 3, four = 4. Strong short: main 2 levels above with gear, companions legendary (rb 0.20) or epic (0.15).\n');
+  console.log('| quest | size | lvl | enemies per fight | short: win | four: win | full: win (worst) | full: HP lost | strong short, legendary: win | strong short, epic: win |');
+  console.log('|---|---|---|---|---|---|---|---|---|---|');
   for (const q of GQ) { const e = B.ENCOUNTERS[q.k], L = e.level, Ls = Math.min(60, L + 2);
     for (const en of fightsOf(q)) {
-      const two = best2(q.k, en, L, 0, false), three = three3(q.k, en, L);
-      const leg = best2(q.k, en, Ls, 0.20, true), epic = best2(q.k, en, Ls, 0.15, true);
-      const row = { k: q.k, size: e.size, level: L, enemies: en, two: avg(two, x => x.win), three: avg(three, x => x.win), threeWorst: worstOf(three), threeLost: avg(three, x => x.lost), leg: avg(leg, x => x.win), epic: avg(epic, x => x.win) };
+      const two = shortRate(q.k, en, L, e.size, 0, false), three = fullRate(q.k, en, L, e.size), four = e.size >= 5 ? fourRate(q.k, en, L) : null;
+      const leg = shortRate(q.k, en, Ls, e.size, 0.20, true), epic = shortRate(q.k, en, Ls, e.size, 0.15, true);
+      const row = { k: q.k, size: e.size, level: L, enemies: en, two: avg(two, x => x.win), four: four ? avg(four, x => x.win) : null, three: avg(three, x => x.win), threeWorst: worstOf(three), threeLost: avg(three, x => x.lost), leg: avg(leg, x => x.win), epic: avg(epic, x => x.win) };
       row.remainder = isRemainder(q, en);
       row.ok = row.remainder ? { two: true, three: true, leg: true } : { two: row.two <= 0.15, three: row.three >= 0.8 && row.threeWorst.win >= 0.6, leg: row.leg >= 0.5 };
       groups.push(row);
-      console.log(`| ${q.k} | ${e.size} | ${L} | ${en.join(', ')}${row.remainder ? ' (last, smaller fight)' : ''} | ${mark(pct(row.two), row.ok.two)} | ${mark(pct(row.three), row.ok.three)} (${row.threeWorst.cls} ${pct(row.threeWorst.win)}) | ${pct(row.threeLost)} | ${mark(pct(row.leg), row.ok.leg)} | ${pct(row.epic)} |`);
+      console.log(`| ${q.k} | ${e.size} | ${L} | ${en.join(', ')}${row.remainder ? ' (last, smaller fight)' : ''} | ${mark(pct(row.two), row.ok.two)} | ${four ? pct(row.four) : '—'} | ${mark(pct(row.three), row.ok.three)} (${row.threeWorst.cls} ${pct(row.threeWorst.win)}) | ${pct(row.threeLost)} | ${mark(pct(row.leg), row.ok.leg)} | ${pct(row.epic)} |`);
     }
   }
   const full = groups.filter(r => !r.remainder), okN = f => full.filter(r => r.ok[f]).length;
-  console.log(`\nOn target (full fights): 2 common <=15% ${okN('two')}/${full.length}; 3 heroes ${okN('three')}/${full.length}; strong 2 with legendary ${okN('leg')}/${full.length}; 3 heroes: median HP lost ${pct(full.map(r => r.threeLost).sort((a, b) => a - b)[full.length >> 1] || 0)}`);
+  console.log(`\nOn target (full fights): short party <=15% ${okN('two')}/${full.length}; full party ${okN('three')}/${full.length}; strong short with legendary >=50% ${okN('leg')}/${full.length}; full party: median main HP lost ${pct(full.map(r => r.threeLost).sort((a, b) => a - b)[full.length >> 1] || 0)}`);
 }
-if (jsonOut) require('node:fs').writeFileSync(jsonOut, JSON.stringify({ N, soloCurve: B.SOLO_ENEMY_CURVE, groupCurve: B.GROUP_ENEMY_CURVE, feel, route, groups }, null, 1));
+// Section 4: Deadmines (owner 2026-11-27: hard without gear at the dungeon level). Party: main + prot warrior + holy priest + fire mage + combat rogue.
+const dungeon = [];
+if (only.includes('dungeon')) {
+  const run = (L, rb, geared) => { let c = 0, n = 0; const M = Math.max(4, N >> 2);
+    for (const cls of CLS) for (let s = 0; s < M; s++) { const mk = (c2, sp, main, ex) => Object.assign({ cls: c2, spec: sp, level: L, main, race: 'human', pet: c2 === 'hunter' ? 'wolf' : c2 === 'warlock' ? 'imp' : undefined }, ex || {});
+      const r = B.newRun('deadmines', [mk(cls, DD[cls], true, geared ? { statBonuses: gear(cls, L) } : {}), mk('warrior', 'prot', false, { rb }), mk('priest', 'holy', false, { rb }), mk('mage', 'fire', false, { rb }), mk('rogue', 'combat', false, { rb })], cls, L, s * 7919 + 13);
+      B.simulateRun(r); n++; if (r.state === 'cleared') c++; } return c / n; };
+  console.log('\n## 4. Deadmines full run (party of 5; cleared share over 8 main classes; DUNGEON_CURVE ' + JSON.stringify(B.DUNGEON_CURVE.deadmines) + ')\n');
+  console.log('| party | 18 | 19 | 20 | 21 | 24 | 30 |'); console.log('|---|---|---|---|---|---|---|');
+  for (const [name, rb, geared] of [['no gear, common companions', 0, false], ['main in the best Deadmines gear', 0, true], ['main geared, rare companions (rb 0.08)', 0.08, true]]) {
+    const row = { name, rates: [18, 19, 20, 21, 24, 30].map(L => run(L, rb, geared)) }; dungeon.push(row);
+    console.log(`| ${name} | ${row.rates.map(pct).join(' | ')} |`); }
+}
+if (jsonOut) require('node:fs').writeFileSync(jsonOut, JSON.stringify({ N, soloCurve: B.SOLO_ENEMY_CURVE, groupCurve: B.GROUP_ENEMY_CURVE, feel, route, groups, dungeon }, null, 1));

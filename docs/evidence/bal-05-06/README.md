@@ -43,3 +43,17 @@ Over target for two heroes: fights that are the easiest pack of a goal quest (3 
 - Size-5 group quests (rr_gath, cl_sven15, cl_grave3, cl_stalvan13) use the same three-hero target; whether they should need more heroes is an owner question.
 - `foeLine()` (encounter enemy summary in script-06, edited by the enemy-curve-summary and bal04 edits) has no caller in the assembled source; not updated.
 - The simulator does not model gear on companions, tavern stars above 1, ambush XP or real play pacing; the arrival levels come from the campaign path.
+
+## Update 2026-11-27 (owner answers)
+
+- **Size-5 group quests need five heroes.** There are four: rr_gath (26), cl_sven15 (32), cl_grave3 (35), cl_stalvan13 (35). `GROUP_ENEMY_CURVE.target[5]` = 2.4 M (size 3: 1.3 M) and the per-quest tune was recalibrated with a full party of five (main + prot warrior + holy priest + fire mage + combat rogue). Result: three heroes win 0–3%, four 6–26%, five 89–91%; main 2 levels above with gear plus legendary tank and healer (three heroes) 91–100%.
+- **Deadmines are harder.** `DUNGEON_CURVE.deadmines` multiplies HP and attack of every room (optional Cookie included) by 1.3. Party of five, cleared share (section 4 of sim-after):
+
+| party | 18 | 19 | 20 | 21 | 24+ |
+|---|---|---|---|---|---|
+| no gear, common companions (before: 69% / 100% / 100%) | 0% | 48% | 89% | 100% | 100% |
+| main in the best Deadmines gear | 2% | 64% | 96% | 100% | 100% |
+| main geared, rare companions | 16% | 84% | 98% | 100% | 100% |
+
+  Repeat runs for XP above level 21 stay easy (Classic-like: an over-levelled party farms the dungeon). The campaign path now retries the first run at 19 (48%); the simulator treats 20–50% clears as retries and stops only below 20%.
+- Developer notes removed from player-facing quest texts (db4, wf_silk, rr_shadow, cl_sven15, cl_emb15, ef_bundle, gather progress, quest-gear reward note).

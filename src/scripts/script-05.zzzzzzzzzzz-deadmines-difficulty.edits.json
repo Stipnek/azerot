@@ -1,0 +1,21 @@
+{
+ "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+ "description": "Owner 2026-11-27: the Deadmines should be hard for a party of five at the dungeon level without gear and comfortable with the main's gear or a level or two more. DUNGEON_CURVE multiplies HP and attack of enemies in every room of a listed dungeon. Measured with scripts/sim_campaign.cjs section 4.",
+ "edits": [
+  {
+   "name": "Dungeon multiplier table",
+   "old": "  const DUNGEONS = {",
+   "new": "  /* Владелец, 27 ноября: Мёртвые копи должны быть тяжеловаты — отряд из пяти героев уровня подземелья без снаряжения проходит их\n     примерно в половине попыток, с вещами главного героя или на пару уровней выше — уверенно. Множитель ХП и атаки врагов всех комнат подземелья;\n     замерено scripts/sim_campaign.cjs (раздел 4). Подземелья без записи — 1. */\n  const DUNGEON_CURVE = { deadmines: { hp: 1.30, atk: 1.30 } };\n  function dungeonCurve(encKey, kind) {\n    const e = ENCOUNTERS[encKey]; if (!e || e.type !== 'dungeon') return 1;\n    for (const id in DUNGEON_CURVE) { const d = DUNGEONS[id]; if (d && Array.isArray(d.rooms) && d.rooms.concat(d.optional || []).indexOf(encKey) >= 0) { const v = DUNGEON_CURVE[id][kind]; return Number.isFinite(v) && v > 0 ? v : 1; } }\n    return 1;\n  }\n  const DUNGEONS = {"
+  },
+  {
+   "name": "Apply the dungeon multiplier in spawnEnemy",
+   "old": "const chp = dummy ? 1 : enemyCurve(elvl, 'hp', solo) * groupCurve(ENCOUNTERS[st.encounter], 'hp', st.encounter), catk = dummy ? 1 : enemyCurve(elvl, 'atk', solo) * groupCurve(ENCOUNTERS[st.encounter], 'atk', st.encounter);",
+   "new": "const chp = dummy ? 1 : enemyCurve(elvl, 'hp', solo) * groupCurve(ENCOUNTERS[st.encounter], 'hp', st.encounter) * dungeonCurve(st.encounter, 'hp'), catk = dummy ? 1 : enemyCurve(elvl, 'atk', solo) * groupCurve(ENCOUNTERS[st.encounter], 'atk', st.encounter) * dungeonCurve(st.encounter, 'atk');"
+  },
+  {
+   "name": "Expose the dungeon multiplier",
+   "old": "GROUP_ENEMY_CURVE, enemyCurve, groupCurve, encounterCurve,",
+   "new": "GROUP_ENEMY_CURVE, DUNGEON_CURVE, dungeonCurve, enemyCurve, groupCurve, encounterCurve,"
+  }
+ ]
+}

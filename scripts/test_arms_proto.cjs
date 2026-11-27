@@ -13,8 +13,9 @@ ok('flag off: fixed scenarios of all ordinary classes unchanged', () => {
   const base = require('./fixtures/arms-proto-flagoff-baseline.json');
   // The baseline predates BAL-06, which retunes group quests such as daily_wf_coast on purpose; it guards the prototype flag, not balance,
   // so it is compared with the group curve off (BAL-06 has its own test, test_bal05_06_curves.cjs).
-  const g = B.GROUP_ENEMY_CURVE.enabled; B.GROUP_ENEMY_CURVE.enabled = false;
-  let fp; try { fp = fingerprint(B); } finally { B.GROUP_ENEMY_CURVE.enabled = g; }
+  // The Deadmines difficulty (vancleef is one of the scenarios) is off for the same reason.
+  const g = B.GROUP_ENEMY_CURVE.enabled, dm = Object.assign({}, B.DUNGEON_CURVE.deadmines); B.GROUP_ENEMY_CURVE.enabled = false; Object.assign(B.DUNGEON_CURVE.deadmines, { hp: 1, atk: 1 });
+  let fp; try { fp = fingerprint(B); } finally { B.GROUP_ENEMY_CURVE.enabled = g; Object.assign(B.DUNGEON_CURVE.deadmines, dm); }
   assert.equal(fp.count, base.scenarios); assert.equal(fp.sha256, base.sha256);
 });
 ok('point budget: 0 before 15, L-9 from 15', () => {

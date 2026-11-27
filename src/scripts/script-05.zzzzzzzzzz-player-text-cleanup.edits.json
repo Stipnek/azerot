@@ -1,0 +1,16 @@
+{
+ "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+ "description": "Owner 2026-11-27: remove developer notes from player-facing quest texts (adaptation notes, Classic counts, test-stat labels). Quest data (adaptation, originalCount, sources) is kept; only displayed strings change.",
+ "edits": [
+  {
+   "name": "Remove developer note: wf_silk",
+   "old": "Собери 10 красных шёлковых бандан. Адаптация: отдельный бой у входа в Мёртвые копи, не счётчик в исходном прохождении данжа.",
+   "new": "Собери 10 красных шёлковых бандан."
+  },
+  {
+   "name": "Remove developer note: rr_shadow",
+   "old": "Добудь 3 полуночные сферы у орков. Боевая модель заклинателя пока переиспользует модель орка.",
+   "new": "Добудь 3 полуночные сферы у орков."
+  }
+ ]
+}
