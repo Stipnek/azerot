@@ -2,7 +2,7 @@
 
 > **Status 2026-11-26:** the current coverage, findings and checkpoints are in [REVIEW-LEDGER.md](REVIEW-LEDGER.md); requirements in [OPEN-WORK.md](OPEN-WORK.md). The checkpoints below are historical. Documents named here as unread have since been read (see the ledger); historical audits moved to [archive/](archive/).
 
-## Current handoff (2026-11-27 night, main `5c0aa99`)
+## Current handoff (2026-11-27 night, main `5c0aa99`, deployed: Publish Azerot run 45931976664 build + deploy success 03:16 UTC; live version.json not reachable from the session proxy)
 
 Released (owner approved «пуш в лайв» for the finished work): BAL-05 solo rule at every level; BAL-06 group quests (size 3 need three heroes, size 5 need five) with per-quest power budget and simulator-calibrated tune; tutorial dummies excluded; Deadmines ×1.3; QUEST-07 quest card only (Eagan dialogue window removed) with short retellings for 76 quests; developer notes removed from quest texts. Evidence: docs/evidence/bal-05-06, findings and issue triage in REVIEW-LEDGER session 3.
 
