@@ -47,3 +47,9 @@ Recommendation: B for the test, A's kit rule in both (talent abilities only thro
 2. Kits: remove talent abilities from the free kits, add Classic trainer abilities where needed, drop or replace Crusader Strike and Steady Shot.
 3. Main: abilities from talents only when the talent is taken; companions: automatic ability talents.
 4. Rebalance with `scripts/sim_campaign.cjs` and `scripts/sim_class_audit.cjs`.
+
+## Decisions 2026-11-27
+
+- Option **B** for the test: compressed tiers while the cap is 30, back to Classic five points per tier at the 60 cap.
+- Done: Crusader Strike → «Печать праведности» (Seal of Righteousness, weapon strike under the seal), Steady Shot → «Оглушающий выстрел» (Concussive Shot, 100% damage and 20% slow for 2 turns). Internal ids `crusader` and `steady` are kept, so saves and AI are unchanged.
+- Next session: trees for all specs and the kit rework.

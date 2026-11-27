@@ -1,0 +1,31 @@
+{
+ "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+ "description": "Owner 2026-11-27: abilities from later expansions are replaced by WoW Classic ones, keeping the internal ids (saves and AI unchanged): Crusader Strike -> Seal of Righteousness (paladin filler: weapon strike under the seal, Classic level 1), Steady Shot -> Concussive Shot (hunter filler with a short slow, Classic level 8).",
+ "edits": [
+  {
+   "name": "Classic replacement: steady: { name: ",
+   "old": "    steady: { name: 'Верный выстрел', icon: '🎯', cd: 0, text: '100% урона цели' },",
+   "new": "    steady: { name: 'Оглушающий выстрел', icon: '💫', cd: 0, text: '100% урона цели и замедление на 20% на 2 хода (Classic, вместо «Верного выстрела» из поздних дополнений)' },"
+  },
+  {
+   "name": "Classic replacement: crusader: { name",
+   "old": "    crusader: { name: 'Удар воина Света', icon: '🗡️', cd: 0, text: '100% урона цели' },",
+   "new": "    crusader: { name: 'Печать праведности', icon: '⚡', cd: 0, text: 'удар оружием под Печатью праведности: 100% урона цели (Classic, вместо «Удара воина Света» из поздних дополнений)' },"
+  },
+  {
+   "name": "Concussive Shot slows (hunter AI 1)",
+   "old": ", h, 'aimed'); damage(st, h, t, 2.2); return; }\n        if (sk('arcshot')) { use(st, h, 'arcshot'); damage(st, h, t, 1.2, { type: 'magic' }); return; }\n        if (sk('steady')) { use(st, h, 'steady'); damage(st, h, t, 1.0); return; }",
+   "new": ", h, 'aimed'); damage(st, h, t, 2.2); return; }\n        if (sk('arcshot')) { use(st, h, 'arcshot'); damage(st, h, t, 1.2, { type: 'magic' }); return; }\n        if (sk('steady')) { use(st, h, 'steady'); damage(st, h, t, 1.0); if (t.hp > 0) addEffect(t, { kind: 'slow', amt: 0.2, turns: 2, src: h.id, name: 'Оглушающий выстрел', icon: '💫' }); return; }"
+  },
+  {
+   "name": "Concussive Shot slows (hunter AI 2)",
+   "old": "it(st, { t: 'debuff', tgt: t.id }); } return; }\n        if (sk('arcshot')) { use(st, h, 'arcshot'); damage(st, h, t, 1.2, { type: 'magic' }); return; }\n        if (sk('steady')) { use(st, h, 'steady'); damage(st, h, t, 1.0); return; }",
+   "new": "it(st, { t: 'debuff', tgt: t.id }); } return; }\n        if (sk('arcshot')) { use(st, h, 'arcshot'); damage(st, h, t, 1.2, { type: 'magic' }); return; }\n        if (sk('steady')) { use(st, h, 'steady'); damage(st, h, t, 1.0); if (t.hp > 0) addEffect(t, { kind: 'slow', amt: 0.2, turns: 2, src: h.id, name: 'Оглушающий выстрел', icon: '💫' }); return; }"
+  },
+  {
+   "name": "Concussive Shot slows (hunter AI 3)",
+   "old": "amage(st, h, t, 1.5); return; }\n        if (sk('steady')) { use(st, h, 'steady'); damage(st, h, t, 1.0); return; }",
+   "new": "amage(st, h, t, 1.5); return; }\n        if (sk('steady')) { use(st, h, 'steady'); damage(st, h, t, 1.0); if (t.hp > 0) addEffect(t, { kind: 'slow', amt: 0.2, turns: 2, src: h.id, name: 'Оглушающий выстрел', icon: '💫' }); return; }"
+  }
+ ]
+}

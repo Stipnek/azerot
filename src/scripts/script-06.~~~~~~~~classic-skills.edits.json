@@ -1,0 +1,11 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Owner 2026-11-27: Classic names and icons for the two abilities from later expansions (Crusader Strike -> Seal of Righteousness, Steady Shot -> Concussive Shot) in the asset registry; ids unchanged.",
+ "edits": [
+  {
+   "name": "Classic icons for replaced abilities",
+   "old": "  const AZ_ASSET_REGISTRY = JSON.parse(document.getElementById('az-asset-manifest').textContent);",
+   "new": "  const AZ_ASSET_REGISTRY = JSON.parse(document.getElementById('az-asset-manifest').textContent);\n  /* Владелец, 27 ноября: умения из поздних дополнений заменены классическими (ключи сохранены): «Удар воина Света» → «Печать праведности», «Верный выстрел» → «Оглушающий выстрел». */\n  (function () {\n    const icon = function (name, file) { return { name: name, icon: file, url: 'https://wow.zamimg.com/images/wow/icons/large/' + file + '.jpg', category: 'active', verified: false }; };\n    const fix = { crusader: icon('Печать праведности', 'ability_thunderbolt'), steady: icon('Оглушающий выстрел', 'spell_frost_stun') };\n    Object.keys(fix).forEach(function (k) {\n      if (AZ_ASSET_REGISTRY.assets && AZ_ASSET_REGISTRY.assets['skill:' + k]) AZ_ASSET_REGISTRY.assets['skill:' + k] = fix[k];\n      if (AZ_ASSET_REGISTRY.skills && AZ_ASSET_REGISTRY.skills[k]) AZ_ASSET_REGISTRY.skills[k] = fix[k];\n    });\n  })();"
+  }
+ ]
+}
