@@ -876,7 +876,8 @@ body.navon #prep .roster { flex: 1 1 auto; min-height: 0; display: grid; grid-te
 .dw-battle-bg{position:absolute;inset:0;background:linear-gradient(#14222b80,#15252138),url(data:image/webp;base64,__AZEROT_CSS_ASSET_27837395100e4797c6a395be9c301cf10a76216f88d617fd8722a353a4833d1e__) center 48%/cover no-repeat;filter:saturate(.78) brightness(.76);}
 
 /* v56: diagrams for travel only, not replacement art for existing zones. */
-.map[data-zone="stormwind"],.map[data-zone="wetlands_route"]{background-image:linear-gradient(135deg,#26363d,#192729 55%,#34413d);border:7px double #8d8057;box-sizing:border-box;}
-.map[data-zone="stormwind"]::before,.map[data-zone="wetlands_route"]::before{content:'СХЕМА УЗЛОВ · НЕ ФИНАЛЬНАЯ КАРТА';position:absolute;left:6%;right:6%;top:4%;font-size:11px;text-align:center;color:#d6caa7;pointer-events:none;}
+/* Болотина получила арт (wetlands.png): рамка-схема и подпись «не финальная карта» остаются только у Штормграда. */
+.map[data-zone="stormwind"]{background-image:linear-gradient(135deg,#26363d,#192729 55%,#34413d);border:7px double #8d8057;box-sizing:border-box;}
+.map[data-zone="stormwind"]::before{content:'СХЕМА УЗЛОВ · НЕ ФИНАЛЬНАЯ КАРТА';position:absolute;left:6%;right:6%;top:4%;font-size:11px;text-align:center;color:#d6caa7;pointer-events:none;}
 .map[data-zone="stormwind"] .town,.map[data-zone="wetlands_route"] .town{color:#f1e7c5;text-shadow:0 2px 4px #000;background:#152225c9;padding:2px;border-radius:4px;}
 .v56-item{padding:8px;}.v56-item p{margin:8px 0}.v56-item .btn{min-height:44px}
