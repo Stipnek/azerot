@@ -20,6 +20,15 @@ Rules:
 | LOAD-01 | Loading screen: artwork immediately, real download progress, entry buttons when ready (PR #28). Reworked 2026-11-26: the loader shows the release entry screen itself (same markup, stylesheet and approved art, packaged as separate files under `entry/`) with a percent bar from the exact part sizes, then hands over to the game's own entry screen, which shows the buttons and owns audio. Old version would have shipped without art (files under `src/` are not published) and with a duplicate entry screen. Music before the first tap stays impossible (browser autoplay rules). | Candidate (PR #28), owner check on phone |
 | QUEST-03 | Elwynn: Eagan dialogue pilot and Raelen wood gathering on the map (issue 24, PR #26): ef_bundle restored with 4 bundles (Classic 8), ~2 s gather bar on map markers, attack interrupts and opens the existing ambush fight (pending attack saved), bag items, hand-in takes 4 once. Attack chance 5% approved (2026-11-26). Marker icon: owner wants the Wowhead item icon of the quest item. Open: rounding rule for odd counts before other gather quests. | Candidate (PR #26) |
 
+## Owner play-test 2026-11-27 (for the next revision)
+
+| ID | Finding | Status / next step |
+|---|---|---|
+| PLAY-01 | Still too easy at levels 2–4: the training-kit strike kills fast. Levels 2–4 of the solo curve were left soft for kobold_camp; after the BAL-02 key fix that quest is level 1, so 2–4 were raised to target (two kobolds ≈ 50% HP). Group quests are still trivial (3–8% HP lost) — needs group data (BAL). | Fixed for solo 2–4 (branch), group open |
+| PLAY-02 | Companion Elen shows «Свет» (rolled holy) in the catalogue but fights as «Тьма». Cause: in hero mode every companion below own level 15 uses its start spec (`specKey` → `startSpec`, priest = shadow) and gets no training kit; the card shows the spec that only applies from 15. Options: (a) companions fight with the shown spec from level 1; (b) companions get the training kit before 15 and the card says so; (c) only fix the card text. Owner decision. | Decision |
+| PLAY-03 | Eagan dialogue window looks different from the rest of the game; unclear whether the quest is accepted in the window or with the «Выполнять» button below; quest card text and dialogue text differ (dialogue is lore, quest cards have little text). Decide one quest-presentation pattern (where text lives, which button accepts, window style from the game's dialog system) before more dialogue quests. | Decision / design |
+| PLAY-04 | Tests and the simulator did not show the easy early game: the feel targets were met only from level 5; levels 2–4 were tuned for a quest level that later changed. Rerun `scripts/sim_campaign.cjs` after any quest-level or key change. | Process |
+
 ## Balance and progression
 
 | ID | Requirement | Status / next step |
