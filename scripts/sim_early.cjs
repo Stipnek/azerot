@@ -1,6 +1,6 @@
 'use strict';
 // PLAY-11/12 report (not a regression gate): early solo fights in the neutral training kit, levels 1-14.
-// Hero alone, no gear, own level = enemy level, enemies of the zone at that level (as sim_campaign.cjs feel section), solo enemy curve applied.
+// Hero alone in the Classic starter set (PLAY-18), own level = enemy level, enemies of the zone at that level (as sim_campaign.cjs feel section), solo enemy curve applied.
 // Per class: hero turns until the first enemy dies (information; the BAL-04 target of 3-5 hits per enemy is checked by sim_campaign.cjs --only feel), share of the hero's damage from auto-attack
 // (target: melee 55-65%, casters spell 75-85% => auto 15-25%), HP lost against two enemies (target about half, 40-65%).
 // Run: node scripts/sim_early.cjs [N=40] [--levels 1,2,3,4,5]   TRAIN_SHAPE='{"warrior":{"auto":3,"skill":0.5}}' and SOLO_CURVE (see sim_campaign.cjs) override for one run.
@@ -16,7 +16,7 @@ const MOBS = { 1: ['wolf', 'thief'], 2: ['kobold', 'wolf'], 3: ['kobold', 'boar'
 B.ENCOUNTERS.__early = { name: 'sim', place: 'sim', type: 'solo', size: 1, level: 1, enemies: [] };
 function run(cls, L, enemies, seed) {
   const e = B.ENCOUNTERS.__early; e.level = L; e.enemies = enemies;
-  const st = B.createBattle({ encounter: '__early', level: L, main: cls, seed, party: [{ cls, spec: B.CLASSES[cls].def, level: L, main: true, neutralTraining: true, race: 'human', pet: PET[cls] }] });
+  const st = B.createBattle({ encounter: '__early', level: L, main: cls, seed, party: [{ cls, spec: B.CLASSES[cls].def, level: L, main: true, neutralTraining: true, race: 'human', pet: PET[cls], statBonuses: { armorFlat: 8, stamina: 1, [B.primaryKey(cls, B.CLASSES[cls].def)]: 1 } }] });
   const m = st.heroes[0], first = st.enemies[0]; let turns = 0, firstTurns = null, auto = 0, all = 0, g = 0;
   while (!st.over && g++ < 8000) for (const x of B.step(st)) {
     if (x.t === 'turn' && x.id === m.id) turns++;

@@ -39,7 +39,10 @@ const FEEL_MOBS = { 1: ['wolf', 'thief'], 2: ['kobold', 'wolf'], 3: ['kobold', '
   8: ['murloc', 'wolf'], 9: ['thief', 'murloc'], 10: ['goretusk', 'gnollRunt'], 11: ['looter', 'harvester'], 12: ['looter', 'gnollMiner'], 13: ['murlocWarrior', 'looter'], 14: ['murlocWarrior', 'pillager'],
   15: ['gnollMiner', 'tarantula'], 16: ['orcGrunt', 'murlocWarrior'], 17: ['gnollRunt', 'tarantula'], 18: ['orcGrunt', 'gnollMiner'], 20: ['dw_spider', 'gnollRunt'], 21: ['dw_wolf', 'murlocWarrior'],
   23: ['gnollMiner', 'dw_spider'], 25: ['dw_wolf', 'dw_skeleton'], 28: ['dw_spider', 'dw_skeleton'], 30: ['dw_wolf', 'dw_skeleton'], 35: ['dw_spider', 'dw_wolf'], 40: ['dw_wolf'], 50: ['dw_skeleton'], 60: ['dw_spider'] };
-const hero = (cls, L) => ({ cls, spec: L < 15 ? B.CLASSES[cls].def : DD[cls], level: L, main: true, neutralTraining: L < 15, race: 'human', pet: PET[cls] });
+// PLAY-18 (owner 2026-11-27): every main hero starts in the Classic white starter set (chest 3 + legs 3 + feet 2 armour, weapon +1 stamina +1 primary);
+// «without gear» in the targets now means «in the starter set». Companions have no gear in the game.
+const starter = cls => ({ armorFlat: 8, stamina: 1, [B.primaryKey(cls, B.CLASSES[cls].def)]: 1 });
+const hero = (cls, L) => ({ cls, spec: L < 15 ? B.CLASSES[cls].def : DD[cls], level: L, main: true, neutralTraining: L < 15, race: 'human', pet: PET[cls], statBonuses: starter(cls) });
 const freeComp = (cls, L) => cls === 'warrior' ? { cls: 'priest', spec: 'holy', level: L } : { cls: 'warrior', spec: 'prot', level: L };
 // Group companions: prot warrior tank (Protection paladin tanks far worse: 15% vs 60% wins in the same party, see docs/evidence/bal-05-06) and holy priest
 // (resto druid for a priest main).

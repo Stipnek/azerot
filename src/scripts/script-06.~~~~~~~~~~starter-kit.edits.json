@@ -1,0 +1,26 @@
+{
+  "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+  "description": "PLAY-18 (owner decision 2026-11-27, option 1): every class starts in its WoW Classic white starter set mapped to our slots (chest, legs, feet, main hand); new heroes at creation, existing heroes once on load (starterKit flag), equipped only into empty slots.",
+  "edits": [
+    {
+      "name": "Starter kit items and grant (outside the gear catalogue block)",
+      "old": "  function cleanChar(h) {",
+      "new": "  /* PLAY-18 (владелец, 27 ноября, вариант 1): стартовый белый комплект класса, как в WoW Classic, разложенный по нашим ячейкам\n     (рубашка или роба — грудь, штаны — ноги, обувь — ступни, оружие класса — правая рука; в Classic ячеек больше).\n     Названия — свой перевод по мотивам Classic (англ. в englishName), с базой предметов не сверены. Характеристики минимальные:\n     немного брони, оружие даёт +1 к выносливости и главной характеристике. Цели баланса BAL-04/05 считаются «в стартовом комплекте».\n     Новый герой получает комплект при создании, старый — один раз при загрузке (флаг starterKit: 1): предметы в сумку, надеваются только в пустые ячейки. */\n  const STARTER_ICONS = { sword: 'M24 3h5v5L14 23l3 3-2 2-3-3-5 5-2-2 5-5-3-3 2-2 3 3z', staff: 'M23 3l6 6-3 1-17 19-3-3L25 7z', bow: 'M10 3c12 4 18 13 17 26l-3-1C25 17 20 10 8 6zM9 5l16 23', mace: 'M20 4l8 8-4 4-3-1-12 14-3-3L20 14l-1-3z', dagger: 'M25 4h3v3L16 19l2 2-2 2-2-2-6 6-2-2 6-6-2-2 2-2 2 2z' };\n  const STARTER_KIT = {\n    warrior: ['Новобранца', 'Recruit\\'s', 'Рубаха', 'sword', 'Потёртый короткий меч', 'Worn Shortsword'],\n    paladin: ['оруженосца', 'Squire\\'s', 'Рубаха', 'mace', 'Потрёпанный молот', 'Battleworn Hammer'],\n    druid: ['новичка', 'Novice\\'s', 'Роба', 'staff', 'Потрёпанный посох', 'Battleworn Staff'],\n    priest: ['послушника', 'Neophyte\\'s', 'Роба', 'mace', 'Потёртая булава', 'Worn Mace'],\n    mage: ['ученика', 'Apprentice\\'s', 'Роба', 'staff', 'Кривой посох', 'Bent Staff'],\n    hunter: ['зверолова', 'Rugged Trapper\\'s', 'Рубаха', 'bow', 'Потёртый короткий лук', 'Worn Shortbow'],\n    rogue: ['бродяги', 'Footpad\\'s', 'Рубаха', 'dagger', 'Потёртый кинжал', 'Worn Dagger'],\n    warlock: ['прислужника', 'Acolyte\\'s', 'Роба', 'dagger', 'Потёртый кинжал', 'Worn Dagger']\n  };\n  Object.keys(STARTER_KIT).forEach(function (cls, ci) {\n    const [who, en, top, weapon, wname, wen] = STARTER_KIT[cls], primary = B.primaryKey(cls, B.CLASSES[cls].def);\n    const rows = [[1, 'chest', 'Грудь', top + ' ' + who.toLowerCase(), en + (top === 'Роба' ? ' Robe' : ' Shirt'), { armorFlat: 3 }, 'M9 4 4 8l3 8 4-2v13h10V14l4 2 3-8-5-4-4 4h-6z'],\n      [2, 'legs', 'Ноги', 'Штаны ' + who.toLowerCase(), en + ' Pants', { armorFlat: 3 }, 'M7 5h18v22h-7l-2-13-2 13H7z'],\n      [3, 'feet', 'Ступни', 'Обувь ' + who.toLowerCase(), en + ' Boots', { armorFlat: 2 }, 'M8 4h11v13l7 4v6H5v-8h3z'],\n      [4, 'mainhand', 'Правая рука', wname, wen, { stamina: 1, [primary]: 1 }, STARTER_ICONS[weapon]]];\n    rows.forEach(function (r) {\n      gearItems.push(Object.assign({ id: 920000 + ci * 10 + r[0], slot: r[1], label: r[2], name: r[3], englishName: r[4], requiredLevel: 1, price: 1, color: '#ffffff',\n        origin: 'azerot', starterKit: cls, allowedClasses: [cls], iconPath: r[6] }, r[5]));\n    });\n  });\n  function starterKitItems(cls) { return gearItems.filter(function (i) { return i.starterKit === cls; }); }\n  function withStarterKit(hero, raw) {\n    if (!hero || !B.CLASSES[hero.cls]) return hero;\n    if (raw && raw.starterKit === 1) { hero.starterKit = 1; return hero; }\n    if (!hero.items || typeof hero.items !== 'object' || Array.isArray(hero.items)) hero.items = {};\n    if (!hero.gear || typeof hero.gear !== 'object' || Array.isArray(hero.gear)) hero.gear = {};\n    starterKitItems(hero.cls).forEach(function (i) {\n      if (!(inventoryCount(hero.items, i.id) > 0)) hero.items[i.id] = 1;\n      if (!hero.gear[i.slot]) hero.gear[i.slot] = i.id;\n    });\n    hero.starterKit = 1; return hero;\n  }\n  function cleanChar(h) {"
+    },
+    {
+      "name": "Existing heroes get the kit once on load",
+      "old": "      if (Array.isArray(saved.chars)) S.chars = saved.chars.map(cleanChar).filter(Boolean);",
+      "new": "      if (Array.isArray(saved.chars)) S.chars = saved.chars.map(function (h) { const c = cleanChar(h); return c && withStarterKit(c, h); }).filter(Boolean); /* PLAY-18 */"
+    },
+    {
+      "name": "Legacy single-hero save gets the kit too",
+      "old": "      else if (saved.hero) { const c = cleanChar(Object.assign({}, saved.hero, { level: saved.level, party: saved.party, specs: saved.specs })); if (c) S.chars = [c]; }",
+      "new": "      else if (saved.hero) { const c = cleanChar(Object.assign({}, saved.hero, { level: saved.level, party: saved.party, specs: saved.specs })); if (c) S.chars = [withStarterKit(c, saved.hero)]; }"
+    },
+    {
+      "name": "New heroes start in the kit",
+      "old": "    S.chars.push(c); S.cur = c.id;",
+      "new": "    withStarterKit(c, null); /* PLAY-18 */\n    S.chars.push(c); S.cur = c.id;"
+    }
+  ]
+}
