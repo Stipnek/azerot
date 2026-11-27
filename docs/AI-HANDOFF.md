@@ -2,10 +2,10 @@
 
 > **Status 2026-11-26:** the current coverage, findings and checkpoints are in [REVIEW-LEDGER.md](REVIEW-LEDGER.md); requirements in [OPEN-WORK.md](OPEN-WORK.md). The checkpoints below are historical. Documents named here as unread have since been read (see the ledger); historical audits moved to [archive/](archive/).
 
-## Current handoff (2026-11-27 late; branch `claude/charming-shannon-y7g0a1` from main `ac90e94`, not merged)
+## Current handoff (2026-11-27 late; branch `claude/charming-shannon-y7g0a1` from main `ac90e94`; owner approved the release)
 
 Step 3 (TALENT-03 + TALENT-01, warrior) on the branch, details in OPEN-WORK: COMBAT-02 shield-block fix; Classic talents for Arms/Fury/Protection with 3-point tiers (`B.specTalents` for Fury/Protection, `B.armsIntegrated` for Arms); ability talents only through talents (companions take them on their line); kits refilled with trainer abilities; per-spec saves (`armsTalents`, new `specTalents[spec]`); all three trees live in the talent window (TALENT-04 tree id fix). Simulators give mains the companion line as build; evidence in `docs/evidence/talent-03/`.
-Not done in step 3: the spec selector for the hero and party tabs and the switch cast (owner asked for mock-ups first); other classes' trees. Open owner decision: Last Stand makes main + Protection companion duos win group quests at 24–30 more often than the BAL-06 target.
+Spec selector (mock-up A, owner-approved): one selector in the hero tab (small spec icon, role, points, talents button for classes with the talent window) and the party tab (spec only); switch = 5 s cancellable cast with a bar, out of combat only; the owner-supplied WotLK sound `UI_DualTalentSpecilization` plays on completion (`scripts/build_spec_sound.py`). Wetlands map lost the leftover placeholder frame and label. Last Stand: owner rejected a cooldown across fights; kept Classic, once per fight (duos win group quests at 24–30 more often; recheck in play). Next: other classes' trees (TALENT-03), then steps 4–6 (gathering PLAY-14, Loch Modan PLAY-15 research, class preview PLAY-07) and quest loot.
 Local browser tests need Python Playwright 1.63.0 (matches the preinstalled Chromium 1243), not the 1.56.0 pinned in pages.yml.
 
 ## Earlier handoff (2026-11-27 night)
