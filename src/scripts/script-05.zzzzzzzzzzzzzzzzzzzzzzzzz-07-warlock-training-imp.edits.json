@@ -1,0 +1,16 @@
+{
+ "sourceSha256": "1cb486c38b2cbb8481158a36ac830013209a0f1f7718b6d1e8ac18b156164637",
+ "description": "Owner 2026-11-28: warlock 1-9 too easy since the imp keeps the approach turn; the imp of a warlock in the training kit (levels 1-14) deals a third of its damage (sim_early: two enemies cost 8-20% HP, now about 30-55%). Companions and warlocks from 15 unchanged.",
+ "edits": [
+  {
+   "name": "Training shape: the warlock's imp deals a third of its damage while the warlock is in the training kit (1-14)",
+   "old": "warlock:{auto:1,skill:1.2}};",
+   "new": "warlock:{auto:1,skill:1.2,pet:0.33}};"
+  },
+  {
+   "name": "apply the training pet multiplier",
+   "old": "c.specs[sk], lvlFactor(p.level || lvl), aura), ps = c.specs[sk].passives, o = st.heroes[i];",
+   "new": "c.specs[sk], lvlFactor(p.level || lvl), aura), ps = c.specs[sk].passives, o = st.heroes[i]; if (pet && o.neutralTraining && (TRAINING_SHAPE[p.cls] || {}).pet) pet.atk *= TRAINING_SHAPE[p.cls].pet; /* owner 2026-11-28 (BAL-04/05): warlock 1-14 lost only 8-20% HP against two enemies */"
+  }
+ ]
+}
