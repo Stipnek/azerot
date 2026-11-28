@@ -1,0 +1,16 @@
+{
+ "sourceSha256": "1cb486c38b2cbb8481158a36ac830013209a0f1f7718b6d1e8ac18b156164637",
+ "description": "Bug hunt 2026-11-28 P1: Protection paladin never cast Holy Shield because the permanent Retribution Aura is also a reflect effect; Holy Shield and the aura now both answer a hit.",
+ "edits": [
+  {
+   "name": "Holy Shield AI: the permanent Retribution Aura (reflect, whole fight) no longer blocks the cast; only an active Holy Shield does",
+   "old": "if (sk('holyshield') && pct(h) < 0.65 && !hasEff(h, 'reflect')) {",
+   "new": "if (sk('holyshield') && pct(h) < 0.65 && !h.effects.some(function (f) { return f.kind === 'reflect' && !f.permanent; })) {"
+  },
+  {
+   "name": "Reflect: every reflect effect answers the hit (Retribution Aura and Holy Shield both, as their texts say), not only the first found",
+   "old": "const rfl = tgt.effects.find(function (f) { return f.kind === 'reflect'; }); if (rfl && tgt.hp > 0) damage(st, tgt, src, rfl.amt, { type: 'magic', refl: true, noCrit: true }); }",
+   "new": "tgt.effects.filter(function (f) { return f.kind === 'reflect'; }).forEach(function (rfl) { if (tgt.hp > 0 && src.hp > 0) damage(st, tgt, src, rfl.amt, { type: 'magic', refl: true, noCrit: true }); }); }"
+  }
+ ]
+}
