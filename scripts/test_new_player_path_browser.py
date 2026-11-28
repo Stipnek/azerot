@@ -74,6 +74,9 @@ def fight(pg, cls, where):
         failures.append('%s / %s: battle did not finish with a result: %s' % (cls, where, res))
     elif res['result'] != 'win':
         failures.append('%s / %s: lost the tutorial fight (%s)' % (cls, where, res['result']))
+    lines = pg.evaluate("[...document.querySelectorAll('#log p')].map(p=>p.innerText)")
+    if 'Победа!' in lines and any('» по ' in l for l in lines[lines.index('Победа!') + 1:]):
+        failures.append('%s / %s: a hit is logged after «Победа!»: %s' % (cls, where, lines[-4:]))
     if cls in CASTERS and res and res['staff'] and not res['oom']:
         failures.append('%s / %s: caster swung the staff %d times without running out of mana' % (cls, where, res['staff']))
     pg.locator('#back').click(); pg.wait_for_timeout(400)

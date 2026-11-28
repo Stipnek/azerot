@@ -1,0 +1,21 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Bug hunt 2026-11-28 3.7: when a hero turn is shown in two parts (auto-attack, then the skill), the engine log (deaths, «Победа!») was printed after the first part, so the victory line came before the last hit. It now follows the last part.",
+ "edits": [
+  {
+   "name": "applyEvents can hold back the engine log until the last part of a split turn",
+   "old": "  function applyEvents(evs) {\n    trackBd(evs);",
+   "new": "  function applyEvents(evs, holdLog) {\n    trackBd(evs);"
+  },
+  {
+   "name": "engine log lines (deaths, «Победа!») only after the turn's last shown action",
+   "old": "    while (logIdx < st.log.length) { const l = st.log[logIdx++]; addLine(l.text, l.cls); }\n    evs.forEach(function (e) { if (e.t === 'oom')",
+   "new": "    if (!holdLog) while (logIdx < st.log.length) { const l = st.log[logIdx++]; addLine(l.text, l.cls); }\n    evs.forEach(function (e) { if (e.t === 'oom')"
+  },
+  {
+   "name": "split turn (auto-attack, then the skill): the first part holds the log",
+   "old": "        applyEvents(part.evs);\n        if (i >= parts.length) {",
+   "new": "        applyEvents(part.evs, i < parts.length);\n        if (i >= parts.length) {"
+  }
+ ]
+}
