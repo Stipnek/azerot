@@ -1,0 +1,11 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Warrior stances: the hero view shows the stance the hero stands in at its own level; the next stance is greyed with its level.",
+ "edits": [
+  {
+   "name": "Hero view passes the own level so the warrior shows the stance it stands in now",
+   "old": "    return B.permanentEffects(cls, spec, false).map(function (e) { const on = level >= e.level;",
+   "new": "    return B.permanentEffects(cls, spec, false, level).map(function (e) { const on = level >= e.level;"
+  }
+ ]
+}
