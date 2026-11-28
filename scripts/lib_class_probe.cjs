@@ -55,7 +55,9 @@ function probe({ party, L, enemies, n = 20, hpMul = 1, subject = 0, seed0 = 13 }
           if (x.t === 'turn' && x.id === h.id) agg.turns++;
           if (x.t === 'skill' && x.src === h.id) { agg.casts[x.skill] = (agg.casts[x.skill] || 0) + 1; last = x.skill; }
           if (x.t === 'auto' && x.src === h.id) { agg.autos++; last = '__auto';
-            if (!agg.autoRanged && h.maxMana > 0 && h.mana / h.maxMana > 0.2 && isCaster(h)) agg.autoMeleeWithMana++; }
+            // A staff swing with mana to spare; a healer's free heal is also an 'auto' event and is not a swing, and a healer that had
+            // nothing to heal and no damage spell (Restoration before 23) may swing.
+            if (!agg.autoRanged && x.name === agg.autoName && h.role !== 'heal' && h.maxMana > 0 && h.mana / h.maxMana > 0.2 && isCaster(h)) agg.autoMeleeWithMana++; }
           if (x.t === 'dmg' && x.src === h.id && last && !x.dot) agg.dmgBySkill[last] = (agg.dmgBySkill[last] || 0) + x.amt;
           if (x.t === 'eskill' && x.id === 'approach') agg.approach++;
           if (x.t === 'eskill' && x.id === 'stun') { const e = st.enemies.find(v => v.id === x.src); if (e) { agg.stunSkips++; const f = e.effects.find(v => v.kind === 'stun'); if (f && f.src === h.id) agg.stunSkipBy[f.name || 'stun'] = (agg.stunSkipBy[f.name || 'stun'] || 0) + 1; } }

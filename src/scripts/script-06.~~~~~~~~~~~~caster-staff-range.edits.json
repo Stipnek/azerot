@@ -1,0 +1,26 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Bug hunt 2026-11-28, finding 1.1: casters stand at range in the battle view and run in only for a staff swing (out of mana); Classic staff icon for that swing; training panel text.",
+ "edits": [
+  {
+   "name": "Battle view: casters stand in the back rank",
+   "old": "function isMeleeHero(u) { if (u.pet) return !RANGED_PETS[u.spec]; return u.role !== 'heal' && !B.autoOf(u.cls, u.spec).ranged; }",
+   "new": "function isMeleeHero(u) { if (u.pet) return !RANGED_PETS[u.spec]; return u.role !== 'heal' && !B.autoOf(u.cls, u.spec).ranged && !(B.casterStaff && B.casterStaff(u)); } /* bug hunt 1.1: casters keep range */"
+  },
+  {
+   "name": "Battle view: a caster runs in only for its staff swing (out of mana)",
+   "old": "if (isMelee(actor) && dmgTargets.length) {",
+   "new": "if ((isMelee(actor) || (autoEv && B.casterStaff && B.casterStaff(actor))) && dmgTargets.length) {"
+  },
+  {
+   "name": "Classic staff icon for the training casters' staff swing",
+   "old": "registerAz(B.AUTO_DEFAULT,'auto:default');",
+   "new": "registerAz(B.AUTO_DEFAULT,'auto:default');\n  /* Bug hunt 2026-11-28: the training mage, priest and warlock staff swing uses the Classic staff icon (the druid staff), not an emoji. */\n  AZ_ASSET_REGISTRY.assets['auto:training-staff'] = { name: 'Удар посохом', icon: 'inv_staff_08', url: 'https://wow.zamimg.com/images/wow/icons/large/inv_staff_08.jpg', category: 'auto', verified: false };\n  registerAz(B.autoOf('mage', null), 'auto:training-staff');"
+  },
+  {
+   "name": "Training panel: explain when casters use the staff; drop the stale level-1 line",
+   "old": "её аура и пассивки не действуют. На 1 уровне доступна автоатака.</p>",
+   "new": "её аура и пассивки не действуют. '+(B.casterStaff && B.casterStaff({cls: cls, spec: null}) ? 'Посохом бьёт вблизи, только когда не хватает маны на заклинание.' : '')+'</p>"
+  }
+ ]
+}

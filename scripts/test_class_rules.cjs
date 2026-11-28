@@ -75,7 +75,8 @@ function checkStuns(tag, ctx) {
     if (n < 15) continue; // fewer stuns are too noisy: stunned enemies often die before their turn
     const id = skillByName[name], text = (id && B.SKILLS[id].text) || '', m = /на (\d+) ход/.exec(text);
     const expected = /следующий ход/.test(text) ? 1 : m ? +m[1] : 1, got = (skipped[name] || 0) / n;
-    if (Math.abs(got - expected) > 0.25 && !(expected === 1 && !m && got >= 1)) flag(`stun:${name}`, `«${name}»: ожидается пропуск ${expected} ход(а) врага за оглушение${m ? ' (по тексту)' : ''}, в бою ${got.toFixed(2)} (${n} оглушений).`);
+    if (Math.abs(got - expected) > 0.4 && // enemies that die while controlled lower the ratio a little
+       !(expected === 1 && !m && got >= 1)) flag(`stun:${name}`, `«${name}»: ожидается пропуск ${expected} ход(а) врага за оглушение${m ? ' (по тексту)' : ''}, в бою ${got.toFixed(2)} (${n} оглушений).`);
   }
 }
 
