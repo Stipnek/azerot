@@ -35,6 +35,7 @@ Release fact (2026-11-26): the Pages workflow publishes `preview/combined.html`,
 | Warrior Arms | [arms-stage1-temporary-rules.md](arms-stage1-temporary-rules.md) | Owner-accepted temporary rules (cap 30) | Supersedes the archived prototype for integrated Arms. |
 | Warrior Arms | [arms-integration-gates-2026-11-21.md](arms-integration-gates-2026-11-21.md), [spec15-transition-scope.md](spec15-transition-scope.md) | Acceptance gates, scope | Integrated mode is now released; their open checks are in OPEN-WORK. |
 | Talent tree UI | [computer-talent-tree-task.md](computer-talent-tree-task.md) | Task brief with owner feedback | "No scrolling" requirement vs merged internal-scroll dialog is open (TALENT-02). |
+| Review 2026-11-28 | [bug-hunt-2026-11-28.md](bug-hunt-2026-11-28.md), [architecture-proposal-2026-11-28.md](architecture-proposal-2026-11-28.md), [pet-progression-review-prompt.md](pet-progression-review-prompt.md) | Findings report, structure proposal (proposed), prompt for the PET-01 review | Fixes are on `claude/game-bug-hunt-tux8nw` until merged. |
 | Balance | [enemy-curve-2026-11-23.md](enemy-curve-2026-11-23.md) | Implemented report | Owner decisions open (BAL-01…03). |
 | Progression summary | [PROGRESSION-BALANCE-NOTES.md](PROGRESSION-BALANCE-NOTES.md) | Reading notes | Precedence chains between combat documents. |
 | Architecture | [core-module-contract.md](core-module-contract.md), [modularization-notes.md](modularization-notes.md) | Plan, advice | Two core modules already exist in `src/core/`. |
