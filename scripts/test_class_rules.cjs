@@ -29,10 +29,21 @@ const AUTOMATIC = new Set(['laststand']);
 const skillByName = Object.fromEntries(Object.entries(B.SKILLS).map(([id, s]) => [s.name, id]));
 const nameOf = id => (B.SKILLS[id] && B.SKILLS[id].name) || id;
 
+// CLASS-01 (owner 2026-11-28): classes moved to the full Classic trainer list (no ability limit). Every spec has every trainer ability,
+// so a tank's damage fillers or a damage spec's taunts are situational for that spec. For these classes an ability must be cast by
+// at least one spec of the class at that level and role (proof that the AI has a working branch), checked in checkClassCasts below;
+// each context also gets a fight with a spellcaster enemy (Shield Bash and other interrupts).
+const CLASS01 = new Set(['warrior']);
+const classCasts = {};
 function checkCasts(tag, cls, spec, L, role, ctx) {
   const skills = ctx.solo2.skills || [];
   const total = {};
   for (const c of Object.values(ctx)) for (const [k, v] of Object.entries(c.casts)) total[k] = (total[k] || 0) + v;
+  if (CLASS01.has(cls)) {
+    const key = `${role === 'main' && /:training:/.test(tag) ? 'training' : role}:${cls}:${L}`, acc = classCasts[key] = classCasts[key] || { skills: new Set(), cast: {} };
+    for (const id of skills) acc.skills.add(id);
+    for (const [k, v] of Object.entries(total)) acc.cast[k] = (acc.cast[k] || 0) + v;
+  } else
   for (const id of skills) if (!total[id] && !AUTOMATIC.has(id)) flag(`cast:${tag}:${id}`, `«${nameOf(id)}» есть в наборе, но ИИ ни разу не применил его (соло против двух, длинный бой против одного, долгий бой против трёх в группе${ctx.party ? ', своя роль в группе, тяжёлый бой против четырёх' : ''}).`);
   // An area ability on a short cooldown should repeat in a long three-enemy fight.
   const l3 = ctx.long3, turnsPerFight = l3.turns / l3.fights;
@@ -80,16 +91,25 @@ function checkStuns(tag, ctx) {
   }
 }
 
+function checkClassCasts() {
+  for (const [key, acc] of Object.entries(classCasts)) for (const id of acc.skills) if (!acc.cast[id] && !AUTOMATIC.has(id))
+    flag(`cast:${key}:${id}`, `«${nameOf(id)}» есть в наборе класса, но ни один спек ни разу не применил его (${key}).`);
+}
+const withCaster = (cls, spec, L, role, ctx) => {
+  if (CLASS01.has(cls)) ctx.caster = P.probe({ party: [P.member(cls, spec, L, role)], L, enemies: [P.mobFor(L), 'murlocShaman'], n: Math.max(4, N >> 2) });
+  return ctx;
+};
+
 // Every class, spec and role.
 for (const cls of P.CLASSES) {
   for (const L of MAIN_TRAINING_LEVELS) {
-    const spec = B.CLASSES[cls].def, tag = `main:${cls}:training:${L}`, ctx = P.contexts(cls, spec, L, 'main', N);
+    const spec = B.CLASSES[cls].def, tag = `main:${cls}:training:${L}`, ctx = withCaster(cls, spec, L, 'main', P.contexts(cls, spec, L, 'main', N));
     checkCasts(tag, cls, spec, L, 'main', ctx); checkUnlocks(tag, cls, spec, L, 'main', ctx); checkEffects(tag, cls, spec, L, 'main', ctx);
     checkCaster(tag, cls, spec, L, 'main', ctx); checkStuns(tag, ctx);
   }
   for (const spec of Object.keys(B.CLASSES[cls].specs)) {
     for (const [role, levels] of [['main', SPEC_LEVELS], ['companion', COMPANION_LEVELS]]) for (const L of levels) {
-      const tag = `${role}:${cls}:${spec}:${L}`, ctx = P.contexts(cls, spec, L, role, N);
+      const tag = `${role}:${cls}:${spec}:${L}`, ctx = withCaster(cls, spec, L, role, P.contexts(cls, spec, L, role, N));
       checkCasts(tag, cls, spec, L, role, ctx); checkUnlocks(tag, cls, spec, L, role, ctx); checkEffects(tag, cls, spec, L, role, ctx);
       checkCaster(tag, cls, spec, L, role, ctx); checkPassives(tag, cls, spec, L, role, ctx); checkStuns(tag, ctx);
     }
@@ -104,6 +124,8 @@ for (const cls of P.CLASSES) {
     for (const p of sp.passives || []) if (cls === 'hunter' && spec === 'surv' && /Парир/.test(p.name)) flag(`label:${cls}:${spec}:${p.id}`, `Пассивка «${p.name}» даёт уклонение; combat-passives запрещает «парирование» под этим именем.`);
   }
 }
+
+checkClassCasts();
 
 // Player-visible texts.
 for (const [id, sk] of Object.entries(B.SKILLS)) for (const re of DEV_WORDS) if (re.test(sk.text || '')) { flag(`text:skill:${id}`, `Текст «${sk.name}» содержит служебную формулировку (${re}).`); break; }

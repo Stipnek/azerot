@@ -50,6 +50,10 @@
    "bytes": 1664,
    "sha256": "c2bebe7dd18205bf978c102e5cc22b2163d398f9c52e7795b04523975f072b14"
   },
+  "ability_golemthunderclap": {
+   "bytes": 1935,
+   "sha256": "63dcd7afe668f076a21d414ba3aef604c547319638155208665760675ddd0d4b"
+  },
   "ability_gouge": {
    "bytes": 2072,
    "sha256": "4367492a52c77d7bc636687e1726b10c831cbdeaf7fc5e204c5f1437f2e37c61"
@@ -114,6 +118,10 @@
    "bytes": 1695,
    "sha256": "1021a85689bddb50cd690567030c2b9cc3644ee32f9d64c2f636036c33417261"
   },
+  "ability_racial_bloodrage": {
+   "bytes": 1897,
+   "sha256": "e011d95876c5555d7ad8b681ccdb0a05172826c863464e16eb7cb6c27f4ec4db"
+  },
   "ability_racial_cannibalize": {
    "bytes": 2188,
    "sha256": "5b4292eb7393d74b0c49e69022c1e7d4c0d739c0c142821283335ea665a81503"
@@ -174,6 +182,14 @@
    "bytes": 1043,
    "sha256": "727436dc35839e76966f9d94320da118f3aba65c33b352ff24123871974b5842"
   },
+  "ability_warrior_battleshout": {
+   "bytes": 1827,
+   "sha256": "f3f9383603f241fb3b65d76d33db4758984fe29d911d7dc814129334b9e81178"
+  },
+  "ability_warrior_challange": {
+   "bytes": 2068,
+   "sha256": "41e78f4bb45c94e1648f2151c0eaecabbad30c108eb8816c5663887a92dd4cb4"
+  },
   "ability_warrior_charge": {
    "bytes": 1817,
    "sha256": "c77bac26059d2d74b5a3db9f6769f9c907be56ddd0a97b74cfbdc006e8e8f6d6"
@@ -189,6 +205,10 @@
   "ability_warrior_defensivestance": {
    "bytes": 1845,
    "sha256": "4f68d5dc8edaed51c9d1498c107b188b6d05b81910161e3fd91d8e42cf53d3c3"
+  },
+  "ability_warrior_disarm": {
+   "bytes": 1563,
+   "sha256": "66160665bd885600a02e439545da91daf8e7e1f225d6a044ad8d88b91985f77d"
   },
   "ability_warrior_innerrage": {
    "bytes": 2102,
@@ -206,9 +226,17 @@
    "bytes": 1868,
    "sha256": "acd1260800366349f03ae8ed85a5398a69e81562499c07ebff2bd1beb64d3566"
   },
+  "ability_warrior_shieldbash": {
+   "bytes": 1921,
+   "sha256": "b5cd6ad39ed09df952c344c3dda7ec45825ad444d38cc3b3ee43154b5a8d8db9"
+  },
   "ability_warrior_shieldwall": {
    "bytes": 1725,
    "sha256": "626b81e2359640877573cf64b93c26bf44fa0a87676bfd22409c2e90308d8f96"
+  },
+  "ability_warrior_sunder": {
+   "bytes": 1607,
+   "sha256": "da23ae30ad376e6bdfc66ca60e7763d2c8a6c6663f014de5327f0e63d57c9ec6"
   },
   "ability_warrior_warcry": {
    "bytes": 2117,

@@ -171,7 +171,7 @@ def run_case(browser,label,options,cls):
                 expect(training).to_have_attribute('data-neutral-training',cls)
                 expect(training).to_have_attribute('data-own-level',str(level))
                 slots=page.evaluate('({cls,level})=>Battle.neutralTraining.slots(cls,level)',{'cls':cls,'level':level})
-                expect(training.locator('[data-neutral-skill]')).to_have_count(3)
+                expect(training.locator('[data-neutral-skill]')).to_have_count(len(slots))  # CLASS-01: the warrior has the whole Classic trainer list
                 for slot in slots:
                     row=training.locator('[data-neutral-skill="'+slot['id']+'"]')
                     expect(row).to_have_attribute('data-available',str(slot['available']).lower())

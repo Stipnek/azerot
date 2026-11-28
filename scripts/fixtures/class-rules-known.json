@@ -2,14 +2,8 @@
  "_comment": "Known class-rule violations at ae2e70e, keyed by rule; value = finding id in docs/bug-hunt-2026-11-28.md. Remove an entry when its fix makes the rule pass; never add one without a report id.",
  "known": {
   "approach-melee:druid:resto": "1.1",
-  "cast:companion:warrior:arms:30:heroicstrike": "W11",
-  "cast:companion:warrior:fury:30:cleave": "W11",
-  "cast:companion:warrior:fury:30:heroicstrike": "W11",
   "cast:main:rogue:training:10:eviscerate": "R3",
   "cast:main:rogue:training:14:eviscerate": "R3",
-  "cast:main:warrior:arms:30:heroicstrike": "W11",
-  "cast:main:warrior:fury:30:cleave": "W11",
-  "cast:main:warrior:fury:30:heroicstrike": "W11",
   "label:hunter:surv:deflect": "H3",
   "passive-early:companion:druid:balance:5": "3.2",
   "passive-early:companion:druid:bear:5": "3.2",
@@ -69,10 +63,7 @@
   "pet-missing:cat": "H1",
   "pet-missing:owl": "H1",
   "pet-missing:turtle": "H1",
-  "text:passive:warrior:prot:protblock": "W8",
   "text:skill:crusader": "P3",
-  "text:skill:laststand": "W8",
-  "text:skill:revenge": "W8",
   "text:skill:steady": "H5"
  }
 }

@@ -46,9 +46,9 @@ for (const spec of ['prot','arms','fury']) for (let level=10;level<=14;level++) 
   assert.equal(call("specKey('me')"),'arms','shared warrior training profile');
   assert.equal(call("canSpecialize('me')"),false);assert.equal(call('effectiveSpec(S.hero)'),null);
   const state=B.createBattle({encounter:'daily_wf_coast',level:30,main:'warrior',party:plain(call('partyArg()')),seed:13});
-  assert.deepEqual(plain(state.heroes[0].skills),plain(B.armsProto.kit(level,{})));
+  assert.deepEqual(plain(state.heroes[0].skills),plain(B.armsIntegrated.kit(level,{},true))); // CLASS-01: Classic trainer list
   assert.deepEqual(plain(state.heroes[0].pids),[]);assert.deepEqual(plain(state.heroes[0].tal),{});
-  assert.equal(state.heroes[0].parryBase,0);assert.equal(state.aura.name,undefined);
+  assert.equal(state.heroes[0].parryBase,0.05);assert.equal(state.aura.name,undefined); // CLASS-01: Classic Parry from 6, no talents
   assert.equal(call('runtimeLeaderAura([]).name'),undefined);
   assert.equal(call('save()'),true);
   const saved=JSON.parse(values.get('isolated-test')).chars[0];install(saved);

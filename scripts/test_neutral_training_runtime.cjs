@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),B=require('./lib_engine_load.cjs')(),plain=x=>JSON.parse(JSON.stringify(x));
-const expected={warrior:['heroicstrike','rend','thunder'],paladin:['crusader','judgement','hoj'],druid:['wrath','moonfire','entangle'],priest:['smiteh','swp','mindblast'],mage:['fireball','frostbolt','missiles'],hunter:['raptor','serpent','arcshot'],rogue:['sinister','eviscerate','sliceanddice'],warlock:['shadowbolt','immolate','corruption']};
-const LEVELS={warrior:[1,4,6],paladin:[1,4,8],druid:[1,4,8],priest:[1,4,10],mage:[1,4,8],hunter:[1,4,6],rogue:[1,1,10],warlock:[1,1,4]}; // PLAY-11 (owner 2026-11-27, option A): Classic trainer levels
+const expected={warrior:['heroicstrike','rend','thunder','hamstring','bloodrage','taunt','sunder','overpower','demoshout','revenge','mockingblow','disarm','cleave','retaliation','intimshout','execute','challshout','slam'],paladin:['crusader','judgement','hoj'],druid:['wrath','moonfire','entangle'],priest:['smiteh','swp','mindblast'],mage:['fireball','frostbolt','missiles'],hunter:['raptor','serpent','arcshot'],rogue:['sinister','eviscerate','sliceanddice'],warlock:['shadowbolt','immolate','corruption']};
+const LEVELS={warrior:[1,4,6,8,10,10,10,12,14,14,16,18,20,20,22,24,26,30],paladin:[1,4,8],druid:[1,4,8],priest:[1,4,10],mage:[1,4,8],hunter:[1,4,6],rogue:[1,1,10],warlock:[1,1,4]}; // PLAY-11 (owner 2026-11-27, option A): Classic trainer levels; warrior: CLASS-01 full Classic trainer list (owner 2026-11-28)
 const SHAPE=B.neutralTraining.shape;
 function make(cls,spec,level,extra={}){return B.createBattle({party:[{cls,spec,level,main:true,neutralTraining:true,...extra}],main:cls,level,encounter:'test',seed:901,test:{mode:'dps',level,count:3,limit:100}});}
 function turn(st){st.heroes[0].tm=2000;st.enemies.forEach(e=>{e.tm=0;});return B.step(st);}
@@ -13,8 +13,8 @@ for(const [cls,c]of Object.entries(B.CLASSES)){
   for(const spec of Object.keys(c.specs)){
    const st=make(cls,spec,level),h=st.heroes[0],v=view(h);
    assert.equal(h.neutralTraining,true);assert.equal(h.spec,null);assert.equal(h.role,'training');assert.equal(h.ai,'neutral_training');
-   assert.deepEqual(plain(h.skills),expected[cls].filter((id,i)=>level>=LEVELS[cls][i]));assert.deepEqual(plain(h.pids),[]);assert.deepEqual(plain(h.effects).filter(f=>!(B.neutralTraining.wards[cls]&&f.name===B.neutralTraining.wards[cls].name)),[]); /* PLAY-19: only the Classic training ward */
-   assert.equal(h.autoMul,SHAPE[cls].auto);assert.equal(h.trainSkill,SHAPE[cls].skill);for(const key of ['parryBase','dodgeBase','impwps','shatter','critMul','arcConc','mdAll','mdMagic','mdTaken'])assert.ok(!h[key],cls+' inherited '+key);assert.equal(B.autoOf(cls,h.spec).hits||1,1);assert.equal(h.fury,false);assert.equal(h.shadowform,false);assert.equal(h.healPow,0);assert.equal(h.threatMult,1);assert.deepEqual(plain(st.aura),{res:[]});
+   assert.deepEqual(plain(h.skills),expected[cls].filter((id,i)=>level>=LEVELS[cls][i]));assert.deepEqual(plain(h.pids),[]);assert.deepEqual(plain(h.effects).filter(f=>!(B.neutralTraining.wards[cls]&&f.name===B.neutralTraining.wards[cls].name)&&f.kind!=='bshout'),[]); /* PLAY-19: only the Classic training ward */
+   assert.equal(h.autoMul,SHAPE[cls].auto);assert.equal(h.trainSkill,SHAPE[cls].skill);for(const key of [...(cls==='warrior'&&level>=6?[]:['parryBase']),'dodgeBase','impwps','shatter','critMul','arcConc','mdAll','mdMagic','mdTaken'])assert.ok(!h[key],cls+' inherited '+key);assert.equal(B.autoOf(cls,h.spec).hits||1,1);assert.equal(h.fury,false);assert.equal(h.shadowform,false);assert.equal(h.healPow,0);assert.equal(h.threatMult,1);assert.deepEqual(plain(st.aura),{res:[]});
    if(first)assert.deepEqual(v,first);else first=v;
    assert.equal(h.resource,cls==='warrior'?'rage':cls==='rogue'?'energy':'mana');assert.equal(h.maxCp,cls==='rogue'?5:0);
    const ev=turn(st);if(level===1)assert.ok(ev.some(e=>e.t==='skill'&&e.src===h.id&&expected[cls].includes(e.skill)),cls+': a Classic level-1 ability from level 1');profiles++;
@@ -26,7 +26,8 @@ for(const [cls,c]of Object.entries(B.CLASSES)){
   for(const e of turn(st))if(e.t==='skill'&&e.src===h.id){assert.ok(expected[cls].includes(e.skill));used.add(e.skill);}
   assert.ok(h.mana>=0&&h.mana<=h.maxMana);assert.ok(h.energy>=0&&h.energy<=h.maxEnergy);assert.ok(h.rage>=0&&h.rage<=h.maxRage);assert.ok(h.cp>=0&&h.cp<=h.maxCp);assert.deepEqual(plain(h.pids),[]);
  }
- assert.deepEqual([...used].sort(),expected[cls].slice().sort(),cls+' must actually use all three actives in suitable conditions');
+ if(cls==='warrior')assert.ok(['heroicstrike','rend'].every(id=>used.has(id)),'warrior uses its trainer core; every trainer ability is checked by test_class_rules.cjs (CLASS-01)');
+ else assert.deepEqual([...used].sort(),expected[cls].slice().sort(),cls+' must actually use all three actives in suitable conditions');
  assert.ok(!h.effects.some(f=>['veng','hidden','nfb'].includes(f.kind)));assert.ok(!st.enemies.some(e=>e.effects.some(f=>['Глубокие раны','Воспламенение'].includes(f.name))));
  const dry=make(cls,base,2),d=dry.heroes[0];d.mana=0;d.energy=0;d.rage=0;d.atk=0;
  assert.ok(!turn(dry).some(e=>e.t==='skill'&&e.src===d.id),cls+' must wait for its resource');

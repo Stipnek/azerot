@@ -36,7 +36,7 @@ assert.equal(party[1].level,14);assert.ok(!('talents' in party[1]));assert.ok(!(
 let battle = B.createBattle({party,main:'warrior',level:30,encounter:'daily_wf_coast',seed:1});
 assert.deepEqual(plain(battle.heroes[0].tal),plain(B.armsIntegrated.line(30)));
 assert.deepEqual(plain(battle.heroes[1].tal),{});
-assert.deepEqual(plain(battle.heroes[1].skills),['heroicstrike','thunder','rend']);
+assert.deepEqual(plain(battle.heroes[1].skills),plain(B.armsIntegrated.kit(14,{},false))); // CLASS-01: Classic trainer list by own level
 levels.low=25;party=plain(call('partyArg()'));
 battle=B.createBattle({party,main:'warrior',level:30,encounter:'daily_wf_coast',seed:1});
 assert.deepEqual(plain(battle.heroes[1].tal),plain(B.armsIntegrated.line(25)));
