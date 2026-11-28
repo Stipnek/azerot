@@ -62,7 +62,7 @@ function probe({ party, L, enemies, n = 20, hpMul = 1, subject = 0, seed0 = 13 }
           if (x.t === 'eskill' && x.id === 'approach') agg.approach++;
           if (x.t === 'eskill' && x.id === 'stun') { const e = st.enemies.find(v => v.id === x.src); if (e) { agg.stunSkips++; const f = e.effects.find(v => v.kind === 'stun'); if (f && f.src === h.id) agg.stunSkipBy[f.name || 'stun'] = (agg.stunSkipBy[f.name || 'stun'] || 0) + 1; } }
         }
-        for (const f of h.effects) if ((f.turns || 0) >= PERMANENT) agg.longEffects[f.name || f.kind] = true;
+        for (const f of h.effects) if ((f.turns || 0) >= PERMANENT && !(f.permanent && f.desc)) agg.longEffects[f.name || f.kind] = true; // a whole-fight effect must be marked permanent and described
         for (const e of st.enemies) for (const f of e.effects) if (f.kind === 'stun' && f.src === h.id && !f.__seen) { f.__seen = 1; agg.stunApplied[f.name || 'stun'] = (agg.stunApplied[f.name || 'stun'] || 0) + 1; }
       }
       agg.fights++;

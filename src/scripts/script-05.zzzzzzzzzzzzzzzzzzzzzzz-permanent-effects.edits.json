@@ -1,0 +1,26 @@
+{
+ "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+ "description": "Bug hunt 2026-11-28, finding 1.2: whole-fight effects (training wards, class tools) are marked permanent with a player text, and exported for the hero tab (permanentEffects).",
+ "edits": [
+  {
+   "name": "Permanent effects: one description for battle and hero tab",
+   "old": "priest: { level: 6, shield: 0.12, name: 'Слово силы: Щит', icon: '🛡️' } };",
+   "new": "priest: { level: 6, shield: 0.12, name: 'Слово силы: Щит', icon: '🛡️' } };\n  /* Bug hunt 2026-11-28, finding 1.2: effects that last the whole fight (training wards, class tools) carry permanent: true and a\n     player text (desc). The battle view shows no turn counter for them, the hero tab lists them with their level, the battle view names them\n     at battle start. permanentEffects() is the single source for those texts. */\n  const WARD_IDS = { mage: 'frostarmor', warlock: 'demonskin', druid: 'motw', priest: 'pwsward' };\n  function wardEffect(cls) {\n    const w = TRAINING_WARDS[cls]; if (!w) return null;\n    return { id: WARD_IDS[cls], kind: w.shield ? 'shield' : 'ward', name: w.name, icon: w.icon, level: w.level,\n      desc: w.armor ? '+' + Math.round(w.armor * 100) + '% брони на весь бой' : 'в начале боя щит на ' + Math.round(w.shield * 100) + '% максимума ХП' };\n  }\n  function toolEffects(cls, spec) {\n    const t = CLASS_TOOLS[cls + ':' + spec], out = []; if (!t) return out;\n    const pc = function (x) { return Math.round(x * 100) + '%'; };\n    if (t.rf) out.push({ id: 'rf', kind: 'rf', name: 'Праведное неистовство', icon: '🔥', level: t.level, desc: 'угроза от урона ×1,6: враги охотнее бьют паладина' });\n    if (t.reflect) out.push({ id: 'retaura', kind: 'reflect', name: 'Аура воздаяния', icon: '✨', level: t.level, desc: 'враг, ударивший паладина, получает ' + pc(t.reflect) + ' его атаки уроном Света' });\n    if (t.seal) out.push({ id: 'sealright', kind: 'seal', name: 'Печать праведности', icon: '⚖️', level: t.level, desc: 'удары с шансом 30% добавляют 70% атаки уроном Света' });\n    if (t.shield) out.push({ id: 'manashield', kind: 'shield', name: 'Мана-щит', icon: '🔷', level: t.level, desc: 'в начале боя щит на ' + pc(t.shield) + ' максимума ХП' });\n    return out;\n  }\n  function permanentEffects(cls, spec, training) { if (training) { const w = wardEffect(cls); return w ? [w] : []; } return toolEffects(cls, spec); }"
+  },
+  {
+   "name": "Training wards: permanent, described, named in the log",
+   "old": "      if (w.shield) h.effects.push({ kind: 'shield', amt: Math.round(h.maxHp * w.shield), turns: 999, src: h.id, name: w.name, icon: w.icon });\n      else h.effects.push({ kind: 'ward', turns: 999, src: h.id, name: w.name, icon: w.icon });",
+   "new": "      const pe = wardEffect(h.cls);\n      if (w.shield) h.effects.push({ kind: 'shield', amt: Math.round(h.maxHp * w.shield), turns: 999, src: h.id, name: w.name, icon: w.icon, permanent: true, desc: pe.desc });\n      else h.effects.push({ kind: 'ward', turns: 999, src: h.id, name: w.name, icon: w.icon, permanent: true, desc: pe.desc });"
+  },
+  {
+   "name": "Class tools: permanent, described, named in the log (same effects, same order)",
+   "old": "      if (t.rf) h.effects.push({ kind: 'rf', turns: 999, src: h.id, name: 'Праведное неистовство', icon: '🔥' });\n      if (t.reflect) h.effects.push({ kind: 'reflect', amt: t.reflect, turns: 999, src: h.id, name: 'Аура воздаяния', icon: '✨' });\n      if (t.seal) h.effects.push({ kind: 'seal', turns: 999, src: h.id, name: 'Печать праведности', icon: '⚖️' });\n      if (t.shield) h.effects.push({ kind: 'shield', amt: Math.round(h.maxHp * t.shield), turns: 999, src: h.id, name: 'Мана-щит', icon: '🔷' });",
+   "new": "      toolEffects(h.cls, h.spec).forEach(function (e) {\n        const f = { kind: e.kind, turns: 999, src: h.id, name: e.name, icon: e.icon, permanent: true, desc: e.desc };\n        if (e.kind === 'reflect') f.amt = t.reflect; else if (e.kind === 'shield') f.amt = Math.round(h.maxHp * t.shield);\n        h.effects.push(f);\n      });"
+  },
+  {
+   "name": "Export permanentEffects for the hero tab",
+   "old": "autoOf, casterStaff, auraOf,",
+   "new": "autoOf, casterStaff, permanentEffects, auraOf,"
+  }
+ ]
+}

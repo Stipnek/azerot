@@ -54,7 +54,7 @@ function checkUnlocks(tag, cls, spec, L, role, ctx) {
 function checkEffects(tag, cls, spec, L, role, ctx) {
   const all = {};
   for (const c of Object.values(ctx)) Object.assign(all, c.longEffects);
-  for (const name of Object.keys(all)) flag(`permanent:${tag}:${name}`, `Эффект «${name}» действует весь бой (turns ≥ ${P.PERMANENT}): в бою виден счётчик ~999, во вкладке «Герой» его нет. Показать как пассивку, без счётчика.`);
+  for (const name of Object.keys(all)) flag(`permanent:${tag}:${name}`, `Эффект «${name}» действует весь бой (turns ≥ ${P.PERMANENT}) без пометки permanent и описания desc: в бою виден счётчик ~999, во вкладке «Герой» его нет.`);
 }
 
 function checkCaster(tag, cls, spec, L, role, ctx) {

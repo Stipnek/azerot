@@ -1,0 +1,51 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Bug hunt 2026-11-28, finding 1.2: whole-fight effects show no turn counter, carry the engine text in the unit card, and are listed in the hero tab (training wards with their level, class tools under the spec passives) with Classic icons.",
+ "edits": [
+  {
+   "name": "Battle token: no turn counter for whole-fight effects",
+   "old": "(f.turns && f.kind !== 'enrage' ? '<i>' + f.turns + '</i>' : '')",
+   "new": "(f.turns && f.kind !== 'enrage' && !f.permanent ? '<i>' + f.turns + '</i>' : '')"
+  },
+  {
+   "name": "Unit card: \"весь бой\" instead of \"ещё 999 х.\"",
+   "old": "(f.turns ? ', ещё ' + f.turns + ' х.' : '')",
+   "new": "(f.permanent ? ', весь бой' : f.turns ? ', ещё ' + f.turns + ' х.' : '')"
+  },
+  {
+   "name": "Unit card: the effect text from the engine",
+   "old": "const note = f.kind === 'dot' ?",
+   "new": "const note = f.desc ? f.desc : f.kind === 'dot' ?"
+  },
+  {
+   "name": "Effect notes: the engine text first",
+   "old": "  function effNote(f) {\n    const pc",
+   "new": "  function effNote(f) {\n    if (f.desc) return f.desc;\n    const pc"
+  },
+  {
+   "name": "Classic icons for whole-fight effects (training wards, class tools)",
+   "old": "registerAz(B.autoOf('mage', null), 'auto:training-staff');",
+   "new": "registerAz(B.autoOf('mage', null), 'auto:training-staff');\n  /* Bug hunt 2026-11-28, finding 1.2: Classic icons for whole-fight effects shown in the hero tab. */\n  AZ_ASSET_REGISTRY.assets['effect:frostarmor'] = { name: 'Ледяной доспех', icon: 'spell_frost_frostarmor02', url: 'https://wow.zamimg.com/images/wow/icons/large/spell_frost_frostarmor02.jpg', category: 'passive', verified: false };\n  AZ_ASSET_REGISTRY.assets['effect:demonskin'] = { name: 'Демоническая кожа', icon: 'spell_shadow_ragingscream', url: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_ragingscream.jpg', category: 'passive', verified: false };\n  AZ_ASSET_REGISTRY.assets['effect:motw'] = { name: 'Знак дикой природы', icon: 'spell_nature_regeneration', url: 'https://wow.zamimg.com/images/wow/icons/large/spell_nature_regeneration.jpg', category: 'passive', verified: false };\n  AZ_ASSET_REGISTRY.assets['effect:pwsward'] = { name: 'Слово силы: Щит', icon: 'spell_holy_powerwordshield', url: 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_powerwordshield.jpg', category: 'passive', verified: false };\n  AZ_ASSET_REGISTRY.assets['effect:rf'] = { name: 'Праведное неистовство', icon: 'spell_holy_sealoffury', url: 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_sealoffury.jpg', category: 'passive', verified: false };\n  AZ_ASSET_REGISTRY.assets['effect:retaura'] = { name: 'Аура воздаяния', icon: 'spell_holy_auraoflight', url: 'https://wow.zamimg.com/images/wow/icons/large/spell_holy_auraoflight.jpg', category: 'passive', verified: false };\n  AZ_ASSET_REGISTRY.assets['effect:sealright'] = { name: 'Печать праведности', icon: 'ability_thunderbolt', url: 'https://wow.zamimg.com/images/wow/icons/large/ability_thunderbolt.jpg', category: 'passive', verified: false };\n  AZ_ASSET_REGISTRY.assets['effect:manashield'] = { name: 'Мана-щит', icon: 'spell_shadow_detectlesserinvisibility', url: 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_detectlesserinvisibility.jpg', category: 'passive', verified: false };"
+  },
+  {
+   "name": "Hero tab: whole-fight effects as passives (training list and spec list share the engine text)",
+   "old": "  function neutralTrainingSkillsHtml(cls,level) {",
+   "new": "  function permanentIcon(e) { return wowIcon({ azIconKey: 'effect:' + e.id, name: e.name, icon: e.icon }); }\n  function permanentTrainingLis(cls, level) {\n    if (!B.permanentEffects) return '';\n    return B.permanentEffects(cls, null, true).map(function (e) { const on = level >= e.level;\n      return '<li class=\"az-training-skill' + (on ? '' : ' az-ability-locked') + '\" data-permanent-effect=\"' + esc(e.id) + '\" data-available=\"' + on + '\"><span class=\"az-training-icon\" aria-hidden=\"true\">' + permanentIcon(e) + '</span><div class=\"az-training-copy\"><b class=\"az-training-name\">' + esc(e.name) + '</b><strong class=\"az-training-state\">' + esc(on ? 'Действует · с ' + e.level + ' уровня' : 'Откроется на ' + e.level + ' уровне') + '</strong><p class=\"az-training-description\">' + esc(e.desc) + '</p><p class=\"az-training-meta\">пассивно · само в начале каждого боя</p></div></li>'; }).join('');\n  }\n  function permanentSpecLis(cls, spec, level) {\n    if (!B.permanentEffects) return '';\n    return B.permanentEffects(cls, spec, false).map(function (e) { const on = level >= e.level;\n      return '<li class=\"au\" data-permanent-effect=\"' + esc(e.id) + '\"' + (on ? '' : ' style=\"opacity:.55;filter:grayscale(1)\"') + '><span class=\"sic\" aria-hidden=\"true\">' + permanentIcon(e) + '</span><span><b>' + esc(e.name) + '</b> <span class=\"scd\">' + (on ? 'пассивно, весь бой' : 'с ' + e.level + ' ур.') + '</span><br>' + esc(e.desc) + '</span></li>'; }).join('');\n  }\n  function neutralTrainingSkillsHtml(cls,level) {"
+  },
+  {
+   "name": "Training list: add the ward",
+   "old": "</p><ul>'+items+'</ul></details>';",
+   "new": "</p><ul>'+items+(typeof permanentTrainingLis === 'function' ? permanentTrainingLis(cls,level) : '')+'</ul></details>';"
+  },
+  {
+   "name": "Spec list: add class tools after the passives",
+   "old": "passivesOf(sp).map(function (p) { return '<li class=\"au\"><span class=\"sic\" aria-hidden=\"true\">' + wowIcon(p) + '</span><span><b>' + esc(p.name) + '</b> <span class=\"scd\">пассивно</span><br>' + esc(p.text) + '</span></li>'; }).join('') +",
+   "new": "passivesOf(sp).map(function (p) { return '<li class=\"au\"><span class=\"sic\" aria-hidden=\"true\">' + wowIcon(p) + '</span><span><b>' + esc(p.name) + '</b> <span class=\"scd\">пассивно</span><br>' + esc(p.text) + '</span></li>'; }).join('') + (typeof permanentSpecLis === 'function' ? permanentSpecLis(k, auKey, ownLevel) : '') +"
+  },
+  {
+   "name": "Battle intro: name the whole-fight effects once",
+   "old": "    const mu = st.heroes.find(function (h) { return h.isMain; }); if (mu) addLine(mu.name + ': «В бой!»', 'say');",
+   "new": "    const mu = st.heroes.find(function (h) { return h.isMain; }); if (mu) addLine(mu.name + ': «В бой!»', 'say');\n    st.heroes.forEach(function (h) { (h.effects || []).forEach(function (f) { if (f.permanent && f.desc) addLine(h.name + ': «' + f.name + '» — ' + f.desc, 'info'); }); }); /* bug hunt 1.2 */"
+  }
+ ]
+}
