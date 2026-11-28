@@ -1,0 +1,21 @@
+{
+ "sourceSha256": "1cb486c38b2cbb8481158a36ac830013209a0f1f7718b6d1e8ac18b156164637",
+ "description": "Bug hunt 2026-11-28 R1: Assassination had no Eviscerate and Rupture needed 4 combo points, so ordinary fights ended without a finisher. Eviscerate (Classic trainer ability at 1) joins the kit; Rupture from 3 points on a healthy target.",
+ "edits": [
+  {
+   "name": "Assassination kit gets Eviscerate (Classic trainer ability of every rogue from level 1)",
+   "old": "skills: ['backstab', 'rupture', 'deadlypoison', 'coldblood'] },",
+   "new": "skills: ['backstab', 'rupture', 'eviscerate', 'deadlypoison', 'coldblood'] },"
+  },
+  {
+   "name": "Assassination unlock levels with Eviscerate at 1",
+   "old": "'rogue:assn': { backstab: 1, rupture: 1, deadlypoison: 23, coldblood: 30 },",
+   "new": "'rogue:assn': { backstab: 1, rupture: 1, eviscerate: 1, deadlypoison: 23, coldblood: 30 },"
+  },
+  {
+   "name": "Assassination AI: Rupture from 3 combo points on a healthy target without it, Eviscerate at 5 (4 with Rupture on, 2 on a dying target)",
+   "old": "        if (((h.cp >= 4 && !rup) || h.cp >= 5) && energyBlocked(h, 'rupture')) return;\n        if (sk('rupture') && ((h.cp >= 4 && !rup) || h.cp >= 5)) {",
+   "new": "        const ruptureNow = h.cp >= 3 && !rup && pct(t) > 0.4, evisNow = h.skills.indexOf('eviscerate') !== -1 && (h.cp >= 5 || (rup && h.cp >= 4) || (h.cp >= 2 && pct(t) < 0.25));\n        if (ruptureNow && energyBlocked(h, 'rupture')) return;\n        if (!ruptureNow && evisNow && energyBlocked(h, 'eviscerate')) return;\n        if (!ruptureNow && evisNow && sk('eviscerate')) { const n = h.cp; if (!use(st, h, 'eviscerate')) return; h.cp = 0; damage(st, h, t, 0.5 + 0.4 * n); rk(); return; }\n        if (sk('rupture') && (ruptureNow || (h.cp >= 5 && h.skills.indexOf('eviscerate') === -1))) {"
+  }
+ ]
+}
