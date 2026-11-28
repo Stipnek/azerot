@@ -2,7 +2,27 @@
 
 > **Status 2026-11-26:** the current coverage, findings and checkpoints are in [REVIEW-LEDGER.md](REVIEW-LEDGER.md); requirements in [OPEN-WORK.md](OPEN-WORK.md). The checkpoints below are historical. Documents named here as unread have since been read (see the ledger); historical audits moved to [archive/](archive/).
 
-## Current handoff (2026-11-27 late; branch `claude/charming-shannon-y7g0a1` from main `ac90e94`; owner approved the release)
+## Current handoff (2026-11-28; main `fd0203b`, live after the Publish run)
+
+Released 2026-11-27/28: warrior Classic talents + spec selector with the WotLK switch sound (#33), Last Stand rework and one Deadmines rest (#34), the owner's bug-hunt fixes (#35: casters keep range, whole-fight effects shown, worn gear visible, no talent stub, visible approach). Bug list still open: [bug-hunt-2026-11-28.md](bug-hunt-2026-11-28.md) (sections 2–4).
+
+**Owner direction 2026-11-28 (answers to the bug-hunt questions):**
+1. **Remove the training kits; abilities exactly like WoW Classic trainers.** Every class learns its Classic trainer abilities by own level (same for all specs), learned abilities are never lost (nothing is lost at 15); the spec gives the role and the talent tree; ability talents only through talents (done for the warrior). No limit on the number of abilities (auto-battle AI chooses). Restoration druid keeps Wrath, hunters keep Serpent Sting, etc. Deviations from Classic only where our format needs them, labelled «адаптация».
+2. **Spec passives come from talents, as in Classic** (Thick Hide, Deep Wounds…); companions get them when their talent line reaches that row.
+3. **Bear: Growl with bear form** (Classic), not at 23.
+4. Covered by 1 (Wrath stays for Restoration).
+5. **Hunter pets like warlock demons** by own level: Turtle 10 (tanks solo), Cat 20, Wolf 30, Owl 40 ([pets](combat-pets-2026-11-21.md), PET-01); no pet before 10 as in Classic. First re-measure hunter 1–9 without a pet *with* the PLAY-19 approach turn before adding any compensation.
+6. **Warlock 1–9 too easy after the imp change: nerf** (HP and similar) to the BAL-04/05 target (two enemies ≈ half HP).
+7. **Vendor all icons into the build** (no runtime Wowhead/hearthstonejson loads), like `src/assets/talents/`.
+8. **Architecture proposal approved** ([proposal](architecture-proposal-2026-11-28.md)), after stabilisation.
+
+**Owner complaint:** new player play keeps hitting bugs. Agreed process: feature freeze (steps 4–6 gathering, Loch Modan, class preview wait); before every release a gate: `test_class_rules.cjs` (no new violations, known list only shrinks) + a new browser test «new player path» (create each class from a fresh save, first fights, hero/equipment/talents/party tabs); short «what to look at» report per release.
+
+**Plan in order:** (1) the new-player-path gate; (2) obvious bugs from the report: Holy Shield never cast (P1), Whirlwind once per fight (W1), stuns lasting one turn less (W2/W3), Shield Wall text (W4), Assassination without finishers (R1), bear staff auto (D1), stale texts (W6–W8, 3.6); (3) vendored icons and the warlock nerf; (4) design doc «Classic trainer abilities to level 30 per class» for owner approval (lists, AI changes, what replaces training kits and spec passives); (5) after approval, rebuild class by class (warrior first) with hunter pets and Growl.
+
+Local browser tests: Python Playwright 1.63.0 matches the preinstalled Chromium.
+
+## Previous handoff (2026-11-27 late)
 
 Step 3 (TALENT-03 + TALENT-01, warrior) on the branch, details in OPEN-WORK: COMBAT-02 shield-block fix; Classic talents for Arms/Fury/Protection with 3-point tiers (`B.specTalents` for Fury/Protection, `B.armsIntegrated` for Arms); ability talents only through talents (companions take them on their line); kits refilled with trainer abilities; per-spec saves (`armsTalents`, new `specTalents[spec]`); all three trees live in the talent window (TALENT-04 tree id fix). Simulators give mains the companion line as build; evidence in `docs/evidence/talent-03/`.
 Spec selector (mock-up A, owner-approved): one selector in the hero tab (small spec icon, role, points, talents button for classes with the talent window) and the party tab (spec only); switch = 5 s cancellable cast with a bar, out of combat only; the owner-supplied WotLK sound `UI_DualTalentSpecilization` plays on completion (`scripts/build_spec_sound.py`). Wetlands map lost the leftover placeholder frame and label. Last Stand reworked by the owner: automatic immortality on a lethal hit until the next own turn, once per fight / per dungeon run (duos at 24–30 still above the BAL-06 target: follow-up). Next: other classes' trees (TALENT-03), then steps 4–6 (gathering PLAY-14, Loch Modan PLAY-15 research, class preview PLAY-07) and quest loot.
