@@ -92,7 +92,7 @@ def live_battle(page,cls,folder):
     expect(page.locator('#card h3')).to_contain_text(page.evaluate('(id)=>Battle.SKILLS[id].name',first))
     expect(page.locator('#card')).not_to_contain_text('undefined')
     if cls=='warrior':
-        expect(page.locator('#card')).to_contain_text('не резервирует')
+        expect(page.locator('#card')).to_contain_text('Требует 15 ярости')
     stage(page,'battle: verify passive icons')
     titles=page.locator('#skillbar .pass[data-sk^="passive:"]').evaluate_all('(els)=>els.map(e=>e.title)')
     racial=page.evaluate('()=>window.__neutralLiveBattle.heroes.find(h=>h.isMain).racePassive?.name')

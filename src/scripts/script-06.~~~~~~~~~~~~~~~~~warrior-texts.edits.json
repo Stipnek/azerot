@@ -1,0 +1,16 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Bug hunt 2026-11-28 W7/W8: no autobattle AI or developer wording in the warrior hero tab.",
+ "edits": [
+  {
+   "name": "W7 training Heroic Strike text without the AI note",
+   "old": "Требует 15 ярости; учебный ИИ не резервирует ярость на Удар щитом.",
+   "new": "Требует 15 ярости."
+  },
+  {
+   "name": "W8 Arms hero tab without «Временная схема до 30 уровня; не окончательный баланс до 60.»",
+   "old": "'Аура и пассивки специализации закрыты до 15 уровня.':'Временная схема до 30 уровня; не окончательный баланс до 60.')",
+   "new": "'Аура и пассивки специализации закрыты до 15 уровня.':'')"
+  }
+ ]
+}

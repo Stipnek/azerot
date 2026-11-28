@@ -70,14 +70,10 @@
   "pet-missing:cat": "H1",
   "pet-missing:owl": "H1",
   "pet-missing:turtle": "H1",
-  "stun:Оглушающий удар": "W2",
   "text:passive:warrior:prot:protblock": "W8",
-  "text:skill:concussion": "W8",
   "text:skill:crusader": "P3",
-  "text:skill:heroicstrike": "W7",
   "text:skill:laststand": "W8",
   "text:skill:revenge": "W8",
-  "text:skill:shieldblock": "W8",
   "text:skill:steady": "H5"
  }
 }

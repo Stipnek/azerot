@@ -1,0 +1,41 @@
+{
+ "sourceSha256": "1cb486c38b2cbb8481158a36ac830013209a0f1f7718b6d1e8ac18b156164637",
+ "description": "Bug hunt 2026-11-28 W2/W3/W4/W7/W8: warrior stun texts match the engine (Concussion Blow: the enemy skips its next turn), Improved Revenge really stuns, Shield Wall text says 3 turns as the engine, no autobattle AI or developer notes in Heroic Strike and Shield Block.",
+ "edits": [
+  {
+   "name": "W2 Concussion Blow text = engine (the enemy skips its next turn, like Hammer of Justice); no developer note",
+   "old": "text: 'Оглушает врага на 2 хода (не босса), перезарядка 12 ходов. Талант Защиты; Classic: 5 с, перезарядка 45 с (ход ≈ 3,5 с, как у Глухой обороны).' },",
+   "new": "text: 'Оглушает врага (не босса): он пропускает следующий ход. Перезарядка 12 ходов. Талант Защиты.' },"
+  },
+  {
+   "name": "W2 Concussion Blow talent text",
+   "old": "text: 'Открывает умение «Оглушающий удар»: оглушение врага на 2 хода (Classic: 5 с).' },",
+   "new": "text: 'Открывает умение «Оглушающий удар»: враг (не босс) пропускает следующий ход (Classic: оглушение на 5 с).' },"
+  },
+  {
+   "name": "W3 Improved Revenge stun really skips the enemy's next turn (turns:1 was removed before the enemy acted)",
+   "old": "if(T.imprevenge&&rt.hp>0&&!rt.boss&&st.rnd()<0.15*T.imprevenge){addEffect(rt,{kind:'stun',turns:1,",
+   "new": "if(T.imprevenge&&rt.hp>0&&!rt.boss&&st.rnd()<0.15*T.imprevenge){addEffect(rt,{kind:'stun',turns:2,"
+  },
+  {
+   "name": "W3 Improved Revenge talent text",
+   "old": "text: 'Реванш с шансом 15/30/45% оглушает цель на 1 ход (Classic: на 3 с).' },",
+   "new": "text: 'Реванш с шансом 15/30/45% оглушает цель (не босса): она пропускает следующий ход (Classic: оглушение на 3 с).' },"
+  },
+  {
+   "name": "W4 Shield Wall text = engine (3 turns; Classic 10 s)",
+   "old": "wall: { name: 'Глухая оборона', icon: '🛡️', cd: 6, text: '−50% получаемого урона на 2 хода' },",
+   "new": "wall: { name: 'Глухая оборона', icon: '🛡️', cd: 6, text: '−50% получаемого урона на 3 хода' },"
+  },
+  {
+   "name": "W7 Heroic Strike text without autobattle AI notes",
+   "old": "text: '100% атаки, повышенная угроза. Отдельный удар после обычной автоатаки; ИИ сохраняет 20 ярости на Удар щитом. Адаптация автобоя.' },",
+   "new": "text: '100% атаки, повышенная угроза. Отдельный удар после обычной автоатаки.' },"
+  },
+  {
+   "name": "W8 Shield Block text without the developer note on the Classic trainer level",
+   "old": "Classic: умение тренера с 16 уровня, 5 с; адаптация к ходам.",
+   "new": "Classic: 5 с; адаптация к ходам."
+  }
+ ]
+}
