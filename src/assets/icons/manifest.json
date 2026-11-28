@@ -1,0 +1,778 @@
+{
+ "source": "https://wow.zamimg.com/images/wow/icons/large/<name>.jpg",
+ "note": "Unchanged Wowhead icon files; see NOTICE.md.",
+ "icons": {
+  "ability_ambush": {
+   "bytes": 1812,
+   "sha256": "acc00e6886d46737cfd65fac9d9915eabc604859e52e999dba3a155a95737ea7"
+  },
+  "ability_backstab": {
+   "bytes": 1980,
+   "sha256": "9aee6770b34944c7031bc21ca6d0a23b061f081c298039b62bb8341b2d16c3ff"
+  },
+  "ability_bullrush": {
+   "bytes": 1724,
+   "sha256": "16e3b17de00c51fb8cb7372b667b12783d0407ea90953c4b43181831285282be"
+  },
+  "ability_defend": {
+   "bytes": 1725,
+   "sha256": "82db313c61b9ed6bee314a3e51bf54410bc9d828c8978e294b5955f39ad41d82"
+  },
+  "ability_devour": {
+   "bytes": 1659,
+   "sha256": "500eef2de827920acc86a8787fe60cf32a36ddbcc023cf1799f8b0e65a175083"
+  },
+  "ability_druid_catform": {
+   "bytes": 1861,
+   "sha256": "6b291740003679b302325d281ee70807b9430890fb6a5201a39fb081b5dadbcc"
+  },
+  "ability_druid_disembowel": {
+   "bytes": 1465,
+   "sha256": "eeda967dc12a77345c1ac9ccca7b57ba4670ee08fcf682b31f200b45c74d00bb"
+  },
+  "ability_druid_ferociousbite": {
+   "bytes": 1964,
+   "sha256": "71c959b74526048094d94253365ad25b459022b76acc10cc2b7527e0f19e07ff"
+  },
+  "ability_druid_maul": {
+   "bytes": 1840,
+   "sha256": "7dd82c04b2783879833c06bd07255eca6cce077613afce5d5bb7e603005b2a26"
+  },
+  "ability_druid_rake": {
+   "bytes": 1901,
+   "sha256": "933cf40954197554d65b74f1410b5016936f531639323cd912e5f6eb5a88b42a"
+  },
+  "ability_dualwield": {
+   "bytes": 1744,
+   "sha256": "82ec05ee887ca3f419d70252d6c38329813c9fa4593a01e1ce0e5f0d8fb6d208"
+  },
+  "ability_ghoulfrenzy": {
+   "bytes": 1664,
+   "sha256": "c2bebe7dd18205bf978c102e5cc22b2163d398f9c52e7795b04523975f072b14"
+  },
+  "ability_gouge": {
+   "bytes": 2072,
+   "sha256": "4367492a52c77d7bc636687e1726b10c831cbdeaf7fc5e204c5f1437f2e37c61"
+  },
+  "ability_hunter_beasttaming": {
+   "bytes": 1762,
+   "sha256": "c87f2635169021355f86b6fcb2cbc3b4df193c276cde6953f44acc2f7736b50a"
+  },
+  "ability_hunter_criticalshot": {
+   "bytes": 1964,
+   "sha256": "c6005272bcad68f332b09d41b8a3c064f4d6f493466cdfbc08c99b4bd72edda5"
+  },
+  "ability_hunter_pet_wolf": {
+   "bytes": 1688,
+   "sha256": "f7653738bed4c61c5c068190bbf08baba4fee1d61faa92de82ce03eb5e5da43a"
+  },
+  "ability_hunter_quickshot": {
+   "bytes": 1605,
+   "sha256": "31fa86f66847379b50cd4bd50d4c843059c872bdb0431a40cba50404ec1535c4"
+  },
+  "ability_hunter_runningshot": {
+   "bytes": 1830,
+   "sha256": "a74701f41149a5df04d5b0f0253b5fca1103ecaf141605f98d9766f776168f09"
+  },
+  "ability_hunter_steadyshot": {
+   "bytes": 2124,
+   "sha256": "004360b6466c5b366e6599d121b293d7b2c5af6eeb144a07cf4c9845d028df18"
+  },
+  "ability_hunter_swiftstrike": {
+   "bytes": 1768,
+   "sha256": "4ab7e470acbc966f9de2c487ddcd039a83046c84e0b9bd2903622a85c5274e62"
+  },
+  "ability_impalingbolt": {
+   "bytes": 2074,
+   "sha256": "933a1ac9e485cfbb472e381421a3495e8cd38985d45150a685aad6ba01d56d93"
+  },
+  "ability_marksmanship": {
+   "bytes": 2078,
+   "sha256": "6efcca1d1aea13c3ef0531c710b910dd3568966a65ac80e639225f588605f4de"
+  },
+  "ability_meleedamage": {
+   "bytes": 1706,
+   "sha256": "d77cd7949c863181d79bdead9b1d83299fb4682ca4e61a13fbe78fd1dcc5cb51"
+  },
+  "ability_parry": {
+   "bytes": 1886,
+   "sha256": "cd18ec750ad22dc3de083368b1c139b40b776b2fa9ebafbc46f40e984d015dc3"
+  },
+  "ability_physical_taunt": {
+   "bytes": 1863,
+   "sha256": "2fd3c881d95cfe4eb6d9953b6ba35b62267cb5fcd0d59bd744ce074954ed2db6"
+  },
+  "ability_piercedamage": {
+   "bytes": 1576,
+   "sha256": "83621bb521ba9d56e013b51beaf5f0fb8d34a4b55d7302da9896ec6c93c6f180"
+  },
+  "ability_racial_avatar": {
+   "bytes": 2211,
+   "sha256": "adf0650e14ad14684afef57567787737a99a633c9acdbf42f9e1ffd28ea721b9"
+  },
+  "ability_racial_bearform": {
+   "bytes": 1695,
+   "sha256": "1021a85689bddb50cd690567030c2b9cc3644ee32f9d64c2f636036c33417261"
+  },
+  "ability_racial_cannibalize": {
+   "bytes": 2188,
+   "sha256": "5b4292eb7393d74b0c49e69022c1e7d4c0d739c0c142821283335ea665a81503"
+  },
+  "ability_racial_shadowmeld": {
+   "bytes": 1657,
+   "sha256": "d4a0b606ecfae4840787e7311e8824b5152f02b44e8fd02504a9e6292c928ed9"
+  },
+  "ability_rogue_ambush": {
+   "bytes": 2148,
+   "sha256": "18c9a79ff229489d8fda2e682acc6295ab1b082afa9e444585d45cf2ccca7383"
+  },
+  "ability_rogue_dualweild": {
+   "bytes": 1789,
+   "sha256": "be9b7acc699cb93cea1ee7a50c9c32d8815fea7493c3a3c2fc4fc0bf7207d965"
+  },
+  "ability_rogue_eviscerate": {
+   "bytes": 2004,
+   "sha256": "5685b3d8d1f90b9a5fcae8d1fde1d3125ad0c8e08755306cc51d41d65dd3ee31"
+  },
+  "ability_rogue_rupture": {
+   "bytes": 2078,
+   "sha256": "0117c0d23d24a4f0dcd0553ef6bd2d249c415d38b132e8233b036f34655e0164"
+  },
+  "ability_rogue_slicedice": {
+   "bytes": 1799,
+   "sha256": "d55445d14ec8ef01e32ebd017d4b6b9c3053bc7ce09990fb16beebc41050fca8"
+  },
+  "ability_rogue_trip": {
+   "bytes": 2164,
+   "sha256": "5b47640ef027bc7f1ac1082292b09e41b2643ddb327e502844cf4c37a1b12e36"
+  },
+  "ability_searingarrow": {
+   "bytes": 1995,
+   "sha256": "f47b70658866504851afdc990c6b60b16693f3a386763f05a9c812928784e7ce"
+  },
+  "ability_shockwave": {
+   "bytes": 1877,
+   "sha256": "564b26474b43bc577f9889ba02075c8e96f266f79b933ca75b2d178a1425a356"
+  },
+  "ability_stealth": {
+   "bytes": 1822,
+   "sha256": "011391b8305f32c81be883966024cccb6cb02fef9b25fde5211c56fe12c30daf"
+  },
+  "ability_thunderbolt": {
+   "bytes": 1732,
+   "sha256": "f839fca87c2864f164e7398a0e9e6da8d57443864f7ca1d51c3884b84baa31ab"
+  },
+  "ability_thunderclap": {
+   "bytes": 1666,
+   "sha256": "e1c895c1401e80b869895073593c4ecc117de95b2fb8cc80fc979c48ecdbcd67"
+  },
+  "ability_upgrademoonglaive": {
+   "bytes": 1936,
+   "sha256": "275e20485aad86b2819c07efc120d946e1c20ad6b56f28f564f27e423a65926c"
+  },
+  "ability_vanish": {
+   "bytes": 1043,
+   "sha256": "727436dc35839e76966f9d94320da118f3aba65c33b352ff24123871974b5842"
+  },
+  "ability_warrior_charge": {
+   "bytes": 1817,
+   "sha256": "c77bac26059d2d74b5a3db9f6769f9c907be56ddd0a97b74cfbdc006e8e8f6d6"
+  },
+  "ability_warrior_cleave": {
+   "bytes": 1872,
+   "sha256": "1dfcdf9025cb9a1e0a9d1ebe0dbc937dc90505e139034888cec499fbd2083e5f"
+  },
+  "ability_warrior_decisivestrike": {
+   "bytes": 1892,
+   "sha256": "f7145e5f3923f9dda413331e96b40f3bb3324a394b39b9fcb3196f2f357e53c1"
+  },
+  "ability_warrior_defensivestance": {
+   "bytes": 1845,
+   "sha256": "4f68d5dc8edaed51c9d1498c107b188b6d05b81910161e3fd91d8e42cf53d3c3"
+  },
+  "ability_warrior_innerrage": {
+   "bytes": 2102,
+   "sha256": "e6a8b2cd3ea2a3fe68d8f3d73afcba9202c11498d304b9150122a5848a86569c"
+  },
+  "ability_warrior_punishingblow": {
+   "bytes": 1807,
+   "sha256": "a83939c72ec871b84038d2e69f5828945b84903e88e285a5990f0d83b955be13"
+  },
+  "ability_warrior_revenge": {
+   "bytes": 1538,
+   "sha256": "798bea7b796a39e82c6d447ed8264a299ae7d61d159f00e7e478628428488fb8"
+  },
+  "ability_warrior_savageblow": {
+   "bytes": 1868,
+   "sha256": "acd1260800366349f03ae8ed85a5398a69e81562499c07ebff2bd1beb64d3566"
+  },
+  "ability_warrior_shieldwall": {
+   "bytes": 1725,
+   "sha256": "626b81e2359640877573cf64b93c26bf44fa0a87676bfd22409c2e90308d8f96"
+  },
+  "ability_warrior_warcry": {
+   "bytes": 2117,
+   "sha256": "b53204f83a2787d5ab092f16a30f6efa397a00301eaf86e0d4e4e4b66d632604"
+  },
+  "ability_whirlwind": {
+   "bytes": 2177,
+   "sha256": "b818645d62c44c3c00be87ef87f7377dd5b29a85a8edf3a6d3bf720a016b634a"
+  },
+  "classicon_druid": {
+   "bytes": 1819,
+   "sha256": "a7bebda84d39cfd12de138c3db3d0b277772c9dfed17f9f3e402e3915bb6f2fb"
+  },
+  "classicon_hunter": {
+   "bytes": 1732,
+   "sha256": "679c0815b6bab133ddcfea880cfe8d8063164ca9a68f09edb9656ec28d8f02ac"
+  },
+  "classicon_mage": {
+   "bytes": 1964,
+   "sha256": "30aedcef74e5a5604dd066876892a1fdddccc65a7decd9ef13cdb65edd83ed87"
+  },
+  "classicon_paladin": {
+   "bytes": 2137,
+   "sha256": "afad8da7edffb2c9ab273da05c3c870e4c8d3e0082f34a29a281a5eec02f8369"
+  },
+  "classicon_priest": {
+   "bytes": 1895,
+   "sha256": "b19bbec67ea3ed9304f9c54865139cae12e4eb4cbd1c7cb81d8c2e2c56ef72d4"
+  },
+  "classicon_rogue": {
+   "bytes": 1946,
+   "sha256": "00f1e760e8ca463beb8c93d47b303c9df1e2c5c43c6e94c3e00362f7c3ad6b7e"
+  },
+  "classicon_warlock": {
+   "bytes": 2106,
+   "sha256": "0387159cab14a58d1f48be328a537d365bddc228de6ef2920207e5a3ab9a7863"
+  },
+  "classicon_warrior": {
+   "bytes": 1668,
+   "sha256": "b87d4ae25c609965ee178e741cbaf146fbff2d14a98d2d1a6838fab9b4841bac"
+  },
+  "inv_axe_06": {
+   "bytes": 1835,
+   "sha256": "5caa3172941d303cc373a428a8fcee01c705137f0ac2119ede6ad6b78549df98"
+  },
+  "inv_axe_09": {
+   "bytes": 1890,
+   "sha256": "381b0c671135dc229752506d781af08778a2326b66c91d09a4028948e322e7dd"
+  },
+  "inv_enchant_essenceeternallarge": {
+   "bytes": 1185,
+   "sha256": "e0ac46b3c56d21f55cb4ac021abb79e40c70dbc63a79a3b89394dea06902077a"
+  },
+  "inv_enchant_shardbrilliantsmall": {
+   "bytes": 1140,
+   "sha256": "462acd1a6973d743e920ce93354e3d5e6e10a254406fc065f287dd27312a222c"
+  },
+  "inv_hammer_01": {
+   "bytes": 1745,
+   "sha256": "1b98b7b6467c5108aec5ef66efd18996d64487086a628767f01610d3fb024cd6"
+  },
+  "inv_mace_01": {
+   "bytes": 1654,
+   "sha256": "913b85406ffd514016112275e38475ea90e0ebc03546ba59324b1994d0b9ad60"
+  },
+  "inv_misc_monsterclaw_03": {
+   "bytes": 2089,
+   "sha256": "687ce3f955fb4faf01eb731abde7cc062e9fb47060194c23f9eb50126649e6b5"
+  },
+  "inv_misc_pelt_bear_03": {
+   "bytes": 1722,
+   "sha256": "afbf331c148296dc35ccb46ea670d65d96341682ad116f3c1f0d6a8b8c9724e7"
+  },
+  "inv_shield_05": {
+   "bytes": 2037,
+   "sha256": "9240c4884de15af74760f4c46be6221548bc17c3d15b9071f88f0a2400acbdfa"
+  },
+  "inv_shield_06": {
+   "bytes": 1899,
+   "sha256": "a9afd389e4563781e717bcc022f24cce9c58d0af331c33ad8f4a594ce9fdb47e"
+  },
+  "inv_spear_07": {
+   "bytes": 1657,
+   "sha256": "ff5b91cf239b66424f3d8e5362a38ff1fed12ed5db556c4c14061cb8aefd39d8"
+  },
+  "inv_staff_08": {
+   "bytes": 1984,
+   "sha256": "73e50f9df82c747a7ce93d5f79c79027a9903600fffae07d5d03618b349014e1"
+  },
+  "inv_sword_04": {
+   "bytes": 1379,
+   "sha256": "83ba186ef6764b623972040e5d6397bec635c2f27fef0390eb7e3d9bb9b03e30"
+  },
+  "inv_sword_05": {
+   "bytes": 1552,
+   "sha256": "286522c6a8607018d2a5198e2e36172a38e62999f58d047be5b48cadc8c4a503"
+  },
+  "inv_sword_27": {
+   "bytes": 1558,
+   "sha256": "064dbd04978bb8db37983b9e53610f2f839c0ce69c5db992ff4d8c225a999a79"
+  },
+  "inv_sword_48": {
+   "bytes": 2223,
+   "sha256": "a17e5a162d969fcd2aa89dd195efaa3047adff304a2ea0ee1c74603fec403b93"
+  },
+  "inv_tradeskillitem_03": {
+   "bytes": 1909,
+   "sha256": "144aa1352ec28c79c3c773ea53bee9858afc731dec80958fdee088334b418641"
+  },
+  "inv_wand_01": {
+   "bytes": 1994,
+   "sha256": "de4f045a4656c1e010da632e48b3cf3440cad833cb78c7968f926ea8026281cc"
+  },
+  "inv_weapon_bow_07": {
+   "bytes": 1617,
+   "sha256": "a815904bb9f5c2029b71028aa16a35efdf7c35eda0394d16818fdf283988f272"
+  },
+  "inv_weapon_halbard_01": {
+   "bytes": 1665,
+   "sha256": "cc0b367aad52a822981d888d0df57aa5ecd4a2e13ba3a03c45dae55779f17feb"
+  },
+  "inv_weapon_shortblade_05": {
+   "bytes": 1495,
+   "sha256": "d8b83cd4d8581a01b02a8601ab352c9e608e8aa3a3f85dd9f27f47b7b0e39f2f"
+  },
+  "race_dwarf_male": {
+   "bytes": 2009,
+   "sha256": "c5244bdbe207a1c67d4533430e7c4700b0a23f32e731e11b80f03b0a4cf17e42"
+  },
+  "race_gnome_male": {
+   "bytes": 2103,
+   "sha256": "707a912b300ada1033c502084d9527f3a9271fbbf27968956a5b76e56a6635a6"
+  },
+  "race_human_male": {
+   "bytes": 1830,
+   "sha256": "39f34c7157cb52eb14eff5c6458ceb1a2b855f0e805b6ae2d85c92ed854d642e"
+  },
+  "race_nightelf_male": {
+   "bytes": 1925,
+   "sha256": "a199d9327ed952c7c83cf2069e7db8ef2efb142d54985fdfe770d0e3db716049"
+  },
+  "race_orc_male": {
+   "bytes": 2046,
+   "sha256": "aa900eb4fd8cdff24eba8075bf4c18773603e897053a15378559b4ffcbfeb827"
+  },
+  "race_scourge_male": {
+   "bytes": 1917,
+   "sha256": "3fdbe2f6fdf2a3578f816b13e95753da9b589bdcf1a26564922ada5854706e3c"
+  },
+  "race_tauren_male": {
+   "bytes": 1908,
+   "sha256": "b8eee069bea6ca6658f979377438b8f985c56b121bf127599c9fdc8c2aec0943"
+  },
+  "race_troll_male": {
+   "bytes": 1850,
+   "sha256": "1eff702874e192f92457ebeb2b9cf8e25de52f1bc028b44a57f7740ec5b623c5"
+  },
+  "spell_arcane_starfire": {
+   "bytes": 2045,
+   "sha256": "60e0ad33a1772e6de86dbf97f5c994d452cd713d6c10096255ae6e92b2e6d230"
+  },
+  "spell_fire_firearmor": {
+   "bytes": 1974,
+   "sha256": "dc893497ab7ea593dc8cc0a21ee0e733d0e3f6591e95b7099bd10877135f3f1e"
+  },
+  "spell_fire_fireball": {
+   "bytes": 1768,
+   "sha256": "ba891040e6850bd629f47df17059d82e3799a1e660d2b3aba6673716e1a4aee7"
+  },
+  "spell_fire_firebolt": {
+   "bytes": 1945,
+   "sha256": "2bef552637accc22397cbc81ee6d3f061b248716f07269c7f69c23d84a2e1860"
+  },
+  "spell_fire_firebolt02": {
+   "bytes": 1632,
+   "sha256": "c307fece0e3663bf5374cf59fb17800a30f50478702007ac01a1bfd102e31968"
+  },
+  "spell_fire_flamebolt": {
+   "bytes": 1823,
+   "sha256": "78428f6aeca7b8e146032c6e15dd257cfa30584d3911b019b7e5a6af6f2be1bf"
+  },
+  "spell_fire_flameshock": {
+   "bytes": 1923,
+   "sha256": "20cca7fc5da11a6840b35cbe6c2e5eb5968b1577f551e93249c652a6d943f1fa"
+  },
+  "spell_fire_immolation": {
+   "bytes": 2127,
+   "sha256": "6fee2b92f06c0e68e4c947dc890cf53602e10cf116a3d8207372ebd73de54cf8"
+  },
+  "spell_fire_incinerate": {
+   "bytes": 2213,
+   "sha256": "f73521fe506c401bbe2db5b96b95715bc65b5efc9fa885b7684024fc408a89e4"
+  },
+  "spell_fire_sealoffire": {
+   "bytes": 2184,
+   "sha256": "0bb8c88296da186d13ab10965bebcfc8503e4f3362ae684288690619c44f16f7"
+  },
+  "spell_fire_soulburn": {
+   "bytes": 2013,
+   "sha256": "7ffa4a38a7c2f5d9fe538ff110b16f6217a79b68ad68892e944502795bd27650"
+  },
+  "spell_frost_frostarmor02": {
+   "bytes": 1946,
+   "sha256": "811a9df7f24b9e0965a2c4b99458a9a121714e8425b1ea6547439c16bf9b1bd2"
+  },
+  "spell_frost_frostbolt02": {
+   "bytes": 1368,
+   "sha256": "b3869170e4accfe7c5c44f0bfa41ad479311da1db83ddbc65bcee97a58cc9663"
+  },
+  "spell_frost_frostnova": {
+   "bytes": 2358,
+   "sha256": "98de5454511a7c69b060a64d6d20468c18356a6968b86be9fda0fb130d29f1be"
+  },
+  "spell_frost_frostshock": {
+   "bytes": 2083,
+   "sha256": "63c0dacfba5a0bf14193b5edf35e70135f79e9709c428da8f85aa758d83c6b24"
+  },
+  "spell_frost_glacier": {
+   "bytes": 1857,
+   "sha256": "0e9a1eece89637b91237c3c3f8c57a9f60ba3035920552936f5d97c577102961"
+  },
+  "spell_frost_iceshock": {
+   "bytes": 1154,
+   "sha256": "8ade3c70f67bc470b3dc39e0ae0f6f4fa95d6022f72bc992ab15b70019d44ff7"
+  },
+  "spell_frost_icestorm": {
+   "bytes": 1835,
+   "sha256": "fbd862109b67a089578393d2d4b4e63708b94718da807cd5082fca7e97a8c069"
+  },
+  "spell_frost_stun": {
+   "bytes": 1668,
+   "sha256": "697333e20c857615285f83360fbb6f7bdf05a16a3ab88aed6adcc780499a3a4f"
+  },
+  "spell_frost_wizardmark": {
+   "bytes": 1657,
+   "sha256": "dc59ef7968fe588ac84239252327c47004470f78245ec188e08f8db88134f062"
+  },
+  "spell_holy_ashestoashes": {
+   "bytes": 2027,
+   "sha256": "2d7007c75de7e00e87ef6f65f5bcf064817764da4167ca419742aa93042cb68e"
+  },
+  "spell_holy_auraoflight": {
+   "bytes": 2195,
+   "sha256": "f28e7f4ed2a9f17ee9ca4fc19450ba149fc3c3dc6216bc33153f53fea1cd807d"
+  },
+  "spell_holy_blessingofprotection": {
+   "bytes": 2001,
+   "sha256": "bf25de3fb9be606205ddd884b8c66064f1d52bde9f476fd43d01cc03a04e2fdc"
+  },
+  "spell_holy_blessingofstamina": {
+   "bytes": 2261,
+   "sha256": "c7f55910bc27af907639c6348c6c2c193f800b770e06e03d57f275ee2df6e15a"
+  },
+  "spell_holy_blessingofstrength": {
+   "bytes": 2300,
+   "sha256": "6faca389dd1ff84f60972b61084e70338e4aa8fa30056d04939416d9012a3f45"
+  },
+  "spell_holy_crusaderstrike": {
+   "bytes": 2189,
+   "sha256": "2252785120e7d1ce89add61a6817cdb443f13430d01ca66dbfc89e19840ed323"
+  },
+  "spell_holy_devotionaura": {
+   "bytes": 2191,
+   "sha256": "d439c66886b477670deecdcfa228663131bc6c086541b3933667fa3f8fe7ba9e"
+  },
+  "spell_holy_flashheal": {
+   "bytes": 1622,
+   "sha256": "f881838fd8acf7d5dc70e78247cdb02ba235a08dbb15ccb37977592c49005b61"
+  },
+  "spell_holy_greaterheal": {
+   "bytes": 1578,
+   "sha256": "0ba816b2cb52d442075eba5dae7364574f4008fff582a7d41938619232e307c0"
+  },
+  "spell_holy_heal": {
+   "bytes": 1715,
+   "sha256": "fe65769f7b523acbe57bc7f046ef49f265c7aa22229294797106cb26b00e11cc"
+  },
+  "spell_holy_holybolt": {
+   "bytes": 1716,
+   "sha256": "17ed0cfa107cdc451f5b4ac3bb328ed0854e55b3c1030ff07128a37e7a5589f1"
+  },
+  "spell_holy_holynova": {
+   "bytes": 1976,
+   "sha256": "ef34a75cc41a80996daa1176b6a946c0463c00f650f20b2374ea449f5fa4de19"
+  },
+  "spell_holy_holysmite": {
+   "bytes": 1563,
+   "sha256": "424538e07051bfe13b2c14a42dc9a65b1de91fd251a971c84d260dd13ca47f2c"
+  },
+  "spell_holy_innerfire": {
+   "bytes": 1687,
+   "sha256": "c4bc1336ae6986e4f7e6f99aa0b64ad99c2a90595ddf4479b3bc10dea691ea8d"
+  },
+  "spell_holy_layonhands": {
+   "bytes": 1338,
+   "sha256": "bd2b6ccccb4fee0690323bcacd0766ecb8a9fae7e3d944df27fc04b8c05a2378"
+  },
+  "spell_holy_lesserheal": {
+   "bytes": 1412,
+   "sha256": "2270614c1516bc5047149f9f6c9a73889be908fd6d790a6b94084f05d61f2d38"
+  },
+  "spell_holy_magicalsentry": {
+   "bytes": 2139,
+   "sha256": "797c3c98369ae79f9c755ed20db767596e712927e2beb7fdb970a4e53b80f32b"
+  },
+  "spell_holy_powerinfusion": {
+   "bytes": 1839,
+   "sha256": "50ee07ae9112fef7f8ffaea1ab93f45586321c3c2e83aedf2affb9afdfdce4d3"
+  },
+  "spell_holy_powerwordshield": {
+   "bytes": 2165,
+   "sha256": "214e4195468b270cbfef381cd5029d88ba93d9d42d93ac4e235d9522dcb3adaf"
+  },
+  "spell_holy_prayerofhealing02": {
+   "bytes": 2024,
+   "sha256": "d7796ae847e8f153a31559198cfa20644862041459642d5cb9945f168a708f49"
+  },
+  "spell_holy_renew": {
+   "bytes": 1807,
+   "sha256": "8f92caa2970d70b237df954b6eeea2e3607b7769753fc1a8a005b23374194f23"
+  },
+  "spell_holy_righteousfury": {
+   "bytes": 2166,
+   "sha256": "b0c1a8d8c9948b29de121fd9dd65eee13aacdbd66b7be8604c3304e075aec545"
+  },
+  "spell_holy_sealoffury": {
+   "bytes": 2312,
+   "sha256": "9b7e1dd7d8fc8206f916bed21c6b7b56aa8e041efe9beba858f822e2536dff7d"
+  },
+  "spell_holy_sealofmight": {
+   "bytes": 2236,
+   "sha256": "10af6868685066afb05caea718788965eb9481f9529c8b5ea12093eea2037425"
+  },
+  "spell_holy_searinglight": {
+   "bytes": 1672,
+   "sha256": "f886d63d467a062ba7a6de7c3e1007b68cf5b89c00432e0b7462feaef45dee37"
+  },
+  "spell_holy_wordfortitude": {
+   "bytes": 1630,
+   "sha256": "b34fd7402d454427a54fe2545cf5ee4a943f2e3ae51a788e139a037b335f7e0c"
+  },
+  "spell_ice_lament": {
+   "bytes": 2126,
+   "sha256": "8a86773b261f0baa1289bc4842fade4cfdeb7a9483cc32e0ca29deb1c4d704f8"
+  },
+  "spell_nature_abolishmagic": {
+   "bytes": 1556,
+   "sha256": "98b819bc9987638b4116cab53ee1339fac1c3df12d04f780e5e1125d0fee2cd2"
+  },
+  "spell_nature_bloodlust": {
+   "bytes": 2142,
+   "sha256": "10405011eeb1eb4489e58564a924df5766c9bc85cbb7b76faf88394c36d8a363"
+  },
+  "spell_nature_cyclone": {
+   "bytes": 1506,
+   "sha256": "d83c25e2c8f0cdeec4e64461b25a954528bef8fc2b5447deb32e39ba31ff833b"
+  },
+  "spell_nature_enchantarmor": {
+   "bytes": 1740,
+   "sha256": "700443d5096a7870b44920ce153d3bb26a1fa47e649b59301b3bb1b4f2decc4f"
+  },
+  "spell_nature_healingtouch": {
+   "bytes": 1733,
+   "sha256": "18769de0e3eb3ff5fc6ef61815ec015f85cb7a2782079a04cbe8ecea3c11792a"
+  },
+  "spell_nature_lightning": {
+   "bytes": 1473,
+   "sha256": "32b03501d89d266eaf29914a6b9e42cf8aed8735de632156e91b6dd7b7d66af2"
+  },
+  "spell_nature_naturesblessing": {
+   "bytes": 1997,
+   "sha256": "753cb1a8e7d520a489314dfa442d7dab6ce6bd5a4b6b4d3e712a6c69a73e4d3f"
+  },
+  "spell_nature_protectionformnature": {
+   "bytes": 2345,
+   "sha256": "328524b986f02b851b19dff97f224d267cdfc42e97dbddef3284fd1696274c09"
+  },
+  "spell_nature_regeneration": {
+   "bytes": 1809,
+   "sha256": "aa51e831637d693eb86f049ed43df03865224ac41c72729820530648fbb7bdfc"
+  },
+  "spell_nature_reincarnation": {
+   "bytes": 1772,
+   "sha256": "7bbf9d657a28e08d08f5d86c21d7c8cbe68f45fbb65151c8f594fcabbd830f48"
+  },
+  "spell_nature_rejuvenation": {
+   "bytes": 2295,
+   "sha256": "859b7e4465fb11d66286459beb6acac30cb9060d94468a1879045c58dd41d1a5"
+  },
+  "spell_nature_removecurse": {
+   "bytes": 2333,
+   "sha256": "08e6432a61999131818846502e38811c0bb34396587ef41410e63d4c9396060a"
+  },
+  "spell_nature_resistnature": {
+   "bytes": 1976,
+   "sha256": "a1e8430414ed0a752a574ca947981683e6f249263c0773d814793585fee856f7"
+  },
+  "spell_nature_starfall": {
+   "bytes": 1617,
+   "sha256": "82d18428ab4ce8f23af1f7180e028b69913a405dcd2e924ea78f24e8408fc9f8"
+  },
+  "spell_nature_stranglevines": {
+   "bytes": 1947,
+   "sha256": "1f95d943f651625427a94dacf362cc4c88161d71f48a0577ff1100239fa5d91a"
+  },
+  "spell_nature_thunderclap": {
+   "bytes": 1851,
+   "sha256": "85aa10973f71d84d8a89051e9fcbf6a4eb2ed76afcb8b739112231a8c0c5fea8"
+  },
+  "spell_nature_tranquility": {
+   "bytes": 1307,
+   "sha256": "d57de757544a64e8f34e58cfdf95e88bab2e76cf1cb1b238a44d0c62091adca5"
+  },
+  "spell_nature_wispsplode": {
+   "bytes": 1479,
+   "sha256": "baccc73b1067d3a9d6761f3588d41c6aa46092f5adc10f5e26065a8e15d58d18"
+  },
+  "spell_shadow_abominationexplosion": {
+   "bytes": 1924,
+   "sha256": "9b7a3e81cbcd194fd2bdf27877a95cafd8665aa22ef1f281050d5c6dad9ee5ec"
+  },
+  "spell_shadow_antishadow": {
+   "bytes": 2288,
+   "sha256": "e2f416e4974d05af3d7f46f45bdba7ec3d6865271cce93612ca374735a2416df"
+  },
+  "spell_shadow_charm": {
+   "bytes": 1465,
+   "sha256": "c424e5b28f48d0acb90036bcf1987f4709227e53f648f3b6f674c10160d308db"
+  },
+  "spell_shadow_curse": {
+   "bytes": 1887,
+   "sha256": "3e6015bd798fcad5c7961a8ef9ddbd2ef6f9e02c05a1ac1653d9960f944a5391"
+  },
+  "spell_shadow_curseofsargeras": {
+   "bytes": 2245,
+   "sha256": "6771ea74d170b1c4d57f2ea73e76010edc3c1fb9b13f5dcf4c4221082f1bab33"
+  },
+  "spell_shadow_deathcoil": {
+   "bytes": 2103,
+   "sha256": "5eec751a3c96bf36744759f4ecc8062793344b7198aff515c4bd38f75c809a6b"
+  },
+  "spell_shadow_deathpact": {
+   "bytes": 2243,
+   "sha256": "603e25e330876457ca6d44da6e448bcc82993754f1f2bfbd29ec834007f02668"
+  },
+  "spell_shadow_deathscream": {
+   "bytes": 1791,
+   "sha256": "5c499e00896ec1b653a9bf63d19fc2467a23035ee8f2ce45fbd4eba84aa3b544"
+  },
+  "spell_shadow_detectlesserinvisibility": {
+   "bytes": 2298,
+   "sha256": "41c341a1b5fa37f12627ee09d170e0d1d988d46436f94e2364ae8757a51b0396"
+  },
+  "spell_shadow_fumble": {
+   "bytes": 1982,
+   "sha256": "4f9723479c205cb9b9a0cc008fac357572639bce57a47143809b38886e236ef0"
+  },
+  "spell_shadow_gathershadows": {
+   "bytes": 1820,
+   "sha256": "68a97ca7fa994fbfdf53115714c8b105ad0f56d186421fb9bf8dba62791b9d7a"
+  },
+  "spell_shadow_lifedrain02": {
+   "bytes": 2108,
+   "sha256": "84d48f25bb0ae4bfff8996f5b03eefd1b1d7a44c019b158790e71aded31794e0"
+  },
+  "spell_shadow_manaburn": {
+   "bytes": 1859,
+   "sha256": "6baaf3d8c776b3af9c915f667bcf526062c321f61ee31f07aae3bf04dbe4ac0f"
+  },
+  "spell_shadow_manafeed": {
+   "bytes": 2021,
+   "sha256": "1d1081323a183d2d0342ade11d5788f1936edd43e9bd572f8b61d0f4475f6556"
+  },
+  "spell_shadow_metamorphosis": {
+   "bytes": 1844,
+   "sha256": "2fc85b00cb420b198742d7196b34edeb678b91c17819bbb96562c0044e623772"
+  },
+  "spell_shadow_mindrot": {
+   "bytes": 2029,
+   "sha256": "89473aa566a434b0cc7bceee9dfc76acd5aa0efb017a7594991519e51c0fe164"
+  },
+  "spell_shadow_mindsteal": {
+   "bytes": 1559,
+   "sha256": "23b2e77ec483c0b35a6797364896671eb45883da22c5e82f08a4a3170b3178cf"
+  },
+  "spell_shadow_psychicscream": {
+   "bytes": 1714,
+   "sha256": "f0ec1329825cc4e72995e5dcabd502f3fdfa65f28995b751ee52f7206f6c8dd5"
+  },
+  "spell_shadow_ragingscream": {
+   "bytes": 1832,
+   "sha256": "15503d7228fe47caca6290be201a389e2872b7f5ce5ad7cf3fb093492db83439"
+  },
+  "spell_shadow_rainoffire": {
+   "bytes": 1884,
+   "sha256": "cd35d889374e96ebb7afd753d6bf2aeb383e24ed68f657ee9a8459fd7eeccb7d"
+  },
+  "spell_shadow_ritualofsacrifice": {
+   "bytes": 1875,
+   "sha256": "36342a241bbf79307ddcd165ab9eef374ffd67cc2a605304f06ce54de8d65aa9"
+  },
+  "spell_shadow_scourgebuild": {
+   "bytes": 2007,
+   "sha256": "52479986c9f3d3115867d1bdb5ad9a3fb8786e34e5c1e451da5501ff44a9a3fb"
+  },
+  "spell_shadow_shadowbolt": {
+   "bytes": 1633,
+   "sha256": "8a5caa2bf7bd467bde70473a7c4e8efcbfadb9ca7342146dde1724aeb2cdbbc6"
+  },
+  "spell_shadow_shadowform": {
+   "bytes": 1640,
+   "sha256": "3f51128aaf5e207962169f5592db29b8403913d57a4a1ea4c52c7430b2565d0b"
+  },
+  "spell_shadow_shadowpact": {
+   "bytes": 1560,
+   "sha256": "36d177b0003d4420cd7beb2d77be08d4618720840249fb9141be8b420543f2b4"
+  },
+  "spell_shadow_shadowward": {
+   "bytes": 2306,
+   "sha256": "503e40bedea406664ca6b4e43d09ec611f8add0366b4d0681173e2691eba448f"
+  },
+  "spell_shadow_shadowworddominate": {
+   "bytes": 1716,
+   "sha256": "d8c2ef10c48b8f23bb396f65be6442e23c444163596265f8c62641bc20151784"
+  },
+  "spell_shadow_shadowwordpain": {
+   "bytes": 2338,
+   "sha256": "dcaf27c0d9486bf1d068c4ca1f1c18c4cbb4cb8883ab069053119cf78ab15fa2"
+  },
+  "spell_shadow_siphonmana": {
+   "bytes": 2114,
+   "sha256": "ee7c27c7c0a8aa0e85f7e7906384f17b54bd565677c2b941532747c37224de0c"
+  },
+  "spell_shadow_teleport": {
+   "bytes": 1307,
+   "sha256": "de32ecf5291453fe20d58a791caa557fa195546263b239df72671f3613854384"
+  },
+  "spell_shadow_twilight": {
+   "bytes": 1258,
+   "sha256": "e14a5bf07778e9fe1d9b1887a38d6c7916c904709e02710850524ff0f0af07de"
+  },
+  "spell_shadow_unholyfrenzy": {
+   "bytes": 2057,
+   "sha256": "512af008b0c3bf8802692dbcee48d1ee0a1ae33777cb774d1a8b867a7a76b39c"
+  },
+  "spell_shadow_unholystrength": {
+   "bytes": 2325,
+   "sha256": "dc626dbb8285f1f6f0c2c2ed260ca026c621de27ff35c4b7bba2e5b5e7625529"
+  },
+  "spell_shadow_unsummonbuilding": {
+   "bytes": 2141,
+   "sha256": "6ecb0bccac9e8286e318da3ff1486ee594effd867625d178a864fa808d67a2bb"
+  },
+  "spell_shadow_vampiricaura": {
+   "bytes": 1892,
+   "sha256": "029294831748994ba5d2a5ec7ca29ea08917393251c579d4a9cc798bf16a15e4"
+  },
+  "ui_allianceicon": {
+   "bytes": 1714,
+   "sha256": "6a95b0a657ced165bc36539ffb5790256d66ed6408c41364efd3efbfd6c2ce78"
+  },
+  "ui_hordeicon": {
+   "bytes": 1205,
+   "sha256": "06befdcb0ef19e4ce8bcc7fd16651dda33243c712c8805eef4e8c830715d86ea"
+  }
+ }
+}

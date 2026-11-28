@@ -100,6 +100,20 @@ def skip_travel(pg, cls='', where=''):
         fight(pg, cls, where + ' (battle on the way)')
 
 
+def open_polygon(pg, cls, where):
+    """Walk to the polygon; a random ambush on the way is fought first."""
+    for _ in range(5):
+        if pg.locator('#poly-go').is_visible():
+            return
+        if pg.locator('[data-speed="8"]').is_visible():
+            fight(pg, cls, where + ' (ambush)'); continue
+        if pg.locator('#qclose').is_visible():
+            pg.locator('#qclose').click()
+        pg.locator('[data-poly]').first.click(); skip_travel(pg, cls, where)
+        pg.wait_for_timeout(600)
+    pg.locator('#poly-go').wait_for(state='visible', timeout=5000)
+
+
 def quest(pg, qid, cls=''):
     for attempt in range(3):
         skip_travel(pg, cls, qid)
@@ -182,11 +196,7 @@ def flow(c, cls, folder):
             pg.screenshot(path=str(folder / ('quest-' + qid + '.png')))
             failures.append('%s / %s: quest not completed within its fights' % (cls, qid))
     STEP['now'] = 'polygon'
-    if pg.locator('#qclose').is_visible():
-        pg.locator('#qclose').click()
-    pg.locator('[data-poly]').first.click(); skip_travel(pg, cls, 'polygon walk')
-    if not pg.locator('#poly-go').is_visible():
-        pg.locator('[data-poly]').first.click()
+    open_polygon(pg, cls, 'polygon walk')
     pg.locator('#poly-go').click()
     pg.locator('[data-speed="8"]').click()
     pg.get_by_text('Полигон: итоги').wait_for(state='visible', timeout=60000)
@@ -195,6 +205,9 @@ def flow(c, cls, folder):
     STEP['now'] = 'hero tab'
     pg.locator('#bnav [data-tab="hero"]').click(); pg.wait_for_timeout(500)
     no_spec_badge(pg, cls, 'hero tab'); check_text(pg, cls, 'hero tab')
+    broken = pg.evaluate("[...document.querySelectorAll('#w-hero img')].filter(i=>i.offsetParent&&i.complete&&!i.naturalWidth&&/^data:|^$/.test(i.getAttribute('src')||'')).length + document.querySelectorAll('#w-hero .az-icon-failed').length")
+    if broken:
+        failures.append('%s / hero tab: %d icons not drawn' % (cls, broken))
     pg.screenshot(path=str(folder / 'hero.png'), full_page=True)
     eq = pg.locator('#w-hero').get_by_role('button', name=re.compile('Экипировка'))
     if eq.count():
@@ -225,14 +238,14 @@ def flow(c, cls, folder):
         pg.keyboard.press('Escape'); pg.wait_for_timeout(400)
     pg.locator('#bnav [data-tab="party"]').click(); pg.wait_for_timeout(400); check_text(pg, cls, 'party tab 15')
     pg.locator('#bnav [data-tab="map"]').click(); pg.wait_for_timeout(400)
-    pg.locator('[data-poly]').first.click(); skip_travel(pg, cls, 'polygon walk 15')
-    if not pg.locator('#poly-go').is_visible():
-        pg.locator('[data-poly]').first.click()
+    open_polygon(pg, cls, 'polygon walk 15')
     pg.locator('#poly-go').click(); pg.locator('[data-speed="8"]').click()
     pg.get_by_text('Полигон: итоги').wait_for(state='visible', timeout=60000)
     check_text(pg, cls, 'polygon 15'); pg.get_by_role('button', name='На карту').click()
     if errors:
         failures.append('%s: page errors %s' % (cls, errors))
+    if 'wow.zamimg.com' in external:
+        failures.append('%s: icons loaded from Wowhead at runtime (must be vendored, scripts/icon_assets.py)' % cls)
     hero = pg.evaluate("""()=>{for(const k of Object.keys(localStorage)){try{const v=JSON.parse(localStorage.getItem(k));if(v&&v.chars&&v.chars[0])return v.chars[0];}catch(e){}}return null}""")
     return {'class': cls, 'level': hero and hero.get('level'), 'party': hero and len(hero.get('party', [])), 'externalHosts': sorted(external)}
 

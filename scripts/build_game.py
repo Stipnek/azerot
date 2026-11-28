@@ -7,6 +7,7 @@ from urllib.parse import quote
 from coin_assets import restore_coin
 from split_script_sources import read_source
 from core_sources import inline_core
+from icon_assets import vendor as vendor_icons
 
 p = argparse.ArgumentParser(description='Build Azerot without publishing')
 p.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[1])
@@ -60,6 +61,8 @@ if entrance_marker in data:
     data = data.replace(entrance_marker, entrance_uri)
 if re.search(rb'__AZEROT_(?:SCRIPT_SOURCE|CSS_BLOCK|HTML_ASSET|CSS_ASSET|COIN_ICON|DUNGEON_ENTRANCE)_[A-Za-z0-9_]*__', data) or entrance_marker in data:
     raise SystemExit('Unresolved source marker in build')
+if not a.check_original:
+    data = vendor_icons(data)  # owner 2026-11-28: Wowhead icons are embedded, not loaded at runtime
 if a.check_original:
     original = (root / 'game-1.txt').read_bytes() + (root / 'game-2.txt').read_bytes()
     if data != original:
