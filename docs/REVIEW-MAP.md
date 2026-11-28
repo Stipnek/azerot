@@ -45,6 +45,7 @@ All paths below are under scripts/. These are candidates located by filename, no
 | Travel and maps | test_free_travel.cjs; test_world_travel_hint.cjs; test_world_map_inlining.cjs |
 | Entry and combined candidate | test_entry_preview.py; test_combined_preview.py; test_neutral_training_combined.py |
 | Layout and services | browser_ui_review.cjs; test_service_panel.cjs; test_settings_layout.cjs; test_hero_*.py; test_mobile_art.py |
+| Class rules (all classes, specs, main and companion) | test_class_rules.cjs with fixtures/class-rules-known.json; shared lib_class_probe.cjs; report_class_cards.cjs (owner-readable cards, not a gate). See docs/bug-hunt-2026-11-28.md section 7. |
 | Balance simulations | sim_enemy_curve.cjs; sim_arms_proto.cjs | 
 
 Inspect scripts/CI_POLICY.md, the relevant workflow and prerequisites before choosing commands. Do not equate the presence of a test with its execution in CI. No tests were run for this document.
