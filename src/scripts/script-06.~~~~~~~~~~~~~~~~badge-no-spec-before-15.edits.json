@@ -1,0 +1,31 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "New-player gate 2026-11-28: the main hero has no specialization before 15, so the party tab slot, hero card, roster row and popup show the class badge without a spec face (the hero tab portrait was fixed in talent-stub).",
+ "edits": [
+  {
+   "name": "badgeSpec: no spec face for the main hero before 15 (no specialization yet)",
+   "old": "  function rosterKeys() { if (!S.hero) return Object.keys(B.CLASSES);",
+   "new": "  /* New-player gate 2026-11-28: before 15 the main hero has no specialization (PLAY-06, bug hunt 1.4), so its badges show the class only. */\n  function badgeSpec(k) { return k === 'me' && armsLoadout('me').neutralTraining === true ? '' : specKey(k); }\n  function rosterKeys() { if (!S.hero) return Object.keys(B.CLASSES);"
+  },
+  {
+   "name": "Roster row badge",
+   "old": "'<span class=\"ri\" aria-hidden=\"true\">' + classBadge(clsOf(k), specKey(k))",
+   "new": "'<span class=\"ri\" aria-hidden=\"true\">' + classBadge(clsOf(k), badgeSpec(k))"
+  },
+  {
+   "name": "Party tab hero card badge",
+   "old": "aria-hidden=\"true\">' + classBadge(ck, sk) + '</div><div class=\"pt-info\">",
+   "new": "aria-hidden=\"true\">' + classBadge(ck, badgeSpec(k)) + '</div><div class=\"pt-info\">"
+  },
+  {
+   "name": "Party tab slot badge",
+   "old": "' уровень') + '\"><span class=\"si\" aria-hidden=\"true\">' + classBadge(clsOf(k), specKey(k))",
+   "new": "' уровень') + '\"><span class=\"si\" aria-hidden=\"true\">' + classBadge(clsOf(k), badgeSpec(k))"
+  },
+  {
+   "name": "Hero popup badge",
+   "old": "$('pop-c').innerHTML = '<p class=\"sect\">' + classBadge(ck,specKey(k))",
+   "new": "$('pop-c').innerHTML = '<p class=\"sect\">' + classBadge(ck,badgeSpec(k))"
+  }
+ ]
+}
