@@ -61,7 +61,7 @@ ok('node effects: costs, Rend, Deflection, Impale formula', () => {
   const st = B.createBattle({ encounter: 'dw_nightwatch', level: 30, main: 'warrior', seed: 1, party: party30(P.buildAt(P.BUILD_B, 30)) });
   const h = st.heroes[0]; h.rage = 100;
   assert.equal(B.rageCost(h, 'heroicstrike'), 12); assert.equal(B.rageCost(h, 'thunder'), 16);
-  assert.equal(h.parryBase, 0.03);
+  assert.equal(h.parryBase, 0.03 + 0.05); // Deflection 3 ranks + Classic Parry from 6 (CLASS-01)
   assert.equal(P.critMul({ proto: 'arms', tal: { impale: 1 } }, {}), 1.55);
   assert.equal(P.critMul({ proto: 'arms', tal: { impale: 2 } }, {}), 1.6);
   assert.equal(P.critMul({ proto: 'arms', tal: { impale: 2 } }, { auto: true }), 1.5);
@@ -77,7 +77,7 @@ ok('Improved Rend multiplies the Rend bleed by rank', () => {
   }
 });
 ok('Deep Wounds, Sweeping Strikes and parry use only eligible events (300 seeds)', () => {
-  const allowed = new Set(['auto', 'heroicstrike', 'cleave', 'slam', 'execute', 'mortal']);
+  const allowed = new Set(['auto', 'heroicstrike', 'cleave', 'slam', 'execute', 'mortal', 'overpower', 'hamstring', 'revenge', 'mockingblow', 'shieldbash']); // CLASS-01: Classic trainer weapon strikes
   let parries = 0, dw = 0, sweepAct = 0, sweepProc = 0;
   for (let s = 0; s < 300; s++) {
     const { ev } = run({ encounter: 'dw_nightwatch', level: 30, main: 'warrior', seed: s * 7919 + 13, party: party30(P.line(30)) });

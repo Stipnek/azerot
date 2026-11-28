@@ -14,7 +14,8 @@ for (const [cls, c] of Object.entries(B.CLASSES)) {
     const plan = B.ABILITY_UNLOCKS[cls + ':' + spec];
     assert.ok(plan, 'schedule for ' + cls + ':' + spec);
     assert.deepEqual(Object.keys(plan).sort(), [...def.skills].sort(), 'schedule covers the kit: ' + cls + ':' + spec);
-    assert.ok(Object.values(plan).filter(l => l === 1).length >= 2, 'two core abilities from 1: ' + cls + ':' + spec);
+    // CLASS-01 (owner 2026-11-28): the warrior learns the Classic trainer list, which has one ability at level 1 (Heroic Strike).
+    if (cls !== 'warrior') assert.ok(Object.values(plan).filter(l => l === 1).length >= 2, 'two core abilities from 1: ' + cls + ':' + spec);
     assert.ok(Math.max(...Object.values(plan)) === 30, 'last ability at 30: ' + cls + ':' + spec);
     for (const level of [1, 9, 14, 15, 20, 29, 30, 60]) {
       assert.deepEqual(plain(P.active(cls, spec, level)), plain(def.skills.filter(id => plan[id] <= level)));
@@ -29,7 +30,8 @@ for (const [cls, c] of Object.entries(B.CLASSES)) {
     assert.deepEqual(plain(P.active(cls, spec, 30)), plain(def.skills), 'whole kit at 30: ' + cls + ':' + spec);
   }
 }
-const fixture = { 'warrior:prot': { heroicstrike: 1, taunt: 1, shieldblock: 15, thunder: 5, revenge: 20, wall: 30 } };
+// The mechanism is tested on a fixture covering the current Protection kit (CLASS-01 made it the whole Classic trainer list).
+const fixture = { 'warrior:prot': Object.assign(Object.fromEntries(B.CLASSES.warrior.specs.prot.skills.map(id => [id, 1])), { heroicstrike: 1, taunt: 1, shieldblock: 15, thunder: 5, revenge: 20, wall: 30 }) };
 const profile = P.create(fixture);
 fixture['warrior:prot'].wall = 1;
 for (const [id, unlock] of Object.entries({ heroicstrike: 1, taunt: 1, shieldblock: 15, thunder: 5, revenge: 20, wall: 30 })) {

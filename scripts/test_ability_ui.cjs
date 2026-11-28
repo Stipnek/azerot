@@ -31,9 +31,9 @@ function row(html, id) {
   assert.ok(found, 'missing row: ' + id);
   return found[0];
 }
-const profile = B.abilityProgression.create({ 'warrior:prot': {
+const profile = B.abilityProgression.create({ 'warrior:prot': Object.assign(Object.fromEntries(B.CLASSES.warrior.specs.prot.skills.map(id => [id, 1])), {
   heroicstrike: 1, taunt: 1, thunder: 5, shieldblock: 15, revenge: 20, wall: 30
-} });
+}) }); // CLASS-01: the fixture covers the whole Classic Protection kit
 const render = renderer(profile), c = B.CLASSES.warrior, sp = c.specs.prot;
 const low = render('warrior', sp, c, false, 1);
 const high = render('warrior', sp, c, true, 30);
