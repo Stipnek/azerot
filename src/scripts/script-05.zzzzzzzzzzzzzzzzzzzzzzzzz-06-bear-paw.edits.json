@@ -1,0 +1,11 @@
+{
+ "sourceSha256": "1cb486c38b2cbb8481158a36ac830013209a0f1f7718b6d1e8ac18b156164637",
+ "description": "Bug hunt 2026-11-28 D1: the bear had no own auto-attack and fell back to the druid staff swing; it now swipes with its paw like the cat.",
+ "edits": [
+  {
+   "name": "Bear auto-attack is a paw swipe, like the cat (was the class fallback «Удар посохом»)",
+   "old": "bear: { name: 'Медведь', role: 'tank', hp: 1650, atk: 70, armor: 0.33, res: 0.10, spd: 95, crit: 0.08, threat: 3, type: 'phys', passives:",
+   "new": "bear: { name: 'Медведь', role: 'tank', hp: 1650, atk: 70, armor: 0.33, res: 0.10, spd: 95, crit: 0.08, threat: 3, type: 'phys', auto: { name: 'Удар лапой', icon: '🐾', type: 'phys' }, passives:"
+  }
+ ]
+}
