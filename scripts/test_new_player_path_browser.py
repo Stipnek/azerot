@@ -4,8 +4,8 @@ Per class: entry screen -> create -> enter the world -> «Первая трен�
 Checks: no page errors, every fight ends with a result, a caster with mana does not swing the staff, no spec badge on the main hero before 15,
 no developer / broken strings on screen. Isolated synthetic saves (localStorage cleared per class); Chromium only, not physical-device
 acceptance. Screenshots: test-results/new-player-path/<class>/. Run: python3 scripts/build_combined_preview.py first.
-Usage: python3 scripts/test_new_player_path_browser.py [class ...]"""
-import functools, http.server, json, re, sys, threading
+Usage: python3 scripts/test_new_player_path_browser.py [class ...]; without classes all eight run in NP_JOBS (default 4) processes."""
+import functools, http.server, json, os, re, sys, threading, time
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
@@ -60,8 +60,9 @@ def no_spec_badge(pg, cls, where):
 
 
 def fight(pg, cls, where):
-    STEP['now'] = where
     """Wait for the battle result, check it and the caster rule, return to the map."""
+    STEP['now'] = where
+    t0 = time.time()
     n = pg.evaluate('window.__npBattles.length')
     pg.locator('[data-speed="8"]').click()
     pg.locator('#back').wait_for(state='visible', timeout=45000)
@@ -80,6 +81,8 @@ def fight(pg, cls, where):
     if cls in CASTERS and res and res['staff'] and not res['oom']:
         failures.append('%s / %s: caster swung the staff %d times without running out of mana' % (cls, where, res['staff']))
     pg.locator('#back').click(); pg.wait_for_timeout(400)
+    if os.environ.get('NP_TIMING'):
+        print('  %s %.1fs' % (where, time.time() - t0), flush=True)
     return res
 
 
@@ -234,8 +237,24 @@ def flow(c, cls, folder):
     return {'class': cls, 'level': hero and hero.get('level'), 'party': hero and len(hero.get('party', [])), 'externalHosts': sorted(external)}
 
 
+def parallel(jobs):
+    """Release gate: split the classes over `jobs` processes (each its own browser and server) and merge the result."""
+    import subprocess
+    groups = [CLASSES[i::jobs] for i in range(jobs)]
+    procs = [subprocess.Popen([sys.executable, __file__] + g, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True) for g in groups]
+    ok = True
+    for pr in procs:
+        out, _ = pr.communicate()
+        print(out, end='', flush=True)
+        ok = ok and pr.returncode == 0
+    srv.shutdown(); srv.server_close()
+    sys.exit(0 if ok else 1)
+
+
+want = sys.argv[1:] or CLASSES
+if not sys.argv[1:] and int(os.environ.get('NP_JOBS', '4')) > 1:
+    parallel(int(os.environ.get('NP_JOBS', '4')))
 try:
-    want = sys.argv[1:] or CLASSES
     with sync_playwright() as p:
         b = p.chromium.launch()
         for cls in want:

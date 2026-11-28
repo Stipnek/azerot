@@ -55,6 +55,8 @@ jobs:
           python3 scripts/test_elwynn_gather_browser.py
       - name: Build combined entry and hero release candidate
         run: python3 scripts/build_combined_preview.py
+      - name: New player path for every class in the candidate (release gate)
+        run: python3 scripts/test_new_player_path_browser.py
       - name: Verify eight-class training in the candidate engine
         run: python3 scripts/test_neutral_training_browser.py
       - name: Verify the exact combined HTML before packaging
@@ -82,6 +84,7 @@ jobs:
           path: |
             test-results/combined-preview/
             test-results/neutral-training-browser/
+            test-results/new-player-path/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
