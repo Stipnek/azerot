@@ -1,0 +1,16 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Bug hunt 2026-11-28 3.6: the hero select drop-down «Аура лидера» says when the aura comes instead of opening empty; the battle log no longer prints «Аура лидера: «нет»».",
+ "edits": [
+  {
+   "name": "Hero select: the «Аура лидера» drop-down no longer opens empty before the specialization",
+   "old": "$('sel-aura').textContent = au ? 'Аура лидера: «' + au.n + '» — ' + au.t + '.' : '';",
+   "new": "$('sel-aura').textContent = au ? 'Аура лидера: «' + au.n + '» — ' + au.t + '.' : (c ? 'Аура лидера появится на 15 уровне вместе со специализацией.' : '');"
+  },
+  {
+   "name": "Battle log: no «Аура лидера: «нет»» when the hero has no aura yet",
+   "old": "' ур. Аура лидера: «' + (aurL.name || 'нет') + '»' + (aurL.res.length ?",
+   "new": "' ур.' + (aurL.name ? ' Аура лидера: «' + aurL.name + '»' : '') + (aurL.res.length ?"
+  }
+ ]
+}

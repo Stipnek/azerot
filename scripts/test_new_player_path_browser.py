@@ -23,6 +23,7 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
 BAD_TEXT = [
     (r'undefined|NaN|\[object |null\b', 'broken template value'),
     (r'\b99\d\b\s*х\.|ещё 99\d', 'whole-fight effect shown with a turn counter'),
+    (r'«нет»', 'empty value shown as «нет»'),
     (r'не подключен|Временная схема|Адаптация автобоя|ИИ сохраняет|для разработчика|TODO|заглушк', 'developer wording'),
 ]
 OBSERVER = """(() => { let value; window.__npBattles=[];
