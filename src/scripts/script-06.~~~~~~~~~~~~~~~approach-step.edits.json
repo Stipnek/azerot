@@ -1,0 +1,16 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Owner 2026-11-28: the PLAY-19 approach turn is visible: the enemy token steps toward the heroes and stays closer.",
+ "edits": [
+  {
+   "name": "Visible approach: the enemy steps toward the heroes and stays closer",
+   "old": "    const es = after.find(function (e) { return e.t === 'eskill'; });\n    const icon = sk ?",
+   "new": "    const es = after.find(function (e) { return e.t === 'eskill'; });\n    if (es && es.id === 'approach' && actor.side === 'enemy') approachStep(actor);\n    const icon = sk ?"
+  },
+  {
+   "name": "approachStep helper (individual translate property, so attack lunges still work)",
+   "old": "  function addLine(text, cls) {",
+   "new": "  /* Owner 2026-11-28: the PLAY-19 «Сближение» turn is visible — the enemy token steps toward the heroes (a third of the way, at most\n     48 px) and stays there; it uses the separate CSS translate property, so later attack lunges (transform) still play. */\n  function approachStep(actor) {\n    const t = toks[actor.id]; if (!t || !t.el) return;\n    const foes = st.heroes.filter(function (h) { return h.hp > 0 && toks[h.id]; }); if (!foes.length) return;\n    const a = center(t.tc); let bx = 0, by = 0;\n    foes.forEach(function (h) { const c = center(toks[h.id].tc); bx += c.x; by += c.y; });\n    let dx = (bx / foes.length - a.x) / 3, dy = (by / foes.length - a.y) / 3; const len = Math.hypot(dx, dy) || 1;\n    if (len > 48) { dx *= 48 / len; dy *= 48 / len; }\n    const prev = t.el.dataset.approach ? t.el.dataset.approach.split(',').map(Number) : [0, 0];\n    const to = [prev[0] + dx, prev[1] + dy]; t.el.dataset.approach = to.join(',');\n    const css = function (p) { return Math.round(p[0]) + 'px ' + Math.round(p[1]) + 'px'; };\n    if (reduced || !t.el.animate) { t.el.style.translate = css(to); return; }\n    t.el.animate([{ translate: css(prev) }, { translate: css(to) }], { duration: Math.min(700, 600 / speed), easing: 'ease-out' }).onfinish = function () { t.el.style.translate = css(to); };\n  }\n  function addLine(text, cls) {"
+  }
+ ]
+}

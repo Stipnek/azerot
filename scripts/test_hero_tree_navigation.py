@@ -45,7 +45,8 @@ def main():
  start='/* HERO_TREE_VIEW_BEGIN */';end='/* HERO_TREE_VIEW_END */'
  assert source.count(start)==source.count(end)==1
  # TALENT-01: the hero tab shows the spec selector; the tree buttons remain where the spec cannot be switched yet and in the tree viewer.
- assert "const specBox = specSelectorHtml('hero');" in source and "specNotice + heroTreeButtons() + '</div>'" in source
+ # Bug hunt 2026-11-28 (1.4): before 15 the tree buttons show only for classes with the talent window; the helper itself is still tested below.
+ assert "const specBox = specSelectorHtml('hero');" in source and "specNotice + (talentTrees().length ? heroTreeButtons() : '') + '</div>'" in source
  helper=source.split(start)[1].split(end)[0]
  commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
  out=Path('test-results/hero-layout/tree-navigation');out.mkdir(parents=True,exist_ok=True)

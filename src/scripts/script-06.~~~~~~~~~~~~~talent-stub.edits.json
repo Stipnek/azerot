@@ -1,0 +1,21 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Bug hunt 2026-11-28, finding 1.4: no tree buttons or unstyled viewer for classes without talent data; no start-spec badge on the hero portrait before 15.",
+ "edits": [
+  {
+   "name": "Hero tab before 15: tree buttons only for classes with the talent window",
+   "old": "specNotice + heroTreeButtons() + '</div>'",
+   "new": "specNotice + (talentTrees().length ? heroTreeButtons() : '') + '</div>'"
+  },
+  {
+   "name": "Never open the retired unstyled tree viewer (bug hunt 1.4: white page for every class except the warrior)",
+   "old": "if (!S.hero || !talentTrees().length) return openHeroTree(id, trigger);",
+   "new": "if (!S.hero || !talentTrees().length) return; /* bug hunt 1.4: classes without talent data have no tree window yet */"
+  },
+  {
+   "name": "Hero portrait before 15: class only, no start-spec badge (no specialization yet)",
+   "old": "'<div class=\"box\"><div class=\"hhead\" style=\"--cc: var(--c-' + S.main + ')\"><span class=\"hpor\" aria-hidden=\"true\">' + classBadge(S.main, specKey('me'))",
+   "new": "'<div class=\"box\"><div class=\"hhead\" style=\"--cc: var(--c-' + S.main + ')\"><span class=\"hpor\" aria-hidden=\"true\">' + classBadge(S.main, armsLoadout('me').neutralTraining === true ? '' : specKey('me'))"
+  }
+ ]
+}

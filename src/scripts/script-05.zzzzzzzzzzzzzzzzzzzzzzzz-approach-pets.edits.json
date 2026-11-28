@@ -1,0 +1,16 @@
+{
+ "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+ "description": "Owner 2026-11-28: the imp (ranged pet) no longer cancels the PLAY-19 approach; Survival hunters (melee auto) are not ranged for it.",
+ "edits": [
+  {
+   "name": "Approach: the imp shoots from range and does not hold enemies; Survival hunters are melee",
+   "old": "  function rangedHero(h) {\n    if (h.cls === 'mage' || h.cls === 'priest' || h.cls === 'warlock' || h.cls === 'hunter') return true;",
+   "new": "  /* Owner 2026-11-28 (bug hunt): the imp casts from range, so it does not stop the approach (only melee pets hold enemies);\n     Survival hunters fight in melee («Удар»), so they do not count as ranged. */\n  const RANGED_PETS = { imp: true };\n  function rangedHero(h) {\n    if (h.cls === 'hunter') return h.spec !== 'surv';\n    if (h.cls === 'mage' || h.cls === 'priest' || h.cls === 'warlock') return true;"
+  },
+  {
+   "name": "Approach: only a living melee pet holds enemies",
+   "old": "const meleePet = (st.pets || []).some(function (p) { return p.hp > 0 && !p.gone; });",
+   "new": "const meleePet = (st.pets || []).some(function (p) { return p.hp > 0 && !p.gone && !RANGED_PETS[p.spec]; });"
+  }
+ ]
+}

@@ -1,0 +1,46 @@
+{
+ "sourceBlobSha1": "66fb7a6d9175a18a6f729a286dd8f65fca7e4590",
+ "description": "Bug hunt 2026-11-28, finding 1.1 (PLAY-11): casters with a melee staff auto stay at range; the staff swing only on a turn without a spell (out of mana); roots and nets no longer cost casters their spells.",
+ "edits": [
+  {
+   "name": "Casters keep range: helper next to autoOf",
+   "old": "  const HEALAUTO = { frac: 0.55, below: 0.7, mana: 3 };",
+   "new": "  /* Bug hunt 2026-11-28, finding 1.1 (PLAY-11, PLAY-19): spell casters whose auto-attack is a melee staff (training mage, priest,\n     warlock and druid; Balance and Restoration druids) stay at range. On their turn they cast; the staff swing (melee) happens\n     only on a turn with no spell cast, e.g. out of mana. A root then stops only that swing, not the spells; nets target melee heroes. */\n  function casterStaff(h) {\n    if (!h || h.pet || autoOf(h.cls, h.spec).ranged) return false;\n    return h.cls === 'mage' || h.cls === 'priest' || h.cls === 'warlock' || (h.cls === 'druid' && h.spec !== 'bear' && h.spec !== 'cat');\n  }\n  function casterTurn(st, u) {\n    const hidden = u.effects.some(function (f) { return f.kind === 'hidden'; });\n    let acted = !hidden && u.role === 'heal' && autoAttack(st, u, { healOnly: true }) === true;\n    const from = st.events.length;\n    heroAct(st, u);\n    if (st.events.slice(from).some(function (x) { return x.t === 'skill' && x.src === u.id; })) acted = true;\n    if (acted) { u.extraAuto = false; return; }\n    if (hidden || u.effects.some(function (f) { return f.kind === 'root'; })) return;\n    autoAttack(st, u); if (u.extraAuto) { u.extraAuto = false; autoAttack(st, u); }\n  }\n  const HEALAUTO = { frac: 0.55, below: 0.7, mana: 3 };"
+  },
+  {
+   "name": "autoAttack: heal-only mode for caster healers",
+   "old": "  function autoAttack(st, h) {\n    if (h.hp <= 0 || !alive(st.enemies).length) return;",
+   "new": "  function autoAttack(st, h, opt) {\n    if (h.hp <= 0 || !alive(st.enemies).length) return false;"
+  },
+  {
+   "name": "autoAttack: report a free heal",
+   "old": "        heal(st, h, lw, h.healPow * HEALAUTO.frac);\n        return;\n      }\n    }\n    const a = autoOf(h.cls, h.spec)",
+   "new": "        heal(st, h, lw, h.healPow * HEALAUTO.frac);\n        return true;\n      }\n    }\n    if (opt && opt.healOnly) return false;\n    const a = autoOf(h.cls, h.spec)"
+  },
+  {
+   "name": "Turn: casters cast first, root does not skip their spells",
+   "old": "} else if (u.role !== 'heal' && !autoOf(u.cls, u.spec).ranged && u.effects.some(function (f) { return f.kind === 'root'; })) {",
+   "new": "} else if (u.role !== 'heal' && !autoOf(u.cls, u.spec).ranged && !casterStaff(u) && u.effects.some(function (f) { return f.kind === 'root'; })) {"
+  },
+  {
+   "name": "Turn: caster branch",
+   "old": "} else { if (!u.effects.some(function (f) { return f.kind === 'hidden'; })) { autoAttack(st, u);",
+   "new": "} else if (casterStaff(u)) { casterTurn(st, u); u.pomNow = false; } else { if (!u.effects.some(function (f) { return f.kind === 'hidden'; })) { autoAttack(st, u);"
+  },
+  {
+   "name": "Netter: casters are not melee targets",
+   "old": "const mel = heroes.filter(function (h) { return h.role !== 'heal' && !autoOf(h.cls, h.spec).ranged && !h.effects",
+   "new": "const mel = heroes.filter(function (h) { return h.role !== 'heal' && !autoOf(h.cls, h.spec).ranged && !casterStaff(h) && !h.effects"
+  },
+  {
+   "name": "Export casterStaff for the battle view",
+   "old": "HEALAUTO, AUTO, AUTO_MULT, AUTO_DEFAULT, autoOf, auraOf,",
+   "new": "HEALAUTO, AUTO, AUTO_MULT, AUTO_DEFAULT, autoOf, casterStaff, auraOf,"
+  },
+  {
+   "name": "Training casters: spells x1.2 replace the lost staff damage (sim_early: HP lost within a few points of before)",
+   "old": "druid:{auto:1,skill:1},priest:{auto:1,skill:1},mage:{auto:1,skill:1},warlock:{auto:1,skill:1}};",
+   "new": "druid:{auto:1,skill:1.2},priest:{auto:1,skill:1.2},mage:{auto:1,skill:1.2},warlock:{auto:1,skill:1.2}}; /* bug hunt 1.1: casters no longer swing the staff every turn; spells x1.2 keep the PLAY-11 balance */"
+  }
+ ]
+}

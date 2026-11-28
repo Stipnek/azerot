@@ -1,0 +1,26 @@
+{
+ "sourceBlobSha1": "cc5e0c7a64aacb86ed98737fdc4e9fba9d7f2907",
+ "description": "Bug hunt 2026-11-28, finding 1.3: the full-screen equipment window shows what is worn (the worn grid stays hidden by design), opens the first worn item when the bag is empty, and uses the game button colours so the slot buttons and \"Назад к герою\" are readable.",
+ "edits": [
+  {
+   "name": "Readable slot buttons, \"Подробнее\" and \"Назад к герою\": the game button colours (brown on beige; light on the pressed dark)",
+   "old": ".az-slot-tabs button{min-height:44px;min-width:0;padding:3px;font-size:12px;white-space:normal}",
+   "new": ".az-slot-tabs button{min-height:44px;min-width:0;padding:3px;font-size:12px;white-space:normal;color:#87570e}dialog.az-full-gear .az-gear-back,dialog.az-full-gear .az-gear-actions .btn{color:#87570e}"
+  },
+  {
+   "name": "Pressed slot button: light text on the dark fill",
+   "old": ".az-slot-tabs button[aria-pressed=true]{outline:2px solid #e8bd68;outline-offset:-2px;background:#493b24;border-color:#e8bd68}",
+   "new": ".az-slot-tabs button[aria-pressed=true]{outline:2px solid #e8bd68;outline-offset:-2px;background:#493b24;border-color:#e8bd68;color:#fff2dc}"
+  },
+  {
+   "name": "All items view: list what is worn (bug hunt 1.3: the worn section is hidden in this window)",
+   "old": "const equipped=Array.from(root.querySelectorAll('.az573-equip .az573-cell')).find(b=>b.dataset.gearSlot===slot&&!b.disabled);worn.textContent=slot==='all'?'Сумка: все предметы':",
+   "new": "const wornAll=Array.from(root.querySelectorAll('.az573-equip .az573-cell')).filter(b=>!b.disabled),equipped=wornAll.find(b=>b.dataset.gearSlot===slot);worn.textContent=slot==='all'?'Надето: '+(wornAll.length?wornAll.map(b=>b.getAttribute('aria-label').split(': ').slice(1).join(': ')).join(' · '):'ничего'):"
+  },
+  {
+   "name": "All items view with an empty bag: open the first worn item instead of \"no items\"",
+   "old": "const first=bag.find(b=>!b.disabled&&(slot==='all'||b.dataset.gearSlot===slot))||equipped;",
+   "new": "const first=bag.find(b=>!b.disabled&&(slot==='all'||b.dataset.gearSlot===slot))||equipped||(slot==='all'?wornAll[0]:null);"
+  }
+ ]
+}
