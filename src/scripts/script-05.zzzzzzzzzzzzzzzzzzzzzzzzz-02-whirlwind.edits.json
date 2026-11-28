@@ -1,0 +1,11 @@
+{
+ "sourceSha256": "1cb486c38b2cbb8481158a36ac830013209a0f1f7718b6d1e8ac18b156164637",
+ "description": "Bug hunt 2026-11-28 W1: Fury Whirlwind was cast once per fight at 15-27 (guard reset only by Bloodthirst); now on its 3-turn cooldown when two or more enemies stand, and a Whirlwind on cooldown no longer wastes the turn.",
+ "edits": [
+  {
+   "name": "Fury Whirlwind on its cooldown: the old alternation guard was reset only by Bloodthirst (now a tier-7 talent), and a blocked branch ended the turn",
+   "old": "if (multi && h.skills.indexOf('whirlwind') !== -1 && h.lastMainRageSkill !== 'whirlwind' && !h.cd.whirlwind) { if (sk('whirlwind')) { if (!use(st, h, 'whirlwind')) return; aoe(st, h, 0.6, { weapon: true, skill: 'whirlwind' }); } return; }",
+   "new": "if (multi && sk('whirlwind')) { if (!use(st, h, 'whirlwind')) return; aoe(st, h, 0.6, { weapon: true, skill: 'whirlwind' }); return; }"
+  }
+ ]
+}
