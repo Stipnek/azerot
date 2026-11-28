@@ -13,7 +13,7 @@ for(const [cls,c]of Object.entries(B.CLASSES)){
   for(const spec of Object.keys(c.specs)){
    const st=make(cls,spec,level),h=st.heroes[0],v=view(h);
    assert.equal(h.neutralTraining,true);assert.equal(h.spec,null);assert.equal(h.role,'training');assert.equal(h.ai,'neutral_training');
-   assert.deepEqual(plain(h.skills),expected[cls].filter((id,i)=>level>=LEVELS[cls][i]));assert.deepEqual(plain(h.pids),[]);assert.deepEqual(plain(h.effects).filter(f=>!(B.neutralTraining.wards[cls]&&f.name===B.neutralTraining.wards[cls].name)&&f.kind!=='bshout'),[]); /* PLAY-19: only the Classic training ward */
+   assert.deepEqual(plain(h.skills),expected[cls].filter((id,i)=>level>=LEVELS[cls][i]));assert.deepEqual(plain(h.pids),[]);assert.deepEqual(plain(h.effects).filter(f=>!(B.neutralTraining.wards[cls]&&f.name===B.neutralTraining.wards[cls].name)&&f.kind!=='bshout'&&f.kind!=='stance'),[]); /* PLAY-19: only the Classic training ward */
    assert.equal(h.autoMul,SHAPE[cls].auto);assert.equal(h.trainSkill,SHAPE[cls].skill);for(const key of [...(cls==='warrior'&&level>=6?[]:['parryBase']),'dodgeBase','impwps','shatter','critMul','arcConc','mdAll','mdMagic','mdTaken'])assert.ok(!h[key],cls+' inherited '+key);assert.equal(B.autoOf(cls,h.spec).hits||1,1);assert.equal(h.fury,false);assert.equal(h.shadowform,false);assert.equal(h.healPow,0);assert.equal(h.threatMult,1);assert.deepEqual(plain(st.aura),{res:[]});
    if(first)assert.deepEqual(v,first);else first=v;
    assert.equal(h.resource,cls==='warrior'?'rage':cls==='rogue'?'energy':'mana');assert.equal(h.maxCp,cls==='rogue'?5:0);

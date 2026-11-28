@@ -1,0 +1,11 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "CLASS-01: the integrated Arms hero view lists Battle Shout, Parry and the stance with their levels, like the training and spec views.",
+ "edits": [
+  {
+   "name": "Integrated Arms hero view lists the warrior's whole-fight effects (Battle Shout, Parry, stance) like the other views",
+   "old": "    const passives = P.passives(level,alloc).map(p=>'<li data-integrated-passive=\"'+p.id+'\">'+wowIcon(p)+' <b>'+esc(p.name)+'</b><br>'+esc(p.text)+'</li>').join('');",
+   "new": "    const passives = P.passives(level,alloc).map(p=>'<li data-integrated-passive=\"'+p.id+'\">'+wowIcon(p)+' <b>'+esc(p.name)+'</b><br>'+esc(p.text)+'</li>').join('') + (B.permanentEffects ? B.permanentEffects('warrior', level < 15 ? null : 'arms', level < 15, level).map(function (e) { const on = level >= e.level; return '<li data-permanent-effect=\"' + esc(e.id) + '\"' + (on ? '' : ' style=\"opacity:.55\"') + '>' + (typeof permanentIcon === 'function' ? permanentIcon(e) : '') + ' <b>' + esc(e.name) + '</b> · ' + (on ? 'весь бой' : 'с ' + e.level + ' ур.') + '<br>' + esc(e.desc) + '</li>'; }).join('') : '');"
+  }
+ ]
+}

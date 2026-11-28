@@ -1,0 +1,11 @@
+{
+ "sourceSha256": "d6b8884a64eac761cbb061e28a3cfe001324a01b19917a813ae6bb6c1a0879c3",
+ "description": "Battle start log: Battle Shout once by the warrior (not for every hero), no line for the effect-free Battle Stance.",
+ "edits": [
+  {
+   "name": "Battle start lists each whole-fight effect once, by the hero who gives it (Battle Shout once for the party), without the no-effect Battle Stance",
+   "old": "    st.heroes.forEach(function (h) { (h.effects || []).forEach(function (f) { if (f.permanent && f.desc) addLine(h.name + ': «' + f.name + '» — ' + f.desc, 'info'); }); }); /* bug hunt 1.2 */",
+   "new": "    st.heroes.forEach(function (h) { (h.effects || []).forEach(function (f) { if (f.permanent && f.desc && (!f.src || f.src === h.id) && !(f.kind === 'stance' && f.name === 'Боевая стойка')) addLine(h.name + ': «' + f.name + '» — ' + f.desc, 'info'); }); }); /* bug hunt 1.2; CLASS-01: the party's Battle Shout once, by the warrior */"
+  }
+ ]
+}
