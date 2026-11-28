@@ -12,7 +12,7 @@ The temporary rules below were accepted for the integrated Arms package, not as 
 
 ## Accepted temporary rules
 
-Training: Heroic Strike 2, Thunder Clap 5, Rend 9. At 15 Mortal Strike replaces Heroic Strike. Cleave unlocks at 20, Execute at 24 and Slam at 30. Thus the temporary kit has six base actives at 30: Mortal Strike, Thunder Clap, Rend, Cleave, Execute and Slam. This does not select other classes' six-slot kits.
+Training: Heroic Strike 2, Thunder Clap 5, Rend 9 (superseded 2026-11-28 by the Classic trainer levels of PLAY-11: Heroic Strike 1, Rend 4, Thunder Clap 6; bug hunt W5/W6). At 15 Mortal Strike replaces Heroic Strike. Cleave unlocks at 20, Execute at 24 and Slam at 30. Thus the temporary kit has six base actives at 30: Mortal Strike, Thunder Clap, Rend, Cleave, Execute and Slam. This does not select other classes' six-slot kits.
 
 Sweeping Strikes is the main's separate talent active; ordinary companions do not receive it automatically. The retired Mortal Strike talent does not grant a second copy.
 

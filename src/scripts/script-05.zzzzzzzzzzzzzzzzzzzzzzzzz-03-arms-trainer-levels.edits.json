@@ -1,0 +1,11 @@
+{
+ "sourceSha256": "1cb486c38b2cbb8481158a36ac830013209a0f1f7718b6d1e8ac18b156164637",
+ "description": "Bug hunt 2026-11-28 W5/W6: integrated Arms (companions, hero tab from 15) used the stage-1 levels Heroic Strike 2, Thunder Clap 5, Rend 9; now the Classic trainer levels of the training kit (PLAY-11): 1 / 6 / 4.",
+ "edits": [
+  {
+   "name": "Integrated Arms trainer levels = Classic (PLAY-11): Heroic Strike 1, Rend 4, Thunder Clap 6 (were stage-1 2/9/5)",
+   "old": "const base = [['heroicstrike', 2], ['thunder', 5], ['rend', 9], ['cleave', 20], ['execute', 24], ['slam', 30]];",
+   "new": "const base = [['heroicstrike', 1], ['thunder', 6], ['rend', 4], ['cleave', 20], ['execute', 24], ['slam', 30]];"
+  }
+ ]
+}

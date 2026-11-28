@@ -6,7 +6,7 @@ assert.ok(I,'integrated rules exported');
 function fixture(mainLevel,compLevel,alloc,integrated=true){return B.createBattle({encounter:'daily_wf_coast',level:30,main:'warrior',seed:13,party:[{cls:'warrior',spec:'arms',level:mainLevel,main:true,proto:'arms',integratedArms:integrated,talents:alloc},{cls:'warrior',spec:'arms',level:compLevel,proto:'arms',integratedArms:integrated,protoNoExtraActive:true}]});}
 // TALENT-03 (owner 2026-11-27): Classic tiers compressed to 3 points; Mortal Strike (tier 7) and Sweeping Strikes (tier 5) only through talents,
 // companions take both on their line; Heroic Strike stays in the kit; Deep Wounds is the Classic talent (20/40/60%), not a level-15 baseline.
-const base=[['heroicstrike',2],['thunder',5],['rend',9],['cleave',20],['execute',24],['slam',30]];
+const base=[['heroicstrike',1],['thunder',6],['rend',4],['cleave',20],['execute',24],['slam',30]];
 for(let level=1;level<=B.XPC.cap;level++){
  const main=I.kit(level,{},true),comp=I.kit(level,{},false);
  assert.equal(new Set(main).size,main.length);assert.equal(new Set(comp).size,comp.length);
