@@ -2,7 +2,13 @@
 
 > **Status 2026-11-26:** the current coverage, findings and checkpoints are in [REVIEW-LEDGER.md](REVIEW-LEDGER.md); requirements in [OPEN-WORK.md](OPEN-WORK.md). The checkpoints below are historical. Documents named here as unread have since been read (see the ledger); historical audits moved to [archive/](archive/).
 
-## Current handoff (2026-11-28; main `fd0203b`, live after the Publish run)
+## Current handoff (2026-11-28 late, branch `claude/pocket-azeroth-continue-50hrxf`)
+
+Done in order of the plan below (details: [bug hunt section 9](bug-hunt-2026-11-28.md), OPEN-WORK REL-GATE, ICON-01, CLASS-01):
+(1) release gate `scripts/test_new_player_path_browser.py` in pages.yml (all classes, ~4 min with 4 processes); (2) P1, W1–W8, R1, D1, 3.6, 3.7 and a spec badge before 15 in the party tab; (3) Wowhead icons vendored (`scripts/icon_assets.py`, `src/assets/icons`), warlock 1–14 training imp at a third; (4) design doc [class-trainer-abilities-2026-11-28.md](class-trainer-abilities-2026-11-28.md) awaiting the owner (lists from memory, verify against a Classic database per class before code).
+Owner 2026-11-28 night: publish when the checks are green. Open: race portraits from art.hearthstonejson.com (host blocked here), Assassination weak at 25–30, then CLASS-01 after approval.
+
+## Handoff (2026-11-28; main `fd0203b`, live after the Publish run)
 
 Released 2026-11-27/28: warrior Classic talents + spec selector with the WotLK switch sound (#33), Last Stand rework and one Deadmines rest (#34), the owner's bug-hunt fixes (#35: casters keep range, whole-fight effects shown, worn gear visible, no talent stub, visible approach). Bug list still open: [bug-hunt-2026-11-28.md](bug-hunt-2026-11-28.md) (sections 2–4).
 
